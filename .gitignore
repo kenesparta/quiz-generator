@@ -1,0 +1,15 @@
+# Editor
+.idea
+qzz-dash/.idea
+.vscode
+
+# Rust
+debug/
+target/
+Cargo.lock
+**/*.rs.bk
+
+# SO
+.DS_Store
+
+# Env files

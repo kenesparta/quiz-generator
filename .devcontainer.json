@@ -3,28 +3,15 @@
   "dockerComposeFile": "docker-compose.dev.yaml",
   "service": "quizz-api",
   "workspaceFolder": "/app",
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "/bin/bash"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-vscode-remote.remote-containers",
-        "ms-vscode-remote.remote-ssh",
-        "rust-lang.rust-analyzer",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
+        "editorconfig.editorconfig"
       ]
     }
   },
+
   "forwardPorts": [
-    8080,
-    3000,
-    5432
-  ],
-  "build": {
-    "args": {
-      "VARIANT": "bullseye"
-    }
-  }
+    3000
+  ]
 }

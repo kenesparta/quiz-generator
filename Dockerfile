@@ -1,4 +1,4 @@
-FROM rust:1.84-slim-bullseye
+FROM rust:1.85-bookworm
 
 WORKDIR /app
 
@@ -7,6 +7,6 @@ RUN apt-get update && \
 
 ADD Cargo.toml .
 ADD Cargo.lock .
-ADD main .
+ADD main ./main
 
 EXPOSE 3000

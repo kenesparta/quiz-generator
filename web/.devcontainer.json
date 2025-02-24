@@ -3,15 +3,7 @@
   "dockerComposeFile": "../docker-compose.dev.yaml",
   "service": "quizz-ui",
   "workspaceFolder": "/app",
-  "build": {
-    "args": {
-      "VARIANT": "bullseye"
-    }
-  },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "/bin/bash"
-  },
   "forwardPorts": [
     3333
-  ],
+  ]
 }

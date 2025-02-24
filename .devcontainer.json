@@ -6,13 +6,17 @@
   "settings": {
     "terminal.integrated.defaultProfile.linux": "/bin/bash"
   },
-  "extensions": [
-    "ms-vscode-remote.remote-containers",
-    "ms-vscode-remote.remote-ssh",
-    "rust-lang.rust-analyzer",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
-  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode-remote.remote-ssh",
+        "rust-lang.rust-analyzer",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
   "forwardPorts": [
     8080,
     3000,

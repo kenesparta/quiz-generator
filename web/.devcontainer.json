@@ -12,6 +12,6 @@
     "terminal.integrated.defaultProfile.linux": "/bin/bash"
   },
   "forwardPorts": [
-    3000
+    3333
   ],
 }

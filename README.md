@@ -1,1 +1,4 @@
 # Generador de preguntas para pruebas de manejo
+
+## 1. Estructura del proyecto
+- Puede encontra más documentacion en este [🔗enlace](https://github.com/kenesparta/quiz-generator/wiki).

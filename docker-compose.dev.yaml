@@ -1,0 +1,44 @@
+services:
+  quizz-api:
+    container_name: quizz-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+    environment:
+      - DATABASE_URL=postgres://myuser:mypassword@postgres:5432/mydb
+
+  quizz-ui:
+    container_name: quizz-ui
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - frontend
+
+  postgres:
+    container_name: quizz-postgres
+    image: postgres:17.4
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  frontend:
+  backend:

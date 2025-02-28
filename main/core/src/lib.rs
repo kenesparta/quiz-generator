@@ -1,3 +1,3 @@
-pub mod candidate;
-pub mod utils;
+pub mod applicant;
 pub mod evalprocess;
+pub mod utils;

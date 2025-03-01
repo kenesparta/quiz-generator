@@ -1,4 +1,4 @@
-use crate::applicant::domain::errors::ApplicantCreationError;
+use crate::applicant::domain::errors::ApplicantError;
 
 /// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
 /// y formato específicos de este número dependerán de los requisitos de la aplicación.
@@ -6,10 +6,11 @@ use crate::applicant::domain::errors::ApplicantCreationError;
 pub struct DocumentNumber(String);
 
 impl DocumentNumber {
-    pub fn new(value: String) -> Result<Self, ApplicantCreationError> {
+    pub fn new(value: String) -> Result<Self, ApplicantError> {
         if value.trim().is_empty() {
-            return Err(ApplicantCreationError::InvalidDocumentNumber);
+            return Err(ApplicantError::InvalidDocumentNumber);
         }
+
         Ok(DocumentNumber(value))
     }
 
@@ -36,9 +37,9 @@ impl FullName {
         name: String,
         first_lastname: String,
         second_lastname: String,
-    ) -> Result<Self, ApplicantCreationError> {
+    ) -> Result<Self, ApplicantError> {
         if name.trim().is_empty() || first_lastname.trim().is_empty() {
-            return Err(ApplicantCreationError::InvalidName);
+            return Err(ApplicantError::InvalidName);
         }
         Ok(FullName {
             name,
@@ -66,9 +67,9 @@ pub struct ApplicantID(pub String);
 
 /// Representa al postulante para obtener ls _licencia de conducir_.
 pub struct Applicant {
-    pub id: ApplicantID,
-    pub document_number: DocumentNumber,
-    pub full_name: FullName,
+    id: ApplicantID,
+    document_number: DocumentNumber,
+    full_name: FullName,
 }
 
 impl Applicant {
@@ -78,6 +79,18 @@ impl Applicant {
             document_number,
             full_name,
         }
+    }
+
+    pub fn id(&self) -> &ApplicantID {
+        &self.id
+    }
+
+    pub fn document_number(&self) -> &DocumentNumber {
+        &self.document_number
+    }
+
+    pub fn full_name(&self) -> &FullName {
+        &self.full_name
     }
 }
 
@@ -96,10 +109,7 @@ mod tests {
     fn test_document_number_new_invalid() {
         let doc_num = DocumentNumber::new("  ".to_string());
         assert!(doc_num.is_err());
-        assert_eq!(
-            doc_num.err(),
-            Some(ApplicantCreationError::InvalidDocumentNumber)
-        );
+        assert_eq!(doc_num.err(), Some(ApplicantError::InvalidDocumentNumber));
     }
 
     #[test]
@@ -116,14 +126,14 @@ mod tests {
     fn test_full_name_new_invalid_name() {
         let full_name = FullName::new("  ".to_string(), "Doe".to_string(), "Smith".to_string());
         assert!(full_name.is_err());
-        assert_eq!(full_name.err(), Some(ApplicantCreationError::InvalidName));
+        assert_eq!(full_name.err(), Some(ApplicantError::InvalidName));
     }
 
     #[test]
     fn test_full_name_new_invalid_first_lastname() {
         let full_name = FullName::new("John".to_string(), "  ".to_string(), "Smith".to_string());
         assert!(full_name.is_err());
-        assert_eq!(full_name.err(), Some(ApplicantCreationError::InvalidName));
+        assert_eq!(full_name.err(), Some(ApplicantError::InvalidName));
     }
 
     #[test]

@@ -1,5 +1,5 @@
 // use crate::applicant::domain::applicant::{Applicant, DocumentNumber, FullName};
-// use crate::applicant::domain::errors::ApplicantCreationError;
+// use crate::applicant::domain::errors::ApplicantError;
 //
 // pub struct ApplicantDto {
 //     pub name: String,
@@ -23,7 +23,7 @@
 //         }
 //     }
 //
-//     pub fn map_to_entity(self) -> Result<Applicant, ApplicantCreationError> {
+//     pub fn map_to_entity(self) -> Result<Applicant, ApplicantError> {
 //         let document_number = DocumentNumber::new(self.document_number)?;
 //         let full_name = FullName::new(self.name, self.first_lastname, self.second_lastname)?;
 //         let applicant = Applicant {

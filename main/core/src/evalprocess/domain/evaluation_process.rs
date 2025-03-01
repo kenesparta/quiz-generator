@@ -1,4 +1,4 @@
-use crate::applicant::entity::applicant::ApplicantID;
+use crate::applicant::domain::applicant::ApplicantID;
 
 /// Se representa el proceso de seleccion el cual se va ha asignar a un postlante [ApplicantID].
 /// Cada proceso de evaluacion [EvaluationProcess] podra contener varios examenes [Exam]

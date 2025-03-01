@@ -1,16 +1,15 @@
-use axum::http::StatusCode;
-use axum::routing::get;
-use axum::Router;
+use actix_web::{App, HttpServer};
+use quizz_api::controller::applicant::route::applicant;
+use quizz_api::controller::healthcheck::route::health_check;
+use std::net::TcpListener;
 
 #[tokio::main]
-async fn main() {
-    let app = Router::new().route("/hello", get(health_check));
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3003")
-        .await
-        .unwrap();
-    axum::serve(listener, app).await.unwrap();
-}
-
-async fn health_check() -> StatusCode {
-    StatusCode::OK
+async fn main() -> Result<(), std::io::Error> {
+    let address = format!("127.0.0.1:{}", 3003);
+    let tcp_listener = TcpListener::bind(address)?;
+    let server = HttpServer::new(move || App::new().configure(applicant).configure(health_check))
+        .listen(tcp_listener)?
+        .run()
+        .await?;
+    Ok(server)
 }

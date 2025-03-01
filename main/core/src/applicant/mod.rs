@@ -1,1 +1,2 @@
-pub mod entity;
+pub mod application;
+pub mod domain;

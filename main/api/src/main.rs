@@ -1,15 +1,14 @@
-use actix_web::{App, HttpServer};
-use quizz_api::controller::applicant::route::applicant;
-use quizz_api::controller::healthcheck::route::health_check;
+use quizz_api::startup::run;
+use sqlx::PgPool;
 use std::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+    let connection_pool = PgPool::connect("")
+        .await
+        .expect("Failed to connect to Postgres.");
     let address = format!("127.0.0.1:{}", 3003);
     let tcp_listener = TcpListener::bind(address)?;
-    let server = HttpServer::new(move || App::new().configure(applicant).configure(health_check))
-        .listen(tcp_listener)?
-        .run()
-        .await?;
-    Ok(server)
+    run(tcp_listener, connection_pool)?.await?;
+    Ok(())
 }

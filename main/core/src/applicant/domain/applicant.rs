@@ -62,21 +62,17 @@ impl FullName {
 
 /// Representa el ID unico del postulante
 #[derive(Debug, PartialEq)]
-pub struct ApplicantID(pub u64);
+pub struct ApplicantID(pub String);
 
-/// Representa al postulante que postula a obtener una _licencia de conducir_.
+/// Representa al postulante para obtener ls _licencia de conducir_.
 pub struct Applicant {
-    pub id: Option<ApplicantID>,
+    pub id: ApplicantID,
     pub document_number: DocumentNumber,
     pub full_name: FullName,
 }
 
 impl Applicant {
-    pub fn new(
-        id: Option<ApplicantID>,
-        document_number: DocumentNumber,
-        full_name: FullName,
-    ) -> Self {
+    pub fn new(id: ApplicantID, document_number: DocumentNumber, full_name: FullName) -> Self {
         Applicant {
             id,
             document_number,
@@ -135,8 +131,15 @@ mod tests {
         let doc_num = DocumentNumber::new("12345678".to_string()).unwrap();
         let full_name =
             FullName::new("John".to_string(), "Doe".to_string(), "Smith".to_string()).unwrap();
-        let applicant = Applicant::new(Some(ApplicantID(1)), doc_num, full_name);
-        assert_eq!(applicant.id, Some(ApplicantID(1)));
+        let applicant = Applicant::new(
+            ApplicantID("c3299858-7bd5-4dce-b421-281d3177d45a".to_string()),
+            doc_num,
+            full_name,
+        );
+        assert_eq!(
+            applicant.id,
+            ApplicantID("c3299858-7bd5-4dce-b421-281d3177d45a".to_string())
+        );
         assert_eq!(applicant.document_number.value(), "12345678");
         assert_eq!(applicant.full_name.name(), "John");
         assert_eq!(applicant.full_name.first_lastname(), "Doe");

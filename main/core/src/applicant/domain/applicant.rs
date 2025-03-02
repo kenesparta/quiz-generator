@@ -1,6 +1,7 @@
 use crate::applicant::domain::document::DocumentNumber;
 use crate::applicant::domain::errors::ApplicantError;
 use crate::applicant::domain::fullname::FullName;
+use uuid::Uuid;
 
 /// Representa el ID unico del postulante
 #[derive(Debug, PartialEq)]
@@ -15,6 +16,10 @@ impl ApplicantID {
 
     pub fn ensure_applicant_id_is_valid(&self) -> Result<(), ApplicantError> {
         if self.0.trim().is_empty() {
+            return Err(ApplicantError::ApplicantIDisEmpty);
+        }
+
+        if Uuid::parse_str(&self.0).is_err() {
             return Err(ApplicantError::InvalidApplicantId);
         }
 
@@ -99,14 +104,12 @@ mod tests {
 
     #[test]
     fn test_applicant_new() {
+        let applicant =
+            ApplicantID::new("c3299858-7bd5-4dce-b421-281d3177d45a".to_string()).unwrap();
         let doc_num = DocumentNumber::new("12345678".to_string()).unwrap();
         let full_name =
             FullName::new("John".to_string(), "Doe".to_string(), "Smith".to_string()).unwrap();
-        let applicant = Applicant::new(
-            ApplicantID("c3299858-7bd5-4dce-b421-281d3177d45a".to_string()),
-            doc_num,
-            full_name,
-        );
+        let applicant = Applicant::new(applicant, doc_num, full_name);
         assert_eq!(
             applicant.id,
             ApplicantID("c3299858-7bd5-4dce-b421-281d3177d45a".to_string())

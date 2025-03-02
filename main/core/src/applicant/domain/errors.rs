@@ -9,6 +9,9 @@ pub enum ApplicantError {
     InvalidDocumentNumber,
 
     #[error("Invalid Applicant ID")]
+    ApplicantIDisEmpty,
+
+    #[error("Invalid Applicant ID")]
     InvalidApplicantId,
 }
 

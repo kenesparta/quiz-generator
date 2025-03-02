@@ -1,5 +1,5 @@
-use thiserror::Error;
 use crate::applicant::domain::errors::ApplicantError;
+use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ApplicantPutError {

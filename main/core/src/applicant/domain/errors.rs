@@ -4,7 +4,7 @@ use thiserror::Error;
 pub enum ApplicantError {
     #[error("Duplicate applicant ID")]
     InvalidName,
-    
+
     #[error("Duplicate applicant ID")]
     InvalidDocumentNumber,
 }

@@ -1,6 +1,6 @@
 Feature: Crear un candidato
   Para poder hacer la evaluacion para obtener la licencia de conducir
-  Todo candidato debera registrarse con numero de documento legal unico y si ya esta registrado, el sistema debera retornar un mensaje avisando
+  Todo candidato debera registrarse con numero de documento legal unico
   Se requiere este paso para poder crear la evalacion
 
   Scenario: Registrar un nuevo candidato

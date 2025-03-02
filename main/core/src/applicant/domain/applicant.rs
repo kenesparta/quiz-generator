@@ -1,69 +1,30 @@
+use crate::applicant::domain::document::DocumentNumber;
 use crate::applicant::domain::errors::ApplicantError;
+use crate::applicant::domain::fullname::FullName;
 
-/// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
-/// y formato específicos de este número dependerán de los requisitos de la aplicación.
-/// Esta propiedad tambien debe ser único en el contexto de la aplicación.
-pub struct DocumentNumber(String);
+/// Representa el ID unico del postulante
+#[derive(Debug, PartialEq)]
+pub struct ApplicantID(String);
 
-impl DocumentNumber {
-    pub fn new(value: String) -> Result<Self, ApplicantError> {
-        if value.trim().is_empty() {
-            return Err(ApplicantError::InvalidDocumentNumber);
+impl ApplicantID {
+    pub fn new(id: String) -> Result<Self, ApplicantError> {
+        let applicant_id = ApplicantID(id);
+        applicant_id.ensure_applicant_id_is_valid()?;
+        Ok(applicant_id)
+    }
+
+    pub fn ensure_applicant_id_is_valid(&self) -> Result<(), ApplicantError> {
+        if self.0.trim().is_empty() {
+            return Err(ApplicantError::InvalidApplicantId);
         }
 
-        Ok(DocumentNumber(value))
+        Ok(())
     }
 
     pub fn value(&self) -> &String {
         &self.0
     }
 }
-
-/// Representa un nombre completo de solicitante validado.
-pub struct FullName {
-    /// Todos los nombres del postulante.
-    name: String,
-
-    /// Primer apellido del postulante
-    first_lastname: String,
-
-    /// Segundo apellido del postulante, esta propiedad no necesariamente sera obligatoria,
-    /// dependiendo del contexto en el cual se implementa.
-    second_lastname: String,
-}
-
-impl FullName {
-    pub fn new(
-        name: String,
-        first_lastname: String,
-        second_lastname: String,
-    ) -> Result<Self, ApplicantError> {
-        if name.trim().is_empty() || first_lastname.trim().is_empty() {
-            return Err(ApplicantError::InvalidName);
-        }
-        Ok(FullName {
-            name,
-            first_lastname,
-            second_lastname,
-        })
-    }
-
-    pub fn name(&self) -> &String {
-        &self.name
-    }
-
-    pub fn first_lastname(&self) -> &String {
-        &self.first_lastname
-    }
-
-    pub fn second_lastname(&self) -> &String {
-        &self.second_lastname
-    }
-}
-
-/// Representa el ID unico del postulante
-#[derive(Debug, PartialEq)]
-pub struct ApplicantID(pub String);
 
 /// Representa al postulante para obtener ls _licencia de conducir_.
 pub struct Applicant {

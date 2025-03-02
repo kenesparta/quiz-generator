@@ -7,6 +7,9 @@ pub enum ApplicantError {
 
     #[error("Duplicate applicant ID")]
     InvalidDocumentNumber,
+
+    #[error("Invalid Applicant ID")]
+    InvalidApplicantId,
 }
 
 #[derive(Error, Debug, PartialEq)]

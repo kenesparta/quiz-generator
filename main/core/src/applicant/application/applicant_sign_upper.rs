@@ -1,7 +1,8 @@
 use crate::applicant::application::errors::{ApplicantOperationError, ApplicantPutError};
-use crate::applicant::domain::applicant::{Applicant, ApplicantID, DocumentNumber, FullName};
+use crate::applicant::domain::applicant::{Applicant, ApplicantID};
+use crate::applicant::domain::document::DocumentNumber;
 use crate::applicant::domain::errors::ApplicantError;
-use std::cmp::PartialEq;
+use crate::applicant::domain::fullname::FullName;
 
 pub struct ApplicantSignUpperDTO {
     pub name: String,
@@ -26,15 +27,21 @@ impl ApplicantSignUpper {
         id: String,
         applicant_request_dto: ApplicantSignUpperDTO,
     ) -> Result<(), ApplicantOperationError> {
-        let doc_num = DocumentNumber::new(applicant_request_dto.document)?;
-        let full_name = FullName::new(
-            applicant_request_dto.name,
-            applicant_request_dto.first_lastname,
-            applicant_request_dto.second_lastname,
-        )?;
-        let applicant = Applicant::new(ApplicantID(id.to_string()), doc_num, full_name);
+        let applicant = Applicant::new(
+            ApplicantID::new(id.to_string())?,
+            DocumentNumber::new(applicant_request_dto.document)?,
+            FullName::new(
+                applicant_request_dto.name,
+                applicant_request_dto.first_lastname,
+                applicant_request_dto.second_lastname,
+            )?,
+        );
 
-        if self.applicant_list.iter().any(|a| a.id().0 == id) {
+        if self
+            .applicant_list
+            .iter()
+            .any(|a| a.id().value() == id.as_str())
+        {
             return Err(ApplicantOperationError::InsertionError(
                 ApplicantPutError::ApplicantAlreadyExist,
             ));

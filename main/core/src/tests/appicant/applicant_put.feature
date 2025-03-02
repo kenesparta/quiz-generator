@@ -7,9 +7,9 @@ Feature: Crear un candidato
     Given Envio una peticion PUT a "/applicant/6a09f79a-3a12-41d6-8316-4f2d0635737d" con el body:
     """
     {
-      "nombre": "",
-      "primer_apellido": "",
-      "segundo_apellido": "",
+      "name": "",
+      "first_lastname": "",
+      "second_lastname": "",
       "document_number": ""
     }
     """

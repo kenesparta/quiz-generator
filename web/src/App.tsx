@@ -1,10 +1,10 @@
 import './App.css'
+import Applicant from "./Applicant/Applicant.tsx";
 
 function App() {
-
   return (
     <>
-      <h1>QUIZZ</h1>
+      <Applicant />
     </>
   )
 }

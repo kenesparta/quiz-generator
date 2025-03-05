@@ -1,4 +1,4 @@
-import {ChangeEvent, FormEvent, useState} from "react";
+import {ChangeEvent, FormEvent, useId, useState} from "react";
 
 class ApplicantModel {
   name: string;
@@ -11,19 +11,16 @@ class ApplicantModel {
     this.documentId = documentId;
   }
 
-  // Validation method
   isValid(): boolean {
     return this.name.trim() !== '' &&
       this.lastname.trim() !== '' &&
       this.documentId.trim() !== '';
   }
 
-  // Method to create a formatted display name
   getFullName(): string {
     return `${this.name} ${this.lastname}`;
   }
 
-  // Method to reset the model
   reset(): void {
     this.name = '';
     this.lastname = '';
@@ -34,6 +31,9 @@ class ApplicantModel {
 function ApplicantForm() {
   const [applicant, setApplicant] = useState<ApplicantModel>(new ApplicantModel());
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const nameInputId = useId();
+  const lastnameInputId = useId();
+  const documentInputId = useId();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const {name, value} = e.target;
     setApplicant(prevState => {
@@ -44,7 +44,6 @@ function ApplicantForm() {
       );
     });
 
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors({...errors, [name]: ''});
     }
@@ -84,14 +83,13 @@ function ApplicantForm() {
 
   return (
     <>
-      <h1>Registrar Postulante</h1>
+      <h1>📝 Registrar Postulante</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Nombre:</label>
+          <label htmlFor={nameInputId}>Nombre:</label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id={nameInputId}
             value={applicant.name}
             onChange={handleChange}
           />
@@ -99,11 +97,10 @@ function ApplicantForm() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="lastname">Apellido:</label>
+          <label htmlFor={lastnameInputId}>Apellido:</label>
           <input
             type="text"
-            id="lastname"
-            name="lastname"
+            id={lastnameInputId}
             value={applicant.lastname}
             onChange={handleChange}
           />
@@ -111,18 +108,17 @@ function ApplicantForm() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="documentId">Documento de Identidad:</label>
+          <label htmlFor={documentInputId}>Documento de Identidad:</label>
           <input
             type="text"
-            id="documentId"
-            name="documentId"
+            id={documentInputId}
             value={applicant.documentId}
             onChange={handleChange}
           />
           {errors.documentId && <div className="error">{errors.documentId}</div>}
         </div>
 
-        <button type="submit">Enviar</button>
+        <button type="submit">Registrar</button>
       </form>
     </>
   );

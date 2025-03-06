@@ -1,4 +1,4 @@
-import {ChangeEvent, FormEvent, useId, useState} from "react";
+import { ChangeEvent, FormEvent, useId, useState } from "react";
 
 class ApplicantModel {
   name: string;
@@ -35,7 +35,7 @@ function ApplicantForm() {
   const lastnameInputId = useId();
   const documentInputId = useId();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setApplicant(prevState => {
       return new ApplicantModel(
         name === 'name' ? value : prevState.name,
@@ -45,7 +45,7 @@ function ApplicantForm() {
     });
 
     if (errors[name]) {
-      setErrors({...errors, [name]: ''});
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
@@ -89,6 +89,7 @@ function ApplicantForm() {
           <label htmlFor={nameInputId}>Nombre:</label>
           <input
             type="text"
+            name="name"
             id={nameInputId}
             value={applicant.name}
             onChange={handleChange}
@@ -100,6 +101,7 @@ function ApplicantForm() {
           <label htmlFor={lastnameInputId}>Apellido:</label>
           <input
             type="text"
+            name="lastname"
             id={lastnameInputId}
             value={applicant.lastname}
             onChange={handleChange}
@@ -111,6 +113,7 @@ function ApplicantForm() {
           <label htmlFor={documentInputId}>Documento de Identidad:</label>
           <input
             type="text"
+            name="documentId"
             id={documentInputId}
             value={applicant.documentId}
             onChange={handleChange}

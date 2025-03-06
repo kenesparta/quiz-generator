@@ -3,7 +3,7 @@ import ApplicantForm from "./Form.tsx";
 function Applicant() {
   return (
     <>
-      <ApplicantForm />
+      <ApplicantForm/>
     </>
   )
 }

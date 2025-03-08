@@ -1,5 +1,5 @@
 import './App.css'
-import Applicant from "./Applicant/Applicant.tsx";
+import Applicant from "./applicant/Applicant.tsx";
 
 function App() {
   return (

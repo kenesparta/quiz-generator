@@ -1,10 +1,10 @@
-import './App.css'
-import Applicant from "./applicant/Applicant.tsx";
+import { Dashboard } from "./components/Dashboard.tsx";
+import "./App.css"
 
 function App() {
   return (
     <>
-      <Applicant/>
+      <Dashboard/>
     </>
   )
 }

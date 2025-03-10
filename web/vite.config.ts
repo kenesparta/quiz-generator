@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import tailwindcss from '@tailwindcss/vite'
 
 const config = {
   VITE_PORT: '3333'
@@ -10,7 +11,8 @@ export default defineConfig(({ mode }) => {
   if (mode == "development") {
     return {
       plugins: [
-        react()
+        react(),
+        tailwindcss(),
       ],
       server: {
         host: '0.0.0.0',
@@ -22,6 +24,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      tailwindcss(),
     ],
     build: {
       rollupOptions: {}

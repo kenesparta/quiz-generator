@@ -1,10 +1,10 @@
-import { Dashboard } from "./components/Dashboard.tsx";
 import "./App.css"
+import { Router } from "./route/Route.tsx";
 
 function App() {
   return (
     <>
-      <Dashboard/>
+      <Router/>
     </>
   )
 }

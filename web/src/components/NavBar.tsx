@@ -78,6 +78,10 @@ const NavBar: React.FC = () => {
         <div className="bg-blue-500 p-4"> Hello</div>
       </section>
 
+      <div className="bg-amber-300 h-screen">
+        Hello full screen
+      </div>
+
     </>
   )
 }

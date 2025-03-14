@@ -1,9 +1,0 @@
-{
-  "name": "Qizz React TypeScript Dev Container",
-  "dockerComposeFile": "../docker-compose.dev.yaml",
-  "service": "quizz-ui",
-  "workspaceFolder": "/app",
-  "forwardPorts": [
-    3333
-  ]
-}

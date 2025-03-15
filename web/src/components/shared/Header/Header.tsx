@@ -5,7 +5,7 @@ interface MenuItemProps {
   link: string
 }
 
-function MenuItem({ text, link }: MenuItemProps) {
+const MenuItem = ({ text, link }: MenuItemProps) => {
   return (
     <>
       <Link href={link} className="hover:text-black hover:bg-gray-200 dark:text-gray-200 p-2 rounded-md">
@@ -17,7 +17,7 @@ function MenuItem({ text, link }: MenuItemProps) {
   )
 }
 
-export default function Header() {
+export const Header = () => {
   return (
     <header className="bg-blue-500 text-white dark:bg-blue-900 dark:text-gray-200">
       <nav className="container mx-auto flex items-center justify-between py-4">

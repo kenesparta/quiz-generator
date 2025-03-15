@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
+import { Header } from "@shared/Header"
+import { Footer } from "@shared/Footer";
 import "./globals.css"
-import Header from "@/app/header"
 
 export const metadata: Metadata = {
   title: "Quiz",
@@ -13,6 +14,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
     <body>
     <Header/>
     {children}
+    <Footer/>
     </body>
     </html>
   )

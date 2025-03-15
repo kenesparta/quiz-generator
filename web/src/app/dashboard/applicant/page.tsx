@@ -1,7 +1,9 @@
+import { ApplicantList } from "@applicant/List";
+
 export default function Applicant() {
   return (
     <>
-      <h1>Applicant</h1>
+      <ApplicantList/>
     </>
   )
 }

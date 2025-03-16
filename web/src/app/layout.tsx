@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
-import { Header } from "@shared/Header"
-import { Footer } from "@shared/Footer";
 import "./globals.css"
+import { Dashboard } from "@shared/Dashboard";
 
 export const metadata: Metadata = {
   title: "Quiz",
@@ -12,9 +11,9 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
   return (
     <html lang="en">
     <body>
-    <Header/>
-    {children}
-    <Footer/>
+    <Dashboard>
+      {children}
+    </Dashboard>
     </body>
     </html>
   )

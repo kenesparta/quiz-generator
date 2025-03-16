@@ -1,0 +1,8 @@
+.Hero {
+    margin: 2rem auto;
+}
+
+.Hero > h1 {
+    font-size: 2rem;
+    color: blueviolet;
+}

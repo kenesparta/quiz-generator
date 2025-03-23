@@ -58,7 +58,7 @@ const MenuItem = ({ text, link = "", submenu }: MenuItemProps) => {
 export const Menu = () => {
   const baseId = useId()
   return (
-    <div className="grid grid-cols-3 gap-2 justify-items-end">
+    <div className="flex gap-1">
       {
         MenuData.reduce((acc: JSX.Element[], item: MenuDataItemProps, index) => {
           acc.push(

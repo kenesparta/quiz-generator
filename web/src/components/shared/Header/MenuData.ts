@@ -10,17 +10,27 @@ export const MenuData: MenuDataItemProps[] = [
     link: "/",
   },
   {
-    text: "👨🏻‍💼 Postulantes",
+    text: "👨🏻‍💼 Postulante",
     link: "#",
     submenu: [
-      { text: "Listar todos", link: "/dashboard/applicant" },
+      { text: "Listar", link: "/dashboard/applicant" },
+      { text: "Agregar", link: "/dashboard/applicant/new" },
     ]
   },
   {
-    text: "📝 Evaluaciones",
+    text: "📝 Evaluacion",
     link: "#",
     submenu: [
-      { text: "Listar todas", link: "/dashboard/evaluation" },
+      { text: "Listar", link: "/dashboard/evaluation" },
+      { text: "Calificar", link: "/dashboard/evaluation" },
+    ]
+  },
+  {
+    text: "📈 Reportes",
+    link: "#",
+    submenu: [
+      { text: "Ver reporte 01", link: "/dashboard/evaluation" },
+      { text: "Ver Reporte 02", link: "/dashboard/evaluation" },
     ]
   },
 ]

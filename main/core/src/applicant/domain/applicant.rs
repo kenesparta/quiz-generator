@@ -31,7 +31,7 @@ impl ApplicantID {
     }
 }
 
-/// Representa al postulante para obtener ls _licencia de conducir_.
+/// Representa al postulante para obtener la _licencia de conducir_.
 pub struct Applicant {
     id: ApplicantID,
     document_number: DocumentNumber,

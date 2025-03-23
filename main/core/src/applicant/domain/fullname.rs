@@ -1,6 +1,6 @@
 use crate::applicant::domain::errors::ApplicantError;
 
-/// Representa un nombre completo de solicitante validado.
+/// Representa un nombre completo del postulante
 pub struct FullName {
     /// Todos los nombres del postulante.
     name: String,

@@ -6,7 +6,7 @@ import { Menu } from "@shared/Header/Menu";
 
 const MenuImage = () => {
   return (
-    <Link href="/" className="flex items-center">
+    <Link href="/" className="">
       <Image
         width={40}
         height={30}
@@ -15,7 +15,6 @@ const MenuImage = () => {
         quality={90}
         className="mr-2"
       />
-      <span className="font-semibold text-lg hidden sm:block">Dashboard</span>
     </Link>
   )
 }
@@ -23,16 +22,16 @@ const MenuImage = () => {
 export const Header = () => {
   return (
     <header className="bg-blue-600 text-white shadow-md">
-      <nav className="grid grid-cols-12 gap-4 items-center px-6 py-3 max-w-7xl mx-auto">
-        <div className="col-span-3">
+      <nav className="grid grid-rows-1 grid-cols-8 items-center gap-4 px-6 py-3 max-w-7xl mx-auto">
+        <div className="col-span-1 items-start">
           <MenuImage/>
         </div>
 
-        <div className="col-span-6">
+        <div className="col-span-6 justify-self-end">
           <Menu/>
         </div>
 
-        <div className="col-span-3 flex justify-end">
+        <div className="col-span-1 justify-self-end">
           <UserProfileMenu userName="John Doe"/>
         </div>
       </nav>

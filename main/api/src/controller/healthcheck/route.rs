@@ -1,4 +1,4 @@
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{HttpRequest, HttpResponse, Responder, web};
 
 async fn handler(_: HttpRequest) -> impl Responder {
     HttpResponse::Ok().finish()

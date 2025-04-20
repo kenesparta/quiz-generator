@@ -1,7 +1,7 @@
 use crate::controller::applicant::route::applicant;
 use crate::controller::healthcheck::route::health_check;
 use actix_web::dev::Server;
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer, web};
 use sqlx::PgPool;
 use std::net::TcpListener;
 

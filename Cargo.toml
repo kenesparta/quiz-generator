@@ -1,8 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "main/core",
-    "main/usermgm",
-    "main/api",
-    "main/auth"
+    # Subdominio basico
+    "bounded-ctx/core",
+
+    # Subdominios de soporte
+    "bounded-ctx/usermgm",
+    "bounded-ctx/auth",
+
+    # API backend
+    "cmd/api",
 ]

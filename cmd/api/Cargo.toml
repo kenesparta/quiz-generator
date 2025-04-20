@@ -11,8 +11,8 @@ path = "src/main.rs"
 name = "quizz"
 
 [dependencies]
-quizz-core = { path = "../../bounded-ctx/core" }
-quizz-usermgm = { path = "../../bounded-ctx/usermgm"}
+quizz-core = { path = "../../bctx/core" }
+quizz-usermgm = { path = "../../bctx/usermgm"}
 
 actix-web = "4.9.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

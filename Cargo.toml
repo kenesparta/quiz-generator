@@ -2,11 +2,11 @@
 resolver = "2"
 members = [
     # Subdominio basico
-    "bounded-ctx/core",
+    "bctx/core",
 
     # Subdominios de soporte
-    "bounded-ctx/usermgm",
-    "bounded-ctx/auth",
+    "bctx/usermgm",
+    "bctx/auth",
 
     # API backend
     "cmd/api",

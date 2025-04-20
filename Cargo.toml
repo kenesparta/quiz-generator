@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "main/core",
-    "main/backoffice",
-    "main/api"
+    "main/usermgm",
+    "main/api",
+    "main/auth"
 ]

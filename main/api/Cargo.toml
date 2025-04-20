@@ -12,7 +12,7 @@ name = "quizz"
 
 [dependencies]
 quizz-core = { path = "../core" }
-quizz-backoffice = { path = "../backoffice"}
+quizz-usermgm = { path = "../usermgm"}
 
 actix-web = "4.9.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

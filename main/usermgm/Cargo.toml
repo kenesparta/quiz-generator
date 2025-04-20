@@ -1,5 +1,5 @@
 [package]
-name = "quizz-backoffice"
+name = "quizz-usermgm"
 version = "0.1.0"
 edition = "2024"
 

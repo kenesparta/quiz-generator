@@ -1,2 +1,2 @@
-mod postulante;
 mod errors;
+mod postulante;

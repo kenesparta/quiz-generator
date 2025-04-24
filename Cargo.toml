@@ -7,6 +7,7 @@ members = [
     # Subdominios de soporte
     "bctx/usermgm",
     "bctx/auth",
+    "bctx/common",
 
     # API backend
     "cmd/api",

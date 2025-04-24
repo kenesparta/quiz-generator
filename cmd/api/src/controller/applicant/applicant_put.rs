@@ -1,4 +1,4 @@
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_core::applicant::application::applicant_sign_upper::{
     ApplicantSignUpper, ApplicantSignUpperDTO,
 };
@@ -18,7 +18,7 @@ impl ApplicantPutController {
         let id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {
-                return HttpResponse::BadRequest().json("Missing applicant ID in the request path")
+                return HttpResponse::BadRequest().json("Missing applicant ID in the request path");
             }
         };
 
@@ -26,7 +26,7 @@ impl ApplicantPutController {
             Ok(service) => service,
             Err(e) => {
                 return HttpResponse::InternalServerError()
-                    .json(format!("Failed to create sign upper service: {}", e))
+                    .json(format!("Failed to create sign upper service: {}", e));
             }
         };
 

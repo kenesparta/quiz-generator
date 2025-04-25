@@ -11,22 +11,36 @@
 
 # Domain-driven Design (DDD)
 Conceptos basicos
-## L1 Objeto de Valor
 
-## L2 Entidad
-
-## L3 Servicios de dominio
-- No confundir Servicio de Aplicacion (cas0 de uso)
-- Tiene como funcion de implementar una regla de negocio de dominio
-- No trabaja con I/O, DB, coin otras APIs
-### Reglas
-- Se usa cuando existen reglas con objetos no relacionados
-- Cuando una regla manipula una lista de objetos
-- Extraer una regla grande, esa regla puede ser un servicio de dominio
-
-
+## Modelo
 Cuando se hace el modelaje, se tiene que crear primero el objeto de valor, luego, la entidad y finalmente
 el servicio de dominio
 L1 -> L2 -> L3
 
+### L1 Objeto de Valor
+
+### L2 Entidad
+
+### L3 Servicios de dominio
+- No confundir Servicio de Aplicacion (cas0 de uso)
+- Tiene como funcion de implementar una regla de negocio de dominio
+- No trabaja con I/O, DB, coin otras APIs
+
+Los servicios de dominio:
+- Se usa cuando existen reglas con objetos no relacionados
+- Cuando una regla manipula una lista de objetos
+- Extraer una regla grande, esa regla puede ser un servicio de dominio
+
+## Casos de uso
+Son los flujos de la aplicacion.
+- Describe los flujos de los eventos de como el sistema se debe comportar
+- Son usados para describir las interacciones entre usuarios y sistemas
+- Ofrecen una vision general del sistema y sus funcionalidades.
+> La logica queda dentro del caso de la entidad y no del caso de uso.
+
+### Flujos
+- Frontend -> Backend -> Casos de Uso (Usa los casos de uso/) -> Modelo de dominio
+- Frontend -> Casos de uso -> Modelo de dominio
+
 ## Agregados (raiz)
+

@@ -1,2 +1,2 @@
-pub mod applicant;
 pub mod healthcheck;
+pub mod postulante;

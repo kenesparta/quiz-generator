@@ -1,4 +1,4 @@
-use crate::postulante::errors::PostulanteError;
+use crate::postulante::model::errors::PostulanteError;
 use uuid::Uuid;
 
 /// Representa el ID unico del postulante

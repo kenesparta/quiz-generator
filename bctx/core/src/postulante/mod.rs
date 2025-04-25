@@ -1,2 +1,2 @@
-mod errors;
-mod postulante;
+mod model;
+mod usecases;

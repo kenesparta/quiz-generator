@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Run cargo fmt on staged Rust files
+echo "Running cargo fmt..."
+cargo fmt -- --check
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo "cargo fmt found formatting issues. Run 'cargo fmt' to fix them."
+  exit 1
+fi
+
+echo "Formatting check passed!"
+exit 0

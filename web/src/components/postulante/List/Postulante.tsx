@@ -1,4 +1,4 @@
-export const ApplicantList = () => {
+export const PostulanteList = () => {
   return (
     <>
       <h1>Lista de los Postulantes</h1>

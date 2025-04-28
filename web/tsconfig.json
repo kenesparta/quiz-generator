@@ -22,7 +22,8 @@
       "@/*": ["./src/*"],
       "@shared/*": ["./src/components/shared/*"],
       "@home/*": ["./src/components/home/*"],
-      "@applicant/*": ["./src/components/applicant/*"]
+      "@postulante/*": ["./src/components/postulante/*"],
+      "@dashboard/*": ["./src/components/dashboard/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

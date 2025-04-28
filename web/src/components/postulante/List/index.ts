@@ -1,0 +1,1 @@
+export { PostulanteList } from './Postulante'

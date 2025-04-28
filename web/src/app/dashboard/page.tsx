@@ -1,7 +1,8 @@
+import React from 'react';
+import { DashboardCards } from "@dashboard/Card";
+
 export default function Dashboard() {
   return (
-    <>
-      <h1>Dashboard</h1>
-    </>
-  )
+    <DashboardCards/>
+  );
 }

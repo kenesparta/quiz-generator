@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
-import { Dashboard } from "@shared/Dashboard";
 import { Work_Sans } from "next/font/google"
+import { Dashboard } from "@dashboard/Dashboard"
 
 const mainFont = Work_Sans({
   weight: ["200", "300", "400", "600", "700", "900"],

@@ -13,6 +13,7 @@ RUN chmod +x /start.sh
 USER node
 
 WORKDIR /home/node/app
+RUN pnpm config set store-dir /home/node/pnpm-store
 
 EXPOSE 3000
 

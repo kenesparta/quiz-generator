@@ -29,18 +29,5 @@
     "eslint-config-next": "15.2.2",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3"
-  },
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "@parcel/watcher",
-      "@swc/core",
-      "esbuild",
-      "unrs-resolver"
-    ],
-    "onlyBuiltDependencies": [
-      "@swc/core",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

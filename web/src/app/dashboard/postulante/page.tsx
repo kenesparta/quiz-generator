@@ -1,9 +1,13 @@
-import { PostulanteList } from "@postulante/List";
+import { ListarPostulante } from "@postulante";
+import { Title } from "@shared/Title";
+import Link from "next/link";
 
-export default function Postulante() {
+export default function PostulantePage() {
   return (
-    <div className="grid bg-blue-50">
-        <PostulanteList/>
+    <div className="">
+      <Title name="Postulante"/>
+      <Link href="/dashboard/postulante/agregar">Nuevo</Link>
+      <ListarPostulante/>
     </div>
   )
 }

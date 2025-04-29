@@ -1,8 +1,8 @@
 import React from 'react';
-import { DashboardCards } from "@dashboard/Card";
+import Link from "next/link";
 
 export default function Dashboard() {
   return (
-    <DashboardCards/>
+    <Link href="/dashboard/postulante">Postulante</Link>
   );
 }

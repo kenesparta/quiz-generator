@@ -23,6 +23,7 @@
       "@shared/*": ["./src/components/shared/*"],
       "@home/*": ["./src/components/home/*"],
       "@postulante/*": ["./src/components/postulante/*"],
+      "@postulante": ["./src/components/postulante"],
       "@dashboard/*": ["./src/components/dashboard/*"]
     }
   },

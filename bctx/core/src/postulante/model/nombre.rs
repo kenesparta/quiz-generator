@@ -6,20 +6,20 @@ mod tests {
 }
 
 /// Representa un nombre completo del postulante
-pub struct NombreCompleto {
+pub struct Nombre {
     /// Todos los nombres del postulante.
     name: String,
     primer_apellido: String,
     segundo_apellido: String,
 }
 
-impl NombreCompleto {
+impl Nombre {
     pub fn new(
         name: String,
         primer_apellido: String,
         segundo_apellido: String,
     ) -> Result<Self, NombreError> {
-        let full_name = NombreCompleto {
+        let full_name = Nombre {
             name,
             primer_apellido,
             segundo_apellido,
@@ -65,6 +65,13 @@ impl NombreCompleto {
     pub fn segundo_apellido(&self) -> &String {
         &self.segundo_apellido
     }
+
+    pub fn nombre_completo(&self) -> String {
+        format!(
+            "{} {} {}",
+            self.name, self.primer_apellido, self.segundo_apellido
+        )
+    }
 }
 
 #[cfg(test)]
@@ -73,8 +80,7 @@ mod test_nombre_completo {
 
     #[test]
     fn test_nombre_completo_creation_success() {
-        let nombre =
-            NombreCompleto::new("John".to_string(), "Doe".to_string(), "Smith".to_string());
+        let nombre = Nombre::new("John".to_string(), "Doe".to_string(), "Smith".to_string());
         assert!(nombre.is_ok());
         let nombre = nombre.unwrap();
         assert_eq!(nombre.name(), "John");
@@ -84,25 +90,61 @@ mod test_nombre_completo {
 
     #[test]
     fn test_nombre_completo_empty_name() {
-        let nombre = NombreCompleto::new("".to_string(), "Doe".to_string(), "Smith".to_string());
+        let nombre = Nombre::new("".to_string(), "Doe".to_string(), "Smith".to_string());
         assert!(matches!(nombre, Err(NombreError::NombreNoValido)));
     }
 
     #[test]
     fn test_nombre_completo_empty_primer_apellido() {
-        let nombre = NombreCompleto::new("John".to_string(), "".to_string(), "Smith".to_string());
+        let nombre = Nombre::new("John".to_string(), "".to_string(), "Smith".to_string());
         assert!(matches!(nombre, Err(NombreError::ApellidosNoValidos)));
     }
 
     #[test]
     fn test_nombre_completo_empty_segundo_apellido() {
-        let nombre = NombreCompleto::new("John".to_string(), "Doe".to_string(), "".to_string());
+        let nombre = Nombre::new("John".to_string(), "Doe".to_string(), "".to_string());
         assert!(matches!(nombre, Err(NombreError::ApellidosNoValidos)));
     }
 
     #[test]
     fn test_nombre_completo_whitespace_name() {
-        let nombre = NombreCompleto::new(" ".to_string(), "Doe".to_string(), "Smith".to_string());
+        let nombre = Nombre::new(" ".to_string(), "Doe".to_string(), "Smith".to_string());
         assert!(matches!(nombre, Err(NombreError::NombreNoValido)));
+    }
+
+    #[test]
+    fn test_nombre_completo_returns_correctly_formatted_string() {
+        let nombre =
+            Nombre::new("Juan".to_string(), "Pérez".to_string(), "Gómez".to_string()).unwrap();
+
+        let resultado = nombre.nombre_completo();
+
+        assert_eq!(resultado, "Juan Pérez Gómez");
+    }
+
+    #[test]
+    fn test_nombre_completo_with_multi_word_name() {
+        let nombre = Nombre::new(
+            "María José".to_string(),
+            "Rodríguez".to_string(),
+            "López".to_string(),
+        )
+        .unwrap();
+
+        let resultado = nombre.nombre_completo();
+        assert_eq!(resultado, "María José Rodríguez López");
+    }
+
+    #[test]
+    fn test_nombre_completo_preserves_capitalizations() {
+        let nombre = Nombre::new(
+            "Carlos".to_string(),
+            "de la Cruz".to_string(),
+            "MARTÍNEZ".to_string(),
+        )
+        .unwrap();
+
+        let resultado = nombre.nombre_completo();
+        assert_eq!(resultado, "Carlos de la Cruz MARTÍNEZ");
     }
 }

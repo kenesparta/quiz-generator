@@ -2,7 +2,7 @@ use crate::postulante::model::errors::DocumentoError;
 
 /// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
 /// y formato específicos de este número dependerán de los requisitos de la aplicación.
-/// Esta propiedad tambien debe ser único en el contexto de la aplicación.
+/// Esta propiedad también debe ser único en el contexto de la aplicación.
 pub struct Documento(String);
 
 impl Documento {

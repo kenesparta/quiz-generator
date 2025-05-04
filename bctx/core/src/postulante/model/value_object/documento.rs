@@ -1,4 +1,4 @@
-use crate::postulante::model::errors::DocumentoError;
+use crate::postulante::model::error::documento::DocumentoError;
 
 /// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
 /// y formato específicos de este número dependerán de los requisitos de la aplicación.

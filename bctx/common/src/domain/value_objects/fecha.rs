@@ -22,7 +22,7 @@ impl Fecha {
             .ok_or(FechaError::OutOfRange)
     }
 
-    pub fn from_str(date_str: &str) -> Result<Self, FechaError> {
+    pub fn from_string(date_str: &str) -> Result<Self, FechaError> {
         NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
             .map(|date| Self { value: date })
             .map_err(|_| FechaError::InvalidFormat)

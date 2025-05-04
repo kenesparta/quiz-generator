@@ -2,10 +2,10 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum NombreError {
-    #[error("El o los nombres estan vacios")]
+    #[error("El o los nombres están vacios")]
     NombreVacio,
 
-    #[error("El apellido esta vacio")]
+    #[error("El apellido está vacio")]
     ApellidoVacio,
 
     #[error("Los nombres no son válidos")]

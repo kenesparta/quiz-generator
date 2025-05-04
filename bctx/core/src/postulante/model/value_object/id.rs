@@ -3,13 +3,14 @@ use quizz_common::domain::value_objects::id_type::IdType;
 
 /// Representa el ID unico del postulante
 /// Represents an ID specifically for Postulante entities
+#[derive(Debug)]
 pub struct PostulanteID {
     id: ID,
 }
 
 impl PostulanteID {
     /// Creates a new PostulanteID from a string representation
-    pub fn new(id: impl AsRef<str>) -> Result<Self, IdError> {
+    pub fn new(id: &str) -> Result<Self, IdError> {
         ID::new(id, IdType::Postulante).map(|id| PostulanteID { id })
     }
 

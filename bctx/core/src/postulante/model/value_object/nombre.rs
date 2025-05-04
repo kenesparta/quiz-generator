@@ -1,10 +1,11 @@
 use crate::postulante::model::error::nombre::NombreError;
-use quizz_common::domain::value_objects::palabra::nombre_regex;
+use quizz_common::domain::value_objects::nombre::nombre_regex;
 
 const MAX_TAMANO_NOMBRE: usize = 80;
 const MAX_TAMANO_APELLIDO: usize = 80;
 
 /// Representa un nombre completo del postulante
+#[derive(Debug)]
 pub struct Nombre {
     nombre: String,
     primer_apellido: String,

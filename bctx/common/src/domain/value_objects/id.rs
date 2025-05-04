@@ -20,16 +20,20 @@ pub struct ID {
 }
 
 impl ID {
-    pub fn new(id: impl AsRef<str>, id_type: IdType) -> Result<Self, IdError> {
-        let id_str = id.as_ref();
-        if id_str.is_empty() {
+    pub fn new(id: &str, id_type: IdType) -> Result<Self, IdError> {
+        if id.is_empty() {
             return Err(IdError::IdVacio);
         }
+
         let type_string = id_type.to_string();
 
-        Uuid::parse_str(id_str)
+        Uuid::parse_str(id)
             .map(|uuid| ID { uuid, id_type })
             .map_err(|_| IdError::FormatoNoValido(type_string))
+    }
+
+    pub fn id(self) -> String {
+        self.uuid.to_string()
     }
 }
 

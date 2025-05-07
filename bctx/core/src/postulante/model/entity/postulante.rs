@@ -4,11 +4,7 @@ use crate::postulante::model::value_object::genero::Genero;
 use crate::postulante::model::value_object::grado_instruccion::GradoInstruccion;
 use crate::postulante::model::value_object::id::PostulanteID;
 use crate::postulante::model::value_object::nombre::Nombre;
-use crate::postulante::model::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
-use quizz_common::domain::value_objects::id::ID;
-use quizz_common::domain::value_objects::id_type::IdType;
-use thiserror::Error;
 
 /// Representa al postulante para obtener la licencia de conducir.
 /// Este postulante es creado para poder realizar el examen
@@ -99,7 +95,7 @@ mod tests {
             "Doe".to_string(),
             "Smith".to_string(),
             "1990-01-01".to_string(),
-            GradoInstruccion::Primaria,
+            GradoInstruccion::Secundaria,
             Genero::Masculino,
         );
         assert!(matches!(
@@ -117,7 +113,7 @@ mod tests {
             "Doe".to_string(),
             "Smith".to_string(),
             "1990-01-01".to_string(),
-            GradoInstruccion::Primaria,
+            GradoInstruccion::Superior,
             Genero::Masculino,
         );
         assert!(matches!(
@@ -135,7 +131,7 @@ mod tests {
             "Doe".to_string(),
             "Smith".to_string(),
             "1990-12-0".to_string(),
-            GradoInstruccion::Primaria,
+            GradoInstruccion::Ninguno,
             Genero::Masculino,
         );
         assert!(matches!(

@@ -8,7 +8,6 @@ use crate::postulante::model::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 
 /// Representa al postulante para obtener la licencia de conducir.
-/// Este postulante es creado para poder realizar el examen
 #[derive(Debug)]
 pub struct Postulante {
     id: PostulanteID,
@@ -17,7 +16,7 @@ pub struct Postulante {
     fecha_nacimiento: FechaNacimiento,
     grado_instruccion: GradoInstruccion,
     genero: Genero,
-    password: Password,
+    password: Option<Password>,
 }
 
 impl Postulante {
@@ -30,13 +29,11 @@ impl Postulante {
         fecha_nacimiento: String,
         grado_instruccion: GradoInstruccion,
         genero: Genero,
-        password: String,
     ) -> Result<Self, PostulanteError> {
         let id = PostulanteID::new(&id)?;
         let documento = Documento::new(documento)?;
         let nombre_completo = Nombre::new(nombre, apellido_paterno, apellido_materno)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
-        let password = Password::from_document(&documento)?;
         Ok(Postulante {
             id,
             documento,
@@ -44,6 +41,32 @@ impl Postulante {
             fecha_nacimiento,
             grado_instruccion,
             genero,
+            password: None,
+        })
+    }
+
+    pub fn generar_password(self) -> Result<Self, PostulanteError> {
+        let password = Some(Password::from_document(&self.documento)?);
+        Ok(Postulante {
+            id: self.id,
+            documento: self.documento,
+            nombre_completo: self.nombre_completo,
+            fecha_nacimiento: self.fecha_nacimiento,
+            grado_instruccion: self.grado_instruccion,
+            genero: self.genero,
+            password,
+        })
+    }
+
+    pub fn crear_password_customizado(self, password: String) -> Result<Self, PostulanteError> {
+        let password = Some(Password::from_string(password)?);
+        Ok(Postulante {
+            id: self.id,
+            documento: self.documento,
+            nombre_completo: self.nombre_completo,
+            fecha_nacimiento: self.fecha_nacimiento,
+            grado_instruccion: self.grado_instruccion,
+            genero: self.genero,
             password,
         })
     }
@@ -68,7 +91,6 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
-            "123456".to_string(),
         );
         assert!(result.is_ok());
     }
@@ -84,7 +106,6 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
-            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -103,7 +124,6 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Secundaria,
             Genero::Masculino,
-            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -122,7 +142,6 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Superior,
             Genero::Masculino,
-            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -141,7 +160,6 @@ mod tests {
             "1990-12-0".to_string(),
             GradoInstruccion::Ninguno,
             Genero::Masculino,
-            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -149,5 +167,24 @@ mod tests {
                 _
             ))
         ));
+    }
+
+    #[test]
+    fn test_generar_password_success() {
+        let postulante = Postulante::new(
+            "872c8c81-9fab-494a-9267-799876261bcb".to_string(),
+            "12345678".to_string(),
+            "John".to_string(),
+            "Doe".to_string(),
+            "Smith".to_string(),
+            "1990-01-01".to_string(),
+            GradoInstruccion::Primaria,
+            Genero::Masculino,
+        )
+        .unwrap();
+
+        let result = postulante.generar_password();
+        assert!(result.is_ok());
+        assert!(result.unwrap().password.is_some());
     }
 }

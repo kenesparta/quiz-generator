@@ -14,7 +14,7 @@ impl Password {
         Ok(Password { value })
     }
 
-    pub fn from_string(password: &str) -> Result<Password, PasswordError> {
+    pub fn from_string(password: String) -> Result<Password, PasswordError> {
         let value = hash(password, DEFAULT_COST)?;
         Ok(Password { value })
     }
@@ -52,7 +52,7 @@ mod tests {
     #[test]
     fn test_from_string_success() {
         let password_str = "secure_password";
-        let result = Password::from_string(password_str);
+        let result = Password::from_string(password_str.to_string());
         assert!(result.is_ok());
 
         let password = result.unwrap();
@@ -94,8 +94,8 @@ mod tests {
 
     #[test]
     fn test_hashed_passwords_are_different() {
-        let password1 = Password::from_string("test_password").unwrap();
-        let password2 = Password::from_string("test_password").unwrap();
+        let password1 = Password::from_string("test_password".to_string()).unwrap();
+        let password2 = Password::from_string("test_password".to_string()).unwrap();
 
         assert_ne!(password1.value, password2.value);
         assert!(password1.value.starts_with("$2"));

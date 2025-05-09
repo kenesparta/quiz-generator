@@ -28,10 +28,7 @@ impl Documento {
     }
 
     pub fn get_last_four_characters(&self) -> Result<String, DocumentoError> {
-        if self.0.len() < MIN_DOCUMENT_LENGTH {
-            return Err(DocumentoError::TamanioDocumentoNoPermitido);
-        }
-
+        self.asegurar_documento_es_valido()?;
         let last_four = &self.0[self.0.len() - MIN_DOCUMENT_LENGTH..];
         Ok(last_four.to_string())
     }
@@ -67,5 +64,26 @@ mod test_documento {
     fn test_validar_documento() {
         let documento = Documento("12345678".to_string());
         assert!(documento.asegurar_documento_es_valido().is_ok());
+    }
+
+    #[test]
+    fn test_get_last_four_characters_success() {
+        let documento = Documento::new("12345678".to_string()).unwrap();
+        assert_eq!(documento.get_last_four_characters().unwrap(), "5678");
+    }
+
+    #[test]
+    fn test_get_last_four_characters_exact_length() {
+        let documento = Documento::new("1234".to_string()).unwrap();
+        assert_eq!(documento.get_last_four_characters().unwrap(), "1234");
+    }
+
+    #[test]
+    fn test_get_last_four_characters_invalid_length() {
+        let documento = Documento::new("123".to_string());
+        assert!(matches!(
+            documento,
+            Err(DocumentoError::TamanioDocumentoNoPermitido)
+        ));
     }
 }

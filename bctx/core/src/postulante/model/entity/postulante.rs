@@ -4,6 +4,7 @@ use crate::postulante::model::value_object::genero::Genero;
 use crate::postulante::model::value_object::grado_instruccion::GradoInstruccion;
 use crate::postulante::model::value_object::id::PostulanteID;
 use crate::postulante::model::value_object::nombre::Nombre;
+use crate::postulante::model::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 
 /// Representa al postulante para obtener la licencia de conducir.
@@ -16,7 +17,7 @@ pub struct Postulante {
     fecha_nacimiento: FechaNacimiento,
     grado_instruccion: GradoInstruccion,
     genero: Genero,
-    // password: Password,
+    password: Password,
 }
 
 impl Postulante {
@@ -29,11 +30,13 @@ impl Postulante {
         fecha_nacimiento: String,
         grado_instruccion: GradoInstruccion,
         genero: Genero,
+        password: String,
     ) -> Result<Self, PostulanteError> {
         let id = PostulanteID::new(&id)?;
         let documento = Documento::new(documento)?;
         let nombre_completo = Nombre::new(nombre, apellido_paterno, apellido_materno)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
+        let password = Password::from_document(&documento)?;
         Ok(Postulante {
             id,
             documento,
@@ -41,6 +44,7 @@ impl Postulante {
             fecha_nacimiento,
             grado_instruccion,
             genero,
+            password,
         })
     }
 }
@@ -64,6 +68,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
+            "123456".to_string(),
         );
         assert!(result.is_ok());
     }
@@ -79,6 +84,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
+            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -97,6 +103,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Secundaria,
             Genero::Masculino,
+            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -115,6 +122,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Superior,
             Genero::Masculino,
+            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -133,6 +141,7 @@ mod tests {
             "1990-12-0".to_string(),
             GradoInstruccion::Ninguno,
             Genero::Masculino,
+            "123456".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),

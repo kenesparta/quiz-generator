@@ -1,5 +1,6 @@
 use crate::postulante::model::error::documento::DocumentoError;
 use crate::postulante::model::error::nombre::NombreError;
+use crate::postulante::model::error::password::PasswordError;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
@@ -17,4 +18,7 @@ pub enum PostulanteError {
 
     #[error("FechaNacimiento de nacimiento no valido: {0}")]
     PostulanteFechaNacimientoError(#[from] FechaNacimientoError),
+
+    #[error("FechaNacimiento de nacimiento no valido: {0}")]
+    PostulantePasswordError(#[from] PasswordError),
 }

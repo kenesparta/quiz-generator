@@ -1,5 +1,7 @@
 use crate::postulante::model::error::documento::DocumentoError;
 
+const MIN_DOCUMENT_LENGTH: usize = 4;
+
 /// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
 /// y formato específicos de este número dependerán de los requisitos de la aplicación.
 /// Esta propiedad también debe ser único en el contexto de la aplicación.
@@ -18,7 +20,20 @@ impl Documento {
             return Err(DocumentoError::DocumentoNoValido);
         }
 
+        if self.0.len() < MIN_DOCUMENT_LENGTH {
+            return Err(DocumentoError::TamanioDocumentoNoPermitido);
+        }
+
         Ok(())
+    }
+
+    pub fn get_last_four_characters(&self) -> Result<String, DocumentoError> {
+        if self.0.len() < MIN_DOCUMENT_LENGTH {
+            return Err(DocumentoError::TamanioDocumentoNoPermitido);
+        }
+
+        let last_four = &self.0[self.0.len() - MIN_DOCUMENT_LENGTH..];
+        Ok(last_four.to_string())
     }
 
     pub fn value(&self) -> &String {

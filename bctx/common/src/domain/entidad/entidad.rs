@@ -1,8 +1,8 @@
+use crate::domain::value_objects::id::{ID, IdError};
+use crate::domain::value_objects::id_type::IdType;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use uuid::Uuid;
-use crate::domain::value_objects::id::{ID, IdError};
-use crate::domain::value_objects::id_type::IdType;
 
 /// Properties that all domain entities should have
 pub trait EntityProps: Debug + Clone {
@@ -26,7 +26,9 @@ pub trait Entity: Debug + Clone + Eq {
     fn props(&self) -> &Self::Props;
 
     /// Creates a new instance of this entity type
-    fn create(props: Self::Props) -> Result<Self, IdError> where Self: Sized;
+    fn create(props: Self::Props) -> Result<Self, IdError>
+    where
+        Self: Sized;
 
     /// Reconstructs an entity from an ID and properties (for persistence)
     fn reconstruct(id: ID, props: Self::Props) -> Self;
@@ -93,20 +95,23 @@ macro_rules! implement_entity {
     ($entity_type:ty, $props_type:ty) => {
         impl Entity for $entity_type {
             type Props = $props_type;
-            
+
             fn id(&self) -> ID {
                 self.id.clone()
             }
-            
+
             fn props(&self) -> &Self::Props {
                 &self.props
             }
-            
+
             fn create(props: Self::Props) -> Result<Self, IdError> {
                 let base = EntityBase::new(props)?;
-                Ok(Self { id: base.id, props: base.props })
+                Ok(Self {
+                    id: base.id,
+                    props: base.props,
+                })
             }
-            
+
             fn reconstruct(id: ID, props: Self::Props) -> Self {
                 Self { id, props }
             }
@@ -175,8 +180,16 @@ mod tests {
     fn test_entity_equality_by_identity() -> Result<(), IdError> {
         // Arrange
         let id = Uuid::new_v4();
-        let user1 = User::with_id(id.to_string(), "John".to_string(), "john@example.com".to_string())?;
-        let user2 = User::with_id(id.to_string(), "John".to_string(), "john@example.com".to_string())?;
+        let user1 = User::with_id(
+            id.to_string(),
+            "John".to_string(),
+            "john@example.com".to_string(),
+        )?;
+        let user2 = User::with_id(
+            id.to_string(),
+            "John".to_string(),
+            "john@example.com".to_string(),
+        )?;
 
         // Assert - entities with same ID should be equal regardless of different properties
         assert_eq!(user1, user2);
@@ -216,9 +229,11 @@ mod tests {
     #[test]
     fn test_invalid_id_creation() {
         // Arrange & Act
-        let result = User::with_id("not-a-valid-uuid".to_string(),
-                                   "Invalid".to_string(),
-                                   "invalid@example.com".to_string());
+        let result = User::with_id(
+            "not-a-valid-uuid".to_string(),
+            "Invalid".to_string(),
+            "invalid@example.com".to_string(),
+        );
 
         // Assert
         assert!(result.is_err());

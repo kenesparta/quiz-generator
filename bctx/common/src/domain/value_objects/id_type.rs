@@ -4,6 +4,7 @@ use std::fmt;
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum IdType {
     Postulante,
+    Usuario,
     Custom(String),
 }
 
@@ -11,6 +12,7 @@ impl fmt::Display for IdType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             IdType::Postulante => write!(f, "Postulante"),
+            IdType::Usuario => write!(f, "Usuario"),
             IdType::Custom(name) => write!(f, "{}", name),
         }
     }

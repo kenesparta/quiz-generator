@@ -3,6 +3,7 @@ use std::fmt::{Display, Formatter};
 use thiserror::Error;
 
 const EDAD_MINIMA: u32 = 10;
+const DATE_FORMAT: &str = "%Y-%m-%d";
 
 #[derive(Error, Debug)]
 pub enum FechaNacimientoError {
@@ -20,13 +21,13 @@ pub struct FechaNacimiento {
 
 impl Display for FechaNacimiento {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.value.format("%Y-%m-%d"))
+        write!(f, "{}", self.value.format(DATE_FORMAT))
     }
 }
 
 impl FechaNacimiento {
     pub fn new(fecha: &str) -> Result<Self, FechaNacimientoError> {
-        let value = NaiveDate::parse_from_str(fecha, "%Y-%m-%d")?;
+        let value = NaiveDate::parse_from_str(fecha, DATE_FORMAT)?;
         let fecha_nacimiento = FechaNacimiento { value };
 
         if !fecha_nacimiento.tiene_edad_minima() {
@@ -49,7 +50,6 @@ impl FechaNacimiento {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{TimeZone, Utc};
 
     #[test]
     fn test_fecha_valida() {

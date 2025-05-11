@@ -1,2 +1,2 @@
-pub mod entidad;
+pub mod entity;
 pub mod value_objects;

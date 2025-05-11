@@ -1,6 +1,6 @@
 use crate::postulante::model::error::password::PasswordError;
 use crate::postulante::model::value_object::documento::Documento;
-use bcrypt::{DEFAULT_COST, hash, verify};
+use bcrypt::{DEFAULT_COST, hash};
 
 #[derive(Debug)]
 pub struct Password {

@@ -19,6 +19,6 @@ pub enum PostulanteError {
     #[error("FechaNacimiento de nacimiento no valido: {0}")]
     PostulanteFechaNacimientoError(#[from] FechaNacimientoError),
 
-    #[error("FechaNacimiento de nacimiento no valido: {0}")]
+    #[error("Error en el password: {0}")]
     PostulantePasswordError(#[from] PasswordError),
 }

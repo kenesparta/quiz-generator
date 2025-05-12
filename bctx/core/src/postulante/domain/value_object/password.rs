@@ -1,5 +1,5 @@
-use crate::postulante::model::error::password::PasswordError;
-use crate::postulante::model::value_object::documento::Documento;
+use crate::postulante::domain::error::password::PasswordError;
+use crate::postulante::domain::value_object::documento::Documento;
 use bcrypt::{DEFAULT_COST, hash};
 
 #[derive(Debug)]
@@ -35,7 +35,7 @@ impl Password {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::postulante::model::value_object::documento::Documento;
+    use crate::postulante::domain::value_object::documento::Documento;
 
     #[test]
     fn test_from_document_success() {

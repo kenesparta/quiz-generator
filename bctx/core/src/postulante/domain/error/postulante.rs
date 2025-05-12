@@ -1,6 +1,6 @@
-use crate::postulante::model::error::documento::DocumentoError;
-use crate::postulante::model::error::nombre::NombreError;
-use crate::postulante::model::error::password::PasswordError;
+use crate::postulante::domain::error::documento::DocumentoError;
+use crate::postulante::domain::error::nombre::NombreError;
+use crate::postulante::domain::error::password::PasswordError;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;

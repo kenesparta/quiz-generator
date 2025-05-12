@@ -1,10 +1,10 @@
-use crate::postulante::model::entity::postulante::Postulante;
-use crate::postulante::model::value_object::documento::Documento;
-use crate::postulante::model::value_object::genero::Genero;
-use crate::postulante::model::value_object::grado_instruccion::GradoInstruccion;
-use crate::postulante::model::value_object::id::PostulanteID;
-use crate::postulante::model::value_object::nombre::Nombre;
-use crate::postulante::model::value_object::password::Password;
+use crate::postulante::domain::entity::postulante::Postulante;
+use crate::postulante::domain::value_object::documento::Documento;
+use crate::postulante::domain::value_object::genero::Genero;
+use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
+use crate::postulante::domain::value_object::id::PostulanteID;
+use crate::postulante::domain::value_object::nombre::Nombre;
+use crate::postulante::domain::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 
 #[derive(Debug)]

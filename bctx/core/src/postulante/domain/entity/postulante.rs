@@ -1,10 +1,10 @@
-use crate::postulante::model::error::postulante::PostulanteError;
-use crate::postulante::model::value_object::documento::Documento;
-use crate::postulante::model::value_object::genero::Genero;
-use crate::postulante::model::value_object::grado_instruccion::GradoInstruccion;
-use crate::postulante::model::value_object::id::PostulanteID;
-use crate::postulante::model::value_object::nombre::Nombre;
-use crate::postulante::model::value_object::password::Password;
+use crate::postulante::domain::error::postulante::PostulanteError;
+use crate::postulante::domain::value_object::documento::Documento;
+use crate::postulante::domain::value_object::genero::Genero;
+use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
+use crate::postulante::domain::value_object::id::PostulanteID;
+use crate::postulante::domain::value_object::nombre::Nombre;
+use crate::postulante::domain::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 
 /// Representa al postulante para obtener la licencia de conducir.
@@ -75,8 +75,8 @@ impl Postulante {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::postulante::model::error::documento::DocumentoError;
-    use crate::postulante::model::error::nombre::NombreError;
+    use crate::postulante::domain::error::documento::DocumentoError;
+    use crate::postulante::domain::error::nombre::NombreError;
     use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
     use quizz_common::domain::value_objects::id::IdError;
 

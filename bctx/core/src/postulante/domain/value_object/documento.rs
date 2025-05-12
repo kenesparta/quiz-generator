@@ -1,4 +1,4 @@
-use crate::postulante::model::error::documento::DocumentoError;
+use crate::postulante::domain::error::documento::DocumentoError;
 
 const MIN_DOCUMENT_LENGTH: usize = 4;
 

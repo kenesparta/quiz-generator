@@ -1,4 +1,4 @@
-use crate::postulante::model::error::nombre::NombreError;
+use crate::postulante::domain::error::nombre::NombreError;
 use quizz_common::domain::value_objects::nombre::nombre_regex;
 
 const MAX_TAMANO_NOMBRE: usize = 80;

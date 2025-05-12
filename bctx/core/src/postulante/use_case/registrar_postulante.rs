@@ -1,1 +1,1 @@
-pub struct RegistrarPostulante{}
+pub struct RegistrarPostulante {}

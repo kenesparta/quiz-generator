@@ -16,7 +16,7 @@ pub struct Postulante {
     fecha_nacimiento: FechaNacimiento,
     grado_instruccion: GradoInstruccion,
     genero: Genero,
-    password: Option<Password>,
+    password: Password,
 }
 
 impl Postulante {
@@ -29,11 +29,13 @@ impl Postulante {
         fecha_nacimiento: String,
         grado_instruccion: GradoInstruccion,
         genero: Genero,
+        password: String,
     ) -> Result<Self, PostulanteError> {
         let id = PostulanteID::new(&id)?;
         let documento = Documento::new(documento)?;
         let nombre_completo = Nombre::new(nombre, apellido_paterno, apellido_materno)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
+        let password = Password::new(password)?;
         Ok(Postulante {
             id,
             documento,
@@ -41,32 +43,6 @@ impl Postulante {
             fecha_nacimiento,
             grado_instruccion,
             genero,
-            password: None,
-        })
-    }
-
-    pub fn generar_password_por_documento(self) -> Result<Self, PostulanteError> {
-        let password = Some(Password::from_document(&self.documento)?);
-        Ok(Postulante {
-            id: self.id,
-            documento: self.documento,
-            nombre_completo: self.nombre_completo,
-            fecha_nacimiento: self.fecha_nacimiento,
-            grado_instruccion: self.grado_instruccion,
-            genero: self.genero,
-            password,
-        })
-    }
-
-    pub fn password_de_string(self, password: String) -> Result<Self, PostulanteError> {
-        let password = Some(Password::from_string(password)?);
-        Ok(Postulante {
-            id: self.id,
-            documento: self.documento,
-            nombre_completo: self.nombre_completo,
-            fecha_nacimiento: self.fecha_nacimiento,
-            grado_instruccion: self.grado_instruccion,
-            genero: self.genero,
             password,
         })
     }
@@ -91,6 +67,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
+            "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string(),
         );
         assert!(result.is_ok());
     }
@@ -106,6 +83,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Primaria,
             Genero::Masculino,
+            "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -124,6 +102,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Secundaria,
             Genero::Masculino,
+            "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -142,6 +121,7 @@ mod tests {
             "1990-01-01".to_string(),
             GradoInstruccion::Superior,
             Genero::Masculino,
+            "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -160,6 +140,7 @@ mod tests {
             "1990-12-0".to_string(),
             GradoInstruccion::Ninguno,
             Genero::Masculino,
+            "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string(),
         );
         assert!(matches!(
             result.unwrap_err(),
@@ -167,24 +148,5 @@ mod tests {
                 _
             ))
         ));
-    }
-
-    #[test]
-    fn test_generar_password_success() {
-        let postulante = Postulante::new(
-            "872c8c81-9fab-494a-9267-799876261bcb".to_string(),
-            "12345678".to_string(),
-            "John".to_string(),
-            "Doe".to_string(),
-            "Smith".to_string(),
-            "1990-01-01".to_string(),
-            GradoInstruccion::Primaria,
-            Genero::Masculino,
-        )
-        .unwrap();
-
-        let result = postulante.generar_password_por_documento();
-        assert!(result.is_ok());
-        assert!(result.unwrap().password.is_some());
     }
 }

@@ -27,7 +27,7 @@ impl Documento {
         Ok(())
     }
 
-    pub fn get_last_four_characters(&self) -> Result<String, DocumentoError> {
+    pub fn obtener_ultimos_cuatro_caracteres(&self) -> Result<String, DocumentoError> {
         self.asegurar_documento_es_valido()?;
         let last_four = &self.0[self.0.len() - MIN_DOCUMENT_LENGTH..];
         Ok(last_four.to_string())
@@ -69,13 +69,19 @@ mod test_documento {
     #[test]
     fn test_get_last_four_characters_success() {
         let documento = Documento::new("12345678".to_string()).unwrap();
-        assert_eq!(documento.get_last_four_characters().unwrap(), "5678");
+        assert_eq!(
+            documento.obtener_ultimos_cuatro_caracteres().unwrap(),
+            "5678"
+        );
     }
 
     #[test]
     fn test_get_last_four_characters_exact_length() {
         let documento = Documento::new("1234".to_string()).unwrap();
-        assert_eq!(documento.get_last_four_characters().unwrap(), "1234");
+        assert_eq!(
+            documento.obtener_ultimos_cuatro_caracteres().unwrap(),
+            "1234"
+        );
     }
 
     #[test]

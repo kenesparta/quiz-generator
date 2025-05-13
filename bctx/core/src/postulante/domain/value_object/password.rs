@@ -1,6 +1,16 @@
 use crate::postulante::domain::error::password::PasswordError;
-use crate::postulante::domain::value_object::documento::Documento;
-use bcrypt::{DEFAULT_COST, hash};
+use regex;
+use regex::Regex;
+use std::sync::OnceLock;
+
+static REGEXP: OnceLock<Regex> = OnceLock::new();
+
+pub fn password_hash_regexp() -> &'static Regex {
+    REGEXP.get_or_init(|| {
+        Regex::new(r"^\$2[aby]?\$\d{2}\$[./A-Za-z0-9]{53}$")
+            .expect("expresion regular para password hash no valida")
+    })
+}
 
 #[derive(Debug)]
 pub struct Password {
@@ -8,24 +18,28 @@ pub struct Password {
 }
 
 impl Password {
-    pub fn from_document(document: &Documento) -> Result<Password, PasswordError> {
-        let last_four = document.get_last_four_characters()?;
-        let value = hash(&last_four, DEFAULT_COST)?;
-        Ok(Password { value })
-    }
-
-    pub fn from_string(password: String) -> Result<Password, PasswordError> {
-        let value = hash(password, DEFAULT_COST)?;
-        Ok(Password { value })
+    pub fn new(value: String) -> Result<Self, PasswordError> {
+        let password = Password { value };
+        password.asegurar_password_no_vacio()?;
+        password.asegurar_password_hash_valido()?;
+        Ok(password)
     }
 
     pub fn value(self) -> String {
         self.value
     }
 
-    pub fn ensure_password_not_empty(&self, string: &str) -> Result<(), PasswordError> {
-        if string.is_empty() {
-            return Err(PasswordError::PasswordVacio);
+    pub fn asegurar_password_no_vacio(&self) -> Result<(), PasswordError> {
+        if self.value.is_empty() {
+            return Err(PasswordError::Vacio);
+        }
+
+        Ok(())
+    }
+
+    pub fn asegurar_password_hash_valido(&self) -> Result<(), PasswordError> {
+        if !password_hash_regexp().is_match(&self.value) {
+            return Err(PasswordError::HashNoValido);
         }
 
         Ok(())
@@ -35,70 +49,33 @@ impl Password {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::postulante::domain::value_object::documento::Documento;
 
     #[test]
-    fn test_from_document_success() {
-        let documento = Documento::new("12345678".to_string()).unwrap();
-
-        let result = Password::from_document(&documento);
-        assert!(result.is_ok());
-
-        let password = result.unwrap();
-        assert!(!password.value.is_empty());
-        assert!(password.value.starts_with("$2"));
+    fn test_new_password_success() {
+        let password = Password::new(
+            "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy".to_string(),
+        );
+        assert!(password.is_ok());
     }
 
     #[test]
-    fn test_from_string_success() {
-        let password_str = "secure_password";
-        let result = Password::from_string(password_str.to_string());
-        assert!(result.is_ok());
-
-        let password = result.unwrap();
-        assert!(!password.value.is_empty());
-        assert!(password.value.starts_with("$2"));
+    fn test_asegurar_password_no_vacio_empty() {
+        let password = Password::new("".to_string());
+        assert!(matches!(password.unwrap_err(), PasswordError::Vacio));
     }
 
     #[test]
-    fn test_ensure_password_not_empty_success() {
-        let password = Password {
-            value: String::from("hashed_password"),
-        };
-        let result = password.ensure_password_not_empty("non_empty_password");
-        assert!(result.is_ok());
+    fn test_asegurar_password_hash_valido_valid() {
+        let password = Password::new(
+            "$2a$12$NBhpKFs4R0J.lj7.nHwrIe5CmBlvZef/pMxU25EqHjq0VgqCpMOfq".to_string(),
+        )
+        .unwrap();
+        assert!(password.asegurar_password_hash_valido().is_ok());
     }
 
     #[test]
-    fn test_ensure_password_not_empty_error() {
-        let password = Password {
-            value: String::from("hashed_password"),
-        };
-        let result = password.ensure_password_not_empty("");
-        assert!(result.is_err());
-        match result {
-            Err(PasswordError::PasswordVacio) => (),
-            _ => panic!("Expected PasswordVacio error"),
-        }
-    }
-
-    #[test]
-    fn test_value_method() {
-        let expected_value = String::from("hashed_password");
-        let password = Password {
-            value: expected_value.clone(),
-        };
-        let result = password.value();
-        assert_eq!(result, expected_value);
-    }
-
-    #[test]
-    fn test_hashed_passwords_are_different() {
-        let password1 = Password::from_string("test_password".to_string()).unwrap();
-        let password2 = Password::from_string("test_password".to_string()).unwrap();
-
-        assert_ne!(password1.value, password2.value);
-        assert!(password1.value.starts_with("$2"));
-        assert!(password2.value.starts_with("$2"));
+    fn test_asegurar_password_hash_valido_invalid() {
+        let password = Password::new("invalid_hash".to_string());
+        assert!(matches!(password.unwrap_err(), PasswordError::HashNoValido));
     }
 }

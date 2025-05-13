@@ -1,4 +1,6 @@
 use crate::postulante::domain::error::documento::DocumentoError;
+use crate::postulante::domain::error::genero::GeneroError;
+use crate::postulante::domain::error::grado_instruccion::GradoInstruccionError;
 use crate::postulante::domain::error::nombre::NombreError;
 use crate::postulante::domain::error::password::PasswordError;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
@@ -21,4 +23,10 @@ pub enum PostulanteError {
 
     #[error("Error en el password: {0}")]
     PostulantePasswordError(#[from] PasswordError),
+
+    #[error("Error en el grado de instruccion: {0}")]
+    PostulanteGradoInstruccionError(#[from] GradoInstruccionError),
+
+    #[error("Error en el grado de instruccion: {0}")]
+    PostulanteGeneroError(#[from] GeneroError),
 }

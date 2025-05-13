@@ -1,2 +1,2 @@
 mod builder;
-mod postulante;
+pub mod postulante;

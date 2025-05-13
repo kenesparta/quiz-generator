@@ -45,7 +45,7 @@ impl Postulante {
         })
     }
 
-    pub fn generar_password(self) -> Result<Self, PostulanteError> {
+    pub fn generar_password_por_documento(self) -> Result<Self, PostulanteError> {
         let password = Some(Password::from_document(&self.documento)?);
         Ok(Postulante {
             id: self.id,
@@ -58,7 +58,7 @@ impl Postulante {
         })
     }
 
-    pub fn crear_password_customizado(self, password: String) -> Result<Self, PostulanteError> {
+    pub fn password_de_string(self, password: String) -> Result<Self, PostulanteError> {
         let password = Some(Password::from_string(password)?);
         Ok(Postulante {
             id: self.id,
@@ -183,7 +183,7 @@ mod tests {
         )
         .unwrap();
 
-        let result = postulante.generar_password();
+        let result = postulante.generar_password_por_documento();
         assert!(result.is_ok());
         assert!(result.unwrap().password.is_some());
     }

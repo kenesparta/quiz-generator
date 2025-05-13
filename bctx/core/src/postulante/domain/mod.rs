@@ -1,5 +1,5 @@
 pub mod entity;
-mod error;
+pub mod error;
 mod event;
 pub mod service;
-mod value_object;
+pub mod value_object;

@@ -10,7 +10,7 @@ pub struct Documento(String);
 
 impl Documento {
     pub fn new(value: String) -> Result<Self, DocumentoError> {
-        let document = Documento(value);
+        let document = Documento(value.trim().to_string());
         document.asegurar_documento_es_valido()?;
         Ok(document)
     }

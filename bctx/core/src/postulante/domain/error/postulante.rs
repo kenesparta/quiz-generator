@@ -27,6 +27,9 @@ pub enum PostulanteError {
     #[error("Error en el grado de instruccion: {0}")]
     PostulanteGradoInstruccionError(#[from] GradoInstruccionError),
 
-    #[error("Error en el grado de instruccion: {0}")]
+    #[error("Error en el genero: {0}")]
     PostulanteGeneroError(#[from] GeneroError),
+
+    #[error("Error al persistir")]
+    PostulantePersistenciaError,
 }

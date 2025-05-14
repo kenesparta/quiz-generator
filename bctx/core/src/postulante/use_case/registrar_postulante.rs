@@ -4,7 +4,8 @@ use crate::postulante::domain::service::password::obtener_password_del_documento
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
-use crate::postulante::provider::password::PasswordCrypto;
+use crate::postulante::provider::password::SeguridadPassword;
+use crate::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
@@ -21,21 +22,28 @@ struct InputData {
 
 struct OutputData {}
 
-pub struct RegistrarPostulantePasswordTemporal<E> {
-    password_crypto: Box<dyn PasswordCrypto<E>>,
+pub struct RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
+    password_crypto: Box<dyn SeguridadPassword<PassErr>>,
+    repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
 }
 
-impl<E> RegistrarPostulantePasswordTemporal<E> {
+impl<PassErr, RepoErr> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
     pub fn new(
-        password_crypto: Box<dyn PasswordCrypto<E>>,
-    ) -> RegistrarPostulantePasswordTemporal<E> {
-        Self { password_crypto }
+        password_crypto: Box<dyn SeguridadPassword<PassErr>>,
+        repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
+    ) -> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
+        Self {
+            password_crypto,
+            repositorio,
+        }
     }
 }
 
-impl<E> CasoDeUso<InputData, OutputData, PostulanteError> for RegistrarPostulantePasswordTemporal<E>
+impl<PassErr, RepoErr> CasoDeUso<InputData, OutputData, PostulanteError>
+    for RegistrarPostulantePasswordTemporal<PassErr, RepoErr>
 where
-    PostulanteError: From<E>,
+    PostulanteError: From<PassErr>,
+    PostulanteError: From<RepoErr>,
 {
     fn ejecutar(&self, in_: InputData) -> Result<OutputData, PostulanteError> {
         let grado_instruccion = GradoInstruccion::from_str(&in_.grado_instruccion)?;
@@ -55,6 +63,7 @@ where
             genero,
             password,
         )?;
+        self.repositorio.registrar_postulante(postulante)?;
         Ok(OutputData {})
     }
 }
@@ -84,10 +93,27 @@ mod tests {
         }
     }
 
+    #[derive(Debug)]
+    struct MockRepoError;
+
+    impl fmt::Display for MockRepoError {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "mock error")
+        }
+    }
+
+    impl Error for MockRepoError {}
+
+    impl From<MockRepoError> for PostulanteError {
+        fn from(_: MockRepoError) -> Self {
+            PostulanteError::PostulantePersistenciaError
+        }
+    }
+
     struct MockPasswordCrypto;
 
-    impl PasswordCrypto<MockError> for MockPasswordCrypto {
-        fn cifrar(&self, password: String) -> Result<String, MockError> {
+    impl SeguridadPassword<MockError> for MockPasswordCrypto {
+        fn cifrar(&self, _password: String) -> Result<String, MockError> {
             Ok(
                 "$2a$12$w6VMbiyMl1PNVX0R2a8eqOKVwqIl8tMWgxdsaabOmXOuU5N5yYf/m"
                     .parse()
@@ -95,14 +121,25 @@ mod tests {
             )
         }
 
-        fn comparar(&self, password: String, hashed: String) -> Result<bool, MockError> {
-            todo!()
+        fn comparar(&self, _password: String, _hashed: String) -> Result<bool, MockError> {
+            Ok(true)
+        }
+    }
+
+    struct MockRepositorioPostulante;
+
+    impl RepositorioPostulanteEscritura<MockRepoError> for MockRepositorioPostulante {
+        fn registrar_postulante(&self, _postulante: Postulante) -> Result<(), MockRepoError> {
+            Ok(())
         }
     }
 
     #[test]
     fn test_registrar_postulante_exitoso() {
-        let use_case = RegistrarPostulantePasswordTemporal::new(Box::new(MockPasswordCrypto));
+        let use_case = RegistrarPostulantePasswordTemporal::new(
+            Box::new(MockPasswordCrypto),
+            Box::new(MockRepositorioPostulante),
+        );
 
         let input = InputData {
             id: "9ee7992b-44dd-426f-aea2-21ca989f9fad".to_string(),
@@ -121,7 +158,10 @@ mod tests {
 
     #[test]
     fn test_registrar_postulante_error_genero() {
-        let use_case = RegistrarPostulantePasswordTemporal::new(Box::new(MockPasswordCrypto));
+        let use_case = RegistrarPostulantePasswordTemporal::new(
+            Box::new(MockPasswordCrypto),
+            Box::new(MockRepositorioPostulante),
+        );
 
         let input = InputData {
             id: "12504b7f-ce6a-4549-b9a9-54a2e098abd8".to_string(),
@@ -140,7 +180,10 @@ mod tests {
 
     #[test]
     fn test_registrar_postulante_error_grado() {
-        let use_case = RegistrarPostulantePasswordTemporal::new(Box::new(MockPasswordCrypto));
+        let use_case = RegistrarPostulantePasswordTemporal::new(
+            Box::new(MockPasswordCrypto),
+            Box::new(MockRepositorioPostulante),
+        );
 
         let input = InputData {
             id: "3f2a20bf-f98d-4c86-8259-5cdfebacebca".to_string(),

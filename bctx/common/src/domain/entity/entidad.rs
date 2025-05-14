@@ -1,7 +1,6 @@
 use crate::domain::value_objects::id::{ID, IdError};
 use crate::domain::value_objects::id_type::IdType;
 use std::fmt::Debug;
-use std::hash::{Hash, Hasher};
 use uuid::Uuid;
 
 /// Properties that all domain entities should have

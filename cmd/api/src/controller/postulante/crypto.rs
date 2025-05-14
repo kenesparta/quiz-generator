@@ -1,9 +1,9 @@
 use bcrypt::{BcryptError, DEFAULT_COST, hash, verify};
-use quizz_core::postulante::provider::password::PasswordCrypto;
+use quizz_core::postulante::provider::password::SeguridadPassword;
 
 pub struct CifradoPorDefecto {}
 
-impl PasswordCrypto<BcryptError> for CifradoPorDefecto {
+impl SeguridadPassword<BcryptError> for CifradoPorDefecto {
     fn cifrar(&self, password: String) -> Result<String, BcryptError> {
         let value = hash(password, DEFAULT_COST)?;
         Ok(value)

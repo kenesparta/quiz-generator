@@ -1,4 +1,3 @@
-use crate::postulante::domain::entity::postulante::Postulante;
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;

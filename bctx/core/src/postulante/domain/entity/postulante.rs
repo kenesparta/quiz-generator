@@ -32,7 +32,7 @@ impl Postulante {
         password: String,
     ) -> Result<Self, PostulanteError> {
         let id = PostulanteID::new(&id)?;
-        let documento = Documento::new(documento)?;
+        let documento = Documento::new(documento.as_str())?;
         let nombre_completo = Nombre::new(nombre, apellido_paterno, apellido_materno)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
         let password = Password::new(password)?;

@@ -9,7 +9,7 @@ const MIN_DOCUMENT_LENGTH: usize = 4;
 pub struct Documento(String);
 
 impl Documento {
-    pub fn new(value: String) -> Result<Self, DocumentoError> {
+    pub fn new(value: &str) -> Result<Self, DocumentoError> {
         let document = Documento(value.trim().to_string());
         document.asegurar_documento_es_valido()?;
         Ok(document)
@@ -44,19 +44,19 @@ mod test_documento {
 
     #[test]
     fn test_crear_documento_valido() {
-        let documento = Documento::new("12345678".to_string()).unwrap();
+        let documento = Documento::new("12345678").unwrap();
         assert_eq!(documento.value(), "12345678");
     }
 
     #[test]
     fn test_crear_documento_vacio() {
-        let result = Documento::new("".to_string());
+        let result = Documento::new("");
         assert!(matches!(result, Err(DocumentoError::DocumentoNoValido)));
     }
 
     #[test]
     fn test_crear_documento_solo_espacios() {
-        let result = Documento::new("   ".to_string());
+        let result = Documento::new("   ");
         assert!(matches!(result, Err(DocumentoError::DocumentoNoValido)));
     }
 
@@ -68,7 +68,7 @@ mod test_documento {
 
     #[test]
     fn test_get_last_four_characters_success() {
-        let documento = Documento::new("12345678".to_string()).unwrap();
+        let documento = Documento::new("12345678").unwrap();
         assert_eq!(
             documento.obtener_ultimos_cuatro_caracteres().unwrap(),
             "5678"
@@ -77,7 +77,7 @@ mod test_documento {
 
     #[test]
     fn test_get_last_four_characters_exact_length() {
-        let documento = Documento::new("1234".to_string()).unwrap();
+        let documento = Documento::new("1234").unwrap();
         assert_eq!(
             documento.obtener_ultimos_cuatro_caracteres().unwrap(),
             "1234"
@@ -86,7 +86,7 @@ mod test_documento {
 
     #[test]
     fn test_get_last_four_characters_invalid_length() {
-        let documento = Documento::new("123".to_string());
+        let documento = Documento::new("123");
         assert!(matches!(
             documento,
             Err(DocumentoError::TamanioDocumentoNoPermitido)

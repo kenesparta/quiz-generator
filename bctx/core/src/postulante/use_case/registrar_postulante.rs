@@ -40,7 +40,7 @@ where
     fn ejecutar(&self, in_: InputData) -> Result<OutputData, PostulanteError> {
         let grado_instruccion = GradoInstruccion::from_str(&in_.grado_instruccion)?;
         let genero = Genero::from_str(&in_.genero)?;
-        let documento = Documento::new(in_.documento.to_string())?;
+        let documento = Documento::new(&in_.documento)?;
         let password = self
             .password_crypto
             .cifrar(obtener_password_del_documento(documento)?.to_string())?;

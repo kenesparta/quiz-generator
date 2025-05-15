@@ -1,17 +1,17 @@
 services:
-  quizz-api:
-    container_name: quizz-api
-    command: sleep infinity
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    networks:
-      - frontend
-      - backend
-    environment:
-      - DATABASE_URL=postgres://myuser:mypassword@postgres:5432/mydb
+#   quizz-api:
+#     container_name: quizz-api
+#     command: sleep infinity
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     networks:
+#       - frontend
+#       - backend
+#     environment:
+#       - DATABASE_URL=postgres://quizz:quizz@postgres:5432/quizz
 
 #   quizz-ui:
 #     container_name: quizz-ui
@@ -30,9 +30,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      POSTGRES_USER: quizz
+      POSTGRES_PASSWORD: quizz
+      POSTGRES_DB: quizz
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

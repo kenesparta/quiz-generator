@@ -1,7 +1,7 @@
 use bcrypt::{BcryptError, DEFAULT_COST, hash, verify};
 use quizz_core::postulante::provider::password::SeguridadPassword;
 
-pub struct CifradoPorDefecto {}
+pub struct CifradoPorDefecto;
 
 impl SeguridadPassword<BcryptError> for CifradoPorDefecto {
     fn cifrar(&self, password: String) -> Result<String, BcryptError> {
@@ -20,7 +20,7 @@ mod tests {
 
     #[test]
     fn test_cifrar_password() {
-        let cifrado = CifradoPorDefecto {};
+        let cifrado = CifradoPorDefecto;
         let password = "test123".to_string();
 
         let result = cifrado.cifrar(password.clone());
@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
     fn test_comparar_password_valido() {
-        let cifrado = CifradoPorDefecto {};
+        let cifrado = CifradoPorDefecto;
         let password = "test123".to_string();
         let hashed = cifrado.cifrar(password.clone()).unwrap();
 
@@ -43,7 +43,7 @@ mod tests {
 
     #[test]
     fn test_comparar_password_invalido() {
-        let cifrado = CifradoPorDefecto {};
+        let cifrado = CifradoPorDefecto;
         let password = "test123".to_string();
         let wrong_password = "wrong123".to_string();
         let hashed = cifrado.cifrar(password).unwrap();

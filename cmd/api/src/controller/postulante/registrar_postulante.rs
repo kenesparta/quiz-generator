@@ -1,26 +1,25 @@
 use actix_web::{HttpRequest, HttpResponse, web};
-// use quizz_core::applicant::application::applicant_sign_upper::{
-//     ApplicantSignUpper, ApplicantSignUpperDTO,
-// };
+use sqlx::PgPool;
+use quizz_core::postulante::use_case::registrar_postulante::RegistrarPostulantePasswordTemporal;
+use crate::controller::postulante::crypto::CifradoPorDefecto;
+use crate::controller::postulante::datasbase::PostulantePostgres;
+use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 
-#[derive(serde::Deserialize, Clone)]
-pub struct ApplicantRequestDTO {
-    pub name: String,
-    pub first_lastname: String,
-    pub second_lastname: String,
-    pub document: String,
-}
+pub struct PostulantePutController;
 
-pub struct ApplicantPutController {}
-
-impl ApplicantPutController {
-    pub async fn update(req: HttpRequest, body: web::Json<ApplicantRequestDTO>) -> HttpResponse {
-        // let id = match req.match_info().get("id") {
-        //     Some(id) => id.to_string(),
-        //     None => {
-        //         return HttpResponse::BadRequest().json("Missing applicant ID in the request path");
-        //     }
-        // };
+impl PostulantePutController {
+    pub async fn put(req: HttpRequest, body: web::Json<RegistrarPostulanteDTO>, pool: web::Data<PgPool>) -> HttpResponse {
+        let id = match req.match_info().get("id") {
+            Some(id) => id.to_string(),
+            None => {
+                return HttpResponse::BadRequest().json("Missing applicant ID in the request path");
+            }
+        };
+        let postulante_pool = PostulantePostgres::new(pool);
+        let registrar_postulante = RegistrarPostulantePasswordTemporal::new(
+            Box::new(CifradoPorDefecto),
+            Box::new(postulante_pool),
+        );
         //
         // let mut sign_upper = match ApplicantSignUpper::new() {
         //     Ok(service) => service,

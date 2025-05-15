@@ -24,11 +24,4 @@ bcrypt = "0.14.0"
 [dependencies.sqlx]
 version = "0.8.3"
 default-features = false
-features = [
-    "runtime-tokio-rustls",
-    "macros",
-    "postgres",
-    "uuid",
-    "chrono",
-    "migrate"
-]
+features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate"]

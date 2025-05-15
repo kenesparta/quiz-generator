@@ -10,13 +10,13 @@ use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 /// Representa al postulante para obtener la licencia de conducir.
 #[derive(Debug)]
 pub struct Postulante {
-    id: PostulanteID,
-    documento: Documento,
-    nombre_completo: Nombre,
-    fecha_nacimiento: FechaNacimiento,
-    grado_instruccion: GradoInstruccion,
-    genero: Genero,
-    password: Password,
+    pub id: PostulanteID,
+    pub documento: Documento,
+    pub nombre_completo: Nombre,
+    pub fecha_nacimiento: FechaNacimiento,
+    pub grado_instruccion: GradoInstruccion,
+    pub genero: Genero,
+    pub password: Password,
 }
 
 impl Postulante {

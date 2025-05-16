@@ -1,15 +1,20 @@
 use quizz_common::domain::value_objects::id::{ID, IdError};
 use quizz_common::domain::value_objects::id_type::IdType;
+use std::fmt;
 
 /// Representa el ID unico del postulante
-/// Represents an ID specifically for Postulante entities
 #[derive(Debug)]
 pub struct PostulanteID {
     id: ID,
 }
 
+impl fmt::Display for PostulanteID {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.id.value())
+    }
+}
+
 impl PostulanteID {
-    /// Creates a new PostulanteID from a string representation
     pub fn new(id: &str) -> Result<Self, IdError> {
         ID::new(id, IdType::Postulante).map(|id| PostulanteID { id })
     }

@@ -77,7 +77,7 @@ impl Nombre {
         Ok(())
     }
 
-    pub fn name(&self) -> &String {
+    pub fn nombre(&self) -> &String {
         &self.nombre
     }
 
@@ -106,7 +106,7 @@ mod test_nombre_completo {
         let nombre = Nombre::new("John".to_string(), "Doe".to_string(), "Smith".to_string());
         assert!(nombre.is_ok());
         let nombre = nombre.unwrap();
-        assert_eq!(nombre.name(), "John");
+        assert_eq!(nombre.nombre(), "John");
         assert_eq!(nombre.primer_apellido(), "Doe");
         assert_eq!(nombre.segundo_apellido(), "Smith");
     }

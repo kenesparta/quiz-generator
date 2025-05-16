@@ -34,7 +34,7 @@ pub trait Entity: Debug + Clone + Eq {
 
     /// Determines if this entity equals another based solely on identity
     fn equals<E: Entity>(&self, other: &E) -> bool {
-        self.id().id() == other.id().id()
+        self.id().value() == other.id().value()
     }
 
     /// Determines if this entity is different from another based solely on identity

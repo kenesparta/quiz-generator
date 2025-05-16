@@ -9,18 +9,18 @@ use crate::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
-struct InputData {
-    id: String,
-    documento: String,
-    nombre: String,
-    apellido_paterno: String,
-    apellido_materno: String,
-    fecha_nacimiento: String,
-    grado_instruccion: String,
-    genero: String,
+pub struct InputData {
+    pub id: String,
+    pub documento: String,
+    pub nombre: String,
+    pub apellido_paterno: String,
+    pub apellido_materno: String,
+    pub fecha_nacimiento: String,
+    pub grado_instruccion: String,
+    pub genero: String,
 }
 
-struct OutputData {}
+pub struct OutputData {}
 
 pub struct RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
     password_crypto: Box<dyn SeguridadPassword<PassErr>>,
@@ -71,6 +71,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::postulante::domain::error::postulante::RepositorioError;
     use std::error::Error;
     use std::fmt;
 
@@ -106,7 +107,7 @@ mod tests {
 
     impl From<MockRepoError> for PostulanteError {
         fn from(_: MockRepoError) -> Self {
-            PostulanteError::PostulantePersistenciaError
+            PostulanteError::PostulanteRepositorioError(RepositorioError::PersistenciaNoFinalizada)
         }
     }
 
@@ -126,7 +127,15 @@ mod tests {
         }
     }
 
-    struct MockRepositorioPostulante;
+    struct MockRepositorioPostulante {
+        id: String,
+    }
+
+    impl MockRepositorioPostulante {
+        pub fn new(id: String) -> Self {
+            MockRepositorioPostulante { id }
+        }
+    }
 
     impl RepositorioPostulanteEscritura<MockRepoError> for MockRepositorioPostulante {
         fn registrar_postulante(&self, _postulante: Postulante) -> Result<(), MockRepoError> {
@@ -138,7 +147,7 @@ mod tests {
     fn test_registrar_postulante_exitoso() {
         let use_case = RegistrarPostulantePasswordTemporal::new(
             Box::new(MockPasswordCrypto),
-            Box::new(MockRepositorioPostulante),
+            Box::new(MockRepositorioPostulante::new("abc".to_string())),
         );
 
         let input = InputData {
@@ -160,7 +169,7 @@ mod tests {
     fn test_registrar_postulante_error_genero() {
         let use_case = RegistrarPostulantePasswordTemporal::new(
             Box::new(MockPasswordCrypto),
-            Box::new(MockRepositorioPostulante),
+            Box::new(MockRepositorioPostulante::new("abc".to_string())),
         );
 
         let input = InputData {
@@ -182,7 +191,7 @@ mod tests {
     fn test_registrar_postulante_error_grado() {
         let use_case = RegistrarPostulantePasswordTemporal::new(
             Box::new(MockPasswordCrypto),
-            Box::new(MockRepositorioPostulante),
+            Box::new(MockRepositorioPostulante::new("abc".to_string())),
         );
 
         let input = InputData {

@@ -32,7 +32,7 @@ impl ID {
             .map_err(|_| IdError::FormatoNoValido(type_string))
     }
 
-    pub fn id(self) -> String {
+    pub fn value(&self) -> String {
         self.uuid.to_string()
     }
 }

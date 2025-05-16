@@ -1,16 +1,21 @@
 use bcrypt::{BcryptError, DEFAULT_COST, hash, verify};
+use quizz_core::postulante::domain::error::password::PasswordError;
+use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::provider::password::SeguridadPassword;
+use std::error::Error;
+use std::fmt;
 
 pub struct CifradoPorDefecto;
 
-impl SeguridadPassword<BcryptError> for CifradoPorDefecto {
-    fn cifrar(&self, password: String) -> Result<String, BcryptError> {
-        let value = hash(password, DEFAULT_COST)?;
-        Ok(value)
+impl SeguridadPassword<PostulanteError> for CifradoPorDefecto {
+    fn cifrar(&self, password: String) -> Result<String, PostulanteError> {
+        hash(password, DEFAULT_COST)
+            .map_err(|_| PostulanteError::PostulantePasswordError(PasswordError::CifradoNoValido))
     }
 
-    fn comparar(&self, password: String, hashed: String) -> Result<bool, BcryptError> {
+    fn comparar(&self, password: String, hashed: String) -> Result<bool, PostulanteError> {
         verify(password, &hashed)
+            .map_err(|_| PostulanteError::PostulantePasswordError(PasswordError::NoVerificado))
     }
 }
 

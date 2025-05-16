@@ -1,4 +1,5 @@
 use crate::postulante::domain::error::documento::DocumentoError;
+use std::fmt;
 
 const MIN_DOCUMENT_LENGTH: usize = 4;
 
@@ -7,6 +8,12 @@ const MIN_DOCUMENT_LENGTH: usize = 4;
 /// Esta propiedad también debe ser único en el contexto de la aplicación.
 #[derive(Debug)]
 pub struct Documento(String);
+
+impl fmt::Display for Documento {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 impl Documento {
     pub fn new(value: &str) -> Result<Self, DocumentoError> {

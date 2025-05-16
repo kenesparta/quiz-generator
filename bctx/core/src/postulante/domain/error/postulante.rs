@@ -31,5 +31,11 @@ pub enum PostulanteError {
     PostulanteGeneroError(#[from] GeneroError),
 
     #[error("Error al persistir")]
-    PostulantePersistenciaError,
+    PostulanteRepositorioError(#[from] RepositorioError),
+}
+
+#[derive(Error, Debug)]
+pub enum RepositorioError {
+    #[error("Error al persistir")]
+    PersistenciaNoFinalizada,
 }

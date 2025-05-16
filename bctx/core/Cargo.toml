@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 quizz-common = { path = "../common" }
-serde = { version = "1.0.218", features = ["derive"] }
-uuid = { version = "1.15.1", features = ["v7"] }
 thiserror = "2.0.11"
 regex = "1.10.2"
+async-trait = "0.1.88"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

@@ -1,0 +1,13 @@
+### Register a new Postulante
+PUT http://localhost:3003/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
+Content-Type: application/json
+
+{
+  "documento": "12345678",
+  "nombre": "Juan",
+  "apellido_paterno": "Perez",
+  "apellido_materno": "Quispe",
+  "fecha_nacimiento": "1990-01-01",
+  "grado_instruccion": "superior",
+  "genero": "masculino"
+}

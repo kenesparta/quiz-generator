@@ -42,7 +42,7 @@ impl PostulantePutController {
             genero: dto.genero,
         };
 
-        match registrar_postulante.ejecutar(input) {
+        match registrar_postulante.ejecutar(input).await {
             Ok(_output) => HttpResponse::Created().json(""),
             Err(err) => match err {
                 PostulanteError::PostulanteIdError(id_err) => {
@@ -62,15 +62,15 @@ impl PostulantePutController {
                     HttpResponse::BadRequest().json(format!("Error de género: {}", genero_err))
                 }
                 PostulanteError::PostulantePasswordError(pwd_err) => {
-                    log::error!("Error de password: {}", pwd_err);
+                    // log::error!("Error de password: {}", pwd_err);
                     HttpResponse::InternalServerError().json("Error al procesar la contraseña")
                 }
                 PostulanteError::PostulanteRepositorioError(repo_error) => {
-                    log::error!("Error de persistencia {}", repo_error);
+                    // log::error!("Error de persistencia {}", repo_error);
                     HttpResponse::InternalServerError().json("Error al guardar el postulante")
                 }
                 _ => {
-                    log::error!("Error inesperado: {:?}", err);
+                    // log::error!("Error inesperado: {:?}", err);
                     HttpResponse::InternalServerError().json("Error inesperado")
                 }
             },

@@ -1,4 +1,5 @@
 use crate::postulante::domain::error::grado_instruccion::GradoInstruccionError;
+use std::fmt;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -10,14 +11,17 @@ pub enum GradoInstruccion {
     Posgrado,
 }
 
-impl fmt::Display for PostulanteID {
+impl fmt::Display for GradoInstruccion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Assuming PostulanteID contains a value that can be displayed
-        // If it's a wrapper around UUID, String, or other primitive type:
-        write!(f, "{}", self.0)  // Adjust this based on your actual structure
+        match self {
+            Self::Ninguno => write!(f, "Ninguno"),
+            Self::Primaria => write!(f, "Primaria"),
+            Self::Secundaria => write!(f, "Secundaria"),
+            Self::Superior => write!(f, "Superior"),
+            Self::Posgrado => write!(f, "Posgrado"),
+        }
     }
 }
-
 
 impl FromStr for GradoInstruccion {
     type Err = GradoInstruccionError;

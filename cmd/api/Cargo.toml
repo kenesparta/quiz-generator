@@ -13,15 +13,15 @@ name = "quizz"
 [dependencies]
 quizz-core = { path = "../../bctx/core" }
 quizz-common = { path = "../../bctx/common" }
-quizz-usermgm = { path = "../../bctx/usermgm"}
 
 actix-web = "4.9.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1.0.218", features = ["derive"] }
-thiserror = "2.0.11"
 config = "0.14.0"
 bcrypt = "0.14.0"
-log = "0.4.26"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+async-trait = "0.1.88"
 
 [dependencies.sqlx]
 version = "0.8.3"

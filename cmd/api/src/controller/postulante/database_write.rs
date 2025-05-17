@@ -15,7 +15,6 @@ impl PostulantePostgres {
     }
 }
 
-// sqlx::Error
 #[async_trait]
 impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {

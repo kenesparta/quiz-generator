@@ -1,5 +1,5 @@
 use crate::controller::postulante::crypto::CifradoPorDefecto;
-use crate::controller::postulante::database::PostulantePostgres;
+use crate::controller::postulante::database_write::PostulantePostgres;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;

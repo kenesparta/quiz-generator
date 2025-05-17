@@ -10,163 +10,6 @@ use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use async_trait::async_trait;
-    use std::sync::Mutex;
-
-    struct MockSeguridadPassword {
-        cifrar_result: Result<String, PostulanteError>,
-    }
-
-    #[async_trait]
-    impl SeguridadPassword<PostulanteError> for MockSeguridadPassword {
-        async fn cifrar(&self, _password: String) -> Result<String, PostulanteError> {
-            Ok("".to_string())
-        }
-
-        async fn comparar(
-            &self,
-            _password: String,
-            _hashed: String,
-        ) -> Result<bool, PostulanteError> {
-            unimplemented!()
-        }
-    }
-
-    struct MockRepositorioPostulante {
-        postulante: Mutex<Option<Postulante>>,
-        result: Result<(), PostulanteError>,
-    }
-
-    #[async_trait]
-    impl RepositorioPostulanteEscritura<PostulanteError> for MockRepositorioPostulante {
-        async fn registrar_postulante(
-            &self,
-            postulante: Postulante,
-        ) -> Result<(), PostulanteError> {
-            Ok(())
-        }
-    }
-
-    #[tokio::test]
-    async fn test_registrar_postulante_success() {
-        let password_crypto = Box::new(MockSeguridadPassword {
-            cifrar_result: Ok("hashed_password".to_string()),
-        });
-
-        let repositorio = Box::new(MockRepositorioPostulante {
-            postulante: Mutex::new(None),
-            result: Ok(()),
-        });
-
-        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
-
-        let result = use_case
-            .ejecutar(InputData {
-                id: "1".to_string(),
-                documento: "12345678".to_string(),
-                nombre: "John".to_string(),
-                apellido_paterno: "Doe".to_string(),
-                apellido_materno: "Smith".to_string(),
-                fecha_nacimiento: "1990-01-01".to_string(),
-                grado_instruccion: "SECUNDARIA".to_string(),
-                genero: "MASCULINO".to_string(),
-            })
-            .await;
-
-        assert!(result.is_ok());
-    }
-
-    #[tokio::test]
-    async fn test_registrar_postulante_invalid_documento() {
-        let password_crypto = Box::new(MockSeguridadPassword {
-            cifrar_result: Ok("hashed_password".to_string()),
-        });
-
-        let repositorio = Box::new(MockRepositorioPostulante {
-            postulante: Mutex::new(None),
-            result: Ok(()),
-        });
-
-        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
-
-        let result = use_case
-            .ejecutar(InputData {
-                id: "1".to_string(),
-                documento: "123".to_string(), // Invalid document
-                nombre: "John".to_string(),
-                apellido_paterno: "Doe".to_string(),
-                apellido_materno: "Smith".to_string(),
-                fecha_nacimiento: "1990-01-01".to_string(),
-                grado_instruccion: "SECUNDARIA".to_string(),
-                genero: "MASCULINO".to_string(),
-            })
-            .await;
-
-        assert!(result.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_registrar_postulante_invalid_genero() {
-        let password_crypto = Box::new(MockSeguridadPassword {
-            cifrar_result: Ok("hashed_password".to_string()),
-        });
-
-        let repositorio = Box::new(MockRepositorioPostulante {
-            postulante: Mutex::new(None),
-            result: Ok(()),
-        });
-
-        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
-
-        let result = use_case
-            .ejecutar(InputData {
-                id: "1".to_string(),
-                documento: "12345678".to_string(),
-                nombre: "John".to_string(),
-                apellido_paterno: "Doe".to_string(),
-                apellido_materno: "Smith".to_string(),
-                fecha_nacimiento: "1990-01-01".to_string(),
-                grado_instruccion: "SECUNDARIA".to_string(),
-                genero: "INVALID".to_string(),
-            })
-            .await;
-
-        assert!(result.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_registrar_postulante_invalid_grado() {
-        let password_crypto = Box::new(MockSeguridadPassword {
-            cifrar_result: Ok("hashed_password".to_string()),
-        });
-
-        let repositorio = Box::new(MockRepositorioPostulante {
-            postulante: Mutex::new(None),
-            result: Ok(()),
-        });
-
-        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
-
-        let result = use_case
-            .ejecutar(InputData {
-                id: "1".to_string(),
-                documento: "12345678".to_string(),
-                nombre: "John".to_string(),
-                apellido_paterno: "Doe".to_string(),
-                apellido_materno: "Smith".to_string(),
-                fecha_nacimiento: "1990-01-01".to_string(),
-                grado_instruccion: "INVALID".to_string(),
-                genero: "MASCULINO".to_string(),
-            })
-            .await;
-
-        assert!(result.is_err());
-    }
-}
-
 pub struct InputData {
     pub id: String,
     pub documento: String,
@@ -225,5 +68,164 @@ where
         )?;
         self.repositorio.registrar_postulante(postulante).await?;
         Ok(OutputData {})
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use async_trait::async_trait;
+    use std::sync::Mutex;
+
+    struct MockSeguridadPassword {
+        _cifrar_result: Result<String, PostulanteError>,
+    }
+
+    #[async_trait]
+    impl SeguridadPassword<PostulanteError> for MockSeguridadPassword {
+        async fn cifrar(&self, _password: String) -> Result<String, PostulanteError> {
+            Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
+        }
+
+        async fn comparar(
+            &self,
+            _password: String,
+            _hashed: String,
+        ) -> Result<bool, PostulanteError> {
+            unimplemented!()
+        }
+    }
+
+    struct MockRepositorioPostulante {
+        _postulante: Mutex<Option<Postulante>>,
+        _result: Result<(), PostulanteError>,
+    }
+
+    #[async_trait]
+    impl RepositorioPostulanteEscritura<PostulanteError> for MockRepositorioPostulante {
+        async fn registrar_postulante(
+            &self,
+            _postulante: Postulante,
+        ) -> Result<(), PostulanteError> {
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn test_registrar_postulante_success() {
+        let password_crypto = Box::new(MockSeguridadPassword {
+            _cifrar_result: Ok(
+                "$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string(),
+            ),
+        });
+
+        let repositorio = Box::new(MockRepositorioPostulante {
+            _postulante: Mutex::new(None),
+            _result: Ok(()),
+        });
+
+        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
+
+        let result = use_case
+            .ejecutar(InputData {
+                id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
+                documento: "12345678".to_string(),
+                nombre: "John".to_string(),
+                apellido_paterno: "Doe".to_string(),
+                apellido_materno: "Smith".to_string(),
+                fecha_nacimiento: "1990-01-01".to_string(),
+                grado_instruccion: "SECUNDARIA".to_string(),
+                genero: "MASCULINO".to_string(),
+            })
+            .await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_registrar_postulante_invalid_documento() {
+        let password_crypto = Box::new(MockSeguridadPassword {
+            _cifrar_result: Ok("hashed_password".to_string()),
+        });
+
+        let repositorio = Box::new(MockRepositorioPostulante {
+            _postulante: Mutex::new(None),
+            _result: Ok(()),
+        });
+
+        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
+
+        let result = use_case
+            .ejecutar(InputData {
+                id: "1".to_string(),
+                documento: "123".to_string(),
+                nombre: "John".to_string(),
+                apellido_paterno: "Doe".to_string(),
+                apellido_materno: "Smith".to_string(),
+                fecha_nacimiento: "1990-01-01".to_string(),
+                grado_instruccion: "SECUNDARIA".to_string(),
+                genero: "MASCULINO".to_string(),
+            })
+            .await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_registrar_postulante_invalid_genero() {
+        let password_crypto = Box::new(MockSeguridadPassword {
+            _cifrar_result: Ok("hashed_password".to_string()),
+        });
+
+        let repositorio = Box::new(MockRepositorioPostulante {
+            _postulante: Mutex::new(None),
+            _result: Ok(()),
+        });
+
+        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
+
+        let result = use_case
+            .ejecutar(InputData {
+                id: "1".to_string(),
+                documento: "12345678".to_string(),
+                nombre: "John".to_string(),
+                apellido_paterno: "Doe".to_string(),
+                apellido_materno: "Smith".to_string(),
+                fecha_nacimiento: "1990-01-01".to_string(),
+                grado_instruccion: "SECUNDARIA".to_string(),
+                genero: "INVALID".to_string(),
+            })
+            .await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_registrar_postulante_invalid_grado() {
+        let password_crypto = Box::new(MockSeguridadPassword {
+            _cifrar_result: Ok("hashed_password".to_string()),
+        });
+
+        let repositorio = Box::new(MockRepositorioPostulante {
+            _postulante: Mutex::new(None),
+            _result: Ok(()),
+        });
+
+        let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
+
+        let result = use_case
+            .ejecutar(InputData {
+                id: "1".to_string(),
+                documento: "12345678".to_string(),
+                nombre: "John".to_string(),
+                apellido_paterno: "Doe".to_string(),
+                apellido_materno: "Smith".to_string(),
+                fecha_nacimiento: "1990-01-01".to_string(),
+                grado_instruccion: "INVALID".to_string(),
+                genero: "MASCULINO".to_string(),
+            })
+            .await;
+
+        assert!(result.is_err());
     }
 }

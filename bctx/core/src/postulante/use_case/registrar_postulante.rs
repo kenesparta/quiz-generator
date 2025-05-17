@@ -6,9 +6,9 @@ use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
 use crate::postulante::provider::password::SeguridadPassword;
 use crate::postulante::provider::repositorio::RepositorioPostulanteEscritura;
+use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
-use async_trait::async_trait;
 
 #[cfg(test)]
 mod tests {

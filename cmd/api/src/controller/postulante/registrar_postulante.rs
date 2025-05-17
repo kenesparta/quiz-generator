@@ -61,11 +61,11 @@ impl PostulantePutController {
                 PostulanteError::PostulanteGeneroError(genero_err) => {
                     HttpResponse::BadRequest().json(format!("Error de género: {}", genero_err))
                 }
-                PostulanteError::PostulantePasswordError(pwd_err) => {
+                PostulanteError::PostulantePasswordError(_pwd_err) => {
                     // log::error!("Error de password: {}", pwd_err);
                     HttpResponse::InternalServerError().json("Error al procesar la contraseña")
                 }
-                PostulanteError::PostulanteRepositorioError(repo_error) => {
+                PostulanteError::PostulanteRepositorioError(_repo_error) => {
                     // log::error!("Error de persistencia {}", repo_error);
                     HttpResponse::InternalServerError().json("Error al guardar el postulante")
                 }

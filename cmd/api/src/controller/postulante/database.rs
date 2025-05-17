@@ -50,9 +50,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
             Err(e) => {
                 error!(
                     "Database error while registering postulante: id={}, documento={}, error={}",
-                    postulante.id,
-                    postulante.documento,
-                    e
+                    postulante.id, postulante.documento, e
                 );
 
                 Err(PostulanteError::PostulanteRepositorioError(

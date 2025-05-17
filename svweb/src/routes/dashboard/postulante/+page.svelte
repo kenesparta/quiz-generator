@@ -7,10 +7,6 @@
     telefono: string;
   }
 
-  const postulantesList = () => {
-
-  }
-
   let postulantes: Postulante[] = [
     {
       id: 1,

@@ -35,7 +35,7 @@ impl ID {
     pub fn value(&self) -> String {
         self.uuid.to_string()
     }
-    
+
     pub fn uuid(&self) -> &Uuid {
         &self.uuid
     }

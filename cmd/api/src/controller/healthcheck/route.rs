@@ -5,5 +5,5 @@ async fn handler(_: HttpRequest) -> impl Responder {
 }
 
 pub fn health_check(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/health-check").route(web::put().to(handler)));
+    cfg.service(web::resource("/health-check").route(web::get().to(handler)));
 }

@@ -1,4 +1,8 @@
 ### Register a new Postulante
+GET http://localhost:3003/health-check
+Content-Type: application/json
+
+### Registrar nuevo Postulante
 PUT http://localhost:3003/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
 

@@ -1,4 +1,7 @@
 <script lang="ts">
+  export let data;
+  const postulanteList = data
+
   interface Postulante {
     id: number;
     nombre: string;

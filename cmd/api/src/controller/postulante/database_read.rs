@@ -96,6 +96,69 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadPostgres {
     }
 
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-        todo!()
+        let pool = self.pool.as_ref();
+
+        match sqlx::query_as::<_, PostulanteDataBaseDTO>(
+            r#"
+        SELECT
+            id,
+            documento,
+            nombre,
+            primer_apellido,
+            segundo_apellido,
+            fecha_nacimiento,
+            grado_instruccion,
+            genero
+        FROM postulante
+        "#,
+        )
+        .fetch_all(pool)
+        .await
+        {
+            Ok(dtos) => {
+                let postulantes = dtos
+                    .into_iter()
+                    .filter_map(|dto| {
+                        match (|| {
+                            let id = PostulanteID::new(&dto.id.to_string())?;
+                            let documento = Documento::new(&dto.documento.to_string())?;
+                            let nombre_completo =
+                                Nombre::new(dto.nombre, dto.primer_apellido, dto.segundo_apellido)?;
+                            let fecha_nacimiento = FechaNacimiento::new(&dto.fecha_nacimiento)?;
+                            let grado_instruccion =
+                                GradoInstruccion::from_str(&dto.grado_instruccion)?;
+                            let genero = Genero::from_str(&dto.genero)?;
+
+                            Ok::<Postulante, PostulanteError>(Postulante {
+                                id,
+                                documento,
+                                nombre_completo,
+                                fecha_nacimiento,
+                                grado_instruccion,
+                                genero,
+                                password: None,
+                            })
+                        })() {
+                            Ok(postulante) => Some(postulante),
+                            Err(e) => {
+                                error!("Error al convertir DTO a entidad Postulante: {}", e);
+                                None
+                            }
+                        }
+                    })
+                    .collect();
+
+                Ok(postulantes)
+            }
+            Err(e) => {
+                error!(
+                    "Error de base de datos al obtener la lista de postulantes: {}",
+                    e
+                );
+                Err(PostulanteError::PostulanteRepositorioError(
+                    RepositorioError::PersistenciaNoFinalizada,
+                ))
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::buscar_postulante::{
     InputData, ObtenerPostulantePorDocumento,
 };
+use quizz_core::postulante::use_case::lista_postulantes::{InputData as ListInputData, ObtenerListaDePostulantes};
 use sqlx::PgPool;
 
 pub struct PostulanteObtenerPorDocumentoController;
@@ -15,9 +16,9 @@ impl PostulanteObtenerPorDocumentoController {
         pool: web::Data<PgPool>,
     ) -> HttpResponse {
         let postulante_documento = &query.documento;
-
         let postulante_pool = PostulanteReadPostgres::new(pool);
         let obtener_postulante = ObtenerPostulantePorDocumento::new(Box::new(postulante_pool));
+
         match obtener_postulante
             .ejecutar(InputData {
                 documento: postulante_documento.to_string(),
@@ -65,9 +66,43 @@ impl PostulanteObtenerPorDocumentoController {
     }
 }
 
-pub struct PostulanteListGetController;
-impl PostulanteListGetController {
+pub struct PostulanteListController;
+impl PostulanteListController {
     pub async fn get(_req: HttpRequest, pool: web::Data<PgPool>) -> HttpResponse {
-        HttpResponse::Ok().finish()
+        let postulante_pool = PostulanteReadPostgres::new(pool);
+        let lista_de_postulantes = ObtenerListaDePostulantes::new(Box::new(postulante_pool));
+        match lista_de_postulantes.ejecutar(ListInputData {}).await {
+            Ok(postulantes) => {
+                let response_dto: Vec<PostulanteResponseDTO> = postulantes.postulantes
+                    .into_iter()
+                    .map(|p| PostulanteResponseDTO {
+                        id: p.id.to_string(),
+                        documento: p.documento.to_string(),
+                        nombre: p.nombre.to_string(),
+                        primer_apellido: p.primer_apellido.to_string(),
+                        segundo_apellido: p.segundo_apellido.to_string(),
+                        nombre_completo: p.nombre_completo.to_string(),
+                        fecha_nacimiento: p.fecha_nacimiento.to_string(),
+                        grado_instruccion: p.grado_instruccion.to_string(),
+                        genero: p.genero.to_string(),
+                        links_: Links {
+                            self_: format!("/postulantes/{}", p.id),
+                            update: format!("/postulantes/{}", p.id),
+                            delete: format!("/postulantes/{}", p.id),
+                            exams: format!("/postulantes/{}/exams", p.id),
+                            results: format!("/postulantes/{}/results", p.id),
+                        },
+                    })
+                    .collect();
+
+                HttpResponse::Ok().json(response_dto)
+            },
+            Err(err) => match err {
+                PostulanteError::PostulanteRepositorioError(_) => HttpResponse::InternalServerError()
+                    .json(serde_json::json!({"error": "Error fetching postulantes"})),
+                _ => HttpResponse::InternalServerError()
+                    .json(serde_json::json!({"error": "An unexpected error occurred"})),
+            }
+        }
     }
 }

@@ -17,7 +17,9 @@ Content-Type: application/json
 }
 
 ### Obtener el postulante por documento
-GET http://localhost:3003/postulantes?documento=123456782
+GET http://localhost:3003/postulantes/search?documento=123456782
 Content-Type: application/json
 
-###
+### Obtener lista de postulantes
+GET http://localhost:3003/postulantes
+Content-Type: application/json

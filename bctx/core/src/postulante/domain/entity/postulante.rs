@@ -16,7 +16,7 @@ pub struct Postulante {
     pub fecha_nacimiento: FechaNacimiento,
     pub grado_instruccion: GradoInstruccion,
     pub genero: Genero,
-    pub password: Password,
+    pub password: Option<Password>,
 }
 
 impl Postulante {
@@ -43,7 +43,7 @@ impl Postulante {
             fecha_nacimiento,
             grado_instruccion,
             genero,
-            password,
+            password: Some(password),
         })
     }
 }

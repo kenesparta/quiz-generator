@@ -19,6 +19,12 @@ impl PostulantePostgres {
 impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
         let pool = self.pool.as_ref();
+        let password = postulante
+            .password
+            .ok_or(PostulanteError::PostulanteRepositorioError(
+                RepositorioError::PasswordVacio,
+            ))?
+            .value();
 
         match sqlx::query(
             "INSERT INTO postulante (
@@ -41,7 +47,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
         .bind(postulante.fecha_nacimiento.to_string())
         .bind(postulante.grado_instruccion.to_string())
         .bind(postulante.genero.to_string())
-        .bind(postulante.password.value())
+        .bind(password)
         .execute(pool)
         .await
         {

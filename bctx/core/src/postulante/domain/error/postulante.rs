@@ -38,4 +38,10 @@ pub enum PostulanteError {
 pub enum RepositorioError {
     #[error("Error al persistir")]
     PersistenciaNoFinalizada,
+
+    #[error("El password esta vacio antes de ejecutar la persistencia")]
+    PasswordVacio,
+
+    #[error("registro no encontrado")]
+    RegistroNoEncontrado,
 }

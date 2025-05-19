@@ -1,3 +1,4 @@
 pub mod configuration;
-pub mod controller;
+mod controller;
+mod cors;
 pub mod startup;

@@ -2,7 +2,7 @@ use crate::controller::postulante::buscar_postulante::{
     PostulanteListController, PostulanteObtenerPorDocumentoController,
 };
 use crate::controller::postulante::registrar_postulante::PostulantePutController;
-use actix_web::{HttpRequest, guard, web};
+use actix_web::web;
 
 pub fn postulante(cfg: &mut web::ServiceConfig) {
     cfg.service(

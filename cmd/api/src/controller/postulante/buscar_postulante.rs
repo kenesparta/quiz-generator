@@ -6,7 +6,9 @@ use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::buscar_postulante::{
     InputData, ObtenerPostulantePorDocumento,
 };
-use quizz_core::postulante::use_case::lista_postulantes::{InputData as ListInputData, ObtenerListaDePostulantes};
+use quizz_core::postulante::use_case::lista_postulantes::{
+    InputData as ListInputData, ObtenerListaDePostulantes,
+};
 use sqlx::PgPool;
 
 pub struct PostulanteObtenerPorDocumentoController;
@@ -73,7 +75,8 @@ impl PostulanteListController {
         let lista_de_postulantes = ObtenerListaDePostulantes::new(Box::new(postulante_pool));
         match lista_de_postulantes.ejecutar(ListInputData {}).await {
             Ok(postulantes) => {
-                let response_dto: Vec<PostulanteResponseDTO> = postulantes.postulantes
+                let response_dto: Vec<PostulanteResponseDTO> = postulantes
+                    .postulantes
                     .into_iter()
                     .map(|p| PostulanteResponseDTO {
                         id: p.id.to_string(),
@@ -96,13 +99,15 @@ impl PostulanteListController {
                     .collect();
 
                 HttpResponse::Ok().json(response_dto)
-            },
+            }
             Err(err) => match err {
-                PostulanteError::PostulanteRepositorioError(_) => HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"error": "Error fetching postulantes"})),
+                PostulanteError::PostulanteRepositorioError(_) => {
+                    HttpResponse::InternalServerError()
+                        .json(serde_json::json!({"error": "Error fetching postulantes"}))
+                }
                 _ => HttpResponse::InternalServerError()
                     .json(serde_json::json!({"error": "An unexpected error occurred"})),
-            }
+            },
         }
     }
 }

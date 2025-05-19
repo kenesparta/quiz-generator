@@ -9,11 +9,21 @@
 <div class="dashboard-container">
     <div class="sidebar">
         <ul>
-            <li><a href="/dashboard"
-                   on:click|preventDefault={() => navigateTo('/dashboard')}>Dashboard</a></li>
-            <li><a href="/dashboard/postulante"
+            <li>
+                <a href="/dashboard"
+                   on:click|preventDefault={() => navigateTo('/dashboard')}>Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/postulante"
                    on:click|preventDefault={() => navigateTo('/dashboard/postulante')}>Postulante
-            </a></li>
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/evaluacion"
+                   on:click|preventDefault={() => navigateTo('/dashboard/evaluacion')}>Evaluación
+                </a>
+            </li>
         </ul>
     </div>
 

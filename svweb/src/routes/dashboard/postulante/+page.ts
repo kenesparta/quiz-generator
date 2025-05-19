@@ -1,4 +1,7 @@
-const load = async () => {
-  const postulantes = await fetch('http://localhost:3003/postulante')
-  return await postulantes.json()
+export const load = async ({ fetch }) => {
+  const resp = await fetch('http://localhost:3003/postulantes');
+  let postulantes = await resp.json()
+  return {
+    postulantes
+  };
 }

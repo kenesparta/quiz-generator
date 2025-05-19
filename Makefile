@@ -9,3 +9,6 @@ dev:
 
 exec:
 	docker compose -f docker-compose.dev.yml exec nodejs-api bash
+
+prod:
+	docker compose -f docker-compose.prod.yml up -d --build

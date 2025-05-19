@@ -1,36 +1,48 @@
 <script lang="ts">
-  export let data;
-  const postulanteList = data
+  export let data
+  console.log(data)
+  const { postulantes } = data
 
   interface Postulante {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    telefono: string;
+    documento: string;
+    nombre_completo: string;
+    fecha_nacimiento: string;
+    grado_instruccion: string;
+    genero: string;
   }
 
-  let postulantes: Postulante[] = [
-    {
-      id: 1,
-      nombre: 'Juan',
-      apellido: 'Pérez',
-      email: 'juan.perez@example.com',
-      telefono: '555-1234'
-    },
-    {
-      id: 2,
-      nombre: 'María',
-      apellido: 'González',
-      email: 'maria.gonzalez@example.com',
-      telefono: '555-5678'
-    }
-  ];
+  interface PostulanteDTO {
+    nombre: string;
+    primerApellido: string;
+    segundoApellido: string;
+    documento: string;
+    nombre_completo: string;
+    fecha_nacimiento: string;
+    grado_instruccion: string;
+    genero: string;
+  }
+
+  // let postulantes: Postulante[] = [
+  //   {
+  //     id: 1,
+  //     nombre: 'Juan',
+  //     apellido: 'Pérez',
+  //     email: 'juan.perez@example.com',
+  //     telefono: '555-1234'
+  //   },
+  //   {
+  //     id: 2,
+  //     nombre: 'María',
+  //     apellido: 'González',
+  //     email: 'maria.gonzalez@example.com',
+  //     telefono: '555-5678'
+  //   }
+  // ];
 
   let showModal = false;
   let modalMode: 'add' | 'edit' = 'add';
 
-  let currentPostulante: Omit<Postulante, 'id'> & { id?: number } = {
+  let currentPostulante: Omit<PostulanteDTO, 'id'> & { id?: number } = {
     nombre: '',
     apellido: '',
     email: '',
@@ -84,34 +96,34 @@
     let isValid = true;
     clearErrors();
 
-    // Check required fields
-    if (!currentPostulante.nombre.trim()) {
-      errors.nombre = 'El nombre es requerido';
-      isValid = false;
-    }
-
-    if (!currentPostulante.apellido.trim()) {
-      errors.apellido = 'El apellido es requerido';
-      isValid = false;
-    }
-
-    // Validate email format
-    if (!currentPostulante.email.trim()) {
-      errors.email = 'El email es requerido';
-      isValid = false;
-    } else if (!/^\S+@\S+\.\S+$/.test(currentPostulante.email)) {
-      errors.email = 'El formato del email es inválido';
-      isValid = false;
-    }
-
-    // Validate phone format - simple check
-    if (!currentPostulante.telefono.trim()) {
-      errors.telefono = 'El teléfono es requerido';
-      isValid = false;
-    } else if (!/^[0-9\-\+\s]+$/.test(currentPostulante.telefono)) {
-      errors.telefono = 'El formato del teléfono es inválido';
-      isValid = false;
-    }
+    // // Check required fields
+    // if (!currentPostulante.nombre.trim()) {
+    //   errors.nombre = 'El nombre es requerido';
+    //   isValid = false;
+    // }
+    //
+    // if (!currentPostulante.apellido.trim()) {
+    //   errors.apellido = 'El apellido es requerido';
+    //   isValid = false;
+    // }
+    //
+    // // Validate email format
+    // if (!currentPostulante.email.trim()) {
+    //   errors.email = 'El email es requerido';
+    //   isValid = false;
+    // } else if (!/^\S+@\S+\.\S+$/.test(currentPostulante.email)) {
+    //   errors.email = 'El formato del email es inválido';
+    //   isValid = false;
+    // }
+    //
+    // // Validate phone format - simple check
+    // if (!currentPostulante.telefono.trim()) {
+    //   errors.telefono = 'El teléfono es requerido';
+    //   isValid = false;
+    // } else if (!/^[0-9\-\+\s]+$/.test(currentPostulante.telefono)) {
+    //   errors.telefono = 'El formato del teléfono es inválido';
+    //   isValid = false;
+    // }
 
     return isValid;
   }
@@ -127,23 +139,23 @@
         : 1;
 
       // Add the new postulante to the array
-      postulantes = [
-        ...postulantes,
-        {
-          id: newId,
-          nombre: currentPostulante.nombre,
-          apellido: currentPostulante.apellido,
-          email: currentPostulante.email,
-          telefono: currentPostulante.telefono
-        }
-      ];
+      // postulantes = [
+      //   ...postulantes,
+      //   {
+      //     id: newId,
+      //     nombre: currentPostulante.nombre,
+      //     apellido: currentPostulante.apellido,
+      //     email: currentPostulante.email,
+      //     telefono: currentPostulante.telefono
+      //   }
+      // ];
     } else if (modalMode === 'edit' && currentPostulante.id) {
       // Update existing postulante
-      postulantes = postulantes.map(p =>
-        p.id === currentPostulante.id
-          ? { ...currentPostulante as Postulante }
-          : p
-      );
+      // postulantes = postulantes.map(p =>
+      //   p.id === currentPostulante.id
+      //     ? { ...currentPostulante as Postulante }
+      //     : p
+      // );
     }
 
     // Close modal after save
@@ -153,7 +165,7 @@
   // Delete postulante
   function deletePostulante(id: number): void {
     if (confirm('¿Está seguro que desea eliminar este postulante?')) {
-      postulantes = postulantes.filter(p => p.id !== id);
+      // postulantes = postulantes.filter(p => p.id !== id);
     }
   }
 </script>
@@ -171,22 +183,22 @@
         <table class="postulantes-table">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Teléfono</th>
+                <th>Documento</th>
+                <th>Nombre Completo</th>
+                <th>Fecha Nacimiento</th>
+                <th>Grado Instruccion</th>
+                <th>Genero</th>
                 <th>Acciones</th>
             </tr>
             </thead>
             <tbody>
             {#each postulantes as postulante (postulante.id)}
                 <tr>
-                    <td>{postulante.id}</td>
-                    <td>{postulante.nombre}</td>
-                    <td>{postulante.apellido}</td>
-                    <td>{postulante.email}</td>
-                    <td>{postulante.telefono}</td>
+                    <td>{postulante.documento}</td>
+                    <td>{postulante.nombre_completo}</td>
+                    <td>{postulante.fecha_nacimiento}</td>
+                    <td>{postulante.grado_instruccion}</td>
+                    <td>{postulante.genero}</td>
                     <td class="actions">
                         <button class="edit-button" on:click={() => openEditModal(postulante)}>Editar</button>
                         <button class="delete-button" on:click={() => deletePostulante(postulante.id)}>Eliminar</button>
@@ -223,7 +235,9 @@
                                     <div class="error-message">{errors.nombre}</div>
                                 {/if}
                             </div>
+                        </div>
 
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="apellido">Apellido</label>
                                 <input
@@ -236,7 +250,6 @@
                                 {/if}
                             </div>
                         </div>
-
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="email">Email</label>

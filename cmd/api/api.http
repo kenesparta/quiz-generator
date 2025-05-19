@@ -16,6 +16,20 @@ Content-Type: application/json
   "genero": "masculino"
 }
 
+### Registrar nuevo Postulante
+PUT http://localhost:3003/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+Content-Type: application/json
+
+{
+  "documento": "99009988",
+  "nombre": "Leonardo",
+  "apellido_paterno": "Chavez",
+  "apellido_materno": "Espinoza",
+  "fecha_nacimiento": "1990-01-01",
+  "grado_instruccion": "superior",
+  "genero": "masculino"
+}
+
 ### Obtener el postulante por documento
 GET http://localhost:3003/postulantes/search?documento=123456782
 Content-Type: application/json

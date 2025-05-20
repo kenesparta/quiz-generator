@@ -1,1 +1,0 @@
-export { MenuArrow } from './Arrow'

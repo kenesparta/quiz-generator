@@ -1,9 +1,0 @@
-services:
-  nodejs-api:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/home/node/app
-    ports:
-      - "3000:3000"

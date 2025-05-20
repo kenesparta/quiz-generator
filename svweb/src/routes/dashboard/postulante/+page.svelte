@@ -1,6 +1,5 @@
 <script lang="ts">
   export let data
-  console.log(data)
   const { postulantes } = data
 
   interface Postulante {
@@ -16,10 +15,9 @@
     primerApellido: string;
     segundoApellido: string;
     documento: string;
-    nombre_completo: string;
-    fecha_nacimiento: string;
-    grado_instruccion: string;
+    fechaNacimiento: string;
     genero: string;
+    gradoInstruccion: string;
   }
 
   // let postulantes: Postulante[] = [
@@ -44,9 +42,13 @@
 
   let currentPostulante: Omit<PostulanteDTO, 'id'> & { id?: number } = {
     nombre: '',
-    apellido: '',
-    email: '',
-    telefono: ''
+    primerApellido: '',
+    segundoApellido: '',
+    documento: '',
+    nombreCompleto: '',
+    fecha_nacimiento: '',
+    grado_instruccion: '',
+    genero: '',
   };
 
   // Validation errors
@@ -54,22 +56,27 @@
     nombre: '',
     apellido: '',
     email: '',
-    telefono: ''
+    telefono: '',
+    genero: ''
   };
 
   function openAddModal(): void {
     modalMode = 'add';
     currentPostulante = {
       nombre: '',
-      apellido: '',
-      email: '',
-      telefono: ''
+      primerApellido: '',
+      segundoApellido: '',
+      documento: '',
+      nombreCompleto: '',
+      fecha_nacimiento: '',
+      grado_instruccion: '',
+      genero: '',
     };
     clearErrors();
     showModal = true;
   }
 
-  function openEditModal(postulante: Postulante): void {
+  function openEditModal(postulante: PostulanteDTO): void {
     modalMode = 'edit';
     currentPostulante = { ...postulante };
     clearErrors();
@@ -125,6 +132,16 @@
     //   isValid = false;
     // }
 
+    // {
+    //   "documento": "99009988",
+    //   "nombre": "Leonardo",
+    //   "apellido_paterno": "Chavez",
+    //   "apellido_materno": "Espinoza",
+    //   "fecha_nacimiento": "1990-01-01",
+    //   "grado_instruccion": "superior",
+    //   "genero": "masculino"
+    // }
+
     return isValid;
   }
 
@@ -170,9 +187,8 @@
   }
 </script>
 
-<h1>Postulante</h1>
-
 <div class="container">
+    <h1>Postulante</h1>
     <div class="header-actions">
         <button class="action-button" on:click={openAddModal}>
             Agregar Postulante
@@ -187,7 +203,6 @@
                 <th>Nombre Completo</th>
                 <th>Fecha Nacimiento</th>
                 <th>Grado Instruccion</th>
-                <th>Genero</th>
                 <th>Acciones</th>
             </tr>
             </thead>
@@ -198,7 +213,6 @@
                     <td>{postulante.nombre_completo}</td>
                     <td>{postulante.fecha_nacimiento}</td>
                     <td>{postulante.grado_instruccion}</td>
-                    <td>{postulante.genero}</td>
                     <td class="actions">
                         <button class="edit-button" on:click={() => openEditModal(postulante)}>Editar</button>
                         <button class="delete-button" on:click={() => deletePostulante(postulante.id)}>Eliminar</button>
@@ -223,58 +237,90 @@
                 </div>
                 <div class="modal-body">
                     <form on:submit|preventDefault={savePostulante}>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="nombre">Nombre</label>
-                                <input
-                                        type="text"
-                                        id="nombre"
-                                        bind:value={currentPostulante.nombre}
-                                />
-                                {#if errors.nombre}
-                                    <div class="error-message">{errors.nombre}</div>
-                                {/if}
-                            </div>
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input
+                                    type="text"
+                                    id="nombre"
+                                    bind:value={currentPostulante.nombre}
+                            />
+                            {#if errors.nombre}
+                                <div class="error-message">{errors.nombre}</div>
+                            {/if}
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="apellido">Apellido</label>
-                                <input
-                                        type="text"
-                                        id="apellido"
-                                        bind:value={currentPostulante.apellido}
-                                />
-                                {#if errors.apellido}
-                                    <div class="error-message">{errors.apellido}</div>
-                                {/if}
-                            </div>
+                        <div class="form-group">
+                            <label for="primerApellido">Primer Apellido</label>
+                            <input
+                                    type="text"
+                                    id="primerApellido"
+                                    bind:value={currentPostulante.primerApellido}
+                            />
+                            {#if errors.apellido}
+                                <div class="error-message">{errors.apellido}</div>
+                            {/if}
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input
-                                        type="email"
-                                        id="email"
-                                        bind:value={currentPostulante.email}
-                                />
-                                {#if errors.email}
-                                    <div class="error-message">{errors.email}</div>
-                                {/if}
-                            </div>
 
-                            <div class="form-group">
-                                <label for="telefono">Teléfono</label>
-                                <input
-                                        type="tel"
-                                        id="telefono"
-                                        bind:value={currentPostulante.telefono}
-                                />
-                                {#if errors.telefono}
-                                    <div class="error-message">{errors.telefono}</div>
-                                {/if}
-                            </div>
+                        <div class="form-group">
+                            <label for="segundoApellido">Segundo Apellido</label>
+                            <input
+                                    type="text"
+                                    id="segundoApellido"
+                                    bind:value={currentPostulante.segundoApellido}
+                            />
+                            {#if errors.apellido}
+                                <div class="error-message">{errors.apellido}</div>
+                            {/if}
                         </div>
+
+                        <div class="form-group">
+                            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                            <input
+                                    type="date"
+                                    id="fechaNacimiento"
+                                    bind:value={currentPostulante.fechaNacimiento}
+                            />
+                            {#if errors.email}
+                                <div class="error-message">{errors.email}</div>
+                            {/if}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="genero">Género</label>
+                            <select
+                                    id="genero"
+                                    bind:value={currentPostulante.genero}
+                                    class="form-select"
+                            >
+                                <option value="">Seleccione un género</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="NoBinario">No Binario</option>
+                            </select>
+                            {#if errors.genero}
+                                <div class="error-message">{errors.genero}</div>
+                            {/if}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="instruccion">Instrucción</label>
+                            <select
+                                    id="instruccion"
+                                    bind:value={currentPostulante.gradoInstruccion}
+                                    class="form-select"
+                            >
+                                <option value="">Seleccione un género</option>
+                                <option value="Ninguno">Ninguno</option>
+                                <option value="Primaria">Primaria</option>
+                                <option value="Secundaria">Secundaria</option>
+                                <option value="Superior">Superior</option>
+                                <option value="Postgrado">Postgrado</option>
+                            </select>
+                            {#if errors.genero}
+                                <div class="error-message">{errors.genero}</div>
+                            {/if}
+                        </div>
+
 
                         <div class="form-actions">
                             <button type="button" on:click={closeModal} class="cancel-button">
@@ -294,7 +340,6 @@
 
 <style>
     .container {
-        margin: 20px;
         display: grid;
         grid-template-rows: auto 1fr;
         gap: 20px;
@@ -306,38 +351,52 @@
     }
 
     .action-button {
-        background-color: #4CAF50;
+        background-color: #009709;
         color: white;
         padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
+        border: 2px solid #000;
         cursor: pointer;
         font-weight: bold;
     }
 
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 15px;
-    }
-
     .form-group {
-        display: grid;
-        grid-template-rows: auto auto auto;
-        gap: 5px;
+        margin-bottom: 15px;
     }
 
     .form-group label {
         font-weight: bold;
+        font-size: 0.8rem;
     }
 
     .form-group input {
         width: 100%;
         padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        border: 2px solid #aaa;
         box-sizing: border-box;
+        margin-top: 2px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+        border-color: #1187ff;
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+    }
+
+
+    .form-group .form-select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 2px solid #aaa;
+        margin-top: 2px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group .form-select:focus {
+        border-color: #1187ff;
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
     }
 
     .error-message {
@@ -348,46 +407,35 @@
     .form-actions {
         display: grid;
         grid-template-columns: auto auto;
-        justify-content: end;
+        /*justify-content: end;*/
         gap: 10px;
         margin-top: 20px;
     }
 
     .cancel-button {
-        background-color: #f5f5f5;
-        border: 1px solid #ddd;
+        background-color: #f44336;
         padding: 8px 15px;
-        border-radius: 4px;
         cursor: pointer;
+        border: 2px solid #000;
+        color: white;
+        font-weight: bold;
     }
 
     .save-button {
-        background-color: #4CAF50;
+        background-color: #009709;
         color: white;
-        border: none;
+        border: 2px solid #000;
         padding: 8px 15px;
-        border-radius: 4px;
         cursor: pointer;
+        font-weight: bold;
     }
 
     .postulantes-table {
         width: 100%;
         border-collapse: collapse;
-        display: grid;
-        grid-template-rows: auto 1fr;
-    }
-
-    .postulantes-table thead {
-        display: grid;
-    }
-
-    .postulantes-table tbody {
-        display: grid;
     }
 
     .postulantes-table tr {
-        display: grid;
-        grid-template-columns: 0.5fr 1fr 1fr 1.5fr 1fr 1fr;
         border-bottom: 1px solid #ddd;
     }
 
@@ -415,19 +463,17 @@
     .edit-button {
         background-color: #2196F3;
         color: white;
-        border: none;
         padding: 5px 10px;
-        border-radius: 4px;
         cursor: pointer;
+        border: 2px solid #000;
     }
 
     .delete-button {
         background-color: #f44336;
         color: white;
-        border: none;
         padding: 5px 10px;
-        border-radius: 4px;
         cursor: pointer;
+        border: 2px solid #000;
     }
 
     .no-data {
@@ -457,25 +503,27 @@
         display: grid;
         grid-template-rows: auto 1fr;
         background-color: white;
-        border-radius: 8px;
         width: 90%;
-        max-width: 600px;
+        max-width: 700px;
         max-height: 90vh;
         overflow-y: auto;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        border: 2px solid #000;
     }
 
     .modal-header {
         display: grid;
         grid-template-columns: 1fr auto;
+        border-bottom: 2px solid #000;
         align-items: center;
-        padding: 15px 20px;
-        border-bottom: 1px solid #eee;
+        background: #ddd;
     }
 
     .modal-header h2 {
         margin: 0;
-        font-size: 1.5rem;
+        padding: 0;
+        font-size: 1rem;
+        text-align: center;
     }
 
     .close-button {
@@ -483,11 +531,15 @@
         border: none;
         font-size: 1.5rem;
         cursor: pointer;
-        padding: 0;
+        padding: 5px 10px;
         line-height: 1;
+        background: #f44336;
+        font-weight: bold;
+        color: white;
+        border-left: 2px solid #000;
     }
 
     .modal-body {
-        padding: 20px;
+        padding: 15px;
     }
 </style>

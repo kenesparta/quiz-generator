@@ -7,7 +7,7 @@
 </script>
 
 <div class="dashboard-container">
-    <div class="sidebar">
+    <nav class="menu">
         <ul>
             <li>
                 <a href="/dashboard"
@@ -24,29 +24,38 @@
                    on:click|preventDefault={() => navigateTo('/dashboard/evaluacion')}>Evaluación
                 </a>
             </li>
+            <li>
+                <a href="/dashboard/examen"
+                   on:click|preventDefault={() => navigateTo('/dashboard/examen')}>Examen
+                </a>
+            </li>
+            <li>
+                <a href="/login"
+                   on:click|preventDefault={() => navigateTo('/login')}>Salir
+                </a>
+            </li>
         </ul>
-    </div>
+    </nav>
 
-    <div class="content">
+    <section class="content">
         <slot/>
-    </div>
+    </section>
 </div>
 
 <style>
     .dashboard-container {
-        display: flex;
-        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        height: 100%;
     }
 
-    .sidebar {
-        width: 250px;
-        background-color: #f1f1f1;
-        padding: 20px;
+    .menu {
+        background: #333;
+        display: grid;
     }
 
     .content {
-        flex-grow: 1;
-        padding: 0;
+        padding: 20px;
     }
 
     ul {
@@ -54,16 +63,20 @@
         padding: 0;
     }
 
-    li {
-        margin-bottom: 10px;
-    }
-
     a {
         text-decoration: none;
-        color: #333;
+        color: #fff;
+        display: block;
+        transition: color 0.2s ease-in-out;
+        margin: 0;
+        padding: .8em;
     }
 
     a:hover {
-        text-decoration: underline;
+        color: #60b5ff;
+        font-weight: bold;
+        border-right: 5px solid #60b5ff;
+        text-decoration: none;
+        background-color: rgba(255, 255, 255, 0.1);
     }
 </style>

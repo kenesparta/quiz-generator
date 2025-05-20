@@ -52,7 +52,7 @@
 
 <div class="page-container">
     <div class="login-container">
-        <h1>Login</h1>
+        <h1>¡Bienvenido!</h1>
 
         <form on:submit|preventDefault={handleSubmit}>
             {#if error}
@@ -60,29 +60,27 @@
             {/if}
 
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Usuario</label>
                 <input
                         type="text"
                         id="username"
                         bind:value={username}
                         bind:this={usernameInput}
-                        placeholder="Enter your username"
                         autocomplete="username"
                 />
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Contraseña</label>
                 <input
                         type="password"
                         id="password"
                         bind:value={password}
-                        placeholder="Enter your password"
                         autocomplete="current-password"
                 />
             </div>
 
-            <button type="submit" class="login-button">Log In</button>
+            <button type="submit" class="login-button">Ingresar</button>
         </form>
     </div>
 </div>
@@ -95,16 +93,15 @@
         width: 100%;
         padding: 1rem;
         box-sizing: border-box;
-        background-color: #f5f5f5;
+        background-color: #333;
     }
 
     .login-container {
         width: 100%;
-        max-width: 400px;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 300px;
+        padding: 1.5rem;
         background-color: #fff;
+        border: 2px solid #000;
     }
 
     h1 {
@@ -119,15 +116,14 @@
 
     label {
         display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
+        margin-bottom: 0.2rem;
+        font-weight: bold;
     }
 
     input {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        border: 2px solid #aaa;
         font-size: 1rem;
         box-sizing: border-box;
     }
@@ -143,8 +139,7 @@
         padding: 0.75rem;
         background-color: #4d90fe;
         color: white;
-        border: none;
-        border-radius: 4px;
+        border: 2px solid #000;
         font-size: 1rem;
         font-weight: 500;
         cursor: pointer;

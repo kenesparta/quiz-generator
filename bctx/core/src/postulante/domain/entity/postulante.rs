@@ -24,8 +24,8 @@ impl Postulante {
         id: String,
         documento: String,
         nombre: String,
-        apellido_paterno: String,
-        apellido_materno: String,
+        primer_apellido: String,
+        segundo_apellido: String,
         fecha_nacimiento: String,
         grado_instruccion: GradoInstruccion,
         genero: Genero,
@@ -33,7 +33,7 @@ impl Postulante {
     ) -> Result<Self, PostulanteError> {
         let id = PostulanteID::new(&id)?;
         let documento = Documento::new(documento.as_str())?;
-        let nombre_completo = Nombre::new(nombre, apellido_paterno, apellido_materno)?;
+        let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
         let password = Password::new(password)?;
         Ok(Postulante {

@@ -93,7 +93,7 @@
         width: 100%;
         padding: 1rem;
         box-sizing: border-box;
-        background-color: #613F30;
+        background-color: #444661;
     }
 
     .login-container {
@@ -137,7 +137,7 @@
     .login-button {
         width: 100%;
         padding: 0.75rem;
-        background-color: #4d90fe;
+        background-color: #0014E0;
         color: white;
         border: 2px solid #000;
         font-size: 1rem;
@@ -152,7 +152,7 @@
 
     .error-message {
         background-color: #ffebee;
-        color: #d32f2f;
+        color: #E04100;
         padding: 0.75rem;
         border-radius: 4px;
         margin-bottom: 1rem;

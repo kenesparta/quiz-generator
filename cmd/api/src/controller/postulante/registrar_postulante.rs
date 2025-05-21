@@ -9,10 +9,10 @@ use quizz_core::postulante::use_case::registrar_postulante::{
 };
 use sqlx::PgPool;
 
-pub struct PostulantePutController;
+pub struct PostulanteController;
 
-impl PostulantePutController {
-    pub async fn put(
+impl PostulanteController {
+    pub async fn create(
         req: HttpRequest,
         body: web::Json<RegistrarPostulanteDTO>,
         pool: web::Data<PgPool>,
@@ -35,8 +35,8 @@ impl PostulantePutController {
             id: postulante_id,
             documento: dto.documento,
             nombre: dto.nombre,
-            apellido_paterno: dto.apellido_paterno,
-            apellido_materno: dto.apellido_materno,
+            primer_apellido: dto.primer_apellido,
+            segundo_apellido: dto.segundo_apellido,
             fecha_nacimiento: dto.fecha_nacimiento,
             grado_instruccion: dto.grado_instruccion,
             genero: dto.genero,
@@ -75,5 +75,13 @@ impl PostulantePutController {
                 }
             },
         }
+    }
+
+    pub async fn update(
+        req: HttpRequest,
+        body: web::Json<RegistrarPostulanteDTO>,
+        pool: web::Data<PgPool>,
+    ) -> HttpResponse {
+        HttpResponse::Created().json("")
     }
 }

@@ -1,66 +1,42 @@
 <script lang="ts">
   import { SquarePen, Trash2 } from "lucide-svelte";
+  import {
+    postulantes,
+    addPostulante,
+    updatePostulante,
+    deletePostulante,
+    type PostulanteDTO
+  } from '$lib/stores/postulante';
+  import { onMount } from "svelte";
 
-  export let data
-  const { postulantes } = data
+  export let data;
 
+  onMount(() => {
+    postulantes.set(data.postulantes);
+  });
 
-  interface Postulante {
-    documento: string;
-    nombre_completo: string;
-    fecha_nacimiento: string;
-    grado_instruccion: string;
-    genero: string;
-  }
-
-  interface PostulanteDTO {
-    nombre: string;
-    primerApellido: string;
-    segundoApellido: string;
-    documento: string;
-    fechaNacimiento: string;
-    genero: string;
-    gradoInstruccion: string;
-  }
-
-  // let postulantes: Postulante[] = [
-  //   {
-  //     id: 1,
-  //     nombre: 'Juan',
-  //     apellido: 'Pérez',
-  //     email: 'juan.perez@example.com',
-  //     telefono: '555-1234'
-  //   },
-  //   {
-  //     id: 2,
-  //     nombre: 'María',
-  //     apellido: 'González',
-  //     email: 'maria.gonzalez@example.com',
-  //     telefono: '555-5678'
-  //   }
-  // ];
 
   let showModal = false;
   let modalMode: 'add' | 'edit' = 'add';
 
-  let currentPostulante: Omit<PostulanteDTO, 'id'> & { id?: number } = {
+  let currentPostulante: PostulanteDTO = {
     nombre: '',
     primerApellido: '',
     segundoApellido: '',
     documento: '',
-    nombreCompleto: '',
-    fecha_nacimiento: '',
-    grado_instruccion: '',
+    fechaNacimiento: '',
+    gradoInstruccion: '',
     genero: '',
   };
 
-  // Validation errors
   let errors = {
     nombre: '',
-    apellido: '',
-    email: '',
-    telefono: '',
-    genero: ''
+    primerApellido: '',
+    segundoApellido: '',
+    documento: '',
+    fechaNacimiento: '',
+    gradoInstruccion: '',
+    genero: '',
   };
 
   function openAddModal(): void {
@@ -70,131 +46,114 @@
       primerApellido: '',
       segundoApellido: '',
       documento: '',
-      nombreCompleto: '',
-      fecha_nacimiento: '',
-      grado_instruccion: '',
+      fechaNacimiento: '',
+      gradoInstruccion: '',
       genero: '',
     };
     clearErrors();
     showModal = true;
   }
 
-  function openEditModal(postulante: PostulanteDTO): void {
+  function openEditModal(postulante: any): void {
     modalMode = 'edit';
-    currentPostulante = { ...postulante };
+    currentPostulante = {
+      id: postulante.id,
+      nombre: postulante.nombre,
+      primerApellido: postulante.primer_apellido,
+      segundoApellido: postulante.segundo_apellido,
+      documento: postulante.documento,
+      fechaNacimiento: postulante.fecha_nacimiento,
+      gradoInstruccion: postulante.grado_instruccion,
+      genero: postulante.genero,
+      _links: postulante._links
+    };
     clearErrors();
     showModal = true;
   }
 
-  // Close the modal
   function closeModal(): void {
     showModal = false;
   }
 
-  // Clear all validation errors
   function clearErrors(): void {
     errors = {
       nombre: '',
-      apellido: '',
-      email: '',
-      telefono: ''
+      primerApellido: '',
+      segundoApellido: '',
+      documento: '',
+      fechaNacimiento: '',
+      gradoInstruccion: '',
+      genero: '',
     };
   }
 
-  // Validate the form
   function validateForm(): boolean {
     let isValid = true;
     clearErrors();
 
-    // // Check required fields
-    // if (!currentPostulante.nombre.trim()) {
-    //   errors.nombre = 'El nombre es requerido';
-    //   isValid = false;
-    // }
-    //
-    // if (!currentPostulante.apellido.trim()) {
-    //   errors.apellido = 'El apellido es requerido';
-    //   isValid = false;
-    // }
-    //
-    // // Validate email format
-    // if (!currentPostulante.email.trim()) {
-    //   errors.email = 'El email es requerido';
-    //   isValid = false;
-    // } else if (!/^\S+@\S+\.\S+$/.test(currentPostulante.email)) {
-    //   errors.email = 'El formato del email es inválido';
-    //   isValid = false;
-    // }
-    //
-    // // Validate phone format - simple check
-    // if (!currentPostulante.telefono.trim()) {
-    //   errors.telefono = 'El teléfono es requerido';
-    //   isValid = false;
-    // } else if (!/^[0-9\-\+\s]+$/.test(currentPostulante.telefono)) {
-    //   errors.telefono = 'El formato del teléfono es inválido';
-    //   isValid = false;
-    // }
+    if (!currentPostulante.nombre.trim()) {
+      errors.nombre = 'El nombre es requerido';
+      isValid = false;
+    }
 
-    // {
-    //   "documento": "99009988",
-    //   "nombre": "Leonardo",
-    //   "apellido_paterno": "Chavez",
-    //   "apellido_materno": "Espinoza",
-    //   "fecha_nacimiento": "1990-01-01",
-    //   "grado_instruccion": "superior",
-    //   "genero": "masculino"
-    // }
+    if (!currentPostulante.primerApellido.trim()) {
+      errors.primerApellido = 'El primer apellido es requerido';
+      isValid = false;
+    }
+
+    if (!currentPostulante.fechaNacimiento) {
+      errors.fechaNacimiento = 'La fecha de nacimiento es requerida';
+      isValid = false;
+    }
+
+    if (!currentPostulante.genero) {
+      errors.genero = 'El género es requerido';
+      isValid = false;
+    }
+
+    if (!currentPostulante.gradoInstruccion) {
+      errors.gradoInstruccion = 'El grado de instrucción es requerido';
+      isValid = false;
+    }
 
     return isValid;
   }
 
-  // Save postulante (add or update)
-  function savePostulante(): void {
+
+  // Save postulante (add or update) using store methods
+  async function savePostulante(): Promise<void> {
     if (!validateForm()) return;
 
-    if (modalMode === 'add') {
-      // Generate a simple ID (in a real app, this would come from the backend)
-      const newId = postulantes.length > 0
-        ? Math.max(...postulantes.map(p => p.id)) + 1
-        : 1;
-
-      // Add the new postulante to the array
-      // postulantes = [
-      //   ...postulantes,
-      //   {
-      //     id: newId,
-      //     nombre: currentPostulante.nombre,
-      //     apellido: currentPostulante.apellido,
-      //     email: currentPostulante.email,
-      //     telefono: currentPostulante.telefono
-      //   }
-      // ];
-    } else if (modalMode === 'edit' && currentPostulante.id) {
-      // Update existing postulante
-      // postulantes = postulantes.map(p =>
-      //   p.id === currentPostulante.id
-      //     ? { ...currentPostulante as Postulante }
-      //     : p
-      // );
+    try {
+      if (modalMode === 'add') {
+        await addPostulante(currentPostulante);
+      } else if (modalMode === 'edit') {
+        await updatePostulante(currentPostulante);
+      }
+      closeModal();
+    } catch (error) {
+      console.error(`Error ${modalMode === 'add' ? 'creating' : 'updating'} postulante:`, error);
+      alert(`Error al ${modalMode === 'add' ? 'crear' : 'actualizar'} el postulante`);
     }
-
-    // Close modal after save
-    closeModal();
   }
 
-  // Delete postulante
-  function deletePostulante(id: number): void {
+  async function handleDeletePostulante(postulante: any): Promise<void> {
     if (confirm('¿Está seguro que desea eliminar este postulante?')) {
-      // postulantes = postulantes.filter(p => p.id !== id);
+      try {
+        await deletePostulante(postulante.id, postulante._links?.delete);
+      } catch (error) {
+        alert('Error al eliminar el postulante');
+      }
     }
   }
+
 </script>
 
 <div class="container">
     <section class="title-section">
         <h1 class="main__title">Postulante</h1>
         <div class="main__search">
-            <input type="texte", placeholder="Buscar"/>
+            <input type="text" placeholder="Buscar"/>
         </div>
         <div class="header-actions">
             <button class="action-button" on:click={openAddModal}>
@@ -203,29 +162,34 @@
         </div>
     </section>
 
-    {#if postulantes.length > 0}
+    {#if $postulantes.length > 0}
         <table class="postulantes-table">
             <thead>
             <tr>
                 <th>Documento</th>
-                <th>Nombre Completo</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
                 <th>Fecha Nacimiento</th>
                 <th>Grado Instruccion</th>
                 <th>Acciones</th>
             </tr>
             </thead>
             <tbody>
-            {#each postulantes as postulante (postulante.id)}
+            {#each $postulantes as postulante (postulante.id)}
                 <tr>
                     <td>{postulante.documento}</td>
-                    <td>{postulante.nombre_completo}</td>
+                    <td>{postulante.nombre}</td>
+                    <td>{postulante.primer_apellido} {postulante.segundo_apellido}</td>
                     <td>{postulante.fecha_nacimiento}</td>
                     <td>{postulante.grado_instruccion}</td>
                     <td class="actions">
                         <button class="edit-button"
-                                on:click={() => openEditModal(postulante)}><SquarePen size="15" /></button>
-                        <button class="delete-button" on:click={() => deletePostulante(postulante.id)}><Trash2
-                                size="15" /></button>
+                                on:click={() => openEditModal(postulante)}>
+                            <SquarePen size="15"/>
+                        </button>
+                        <button class="delete-button" on:click={() => handleDeletePostulante(postulante)}>
+                            <Trash2 size="15"/>
+                        </button>
                     </td>
                 </tr>
             {/each}
@@ -247,12 +211,23 @@
                 </div>
                 <div class="modal-body">
                     <form on:submit|preventDefault={savePostulante}>
+
+                        <div class="form-group">
+                            <label for="documento">Documento</label>
+                            <input type="text"
+                                   id="documento"
+                                   bind:value={currentPostulante.documento}
+                            />
+                            {#if errors.documento}
+                                <div class="error-message">{errors.documento}</div>
+                            {/if}
+                        </div>
+
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
-                            <input
-                                    type="text"
-                                    id="nombre"
-                                    bind:value={currentPostulante.nombre}
+                            <input type="text"
+                                   id="nombre"
+                                   bind:value={currentPostulante.nombre}
                             />
                             {#if errors.nombre}
                                 <div class="error-message">{errors.nombre}</div>
@@ -261,44 +236,40 @@
 
                         <div class="form-group">
                             <label for="primerApellido">Primer Apellido</label>
-                            <input
-                                    type="text"
-                                    id="primerApellido"
-                                    bind:value={currentPostulante.primerApellido}
+                            <input type="text"
+                                   id="primerApellido"
+                                   bind:value={currentPostulante.primerApellido}
                             />
-                            {#if errors.apellido}
-                                <div class="error-message">{errors.apellido}</div>
+                            {#if errors.primerApellido}
+                                <div class="error-message">{errors.primerApellido}</div>
                             {/if}
                         </div>
 
                         <div class="form-group">
                             <label for="segundoApellido">Segundo Apellido</label>
-                            <input
-                                    type="text"
-                                    id="segundoApellido"
-                                    bind:value={currentPostulante.segundoApellido}
+                            <input type="text"
+                                   id="segundoApellido"
+                                   bind:value={currentPostulante.segundoApellido}
                             />
-                            {#if errors.apellido}
-                                <div class="error-message">{errors.apellido}</div>
+                            {#if errors.segundoApellido}
+                                <div class="error-message">{errors.segundoApellido}</div>
                             {/if}
                         </div>
 
                         <div class="form-group">
                             <label for="fechaNacimiento">Fecha de Nacimiento</label>
-                            <input
-                                    type="date"
-                                    id="fechaNacimiento"
-                                    bind:value={currentPostulante.fechaNacimiento}
+                            <input type="date"
+                                   id="fechaNacimiento"
+                                   bind:value={currentPostulante.fechaNacimiento}
                             />
-                            {#if errors.email}
-                                <div class="error-message">{errors.email}</div>
+                            {#if errors.fechaNacimiento}
+                                <div class="error-message">{errors.fechaNacimiento}</div>
                             {/if}
                         </div>
 
                         <div class="form-group">
                             <label for="genero">Género</label>
-                            <select
-                                    id="genero"
+                            <select id="genero"
                                     bind:value={currentPostulante.genero}
                                     class="form-select"
                             >
@@ -313,9 +284,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="instruccion">Instrucción</label>
-                            <select
-                                    id="instruccion"
+                            <label for="instruccion">Grado de Instrucción</label>
+                            <select id="instruccion"
                                     bind:value={currentPostulante.gradoInstruccion}
                                     class="form-select"
                             >
@@ -324,13 +294,12 @@
                                 <option value="Primaria">Primaria</option>
                                 <option value="Secundaria">Secundaria</option>
                                 <option value="Superior">Superior</option>
-                                <option value="Postgrado">Postgrado</option>
+                                <option value="Posgrado">Posgrado</option>
                             </select>
-                            {#if errors.genero}
-                                <div class="error-message">{errors.genero}</div>
+                            {#if errors.gradoInstruccion}
+                                <div class="error-message">{errors.gradoInstruccion}</div>
                             {/if}
                         </div>
-
 
                         <div class="form-actions">
                             <button type="button" on:click={closeModal} class="cancel-button">

@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 pub struct RegistrarPostulanteDTO {
     pub documento: String,
     pub nombre: String,
-    pub apellido_paterno: String,
-    pub apellido_materno: String,
+    pub primer_apellido: String,
+    pub segundo_apellido: String,
     pub fecha_nacimiento: String,
     pub grado_instruccion: String,
     pub genero: String,

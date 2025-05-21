@@ -1,7 +1,7 @@
-export const load = async ({ fetch }) => {
-  const resp = await fetch('http://localhost:3003/postulantes');
-  let postulantes = await resp.json()
+import { fetchPostulantes } from '$lib/stores/postulante';
+
+export const load = async () => {
   return {
-    postulantes
+    postulantes: await fetchPostulantes()
   };
-}
+};

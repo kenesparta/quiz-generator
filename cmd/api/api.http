@@ -3,14 +3,14 @@ GET http://localhost:3003/health-check
 Content-Type: application/json
 
 ### Registrar nuevo Postulante
-PUT http://localhost:3003/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
+POST http://localhost:3003/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
 
 {
   "documento": "12345678",
   "nombre": "Juan",
-  "apellido_paterno": "Perez",
-  "apellido_materno": "Quispe",
+  "primer_apellido": "Perez",
+  "segundo_apellido": "Quispe",
   "fecha_nacimiento": "1990-01-01",
   "grado_instruccion": "superior",
   "genero": "masculino"
@@ -23,8 +23,8 @@ Content-Type: application/json
 {
   "documento": "99009988",
   "nombre": "Leonardo",
-  "apellido_paterno": "Chavez",
-  "apellido_materno": "Espinoza",
+  "primer_apellido": "Chavez",
+  "segundo_apellido": "Espinoza",
   "fecha_nacimiento": "1990-01-01",
   "grado_instruccion": "superior",
   "genero": "masculino"

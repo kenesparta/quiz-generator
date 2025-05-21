@@ -11,7 +11,7 @@
         <ul>
             <li>
                 <a href="/dashboard"
-                   on:click|preventDefault={() => navigateTo('/dashboard')}>Dashboard
+                   on:click|preventDefault={() => navigateTo('/dashboard')}>Inicio
                 </a>
             </li>
             <li>
@@ -50,7 +50,7 @@
     }
 
     .menu {
-        background: #333;
+        background: #444661;
         display: grid;
     }
 
@@ -73,9 +73,9 @@
     }
 
     a:hover {
-        color: #60b5ff;
+        color: #50E100;
         font-weight: bold;
-        border-right: 5px solid #60b5ff;
+        border-right: 5px solid #50E100;
         text-decoration: none;
         background-color: rgba(255, 255, 255, 0.1);
     }

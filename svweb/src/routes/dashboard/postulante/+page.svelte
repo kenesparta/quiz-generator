@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { SquarePen, Trash2 } from "lucide-svelte";
+
   export let data
   const { postulantes } = data
+
 
   interface Postulante {
     documento: string;
@@ -188,12 +191,17 @@
 </script>
 
 <div class="container">
-    <h1>Postulante</h1>
-    <div class="header-actions">
-        <button class="action-button" on:click={openAddModal}>
-            Agregar Postulante
-        </button>
-    </div>
+    <section class="title-section">
+        <h1 class="main__title">Postulante</h1>
+        <div class="main__search">
+            <input type="texte", placeholder="Buscar"/>
+        </div>
+        <div class="header-actions">
+            <button class="action-button" on:click={openAddModal}>
+                Nuevo
+            </button>
+        </div>
+    </section>
 
     {#if postulantes.length > 0}
         <table class="postulantes-table">
@@ -214,8 +222,10 @@
                     <td>{postulante.fecha_nacimiento}</td>
                     <td>{postulante.grado_instruccion}</td>
                     <td class="actions">
-                        <button class="edit-button" on:click={() => openEditModal(postulante)}>Editar</button>
-                        <button class="delete-button" on:click={() => deletePostulante(postulante.id)}>Eliminar</button>
+                        <button class="edit-button"
+                                on:click={() => openEditModal(postulante)}><SquarePen size="15" /></button>
+                        <button class="delete-button" on:click={() => deletePostulante(postulante.id)}><Trash2
+                                size="15" /></button>
                     </td>
                 </tr>
             {/each}
@@ -345,14 +355,40 @@
         gap: 20px;
     }
 
-    .header-actions {
+    .title-section {
         display: grid;
-        justify-content: end;
+        grid-template-columns: 3fr 1fr auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .main__title {
+        margin: 0;
+        padding: 0;
+        font-size: 1.5rem;
+        color: #444661;
+    }
+
+    .main__search input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px solid #aaa;
+        padding: 10px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    .main__search input:focus {
+        border-color: #1187ff;
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+    }
+
+    .header-actions {
+
     }
 
     .action-button {
-        background-color: #009709;
-        color: white;
+        background-color: #50E100;
         padding: 10px 15px;
         border: 2px solid #000;
         cursor: pointer;
@@ -393,14 +429,14 @@
         outline: none;
         transition: border-color 0.3s ease;
     }
-    
+
     .form-group .form-select:focus {
         border-color: #1187ff;
         box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
     }
 
     .error-message {
-        color: #f44336;
+        color: #E04100;
         font-size: 0.8rem;
     }
 
@@ -413,7 +449,7 @@
     }
 
     .cancel-button {
-        background-color: #f44336;
+        background-color: #E04100;
         padding: 8px 15px;
         cursor: pointer;
         border: 2px solid #000;
@@ -422,8 +458,7 @@
     }
 
     .save-button {
-        background-color: #009709;
-        color: white;
+        background-color: #50E100;
         border: 2px solid #000;
         padding: 8px 15px;
         cursor: pointer;
@@ -455,24 +490,25 @@
     }
 
     .actions {
-        display: grid;
-        grid-template-columns: auto auto;
-        gap: 8px;
+        /*display: grid;*/
+        /*grid-template-columns: auto auto;*/
+        /*gap: 8px;*/
     }
 
     .edit-button {
-        background-color: #2196F3;
+        background-color: #0014E0;
         color: white;
-        padding: 5px 10px;
         cursor: pointer;
         border: 2px solid #000;
+        padding: 6px 5px 3px 5px;
+        align-content: center;
     }
 
     .delete-button {
-        background-color: #f44336;
+        background-color: #E04100;
         color: white;
-        padding: 5px 10px;
         cursor: pointer;
+        padding: 6px 5px 3px 5px;
         border: 2px solid #000;
     }
 
@@ -533,7 +569,7 @@
         cursor: pointer;
         padding: 5px 10px;
         line-height: 1;
-        background: #f44336;
+        background: #E04100;
         font-weight: bold;
         color: white;
         border-left: 2px solid #000;

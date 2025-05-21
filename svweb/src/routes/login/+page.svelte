@@ -93,7 +93,7 @@
         width: 100%;
         padding: 1rem;
         box-sizing: border-box;
-        background-color: #333;
+        background-color: #613F30;
     }
 
     .login-container {

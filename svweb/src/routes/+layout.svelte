@@ -1,5 +1,52 @@
-<script>
-  import '../app.css';
-</script>
+<style>
+    :global(*) {
+        margin: 0;
+        padding: 0;
+        font-family: 'Sora', sans-serif;
+    }
+    :global(html), :global(body) {
+        height: 100%;
+        width: 100%;
+    }
 
-<slot />
+    :global(body) {
+        -webkit-font-smoothing: antialiased;
+    }
+
+    :global(:root) {
+        /* Primary colors */
+        --color-primary: #0014e0;
+        --color-primary-hover: #0014e0bb;
+
+        /* Secondary colors */
+        --color-secondary: #444661;
+
+        /* Accent colors */
+        --color-accent-success: #50e100;
+        --color-accent-success-hover: #50e100bb;
+        --color-accent-error: #e04100;
+        --color-accent-error-hover: #e04100bb;
+        --color-accent-warning: #613f30;
+        --color-accent-warning-hover: #613f30bb;
+
+        /* Neutral colors */
+        --color-background: #ffffff;
+        --color-text: #333333;
+        --color-text-light: #ffffff;
+
+        /* UI Element colors */
+        --color-border: #000000;
+        --color-input-border: #aaaaaa;
+        --color-input-focus: #4d90fe;
+        --color-input-shadow-overlay: rgba(33, 150, 243, 0.6);
+
+        /* Feedback colors */
+        --color-error-background: #ffebee;
+        --color-error-text: #e04100;
+
+        /* Overlay colors */
+        --color-overlay: rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<slot/>

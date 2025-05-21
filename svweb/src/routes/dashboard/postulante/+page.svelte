@@ -316,7 +316,6 @@
     {/if}
 </div>
 
-
 <style>
     .container {
         display: grid;
@@ -335,7 +334,7 @@
         margin: 0;
         padding: 0;
         font-size: 1.5rem;
-        color: #444661;
+        color: var(--color-secondary);
     }
 
     .main__search input {
@@ -348,16 +347,12 @@
     }
 
     .main__search input:focus {
-        border-color: #1187ff;
-        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
-    }
-
-    .header-actions {
-
+        border-color: var(--color-input-focus);
+        box-shadow: 0 0 5px var(--color-input-shadow-overlay);
     }
 
     .action-button {
-        background-color: #50E100;
+        background-color: var(--color-accent-success);
         padding: 10px 15px;
         border: 2px solid #000;
         cursor: pointer;
@@ -384,8 +379,8 @@
     }
 
     .form-group input:focus {
-        border-color: #1187ff;
-        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+        border-color: var(--color-input-focus);
+        box-shadow: 0 0 5px var(--color-input-shadow-overlay);
     }
 
 
@@ -400,25 +395,24 @@
     }
 
     .form-group .form-select:focus {
-        border-color: #1187ff;
-        box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+        border-color: var(--color-input-focus);
+        box-shadow: 0 0 5px var(--color-input-shadow-overlay);
     }
 
     .error-message {
-        color: #E04100;
+        color: var(--color-accent-error);
         font-size: 0.8rem;
     }
 
     .form-actions {
         display: grid;
         grid-template-columns: auto auto;
-        /*justify-content: end;*/
         gap: 10px;
         margin-top: 20px;
     }
 
     .cancel-button {
-        background-color: #E04100;
+        background-color: var(--color-accent-error);
         padding: 8px 15px;
         cursor: pointer;
         border: 2px solid #000;
@@ -427,7 +421,7 @@
     }
 
     .save-button {
-        background-color: #50E100;
+        background-color: var(--color-accent-success);
         border: 2px solid #000;
         padding: 8px 15px;
         cursor: pointer;
@@ -458,14 +452,8 @@
         background-color: #f5f5f5;
     }
 
-    .actions {
-        /*display: grid;*/
-        /*grid-template-columns: auto auto;*/
-        /*gap: 8px;*/
-    }
-
     .edit-button {
-        background-color: #0014E0;
+        background-color: var(--color-primary);
         color: white;
         cursor: pointer;
         border: 2px solid #000;
@@ -474,7 +462,7 @@
     }
 
     .delete-button {
-        background-color: #E04100;
+        background-color: var(--color-accent-error);
         color: white;
         cursor: pointer;
         padding: 6px 5px 3px 5px;
@@ -538,7 +526,7 @@
         cursor: pointer;
         padding: 5px 10px;
         line-height: 1;
-        background: #E04100;
+        background: var(--color-accent-error);
         font-weight: bold;
         color: white;
         border-left: 2px solid #000;

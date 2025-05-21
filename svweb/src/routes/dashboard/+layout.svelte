@@ -50,7 +50,7 @@
     }
 
     .menu {
-        background: #444661;
+        background: var(--color-secondary);
         display: grid;
     }
 
@@ -67,16 +67,15 @@
         text-decoration: none;
         color: #fff;
         display: block;
-        transition: color 0.2s ease-in-out;
+        transition: color 0.3s ease-in-out;
         margin: 0;
         padding: .8em;
     }
 
     a:hover {
-        color: #50E100;
+        color: var(--color-accent-success-hover);
         font-weight: bold;
-        border-right: 5px solid #50E100;
+        border-right: 5px solid var(--color-accent-success-hover);
         text-decoration: none;
-        background-color: rgba(255, 255, 255, 0.1);
     }
 </style>

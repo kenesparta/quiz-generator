@@ -2,6 +2,7 @@ use actix_web::web;
 use async_trait::async_trait;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
+use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 use tracing::log::error;
 
@@ -63,5 +64,19 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
                 ))
             }
         }
+    }
+
+    async fn actualizar_postulante(
+        &self,
+        postulante_id: PostulanteID,
+    ) -> Result<(), PostulanteError> {
+        todo!()
+    }
+
+    async fn eliminar_postulante(
+        &self,
+        postulante_id: PostulanteID,
+    ) -> Result<(), PostulanteError> {
+        todo!()
     }
 }

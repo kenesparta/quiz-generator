@@ -1,4 +1,5 @@
 use crate::postulante::domain::error::nombre::NombreError;
+use crate::postulante::domain::service::string_convert::convertir_pascal_case;
 use quizz_common::domain::value_objects::nombre::nombre_regex;
 
 const MAX_TAMANO_NOMBRE: usize = 80;
@@ -19,9 +20,9 @@ impl Nombre {
         segundo_apellido: String,
     ) -> Result<Self, NombreError> {
         let nombre = Nombre {
-            nombre: nombre.trim().to_string(),
-            primer_apellido: primer_apellido.trim().to_string(),
-            segundo_apellido: segundo_apellido.trim().to_string(),
+            nombre: convertir_pascal_case(nombre.trim()),
+            primer_apellido: convertir_pascal_case(primer_apellido.trim()),
+            segundo_apellido: convertir_pascal_case(segundo_apellido.trim()),
         };
         nombre.asegurar_nombre_es_correcto()?;
         nombre.asegurar_primer_apellido_es_correcto()?;
@@ -164,36 +165,46 @@ mod test_nombre_completo {
     #[test]
     fn test_nombre_completo_returns_correctly_formatted_string() {
         let nombre =
-            Nombre::new("Juan".to_string(), "Pérez".to_string(), "Gómez".to_string()).unwrap();
+            Nombre::new("JuaN Hugo".to_string(), "Pérez".to_string(), "Gómez".to_string()).unwrap();
 
         let resultado = nombre.nombre_completo();
 
-        assert_eq!(resultado, "Juan Pérez Gómez");
+        assert_eq!(resultado, "Juan Hugo Pérez Gómez");
+    }
+
+    #[test]
+    fn test_nombre_completo_returns_correctly_formatted_string_special_characters() {
+        let nombre =
+            Nombre::new("JuÂN Hugo".to_string(), "PérEz".to_string(), "GómeZ".to_string()).unwrap();
+
+        let resultado = nombre.nombre_completo();
+
+        assert_eq!(resultado, "Juân Hugo Pérez Gómez");
     }
 
     #[test]
     fn test_nombre_completo_with_multi_word_name() {
         let nombre = Nombre::new(
             "María José".to_string(),
-            "Rodríguez".to_string(),
-            "López".to_string(),
+            "O'rodríguez".to_string(),
+            "R'López".to_string(),
         )
         .unwrap();
 
         let resultado = nombre.nombre_completo();
-        assert_eq!(resultado, "María José Rodríguez López");
+        assert_eq!(resultado, "María José O'rodríguez R'lópez");
     }
 
     #[test]
     fn test_nombre_completo_preserves_capitalizations() {
         let nombre = Nombre::new(
             "Carlos".to_string(),
-            "de la Cruz".to_string(),
+            "de la CRuz".to_string(),
             "MARTÍNEZ".to_string(),
         )
         .unwrap();
 
         let resultado = nombre.nombre_completo();
-        assert_eq!(resultado, "Carlos de la Cruz MARTÍNEZ");
+        assert_eq!(resultado, "Carlos De La Cruz Martínez");
     }
 }

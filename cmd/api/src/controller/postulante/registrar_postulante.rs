@@ -84,4 +84,12 @@ impl PostulanteController {
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }
+
+    pub async fn remove(
+        req: HttpRequest,
+        body: web::Json<RegistrarPostulanteDTO>,
+        pool: web::Data<PgPool>,
+    ) -> HttpResponse {
+        HttpResponse::Created().json("")
+    }
 }

@@ -9,6 +9,7 @@ pub fn postulante(cfg: &mut web::ServiceConfig) {
         web::scope("/postulantes")
             .service(web::resource("/{id}").route(web::post().to(PostulanteController::create)))
             .service(web::resource("/{id}").route(web::put().to(PostulanteController::update)))
+            .service(web::resource("/{id}").route(web::delete().to(PostulanteController::remove)))
             .service(
                 web::resource("/search")
                     .route(web::get().to(PostulanteObtenerPorDocumentoController::get)),

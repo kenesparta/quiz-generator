@@ -6,6 +6,8 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait RepositorioPostulanteEscritura<E>: Send + Sync {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), E>;
+    async fn actualizar_postulante(&self, postulante_id: PostulanteID) -> Result<(), E>;
+    async fn eliminar_postulante(&self, postulante_id: PostulanteID) -> Result<(), E>;
 }
 
 #[async_trait]

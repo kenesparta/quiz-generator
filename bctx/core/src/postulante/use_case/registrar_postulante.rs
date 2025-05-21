@@ -74,6 +74,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::postulante::domain::value_object::id::PostulanteID;
     use async_trait::async_trait;
     use std::sync::Mutex;
 
@@ -108,6 +109,20 @@ mod tests {
             _postulante: Postulante,
         ) -> Result<(), PostulanteError> {
             Ok(())
+        }
+
+        async fn actualizar_postulante(
+            &self,
+            _postulante_id: PostulanteID,
+        ) -> Result<(), PostulanteError> {
+            todo!()
+        }
+
+        async fn eliminar_postulante(
+            &self,
+            _postulante_id: PostulanteID,
+        ) -> Result<(), PostulanteError> {
+            todo!()
         }
     }
 

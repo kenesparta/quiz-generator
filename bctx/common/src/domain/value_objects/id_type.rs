@@ -5,6 +5,7 @@ use std::fmt;
 pub enum IdType {
     Postulante,
     Usuario,
+    Pregunta,
     Custom(String),
 }
 
@@ -13,6 +14,7 @@ impl fmt::Display for IdType {
         match self {
             IdType::Postulante => write!(f, "Postulante"),
             IdType::Usuario => write!(f, "Usuario"),
+            IdType::Pregunta => write!(f, "Pregunta"),
             IdType::Custom(name) => write!(f, "{}", name),
         }
     }

@@ -63,6 +63,8 @@ impl PostulanteObtenerPorDocumentoController {
                 PostulanteError::PostulanteGeneroError(_) => {
                     HttpResponse::BadRequest().json(serde_json::json!({"error": "Invalid gender"}))
                 }
+                _ => HttpResponse::InternalServerError()
+                    .json(serde_json::json!({"error": "An unexpected error occurred"})),
             },
         }
     }

@@ -30,6 +30,9 @@ pub enum PostulanteError {
     #[error("Error en el genero: {0}")]
     PostulanteGeneroError(#[from] GeneroError),
 
+    #[error("El password no coincide")]
+    PasswordNoCoincide,
+
     #[error("Error al persistir")]
     PostulanteRepositorioError(#[from] RepositorioError),
 }

@@ -164,8 +164,12 @@ mod test_nombre_completo {
 
     #[test]
     fn test_nombre_completo_returns_correctly_formatted_string() {
-        let nombre =
-            Nombre::new("JuaN Hugo".to_string(), "Pérez".to_string(), "Gómez".to_string()).unwrap();
+        let nombre = Nombre::new(
+            "JuaN Hugo".to_string(),
+            "Pérez".to_string(),
+            "Gómez".to_string(),
+        )
+        .unwrap();
 
         let resultado = nombre.nombre_completo();
 
@@ -174,8 +178,12 @@ mod test_nombre_completo {
 
     #[test]
     fn test_nombre_completo_returns_correctly_formatted_string_special_characters() {
-        let nombre =
-            Nombre::new("JuÂN Hugo".to_string(), "PérEz".to_string(), "GómeZ".to_string()).unwrap();
+        let nombre = Nombre::new(
+            "JuÂN Hugo".to_string(),
+            "PérEz".to_string(),
+            "GómeZ".to_string(),
+        )
+        .unwrap();
 
         let resultado = nombre.nombre_completo();
 

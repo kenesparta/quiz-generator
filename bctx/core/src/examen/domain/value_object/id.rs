@@ -3,7 +3,7 @@ use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;
 
 /// Representa el ID único del examen
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExamenID {
     id: ID,
 }

@@ -3,7 +3,7 @@ use crate::pregunta::domain::entity::pregunta_alternativas::PreguntaAlternativas
 use crate::pregunta::domain::entity::pregunta_libre::PreguntaLibreProps;
 use crate::pregunta::domain::entity::pregunta_sola_respuesta::PreguntaSolaRespuestaProps;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TipoDePregunta {
     Alternativas(PreguntaEntity<PreguntaAlternativasProps>),
     Libre(PreguntaEntity<PreguntaLibreProps>),

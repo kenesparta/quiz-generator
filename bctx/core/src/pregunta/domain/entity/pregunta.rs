@@ -15,7 +15,7 @@ pub trait PreguntaProps: Clone + PartialEq + Debug {
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PreguntaEntity<Props: PreguntaProps> {
     id: PreguntaID,
     props: Props,

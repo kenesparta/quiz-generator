@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::pregunta::{PreguntaProps};
+use crate::pregunta::domain::entity::pregunta::PreguntaProps;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use std::collections::HashMap;
 

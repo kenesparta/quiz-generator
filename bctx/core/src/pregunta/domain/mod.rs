@@ -1,4 +1,4 @@
 pub mod entity;
 pub mod error;
-pub mod value_object;
 pub mod service;
+pub mod value_object;

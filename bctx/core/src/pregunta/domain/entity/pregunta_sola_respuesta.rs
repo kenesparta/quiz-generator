@@ -1,6 +1,5 @@
 use crate::pregunta::domain::entity::pregunta::PreguntaProps;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::value_object::tipo_pregunta::TipoDePregunta;
 
 /// Este Tipo de preguntas son las que tienen una sola respuesta correcta
 /// pero no son de eleccion multiple
@@ -8,7 +7,6 @@ use crate::pregunta::domain::value_object::tipo_pregunta::TipoDePregunta;
 pub struct PreguntaSolaRespuestaProps {
     pub contenido: String,
     pub imagen_ref: Option<String>,
-    pub respuesta_libre: String,
     pub respuesta_corecta: String,
 }
 
@@ -27,9 +25,5 @@ impl PreguntaProps for PreguntaSolaRespuestaProps {
         }
 
         Ok(())
-    }
-
-    fn tipo() -> TipoDePregunta {
-        TipoDePregunta::SolaRespuesta
     }
 }

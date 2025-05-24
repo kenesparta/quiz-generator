@@ -1,6 +1,5 @@
-use crate::pregunta::domain::entity::pregunta::PreguntaProps;
+use crate::pregunta::domain::entity::pregunta::{PreguntaProps};
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::value_object::tipo_pregunta::TipoDePregunta;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -33,9 +32,5 @@ impl PreguntaProps for PreguntaAlternativasProps {
             return Err(PreguntaError::RespuestaIncorrecta);
         }
         Ok(())
-    }
-
-    fn tipo() -> TipoDePregunta {
-        TipoDePregunta::Alternativas
     }
 }

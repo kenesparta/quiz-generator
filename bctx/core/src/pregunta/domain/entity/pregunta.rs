@@ -1,22 +1,21 @@
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::id::PreguntaID;
-use crate::pregunta::domain::value_object::tipo_pregunta::TipoDePregunta;
+use std::fmt::Debug;
 
 pub trait Pregunta {
     fn id(&self) -> &PreguntaID;
     fn contenido(&self) -> &str;
     fn imagen_ref(&self) -> Option<&str>;
-    fn tipo(&self) -> TipoDePregunta;
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError>;
 }
 
-pub trait PreguntaProps: Clone + PartialEq + std::fmt::Debug {
+pub trait PreguntaProps: Clone + PartialEq + Debug {
     fn contenido(&self) -> &str;
     fn imagen_ref(&self) -> Option<&str>;
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError>;
-    fn tipo() -> TipoDePregunta;
 }
 
+#[derive(Debug)]
 pub struct PreguntaEntity<Props: PreguntaProps> {
     id: PreguntaID,
     props: Props,
@@ -39,10 +38,6 @@ impl<Props: PreguntaProps> Pregunta for PreguntaEntity<Props> {
 
     fn imagen_ref(&self) -> Option<&str> {
         self.props.imagen_ref()
-    }
-
-    fn tipo(&self) -> TipoDePregunta {
-        Props::tipo()
     }
 
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError> {

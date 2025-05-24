@@ -28,12 +28,10 @@ impl PreguntaFactory {
         id: PreguntaID,
         contenido: String,
         imagen_ref: Option<String>,
-        respuesta_libre: String,
     ) -> impl Pregunta {
         let props = PreguntaLibreProps {
             contenido,
             imagen_ref,
-            respuesta_libre,
         };
 
         PreguntaEntity::new(id, props)

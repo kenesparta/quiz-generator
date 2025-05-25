@@ -1,5 +1,9 @@
+use crate::controller::postulante::mongo::constantes::{
+    MAIN_DATABASE_NAME, POSTULANTE_COLLECTION_NAME,
+};
 use actix_web::web;
 use async_trait::async_trait;
+use mongodb::Collection;
 use mongodb::bson::{Document, doc};
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
@@ -9,21 +13,17 @@ use tracing::log::error;
 
 pub struct PostulanteMongo {
     client: web::Data<mongodb::Client>,
-    database_name: String,
-    collection_name: String,
 }
 
 impl PostulanteMongo {
-    pub fn new(
-        client: web::Data<mongodb::Client>,
-        database_name: String,
-        collection_name: String,
-    ) -> Self {
-        PostulanteMongo {
-            client,
-            database_name,
-            collection_name,
-        }
+    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+        PostulanteMongo { client }
+    }
+
+    fn get_collection(&self) -> Collection<Document> {
+        self.client
+            .database(MAIN_DATABASE_NAME)
+            .collection::<Document>(POSTULANTE_COLLECTION_NAME)
     }
 }
 
@@ -38,10 +38,6 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             ))?
             .value();
 
-        let collection = client
-            .database(&self.database_name)
-            .collection::<Document>(&self.collection_name);
-
         let documento = doc! {
             "id": postulante.id.value().uuid().to_string(),
             "documento": postulante.documento.to_string(),
@@ -54,7 +50,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "password": password,
         };
 
-        match collection.insert_one(documento, None).await {
+        match self.get_collection().insert_one(documento, None).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!(
@@ -80,16 +76,11 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
         &self,
         postulante_id: PostulanteID,
     ) -> Result<(), PostulanteError> {
-        let client = self.client.as_ref();
-        let collection = client
-            .database(&self.database_name)
-            .collection::<Document>(&self.collection_name);
-
         let filter = doc! {
             "id": postulante_id.value().uuid().to_string(),
         };
 
-        match collection.delete_one(filter, None).await {
+        match self.get_collection().delete_one(filter, None).await {
             Ok(result) => {
                 if result.deleted_count == 0 {
                     return Err(PostulanteError::PostulanteRepositorioError(

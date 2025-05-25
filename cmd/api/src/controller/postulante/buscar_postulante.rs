@@ -1,5 +1,5 @@
-use crate::controller::postulante::database_read::PostulanteReadMongo;
 use crate::controller::postulante::dto::{Links, PostulanteDocumentoQuery, PostulanteResponseDTO};
+use crate::controller::postulante::mongo::database_read::PostulanteReadMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;
@@ -17,8 +17,7 @@ impl PostulanteObtenerPorDocumentoController {
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         let postulante_documento = &query.documento;
-        let postulante_pool =
-            PostulanteReadMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
+        let postulante_pool = PostulanteReadMongo::new(pool);
         let obtener_postulante = ObtenerPostulantePorDocumento::new(Box::new(postulante_pool));
 
         match obtener_postulante
@@ -73,8 +72,7 @@ impl PostulanteObtenerPorDocumentoController {
 pub struct PostulanteListController;
 impl PostulanteListController {
     pub async fn get(_req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
-        let postulante_pool =
-            PostulanteReadMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
+        let postulante_pool = PostulanteReadMongo::new(pool);
         let lista_de_postulantes = ObtenerListaDePostulantes::new(Box::new(postulante_pool));
         match lista_de_postulantes.ejecutar(ListInputData {}).await {
             Ok(postulantes) => {

@@ -1,9 +1,9 @@
 ### Register a new Postulante
-GET http://localhost:3003/health-check
+GET http://localhost:8000/health-check
 Content-Type: application/json
 
 ### Registrar nuevo Postulante
-POST http://localhost:3003/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
+POST http://localhost:8000/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
 
 {
@@ -17,37 +17,37 @@ Content-Type: application/json
 }
 
 ### Registrar nuevo Postulante
-POST http://localhost:3003/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+POST http://localhost:8000/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
 
 {
-  "documento": "99009988",
-  "nombre": "Leonardo",
-  "primer_apellido": "Chavez",
-  "segundo_apellido": "Espinoza",
+  "documento": "99449988",
+  "nombre": "Mauricio",
+  "primer_apellido": "De la Cruz",
+  "segundo_apellido": "Núñez",
   "fecha_nacimiento": "1990-01-01",
   "grado_instruccion": "superior",
   "genero": "masculino"
 }
 
 ### Registrar nuevo Postulante
-PUT http://localhost:3003/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+POST http://localhost:8000/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
 
 {
-  "documento": "99009988",
-  "nombre": "Leonardo",
-  "primer_apellido": "Chavez",
-  "segundo_apellido": "Espinoza",
+  "documento": "04009988",
+  "nombre": "Fabrizzio",
+  "primer_apellido": "Fernández",
+  "segundo_apellido": "De la Torre",
   "fecha_nacimiento": "1990-01-01",
   "grado_instruccion": "superior",
   "genero": "masculino"
 }
 
 ### Obtener el postulante por documento
-GET http://localhost:3003/postulantes/search?documento=123456782
+GET http://localhost:8000/postulantes/buscar?documento=04009988
 Content-Type: application/json
 
 ### Obtener lista de postulantes
-GET http://localhost:3003/postulantes
+GET http://localhost:8000/postulantes
 Content-Type: application/json

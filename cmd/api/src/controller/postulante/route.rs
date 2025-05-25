@@ -7,12 +7,15 @@ use actix_web::web;
 pub fn postulante(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/postulantes")
-            .service(web::resource("/{id}").route(web::post().to(PostulanteController::create)))
-            .service(web::resource("/{id}").route(web::put().to(PostulanteController::update)))
-            .service(web::resource("/{id}").route(web::delete().to(PostulanteController::remove)))
             .service(
-                web::resource("/search")
+                web::resource("/buscar")
                     .route(web::get().to(PostulanteObtenerPorDocumentoController::get)),
+            )
+            .service(
+                web::resource("/{id}")
+                    .route(web::post().to(PostulanteController::create))
+                    .route(web::put().to(PostulanteController::update))
+                    .route(web::delete().to(PostulanteController::remove)),
             )
             .service(web::resource("").route(web::get().to(PostulanteListController::get))),
     );

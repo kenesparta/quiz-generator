@@ -1,45 +1,20 @@
 services:
-#   quizz-api:
-#     container_name: quizz-api
-#     command: sleep infinity
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     ports:
-#       - "3000:3000"
-#     networks:
-#       - frontend
-#       - backend
-#     environment:
-#       - DATABASE_URL=postgres://quizz:quizz@postgres:5432/quizz
-
-#   quizz-ui:
-#     container_name: quizz-ui
-#     command: sleep infinity
-#     build:
-#       context: ./web
-#       dockerfile: Dockerfile
-#     ports:
-#       - "3333:3333"
-#     networks:
-#       - frontend
-
-  postgres:
-    container_name: quizz-postgres
-    image: postgres:17.4
+  mongodb:
+    container_name: quizz-mongodb
+    image: mongo:8.0
     ports:
-      - "5432:5432"
+      - "27017:27017"
     environment:
-      POSTGRES_USER: quizz
-      POSTGRES_PASSWORD: quizz
-      POSTGRES_DB: quizz
+      MONGO_INITDB_ROOT_USERNAME: quizz
+      MONGO_INITDB_ROOT_PASSWORD: quizz
+      MONGO_INITDB_DATABASE: quizz
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
     networks:
       - backend
 
 volumes:
-  postgres_data:
+  mongodb_data:
 
 networks:
   frontend:

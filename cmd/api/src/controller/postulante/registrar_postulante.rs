@@ -1,6 +1,6 @@
 use crate::controller::postulante::crypto::CifradoPorDefecto;
-use crate::controller::postulante::database_write::PostulanteMongo;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
+use crate::controller::postulante::mongo::database_write::PostulanteMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;
@@ -23,8 +23,7 @@ impl PostulanteController {
             }
         };
 
-        let postulante_pool =
-            PostulanteMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
+        let postulante_pool = PostulanteMongo::new(pool);
         let registrar_postulante = RegistrarPostulantePasswordTemporal::new(
             Box::new(CifradoPorDefecto),
             Box::new(postulante_pool),

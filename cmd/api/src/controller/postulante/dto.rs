@@ -11,7 +11,6 @@ pub struct RegistrarPostulanteDTO {
     pub genero: String,
 }
 
-#[derive(sqlx::FromRow)]
 pub struct PostulanteDataBaseDTO {
     pub id: uuid::Uuid,
     pub documento: String,

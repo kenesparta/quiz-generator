@@ -1,3 +1,6 @@
+use crate::controller::postulante::mongo::constantes::{
+    MAIN_DATABASE_NAME, POSTULANTE_COLLECTION_NAME,
+};
 use actix_web::web;
 use async_trait::async_trait;
 use futures::StreamExt;
@@ -19,27 +22,17 @@ use tracing::log::error;
 
 pub struct PostulanteReadMongo {
     client: web::Data<mongodb::Client>,
-    database_name: String,
-    collection_name: String,
 }
 
 impl PostulanteReadMongo {
-    pub fn new(
-        client: web::Data<mongodb::Client>,
-        database_name: String,
-        collection_name: String,
-    ) -> Self {
-        PostulanteReadMongo {
-            client,
-            database_name,
-            collection_name,
-        }
+    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+        PostulanteReadMongo { client }
     }
 
     fn get_collection(&self) -> Collection<Document> {
         self.client
-            .database(&self.database_name)
-            .collection::<Document>(&self.collection_name)
+            .database(MAIN_DATABASE_NAME)
+            .collection::<Document>(POSTULANTE_COLLECTION_NAME)
     }
 }
 

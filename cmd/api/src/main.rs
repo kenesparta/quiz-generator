@@ -1,7 +1,6 @@
 use quizz_api::configuration::get_configuration;
 use quizz_api::mongo::create_mongo_client;
 use quizz_api::startup::run;
-use sqlx::PgPool;
 use std::net::TcpListener;
 use tracing_subscriber::EnvFilter;
 
@@ -17,7 +16,7 @@ async fn main() -> Result<(), std::io::Error> {
     let connection_pool = create_mongo_client(&configuration.database.connection_string())
         .await
         .expect("Failed to connect to Postgres.");
-    let address = format!("127.0.0.1:{}", 3003);
+    let address = format!("127.0.0.1:{}", configuration.application_port.to_string());
     let tcp_listener = TcpListener::bind(address)?;
     run(tcp_listener, connection_pool)?.await?;
     Ok(())

@@ -1,4 +1,4 @@
-use crate::controller::postulante::database_read::PostulanteReadPostgres;
+use crate::controller::postulante::database_read::PostulanteReadMongo;
 use crate::controller::postulante::dto::{Links, PostulanteDocumentoQuery, PostulanteResponseDTO};
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
@@ -9,16 +9,16 @@ use quizz_core::postulante::use_case::buscar_postulante::{
 use quizz_core::postulante::use_case::lista_postulantes::{
     InputData as ListInputData, ObtenerListaDePostulantes,
 };
-use sqlx::PgPool;
 
 pub struct PostulanteObtenerPorDocumentoController;
 impl PostulanteObtenerPorDocumentoController {
     pub async fn get(
         query: web::Query<PostulanteDocumentoQuery>,
-        pool: web::Data<PgPool>,
+        pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         let postulante_documento = &query.documento;
-        let postulante_pool = PostulanteReadPostgres::new(pool);
+        let postulante_pool =
+            PostulanteReadMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
         let obtener_postulante = ObtenerPostulantePorDocumento::new(Box::new(postulante_pool));
 
         match obtener_postulante
@@ -72,8 +72,9 @@ impl PostulanteObtenerPorDocumentoController {
 
 pub struct PostulanteListController;
 impl PostulanteListController {
-    pub async fn get(_req: HttpRequest, pool: web::Data<PgPool>) -> HttpResponse {
-        let postulante_pool = PostulanteReadPostgres::new(pool);
+    pub async fn get(_req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+        let postulante_pool =
+            PostulanteReadMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
         let lista_de_postulantes = ObtenerListaDePostulantes::new(Box::new(postulante_pool));
         match lista_de_postulantes.ejecutar(ListInputData {}).await {
             Ok(postulantes) => {

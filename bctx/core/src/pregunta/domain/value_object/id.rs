@@ -3,7 +3,7 @@ use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;
 
 /// Representa el ID único de la pregunta
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PreguntaID {
     id: ID,
 }

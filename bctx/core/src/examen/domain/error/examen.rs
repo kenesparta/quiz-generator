@@ -1,9 +1,10 @@
+use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ExamenError {
-    #[error("ID del examen inválido")]
-    IdInvalido,
+    #[error("ID del examen no válido")]
+    ExamenIdInvalido(#[from] IdError),
 
     #[error("Título del examen inválido")]
     TituloInvalido,

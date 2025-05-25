@@ -1,4 +1,5 @@
 use quizz_api::configuration::get_configuration;
+use quizz_api::mongo::create_mongo_client;
 use quizz_api::startup::run;
 use sqlx::PgPool;
 use std::net::TcpListener;
@@ -13,7 +14,7 @@ async fn main() -> Result<(), std::io::Error> {
         .init();
 
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let connection_pool = PgPool::connect(&configuration.database.connection_string())
+    let connection_pool = create_mongo_client(&configuration.database.connection_string())
         .await
         .expect("Failed to connect to Postgres.");
     let address = format!("127.0.0.1:{}", 3003);

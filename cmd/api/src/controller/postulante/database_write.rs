@@ -1,25 +1,36 @@
 use actix_web::web;
 use async_trait::async_trait;
+use mongodb::bson::{Document, doc};
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 use tracing::log::error;
 
-pub struct PostulantePostgres {
-    pool: web::Data<sqlx::PgPool>,
+pub struct PostulanteMongo {
+    client: web::Data<mongodb::Client>,
+    database_name: String,
+    collection_name: String,
 }
 
-impl PostulantePostgres {
-    pub fn new(pool: web::Data<sqlx::PgPool>) -> Self {
-        PostulantePostgres { pool }
+impl PostulanteMongo {
+    pub fn new(
+        client: web::Data<mongodb::Client>,
+        database_name: String,
+        collection_name: String,
+    ) -> Self {
+        PostulanteMongo {
+            client,
+            database_name,
+            collection_name,
+        }
     }
 }
 
 #[async_trait]
-impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
+impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
-        let pool = self.pool.as_ref();
+        let client = self.client.as_ref();
         let password = postulante
             .password
             .ok_or(PostulanteError::PostulanteRepositorioError(
@@ -27,31 +38,23 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
             ))?
             .value();
 
-        match sqlx::query(
-            "INSERT INTO postulante (
-                id, 
-                documento, 
-                nombre,
-                primer_apellido,
-                segundo_apellido,
-                fecha_nacimiento, 
-                grado_instruccion, 
-                genero, 
-                password
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-        )
-        .bind(postulante.id.value().uuid())
-        .bind(postulante.documento.to_string())
-        .bind(postulante.nombre_completo.nombre())
-        .bind(postulante.nombre_completo.primer_apellido())
-        .bind(postulante.nombre_completo.segundo_apellido())
-        .bind(postulante.fecha_nacimiento.to_string())
-        .bind(postulante.grado_instruccion.to_string())
-        .bind(postulante.genero.to_string())
-        .bind(password)
-        .execute(pool)
-        .await
-        {
+        let collection = client
+            .database(&self.database_name)
+            .collection::<Document>(&self.collection_name);
+
+        let documento = doc! {
+            "id": postulante.id.value().uuid().to_string(),
+            "documento": postulante.documento.to_string(),
+            "nombre": postulante.nombre_completo.nombre(),
+            "primer_apellido": postulante.nombre_completo.primer_apellido(),
+            "segundo_apellido": postulante.nombre_completo.segundo_apellido(),
+            "fecha_nacimiento": postulante.fecha_nacimiento.to_string(),
+            "grado_instruccion": postulante.grado_instruccion.to_string(),
+            "genero": postulante.genero.to_string(),
+            "password": password,
+        };
+
+        match collection.insert_one(documento, None).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!(
@@ -77,6 +80,34 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulantePostgres {
         &self,
         postulante_id: PostulanteID,
     ) -> Result<(), PostulanteError> {
-        todo!()
+        let client = self.client.as_ref();
+        let collection = client
+            .database(&self.database_name)
+            .collection::<Document>(&self.collection_name);
+
+        let filter = doc! {
+            "id": postulante_id.value().uuid().to_string(),
+        };
+
+        match collection.delete_one(filter, None).await {
+            Ok(result) => {
+                if result.deleted_count == 0 {
+                    return Err(PostulanteError::PostulanteRepositorioError(
+                        RepositorioError::RegistroNoEncontrado,
+                    ));
+                }
+                Ok(())
+            }
+            Err(e) => {
+                error!(
+                    "Database error while deleting postulante: id={}, error={}",
+                    postulante_id, e
+                );
+
+                Err(PostulanteError::PostulanteRepositorioError(
+                    RepositorioError::PersistenciaNoFinalizada,
+                ))
+            }
+        }
     }
 }

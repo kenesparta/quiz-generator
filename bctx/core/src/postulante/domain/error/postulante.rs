@@ -42,6 +42,9 @@ pub enum RepositorioError {
     #[error("Error al persistir")]
     PersistenciaNoFinalizada,
 
+    #[error("Error al leer")]
+    LecturaNoFinalizada,
+
     #[error("El password esta vacio antes de ejecutar la persistencia")]
     PasswordVacio,
 

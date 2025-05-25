@@ -1,6 +1,10 @@
-use crate::controller::postulante::dto::PostulanteDataBaseDTO;
 use actix_web::web;
 use async_trait::async_trait;
+use futures::StreamExt;
+use mongodb::{
+    Collection,
+    bson::{Document, doc},
+};
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
@@ -13,52 +17,121 @@ use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
 use std::str::FromStr;
 use tracing::log::error;
 
-pub struct PostulanteReadPostgres {
-    pool: web::Data<sqlx::PgPool>,
+pub struct PostulanteReadMongo {
+    client: web::Data<mongodb::Client>,
+    database_name: String,
+    collection_name: String,
 }
 
-impl PostulanteReadPostgres {
-    pub fn new(pool: web::Data<sqlx::PgPool>) -> Self {
-        PostulanteReadPostgres { pool }
+impl PostulanteReadMongo {
+    pub fn new(
+        client: web::Data<mongodb::Client>,
+        database_name: String,
+        collection_name: String,
+    ) -> Self {
+        PostulanteReadMongo {
+            client,
+            database_name,
+            collection_name,
+        }
+    }
+
+    fn get_collection(&self) -> Collection<Document> {
+        self.client
+            .database(&self.database_name)
+            .collection::<Document>(&self.collection_name)
     }
 }
 
 #[async_trait]
-impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadPostgres {
+impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
     async fn obtener_postulante_por_documento(
         &self,
         documento: Documento,
     ) -> Result<Postulante, PostulanteError> {
-        let pool = self.pool.as_ref();
         let doc_string = documento.to_string();
+        let filter = doc! { "documento": doc_string.clone() };
 
-        match sqlx::query_as::<_, PostulanteDataBaseDTO>(
-            r#"
-        SELECT
-            id,
-            documento,
-            nombre,
-            primer_apellido,
-            segundo_apellido,
-            fecha_nacimiento,
-            grado_instruccion,
-            genero
-        FROM postulante
-        WHERE documento = $1
-        "#,
-        )
-        .bind(&doc_string)
-        .fetch_optional(pool)
-        .await
-        {
-            Ok(Some(dto)) => {
-                let id = PostulanteID::new(&dto.id.to_string())?;
-                let documento = Documento::new(&dto.documento.to_string())?;
-                let nombre_completo =
-                    Nombre::new(dto.nombre, dto.primer_apellido, dto.segundo_apellido)?;
-                let fecha_nacimiento = FechaNacimiento::new(&dto.fecha_nacimiento)?;
-                let grado_instruccion = GradoInstruccion::from_str(&dto.grado_instruccion)?;
-                let genero = Genero::from_str(&dto.genero)?;
+        match self.get_collection().find_one(filter, None).await {
+            Ok(Some(doc)) => {
+                let id = match doc.get("id") {
+                    Some(bson_id) => bson_id.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let documento = match doc.get("documento") {
+                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let nombre = match doc.get("nombre") {
+                    Some(bson_nombre) => bson_nombre.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let primer_apellido = match doc.get("primer_apellido") {
+                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let segundo_apellido = match doc.get("segundo_apellido") {
+                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let fecha_nacimiento = match doc.get("fecha_nacimiento") {
+                    Some(bson_fecha) => bson_fecha.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let grado_instruccion = match doc.get("grado_instruccion") {
+                    Some(bson_grado) => bson_grado.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let genero = match doc.get("genero") {
+                    Some(bson_genero) => bson_genero.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::PersistenciaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let id = PostulanteID::new(&id)?;
+                let documento = Documento::new(&documento)?;
+                let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
+                let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
+                let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
+                let genero = Genero::from_str(&genero)?;
 
                 Ok(Postulante {
                     id,
@@ -96,40 +169,164 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadPostgres {
     }
 
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-        let pool = self.pool.as_ref();
+        let collection = self.get_collection();
 
-        match sqlx::query_as::<_, PostulanteDataBaseDTO>(
-            r#"
-        SELECT
-            id,
-            documento,
-            nombre,
-            primer_apellido,
-            segundo_apellido,
-            fecha_nacimiento,
-            grado_instruccion,
-            genero
-        FROM postulante
-        "#,
-        )
-        .fetch_all(pool)
-        .await
-        {
-            Ok(dtos) => {
-                let postulantes = dtos
+        match collection.find(None, None).await {
+            Ok(mut cursor) => {
+                let mut docs = Vec::new();
+                while let Some(result) = cursor.next().await {
+                    match result {
+                        Ok(doc) => docs.push(doc),
+                        Err(e) => {
+                            error!("Error fetching document from cursor: {}", e);
+                            return Err(PostulanteError::PostulanteRepositorioError(
+                                RepositorioError::PersistenciaNoFinalizada,
+                            ));
+                        }
+                    }
+                }
+
+                let postulantes: Vec<Postulante> = docs
                     .into_iter()
-                    .filter_map(|dto| {
+                    .filter_map(|doc| {
                         match (|| {
-                            let id = PostulanteID::new(&dto.id.to_string())?;
-                            let documento = Documento::new(&dto.documento.to_string())?;
-                            let nombre_completo =
-                                Nombre::new(dto.nombre, dto.primer_apellido, dto.segundo_apellido)?;
-                            let fecha_nacimiento = FechaNacimiento::new(&dto.fecha_nacimiento)?;
-                            let grado_instruccion =
-                                GradoInstruccion::from_str(&dto.grado_instruccion)?;
-                            let genero = Genero::from_str(&dto.genero)?;
+                            let id = match doc.get("id") {
+                                Some(bson_id) => bson_id
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
 
-                            Ok::<Postulante, PostulanteError>(Postulante {
+                            let documento = match doc.get("documento") {
+                                Some(doc_bson) => doc_bson
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let nombre = match doc.get("nombre") {
+                                Some(bson_nombre) => bson_nombre
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let primer_apellido = match doc.get("primer_apellido") {
+                                Some(bson_apellido) => bson_apellido
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let segundo_apellido = match doc.get("segundo_apellido") {
+                                Some(bson_apellido) => bson_apellido
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let fecha_nacimiento = match doc.get("fecha_nacimiento") {
+                                Some(bson_fecha) => bson_fecha
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let grado_instruccion = match doc.get("grado_instruccion") {
+                                Some(bson_grado) => bson_grado
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let genero = match doc.get("genero") {
+                                Some(bson_genero) => bson_genero
+                                    .as_str()
+                                    .ok_or_else(|| {
+                                        PostulanteError::PostulanteRepositorioError(
+                                            RepositorioError::PersistenciaNoFinalizada,
+                                        )
+                                    })?
+                                    .to_string(),
+                                None => {
+                                    return Err(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::PersistenciaNoFinalizada,
+                                    ));
+                                }
+                            };
+
+                            let id = PostulanteID::new(&id)?;
+                            let documento = Documento::new(&documento)?;
+                            let nombre_completo =
+                                Nombre::new(nombre, primer_apellido, segundo_apellido)?;
+                            let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
+                            let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
+                            let genero = Genero::from_str(&genero)?;
+
+                            Ok(Postulante {
                                 id,
                                 documento,
                                 nombre_completo,
@@ -141,7 +338,10 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadPostgres {
                         })() {
                             Ok(postulante) => Some(postulante),
                             Err(e) => {
-                                error!("Error al convertir DTO a entidad Postulante: {}", e);
+                                error!(
+                                    "Error al convertir documento MongoDB a entidad Postulante: {}",
+                                    e
+                                );
                                 None
                             }
                         }

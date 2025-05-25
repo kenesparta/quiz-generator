@@ -1,5 +1,5 @@
 use crate::controller::postulante::crypto::CifradoPorDefecto;
-use crate::controller::postulante::database_write::PostulantePostgres;
+use crate::controller::postulante::database_write::PostulanteMongo;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
@@ -7,7 +7,6 @@ use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::registrar_postulante::{
     InputData, RegistrarPostulantePasswordTemporal,
 };
-use sqlx::PgPool;
 
 pub struct PostulanteController;
 
@@ -15,7 +14,7 @@ impl PostulanteController {
     pub async fn create(
         req: HttpRequest,
         body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<PgPool>,
+        pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         let postulante_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
@@ -24,7 +23,8 @@ impl PostulanteController {
             }
         };
 
-        let postulante_pool = PostulantePostgres::new(pool);
+        let postulante_pool =
+            PostulanteMongo::new(pool, "quizz".to_string(), "postulantes".to_string());
         let registrar_postulante = RegistrarPostulantePasswordTemporal::new(
             Box::new(CifradoPorDefecto),
             Box::new(postulante_pool),
@@ -80,7 +80,7 @@ impl PostulanteController {
     pub async fn update(
         req: HttpRequest,
         body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<PgPool>,
+        pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }
@@ -88,7 +88,7 @@ impl PostulanteController {
     pub async fn remove(
         req: HttpRequest,
         body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<PgPool>,
+        pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }

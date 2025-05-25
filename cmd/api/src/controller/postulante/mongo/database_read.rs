@@ -58,7 +58,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_id) => bson_id.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -67,7 +67,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -76,7 +76,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_nombre) => bson_nombre.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -85,7 +85,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -94,7 +94,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -103,7 +103,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_fecha) => bson_fecha.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -112,7 +112,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_grado) => bson_grado.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -121,7 +121,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     Some(bson_genero) => bson_genero.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::PersistenciaNoFinalizada,
+                            RepositorioError::LecturaNoFinalizada,
                         ));
                     }
                 };
@@ -155,7 +155,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     doc_string, e
                 );
                 Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::PersistenciaNoFinalizada,
+                    RepositorioError::LecturaNoFinalizada,
                 ))
             }
         }
@@ -169,9 +169,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
     }
 
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-        let collection = self.get_collection();
-
-        match collection.find(None, None).await {
+        match self.get_collection().find(None, None).await {
             Ok(mut cursor) => {
                 let mut docs = Vec::new();
                 while let Some(result) = cursor.next().await {
@@ -180,7 +178,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                         Err(e) => {
                             error!("Error fetching document from cursor: {}", e);
                             return Err(PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::PersistenciaNoFinalizada,
+                                RepositorioError::LecturaNoFinalizada,
                             ));
                         }
                     }
@@ -195,13 +193,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -211,13 +209,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -227,13 +225,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -243,13 +241,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -259,13 +257,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -275,13 +273,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -291,13 +289,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -307,13 +305,13 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::PersistenciaNoFinalizada,
+                                            RepositorioError::LecturaNoFinalizada,
                                         )
                                     })?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::PersistenciaNoFinalizada,
+                                        RepositorioError::LecturaNoFinalizada,
                                     ));
                                 }
                             };
@@ -356,7 +354,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     e
                 );
                 Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::PersistenciaNoFinalizada,
+                    RepositorioError::LecturaNoFinalizada,
                 ))
             }
         }

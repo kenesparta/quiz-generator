@@ -7,7 +7,7 @@ use crate::pregunta::domain::error::pregunta::PreguntaError;
 pub struct PreguntaSolaRespuestaProps {
     pub contenido: String,
     pub imagen_ref: Option<String>,
-    pub respuesta_corecta: String,
+    pub respuesta_correcta: String,
 }
 
 impl PreguntaProps for PreguntaSolaRespuestaProps {
@@ -20,7 +20,7 @@ impl PreguntaProps for PreguntaSolaRespuestaProps {
     }
 
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError> {
-        if respuesta.trim() != self.respuesta_corecta.trim() {
+        if respuesta.trim() != self.respuesta_correcta.trim() {
             return Err(PreguntaError::RespuestaIncorrecta);
         }
 

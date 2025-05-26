@@ -17,8 +17,8 @@ pub trait PreguntaProps: Clone + PartialEq + Debug {
 
 #[derive(Debug, Clone)]
 pub struct PreguntaEntity<Props: PreguntaProps> {
-    id: PreguntaID,
-    props: Props,
+    pub id: PreguntaID,
+    pub props: Props,
 }
 
 impl<Props: PreguntaProps> PreguntaEntity<Props> {

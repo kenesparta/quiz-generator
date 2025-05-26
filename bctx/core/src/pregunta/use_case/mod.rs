@@ -1,1 +1,1 @@
-mod crear_pregunta;
+mod agregar_preguntas;

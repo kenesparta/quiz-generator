@@ -60,3 +60,71 @@ Content-Type: application/json
   "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
   "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eros enim"
 }
+
+### Agregar preguntas
+POST http://localhost:8000/pregunta/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "Alternativas": {
+        "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
+        "contenido": "¿Cuál es la capital de Francia?",
+        "imagen_ref": "paris.jpg",
+        "alternativa_correcta": "A",
+        "alternativas": {
+          "A": "París",
+          "B": "Londres",
+          "C": "Madrid",
+          "D": "Roma"
+        }
+      }
+    },
+    {
+      "Libre": {
+        "id": "d1695032-4133-43f5-9275-26042db5583c",
+        "contenido": "Explique el ciclo del agua.",
+        "imagen_ref": null
+      }
+    },
+    {
+      "SolaRespuesta": {
+        "id": "c5f75714-88d3-49a0-a6f1-d746426fed33",
+        "contenido": "¿Cuál es el símbolo químico del oxígeno?",
+        "imagen_ref": null,
+        "respuesta_correcta": "O"
+      }
+    },
+    {
+      "Alternativas": {
+        "id": "b73c61e3-394e-43e6-a408-8135d57d4c38",
+        "contenido": "¿Quién escribió 'Cien años de soledad'?",
+        "imagen_ref": null,
+        "alternativa_correcta": "C",
+        "alternativas": {
+          "A": "Jorge Luis Borges",
+          "B": "Pablo Neruda",
+          "C": "Gabriel García Márquez",
+          "D": "Mario Vargas Llosa"
+        }
+      }
+    }
+  ]
+}
+
+### Agregar preguntas
+POST http://localhost:8000/pregunta/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "Libre": {
+        "id": "8afafadf-aee1-4c68-a0ae-cf2e525ae270",
+        "contenido": "Explique ede forma breve sobre el ciclo del oxigeno",
+        "imagen_ref": null
+      }
+    }
+  ]
+}

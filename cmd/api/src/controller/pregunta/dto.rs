@@ -1,13 +1,12 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PreguntaInputDto {
-    pub examen_id: String,
     pub preguntas: Vec<PreguntaRawDataDto>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum PreguntaRawDataDto {
     Alternativas {
         id: String,

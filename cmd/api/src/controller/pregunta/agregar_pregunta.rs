@@ -2,10 +2,10 @@ use crate::controller::pregunta::dto::{PreguntaInputDto, PreguntaRawDataDto};
 use crate::controller::pregunta::mongo::write::PreguntaPorExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
-use quizz_core::pregunta::domain::error::pregunta::PreguntaError;
 use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntas, InputData, PreguntaRawData,
 };
+use tracing::log;
 
 pub struct AgregarPreguntaController;
 
@@ -83,7 +83,10 @@ impl AgregarPreguntaController {
                 //     // log::error!("Error de repositorio: {}", repo_err);
                 //     HttpResponse::InternalServerError().json("Error al guardar las preguntas")
                 // },
-                _ => HttpResponse::InternalServerError().json("Error inesperado"),
+                _ => {
+                    log::error!("Error de repositorio: {}", err);
+                    HttpResponse::InternalServerError().json("Error inesperado")
+                }
             },
         }
     }

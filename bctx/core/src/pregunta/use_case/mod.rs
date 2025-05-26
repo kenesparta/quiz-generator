@@ -1,1 +1,1 @@
-mod agregar_preguntas;
+pub mod agregar_preguntas;

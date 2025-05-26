@@ -56,12 +56,10 @@ where
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PreguntaError> {
         let examen_id = ExamenID::new(&in_.examen_id)?;
-        // let mut preguntas_concretas: Vec<Box<dyn Pregunta>> = Vec::new();
-        let mut preguntas: Vec<TipoDePregunta> = Vec::new();
-
-        // Process each TipoDePregunta and convert it to a concrete Pregunta
-        for tipo_pregunta in in_.preguntas {
-            match tipo_pregunta {
+        let preguntas: Vec<TipoDePregunta> = in_
+            .preguntas
+            .into_iter()
+            .map(|r| match r {
                 PreguntaRawData::Alternativas {
                     id,
                     contenido,
@@ -69,17 +67,14 @@ where
                     alternativa_correcta,
                     alternativas,
                 } => {
-                    // Use PreguntaFactory to create a multiple-choice question
                     let id = PreguntaID::new(&id)?;
-                    let pregunta = PreguntaFactory::pregunta_alternativas(
+                    Ok(Alternativas(PreguntaFactory::pregunta_alternativas(
                         id,
-                        contenido.to_string(),
-                        imagen_ref.map(|s| s.to_string()),
+                        contenido,
+                        imagen_ref,
                         alternativa_correcta,
                         alternativas,
-                    );
-
-                    preguntas.push(Alternativas(pregunta));
+                    )))
                 }
                 PreguntaRawData::Libre {
                     id,
@@ -87,33 +82,27 @@ where
                     imagen_ref,
                 } => {
                     let id = PreguntaID::new(&id)?;
-                    let pregunta = PreguntaFactory::pregunta_libre(
-                        id,
-                        contenido.to_string(),
-                        imagen_ref.map(|s| s.to_string()),
-                    );
-
-                    preguntas.push(Libre(pregunta));
+                    Ok(Libre(PreguntaFactory::pregunta_libre(
+                        id, contenido, imagen_ref,
+                    )))
                 }
                 PreguntaRawData::SolaRespuesta {
                     id,
                     contenido,
                     imagen_ref,
-                    respuesta_correcta
+                    respuesta_correcta,
                 } => {
                     let id = PreguntaID::new(&id)?;
-                    let pregunta = PreguntaFactory::pregunta_sola_respuesta(
+                    Ok(SolaRespuesta(PreguntaFactory::pregunta_sola_respuesta(
                         id,
-                        contenido.to_string(),
-                        imagen_ref.map(|s| s.to_string()),
-                        respuesta_correcta
-                    );
-                    preguntas.push(SolaRespuesta(pregunta));
+                        contenido,
+                        imagen_ref,
+                        respuesta_correcta,
+                    )))
                 }
-            }
-        }
+            })
+            .collect::<Result<Vec<TipoDePregunta>, PreguntaError>>()?;
 
-        // Pass the concrete Pregunta objects to the repository
         self.reposotorio.agregar(examen_id, preguntas).await?;
         Ok(())
     }

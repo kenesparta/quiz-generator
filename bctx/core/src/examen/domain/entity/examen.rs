@@ -3,10 +3,10 @@ use crate::examen::domain::value_object::id::ExamenID;
 
 #[derive(Debug, Clone)]
 pub struct Examen {
-    id: ExamenID,
-    titulo: String,
-    descripcion: String,
-    activo: bool,
+    pub id: ExamenID,
+    pub titulo: String,
+    pub descripcion: String,
+    pub activo: bool,
 }
 
 impl Examen {

@@ -31,7 +31,7 @@ Content-Type: application/json
 }
 
 ### Registrar nuevo Postulante
-POST http://localhost:8000/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+POST http://localhost:8000/postulantes/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
 
 {

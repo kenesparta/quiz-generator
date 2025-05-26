@@ -35,4 +35,16 @@ pub enum ExamenError {
 
     #[error("Error desconocido: {0}")]
     Desconocido(String),
+
+    #[error("Error al manipular la base de datos: {0:?}")]
+    ExamenRepositorioError(#[from] RepositorioError),
+}
+
+#[derive(Error, Debug)]
+pub enum RepositorioError {
+    #[error("Persistencia no finalizada")]
+    PersistenciaNoFinalizada,
+
+    #[error("Lectura no finalizada")]
+    LecturaNoFinalizada,
 }

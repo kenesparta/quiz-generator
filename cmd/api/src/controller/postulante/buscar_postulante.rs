@@ -1,5 +1,5 @@
 use crate::controller::postulante::dto::{Links, PostulanteDocumentoQuery, PostulanteResponseDTO};
-use crate::controller::postulante::mongo::database_read::PostulanteReadMongo;
+use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;

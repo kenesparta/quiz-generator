@@ -1,10 +1,8 @@
-use crate::controller::postulante::mongo::constantes::{
-    MAIN_DATABASE_NAME, POSTULANTE_COLLECTION_NAME,
-};
+use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use mongodb::Collection;
-use mongodb::bson::{Document, doc};
+use mongodb::bson::doc;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
@@ -19,18 +17,21 @@ impl PostulanteMongo {
     pub fn new(client: web::Data<mongodb::Client>) -> Self {
         PostulanteMongo { client }
     }
+}
 
-    fn get_collection(&self) -> Collection<Document> {
-        self.client
-            .database(MAIN_DATABASE_NAME)
-            .collection::<Document>(POSTULANTE_COLLECTION_NAME)
+impl MongoRepository for PostulanteMongo {
+    fn get_collection_name(&self) -> &str {
+        POSTULANTE_COLLECTION_NAME
+    }
+
+    fn get_client(&self) -> &web::Data<mongodb::Client> {
+        &self.client
     }
 }
 
 #[async_trait]
 impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
-        let client = self.client.as_ref();
         let password = postulante
             .password
             .ok_or(PostulanteError::PostulanteRepositorioError(

@@ -41,7 +41,7 @@ export const postulantes = writable<Postulante[]>([]);
 
 export const fetchPostulantes = async () => {
   try {
-    const response = await fetch('http://localhost:3003/postulantes');
+    const response = await fetch('http://localhost:8000/postulantes');
     if (!response.ok) throw new Error('Failed to fetch postulantes');
     const data = await response.json();
     postulantes.set(data);
@@ -67,7 +67,7 @@ export const addPostulante = async (postulanteData: Omit<PostulanteDTO, 'id' | '
       genero: postulanteData.genero
     }
 
-    const response = await fetch(`http://localhost:3003/postulantes/${id}`, {
+    const response = await fetch(`http://localhost:8000/postulantes/${id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export const updatePostulante = async (postulanteData: PostulanteDTO) => {
       grado_instruccion: postulanteData.gradoInstruccion,
       genero: postulanteData.genero
     }
-    const response = await fetch(`http://localhost:3003/postulantes/${postulanteData.id}`, {
+    const response = await fetch(`http://localhost:8000/postulantes/${postulanteData.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export const updatePostulante = async (postulanteData: PostulanteDTO) => {
 
 export const deletePostulante = async (id: string, deleteUrl?: string) => {
   try {
-    const url = `http://localhost:3003${deleteUrl || `/postulantes/${id}`}`;
+    const url = `http://localhost:8000${deleteUrl || `/postulantes/${id}`}`;
 
     const response = await fetch(url, {
       method: 'DELETE',

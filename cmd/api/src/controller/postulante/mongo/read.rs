@@ -1,13 +1,9 @@
-use crate::controller::postulante::mongo::constantes::{
-    MAIN_DATABASE_NAME, POSTULANTE_COLLECTION_NAME,
-};
+use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
 use futures::StreamExt;
-use mongodb::{
-    Collection,
-    bson::{Document, doc},
-};
+use mongodb::bson::doc;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
@@ -28,11 +24,15 @@ impl PostulanteReadMongo {
     pub fn new(client: web::Data<mongodb::Client>) -> Self {
         PostulanteReadMongo { client }
     }
+}
 
-    fn get_collection(&self) -> Collection<Document> {
-        self.client
-            .database(MAIN_DATABASE_NAME)
-            .collection::<Document>(POSTULANTE_COLLECTION_NAME)
+impl MongoRepository for PostulanteReadMongo {
+    fn get_collection_name(&self) -> &str {
+        POSTULANTE_COLLECTION_NAME
+    }
+
+    fn get_client(&self) -> &web::Data<mongodb::Client> {
+        &self.client
     }
 }
 

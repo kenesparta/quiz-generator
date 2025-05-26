@@ -33,7 +33,7 @@ pub enum PostulanteError {
     #[error("El password no coincide")]
     PasswordNoCoincide,
 
-    #[error("Error al persistir")]
+    #[error("Error al manipular la base de datos: {0:?}")]
     PostulanteRepositorioError(#[from] RepositorioError),
 }
 

@@ -1,4 +1,4 @@
-mod examen;
+pub mod examen;
 pub mod postulante;
-mod pregunta;
+pub mod pregunta;
 pub mod utils;

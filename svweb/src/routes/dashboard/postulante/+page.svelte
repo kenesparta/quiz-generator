@@ -15,8 +15,8 @@
     postulantes.set(data.postulantes);
   });
 
-
   let showModal = false;
+  let isSaving = false;
   let modalMode: 'add' | 'edit' = 'add';
 
   let currentPostulante: PostulanteDTO = {
@@ -119,11 +119,10 @@
     return isValid;
   }
 
-
   // Save postulante (add or update) using store methods
   async function savePostulante(): Promise<void> {
     if (!validateForm()) return;
-
+    isSaving = true;
     try {
       if (modalMode === 'add') {
         await addPostulante(currentPostulante);
@@ -134,6 +133,8 @@
     } catch (error) {
       console.error(`Error ${modalMode === 'add' ? 'creating' : 'updating'} postulante:`, error);
       alert(`Error al ${modalMode === 'add' ? 'crear' : 'actualizar'} el postulante`);
+    } finally {
+      isSaving = false;
     }
   }
 
@@ -305,8 +306,12 @@
                             <button type="button" on:click={closeModal} class="cancel-button">
                                 Cancelar
                             </button>
-                            <button type="submit" class="save-button">
-                                Guardar
+                            <button type="submit" disabled={isSaving} class="save-button">
+                                {#if isSaving}
+                                    Guardando...
+                                {:else}
+                                    Guardar
+                                {/if}
                             </button>
                         </div>
                     </form>
@@ -317,6 +322,11 @@
 </div>
 
 <style>
+    .save-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
     .container {
         display: grid;
         grid-template-rows: auto 1fr;

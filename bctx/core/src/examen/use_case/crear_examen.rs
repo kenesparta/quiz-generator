@@ -9,8 +9,6 @@ pub struct InputData {
     pub id: String,
     pub titulo: String,
     pub descripcion: String,
-    pub puntos_totales: u32,
-    pub categoria: String,
     pub activo: bool,
 }
 

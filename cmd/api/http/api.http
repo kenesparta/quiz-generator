@@ -51,3 +51,12 @@ Content-Type: application/json
 ### Obtener lista de postulantes
 GET http://localhost:8000/postulantes
 Content-Type: application/json
+
+### Crear Examen
+POST http://localhost:8000/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
+Content-Type: application/json
+
+{
+  "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
+  "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eros enim"
+}

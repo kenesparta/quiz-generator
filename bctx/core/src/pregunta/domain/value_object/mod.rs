@@ -1,2 +1,4 @@
+pub mod alternativa;
+pub mod etiqueta;
 pub mod id;
-mod tipo_pregunta;
+pub mod tipo_pregunta;

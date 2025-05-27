@@ -1,3 +1,6 @@
+use crate::pregunta::domain::error::alternativa::AlternativaError;
+use crate::pregunta::domain::error::etiqueta::EtiquetaError;
+use crate::pregunta::domain::error::tipo_pregunta::TipoPreguntaError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
 
@@ -8,9 +11,30 @@ pub enum PreguntaError {
 
     #[error("Respuesta incorrecta")]
     RespuestaIncorrecta,
+    
+    #[error("Alternativas no existen")]   
+    AlternativasNoExisten,
+
+    #[error("Alternativas vacias")]
+    AlternativasVacias,
+    
+    #[error("Puntos no existen")]  
+    PuntosNoExisten,
+    
+    #[error("Puntos vacios")] 
+    PuntosVacios,
 
     #[error("Validacion de examenID fallida")]
     PreguntaErrorExamenID(#[from] IdError),
+
+    #[error("Error en la alternativa")]
+    PreguntaAlternativaError(#[from] AlternativaError),
+
+    #[error("Error en la alternativa")]
+    PreguntaEtiquetaError(#[from] EtiquetaError),
+
+    #[error("Error en el tipo de pregunta")]
+    PreguntaTipoPreguntaError(#[from] TipoPreguntaError),
 
     #[error("Error en el repositorio")]
     PreguntaRepositorioError(#[from] RepositorioError),

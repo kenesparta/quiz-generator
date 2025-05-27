@@ -1,55 +1,32 @@
-use crate::pregunta::domain::entity::pregunta::{Pregunta, PreguntaEntity};
-use crate::pregunta::domain::entity::pregunta_alternativas::PreguntaAlternativasProps;
-use crate::pregunta::domain::entity::pregunta_libre::PreguntaLibreProps;
-use crate::pregunta::domain::entity::pregunta_sola_respuesta::PreguntaSolaRespuestaProps;
-use crate::pregunta::domain::value_object::id::PreguntaID;
+use crate::pregunta::domain::entity::pregunta::PreguntaEntity;
 use std::collections::HashMap;
+use crate::pregunta::domain::error::pregunta::PreguntaError;
+use crate::pregunta::domain::value_object::etiqueta::Etiqueta;
 
-pub struct PreguntaFactory;
-
-impl PreguntaFactory {
-    pub fn pregunta_alternativas(
-        id: PreguntaID,
-        contenido: String,
-        imagen_ref: Option<String>,
-        alternativa_correcta: String,
-        alternativas: HashMap<String, String>,
-    ) -> PreguntaEntity<PreguntaAlternativasProps> {
-        let props = PreguntaAlternativasProps {
-            contenido,
-            imagen_ref,
-            alternativa_correcta,
-            alternativas,
-        };
-
-        PreguntaEntity::new(id, props)
-    }
-
-    pub fn pregunta_libre(
-        id: PreguntaID,
-        contenido: String,
-        imagen_ref: Option<String>,
-    ) -> PreguntaEntity<PreguntaLibreProps> {
-        let props = PreguntaLibreProps {
-            contenido,
-            imagen_ref,
-        };
-
-        PreguntaEntity::new(id, props)
-    }
-
-    pub fn pregunta_sola_respuesta(
-        id: PreguntaID,
-        contenido: String,
-        imagen_ref: Option<String>,
-        respuesta_correcta: String,
-    ) -> PreguntaEntity<PreguntaSolaRespuestaProps> {
-        let props = PreguntaSolaRespuestaProps {
-            contenido,
-            imagen_ref,
-            respuesta_correcta,
-        };
-
-        PreguntaEntity::new(id, props)
-    }
+pub trait Pregunta {
+    fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError>;
 }
+
+pub struct PreguntaWrapper;
+
+impl PreguntaWrapper {
+   pub fn pregunta_entity(&self,         id: String,
+                          contenido: String,
+                          etiqueta: String,
+                          tipo_de_pregunta: String,
+                          imagen_ref: Option<String>,
+                          alternativas: HashMap<String, String>,
+                          puntos: HashMap<String, u32>,) -> Result<PreguntaEntity, PreguntaError> {
+       unimplemented!()
+   }
+}
+
+#[derive(Debug, Clone)]
+pub struct PreguntaEntityList {
+    pub pregunta: Vec<PreguntaEntity>,
+}
+
+pub struct PreguntaAlternativas;
+pub struct PreguntaLibre;
+pub struct PreguntaSolaRespuesta;
+pub struct PreguntaSiNo;

@@ -4,7 +4,7 @@ use actix_web::web;
 use async_trait::async_trait;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_core::examen::domain::value_object::id::ExamenID;
-use quizz_core::pregunta::domain::entity::pregunta::{Pregunta, PreguntaEntity};
+use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
 use quizz_core::pregunta::domain::entity::pregunta_alternativas::PreguntaAlternativasProps;
 use quizz_core::pregunta::domain::entity::pregunta_libre::PreguntaLibreProps;
 use quizz_core::pregunta::domain::entity::pregunta_sola_respuesta::PreguntaSolaRespuestaProps;
@@ -27,15 +27,15 @@ impl PreguntaPorExamenMongo {
 
     fn pregunta_to_bson(&self, pregunta: &TipoDePregunta) -> Result<Bson, PreguntaError> {
         match pregunta {
-            TipoDePregunta::Alternativas(p) => {
+            TipoDePregunta::Alternativas(al) => {
                 let mut alternativas_bson = Document::new();
-                for (key, value) in &p.props.alternativas {
-                    alternativas_bson.insert(key, value);
-                }
 
+                // for (key, value) in &p.props.alternativas {
+                //     alternativas_bson.insert(key, value);
+                // }
                 let doc = doc! {
-                    "id": p.id().to_string(),
-                    "tipo": "alternativas",
+                    "id":  al.id.to_string(),
+                    "tipo": al.tipo_pregunta(),
                     "contenido": p.contenido(),
                     "imagen_ref": p.imagen_ref().map_or(Bson::Null, |s| Bson::String(s.to_string())),
                     "alternativa_correcta": &p.props.alternativa_correcta,

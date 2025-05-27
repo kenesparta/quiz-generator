@@ -72,12 +72,65 @@ Content-Type: application/json
         "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
         "contenido": "¿Cuál es la capital de Francia?",
         "imagen_ref": "paris.jpg",
-        "alternativa_correcta": "A",
         "alternativas": {
           "A": "París",
           "B": "Londres",
           "C": "Madrid",
           "D": "Roma"
+        },
+        "puntos": {
+          "A": 4
+        }
+      }
+    },
+    {
+      "Alternativas": {
+        "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
+        "contenido": "¿dadadsasdads?",
+        "imagen_ref": "paris.jpg",
+        "alternativa_correcta": "C",
+        "puntaje": 4,
+        "alternativas": {
+          "A": "wewe",
+          "B": "ewe",
+          "C": "www",
+          "D": "sdasd"
+        }
+      }
+    },
+    {
+      "AlternativasConPuntaje": {
+        "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
+        "contenido": "¿Cuál es la capital de Francia?",
+        "etiqueta": "unico",
+        "alternativas": {
+          "A": "París",
+          "B": "Londres",
+          "C": "Madrid",
+          "D": "Roma",
+          "F": "Roma"
+        },
+        "puntos": {
+          "A": 0,
+          "B": 1,
+          "C": 2,
+          "D": 3,
+          "E": 4
+        }
+      }
+    },
+    {
+      "SioNoEysenck": {
+        "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
+        "contenido": "¿Le gusta la multitud o la bulla a su alrededor?",
+        "etiqueta": "extrovertido",
+        "alternativas": {
+          "y": "si",
+          "n": "no"
+        },
+        "puntos": {
+          "y": 0,
+          "n": 1
         }
       }
     },
@@ -85,7 +138,10 @@ Content-Type: application/json
       "Libre": {
         "id": "d1695032-4133-43f5-9275-26042db5583c",
         "contenido": "Explique el ciclo del agua.",
-        "imagen_ref": null
+        "etiqueta": "extrovertido",
+        "imagen_ref": null,
+        "alternativas": null,
+        "puntos": null
       }
     },
     {
@@ -93,7 +149,9 @@ Content-Type: application/json
         "id": "c5f75714-88d3-49a0-a6f1-d746426fed33",
         "contenido": "¿Cuál es el símbolo químico del oxígeno?",
         "imagen_ref": null,
-        "respuesta_correcta": "O"
+        "respuesta": {
+          "o": 4
+        }
       }
     },
     {

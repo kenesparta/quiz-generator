@@ -7,6 +7,8 @@ pub struct Examen {
     pub titulo: String,
     pub descripcion: String,
     pub activo: bool,
+    // pub puntaje: u64,
+    // Forma de evaluacion para cada tipo de pregunta
 }
 
 impl Examen {

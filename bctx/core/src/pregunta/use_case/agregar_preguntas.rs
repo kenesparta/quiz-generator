@@ -1,6 +1,6 @@
 use crate::examen::domain::value_object::id::ExamenID;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::service::pregunta_factory::PreguntaFactory;
+use crate::pregunta::domain::service::pregunta_factory::{PreguntaEntityList, PreguntaFactory};
 use crate::pregunta::domain::service::tipo_pregunta::TipoDePregunta;
 use crate::pregunta::domain::service::tipo_pregunta::TipoDePregunta::{
     Alternativas, Libre, SolaRespuesta,
@@ -14,29 +14,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct InputData {
     pub examen_id: String,
-    pub preguntas: Vec<PreguntaRawData>,
-}
-
-#[derive(Debug, Clone)]
-pub enum PreguntaRawData {
-    Alternativas {
-        id: String,
-        contenido: String,
-        imagen_ref: Option<String>,
-        alternativa_correcta: String,
-        alternativas: HashMap<String, String>,
-    },
-    Libre {
-        id: String,
-        contenido: String,
-        imagen_ref: Option<String>,
-    },
-    SolaRespuesta {
-        id: String,
-        contenido: String,
-        imagen_ref: Option<String>,
-        respuesta_correcta: String,
-    },
+    pub preguntas: PreguntaEntityList,
 }
 
 pub struct AgregarPreguntas<RepoErr> {
@@ -56,54 +34,54 @@ where
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PreguntaError> {
         let examen_id = ExamenID::new(&in_.examen_id)?;
-        let preguntas: Vec<TipoDePregunta> = in_
-            .preguntas
-            .into_iter()
-            .map(|r| match r {
-                PreguntaRawData::Alternativas {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    alternativa_correcta,
-                    alternativas,
-                } => {
-                    let id = PreguntaID::new(&id)?;
-                    Ok(Alternativas(PreguntaFactory::pregunta_alternativas(
-                        id,
-                        contenido,
-                        imagen_ref,
-                        alternativa_correcta,
-                        alternativas,
-                    )))
-                }
-                PreguntaRawData::Libre {
-                    id,
-                    contenido,
-                    imagen_ref,
-                } => {
-                    let id = PreguntaID::new(&id)?;
-                    Ok(Libre(PreguntaFactory::pregunta_libre(
-                        id, contenido, imagen_ref,
-                    )))
-                }
-                PreguntaRawData::SolaRespuesta {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    respuesta_correcta,
-                } => {
-                    let id = PreguntaID::new(&id)?;
-                    Ok(SolaRespuesta(PreguntaFactory::pregunta_sola_respuesta(
-                        id,
-                        contenido,
-                        imagen_ref,
-                        respuesta_correcta,
-                    )))
-                }
-            })
-            .collect::<Result<Vec<TipoDePregunta>, PreguntaError>>()?;
+        // let preguntas: Vec<TipoDePregunta> = in_
+        //     .preguntas
+        //     .into_iter()
+        //     .map(|r| match r {
+        //         PreguntaRawData::Alternativas {
+        //             id,
+        //             contenido,
+        //             imagen_ref,
+        //             alternativa_correcta,
+        //             alternativas,
+        //         } => {
+        //             let id = PreguntaID::new(&id)?;
+        //             Ok(Alternativas(PreguntaFactory::pregunta_alternativas(
+        //                 id,
+        //                 contenido,
+        //                 imagen_ref,
+        //                 alternativa_correcta,
+        //                 alternativas,
+        //             )))
+        //         }
+        //         PreguntaRawData::Libre {
+        //             id,
+        //             contenido,
+        //             imagen_ref,
+        //         } => {
+        //             let id = PreguntaID::new(&id)?;
+        //             Ok(Libre(PreguntaFactory::pregunta_libre(
+        //                 id, contenido, imagen_ref,
+        //             )))
+        //         }
+        //         PreguntaRawData::SolaRespuesta {
+        //             id,
+        //             contenido,
+        //             imagen_ref,
+        //             respuesta_correcta,
+        //         } => {
+        //             let id = PreguntaID::new(&id)?;
+        //             Ok(SolaRespuesta(PreguntaFactory::pregunta_sola_respuesta(
+        //                 id,
+        //                 contenido,
+        //                 imagen_ref,
+        //                 respuesta_correcta,
+        //             )))
+        //         }
+        //     })
+        //     .collect::<Result<Vec<TipoDePregunta>, PreguntaError>>()?;
 
-        self.reposotorio.agregar(examen_id, preguntas).await?;
+        // self.reposotorio.agregar(examen_id, preguntas).await?;
         Ok(())
     }
 }

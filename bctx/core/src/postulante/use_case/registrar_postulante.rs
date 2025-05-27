@@ -21,8 +21,6 @@ pub struct InputData {
     pub genero: String,
 }
 
-pub struct OutputData {}
-
 pub struct RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
     password_crypto: Box<dyn SeguridadPassword<PassErr>>,
     repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
@@ -41,13 +39,13 @@ impl<PassErr, RepoErr> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
 }
 
 #[async_trait]
-impl<PassErr, RepoErr> CasoDeUso<InputData, OutputData, PostulanteError>
+impl<PassErr, RepoErr> CasoDeUso<InputData, (), PostulanteError>
     for RegistrarPostulantePasswordTemporal<PassErr, RepoErr>
 where
     PostulanteError: From<PassErr>,
     PostulanteError: From<RepoErr>,
 {
-    async fn ejecutar(&self, in_: InputData) -> Result<OutputData, PostulanteError> {
+    async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
         let grado_instruccion = GradoInstruccion::from_str(&in_.grado_instruccion)?;
         let genero = Genero::from_str(&in_.genero)?;
         let documento = Documento::new(&in_.documento)?;
@@ -67,7 +65,7 @@ where
             password,
         )?;
         self.repositorio.registrar_postulante(postulante).await?;
-        Ok(OutputData {})
+        Ok({})
     }
 }
 

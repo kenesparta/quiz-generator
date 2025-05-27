@@ -1,3 +1,4 @@
+mod evaluacion;
 pub mod examen;
 pub mod healthcheck;
 mod mongo_repository;

@@ -1,4 +1,6 @@
 pub mod pregunta;
-pub mod pregunta_alternativas;
-pub mod pregunta_libre;
-pub mod pregunta_sola_respuesta;
+mod tipo_pregunta_strategy;
+mod alternativas_strategy;
+mod libre_strategy;
+mod sola_respuesta_strategy;
+mod si_no_strategy;

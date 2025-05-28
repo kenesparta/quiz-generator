@@ -21,7 +21,7 @@ pub struct PreguntaEntityInput {
     pub tipo_de_pregunta: String,
     pub imagen_ref: Option<String>,
     pub alternativas: HashMap<String, String>,
-    pub puntos: HashMap<String, u32>,
+    pub puntaje: HashMap<String, u32>,
 }
 
 pub struct AgregarPreguntas<RepoErr> {
@@ -52,14 +52,11 @@ where
                     i.tipo_de_pregunta,
                     i.imagen_ref,
                     i.alternativas,
-                    i.puntos,
+                    i.puntaje,
                 )
             })
             .collect::<Result<Vec<PreguntaEntity>, PreguntaError>>()?;
-        let lista_de_preguntas = ListaDePreguntas::new(preguntas);
-        self.reposotorio
-            .agregar(examen_id, lista_de_preguntas)
-            .await?;
+        self.reposotorio.agregar(examen_id, preguntas).await?;
         Ok(())
     }
 }

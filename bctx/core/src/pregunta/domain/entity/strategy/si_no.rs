@@ -29,11 +29,11 @@ impl TipoPreguntaStrategy for PreguntaSiNoStrategy {
         }
     }
 
-    fn ajustar_puntos(
+    fn ajustar_puntaje(
         &self,
-        puntos: Option<HashMap<Alternativa, u32>>,
+        puntaje: Option<HashMap<Alternativa, u32>>,
     ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
-        match puntos {
+        match puntaje {
             None => Ok(None),
             Some(pts) => {
                 let valid_keys = vec![Alternativa::Si, Alternativa::No];

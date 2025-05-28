@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::tipo_pregunta_strategy::TipoPreguntaStrategy;
+use crate::pregunta::domain::entity::strategy::tipo_pregunta_strategy::TipoPreguntaStrategy;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;
@@ -13,9 +13,9 @@ impl TipoPreguntaStrategy for PreguntaLibreStrategy {
         Ok(None)
     }
 
-    fn ajustar_puntos(
+    fn ajustar_puntaje(
         &self,
-        _puntos: Option<HashMap<Alternativa, u32>>,
+        _puntaje: Option<HashMap<Alternativa, u32>>,
     ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
         Ok(None)
     }
@@ -23,7 +23,7 @@ impl TipoPreguntaStrategy for PreguntaLibreStrategy {
     fn verificar_consistencia(
         &self,
         _alternativas: &Option<HashMap<Alternativa, String>>,
-        _puntos: &Option<HashMap<Alternativa, u32>>,
+        _puntaje: &Option<HashMap<Alternativa, u32>>,
     ) -> Result<(), PreguntaError> {
         Ok(())
     }

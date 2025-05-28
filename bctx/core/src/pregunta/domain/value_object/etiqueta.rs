@@ -12,9 +12,9 @@ pub enum Etiqueta {
 impl fmt::Display for Etiqueta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::No => write!(f, "Ninguno"),
-            Self::Extrovertido => write!(f, "Extrovertido"),
-            Self::Introvertido => write!(f, "Introvertido"),
+            Self::No => write!(f, "no"),
+            Self::Extrovertido => write!(f, "extrovertido"),
+            Self::Introvertido => write!(f, "introvertido"),
         }
     }
 }

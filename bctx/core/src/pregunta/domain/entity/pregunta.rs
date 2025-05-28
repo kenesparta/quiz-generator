@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::tipo_pregunta_strategy::get_strategy;
+use crate::pregunta::domain::entity::strategy::tipo_pregunta_strategy::get_strategy;
 use crate::pregunta::domain::error::alternativa::AlternativaError;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
@@ -22,7 +22,7 @@ pub struct PreguntaEntity {
     pub etiqueta: Etiqueta,
     pub tipo_de_pregunta: TipoPregunta,
     pub alternativas: Option<HashMap<Alternativa, String>>,
-    pub puntos: Option<HashMap<Alternativa, u32>>,
+    pub puntaje: Option<HashMap<Alternativa, u32>>,
 }
 
 impl PreguntaEntity {
@@ -33,19 +33,19 @@ impl PreguntaEntity {
         tipo_de_pregunta: String,
         imagen_ref: Option<String>,
         alternativas: HashMap<String, String>,
-        puntos: HashMap<String, u32>,
+        puntaje: HashMap<String, u32>,
     ) -> Result<Self, PreguntaError> {
         let id = PreguntaID::new(&id)?;
         let etiqueta = Etiqueta::from_str(&etiqueta)?;
         let tipo_de_pregunta = TipoPregunta::from_str(&tipo_de_pregunta)?;
         let alternativas = Self::parse_map(alternativas)?;
-        let puntos = Self::parse_map(puntos)?;
+        let puntaje = Self::parse_map(puntaje)?;
 
         let strategy = get_strategy(&tipo_de_pregunta);
         let alternativas = strategy.ajustar_alternativas(alternativas)?;
-        let puntos = strategy.ajustar_puntos(puntos)?;
+        let puntaje = strategy.ajustar_puntaje(puntaje)?;
 
-        strategy.verificar_consistencia(&alternativas, &puntos)?;
+        strategy.verificar_consistencia(&alternativas, &puntaje)?;
 
         Ok(Self {
             id,
@@ -53,7 +53,7 @@ impl PreguntaEntity {
             etiqueta,
             tipo_de_pregunta,
             alternativas,
-            puntos,
+            puntaje,
             imagen_ref,
         })
     }
@@ -66,10 +66,10 @@ impl PreguntaEntity {
     //             if !alternativas.contains_key(&respuesta) {
     //                 return Err(PreguntaError::RespuestaIncorrecta);
     //             }
-    //             match &self.puntos {
+    //             match &self.puntaje {
     //                 None => Ok(0),
-    //                 Some(puntos) => {
-    //                     if !puntos.contains_key(&respuesta) {
+    //                 Some(puntaje) => {
+    //                     if !puntaje.contains_key(&respuesta) {
     //                         return Err(PreguntaError::RespuestaNoExiste);
     //                     }
     //                     Ok(0)

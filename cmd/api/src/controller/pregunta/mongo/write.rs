@@ -5,14 +5,10 @@ use async_trait::async_trait;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
-use quizz_core::pregunta::domain::entity::pregunta_alternativas::PreguntaAlternativasProps;
-use quizz_core::pregunta::domain::entity::pregunta_libre::PreguntaLibreProps;
-use quizz_core::pregunta::domain::entity::pregunta_sola_respuesta::PreguntaSolaRespuestaProps;
 use quizz_core::pregunta::domain::error::pregunta::PreguntaError;
 use quizz_core::pregunta::domain::error::pregunta::RepositorioError::{
     ActualizacionNoFinalizada, PersistenciaNoFinalizada,
 };
-use quizz_core::pregunta::domain::service::tipo_pregunta::TipoDePregunta;
 use quizz_core::pregunta::provider::repositorio::RepositorioAgregarPregunta;
 use tracing::log::{error, info};
 
@@ -23,46 +19,6 @@ pub struct PreguntaPorExamenMongo {
 impl PreguntaPorExamenMongo {
     pub fn new(client: web::Data<mongodb::Client>) -> Self {
         Self { client }
-    }
-
-    fn pregunta_to_bson(&self, pregunta: &TipoDePregunta) -> Result<Bson, PreguntaError> {
-        match pregunta {
-            TipoDePregunta::Alternativas(al) => {
-                let mut alternativas_bson = Document::new();
-
-                // for (key, value) in &p.props.alternativas {
-                //     alternativas_bson.insert(key, value);
-                // }
-                let doc = doc! {
-                    "id":  al.id.to_string(),
-                    "tipo": al.tipo_pregunta(),
-                    "contenido": p.contenido(),
-                    "imagen_ref": p.imagen_ref().map_or(Bson::Null, |s| Bson::String(s.to_string())),
-                    "alternativa_correcta": &p.props.alternativa_correcta,
-                    "alternativas": alternativas_bson,
-                };
-                Ok(Bson::Document(doc))
-            }
-            TipoDePregunta::Libre(p) => {
-                let doc = doc! {
-                    "id": p.id().to_string(),
-                    "tipo": "libre",
-                    "contenido": p.contenido(),
-                    "imagen_ref": p.imagen_ref().map_or(Bson::Null, |s| Bson::String(s.to_string())),
-                };
-                Ok(Bson::Document(doc))
-            }
-            TipoDePregunta::SolaRespuesta(p) => {
-                let doc = doc! {
-                    "id": p.id().to_string(),
-                    "tipo": "sola_respuesta",
-                    "contenido": p.contenido(),
-                    "imagen_ref": p.imagen_ref().map_or(Bson::Null, |s| Bson::String(s.to_string())),
-                    "respuesta_correcta": &p.props.respuesta_correcta,
-                };
-                Ok(Bson::Document(doc))
-            }
-        }
     }
 }
 
@@ -81,7 +37,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
     async fn agregar(
         &self,
         examen_id: ExamenID,
-        preguntas: Vec<TipoDePregunta>,
+        preguntas: Vec<PreguntaEntity>,
     ) -> Result<(), PreguntaError> {
         let examen_filter = doc! {
             "id": examen_id.to_string()
@@ -102,10 +58,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
             ));
         }
 
-        let mut preguntas_bson = Vec::new();
-        for pregunta in preguntas {
-            preguntas_bson.push(self.pregunta_to_bson(&pregunta)?);
-        }
+        let preguntas_bson = preguntas_to_bson(&preguntas);
 
         let update = doc! {
             "$push": {
@@ -129,4 +82,44 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
         info!("Questions added successfully to exam {}", examen_id);
         Ok(())
     }
+}
+
+// Helper function to convert PreguntaEntity to BSON
+// Helper function to convert PreguntaEntity to BSON
+fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
+    preguntas
+        .iter()
+        .map(|pregunta| {
+            let mut document = doc! {
+                "id": pregunta.id.to_string(),
+                "contenido": pregunta.contenido.clone(),
+                "etiqueta": pregunta.etiqueta.to_string(),
+                "tipo_de_pregunta": pregunta.tipo_de_pregunta.to_string()
+            };
+
+            if let Some(ref imagen) = pregunta.imagen_ref {
+                document.insert("imagen_ref", imagen.clone());
+            }
+
+            if let Some(ref alternativas) = pregunta.alternativas {
+                let alternativas_doc = alternativas
+                    .iter()
+                    .map(|(key, value)| (key.to_string(), Bson::String(value.clone())))
+                    .collect::<Document>();
+
+                document.insert("alternativas", alternativas_doc);
+            }
+
+            if let Some(ref puntaje) = pregunta.puntaje {
+                let puntaje_doc = puntaje
+                    .iter()
+                    .map(|(key, value)| (key.to_string(), Bson::Int32(*value as i32)))
+                    .collect::<Document>();
+
+                document.insert("puntaje", puntaje_doc);
+            }
+
+            Bson::Document(document)
+        })
+        .collect()
 }

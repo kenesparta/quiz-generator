@@ -1,9 +1,9 @@
-use crate::controller::pregunta::dto::{PreguntaInputDto, PreguntaRawDataDto};
+use crate::controller::pregunta::dto::PreguntaInputDto;
 use crate::controller::pregunta::mongo::write::PreguntaPorExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::pregunta::use_case::agregar_preguntas::{
-    AgregarPreguntas, InputData, PreguntaRawData,
+    AgregarPreguntas, InputData, PreguntaEntityInput,
 };
 use tracing::log;
 
@@ -18,50 +18,23 @@ impl AgregarPreguntaController {
         let examen_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {
-                return HttpResponse::BadRequest().json("no se esta enviando el id del examen");
+                return HttpResponse::BadRequest().json("se debe enviar el ID del examen");
             }
         };
 
         let agregar_preguntas = AgregarPreguntas::new(Box::new(PreguntaPorExamenMongo::new(pool)));
-
         let dto = body.into_inner();
-        let preguntas: Vec<PreguntaRawData> = dto
+        let preguntas = dto
             .preguntas
             .into_iter()
-            .map(|p| match p {
-                PreguntaRawDataDto::Alternativas {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    alternativa_correcta,
-                    alternativas,
-                } => PreguntaRawData::Alternativas {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    alternativa_correcta,
-                    alternativas,
-                },
-                PreguntaRawDataDto::Libre {
-                    id,
-                    contenido,
-                    imagen_ref,
-                } => PreguntaRawData::Libre {
-                    id,
-                    contenido,
-                    imagen_ref,
-                },
-                PreguntaRawDataDto::SolaRespuesta {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    respuesta_correcta,
-                } => PreguntaRawData::SolaRespuesta {
-                    id,
-                    contenido,
-                    imagen_ref,
-                    respuesta_correcta,
-                },
+            .map(|dto| PreguntaEntityInput {
+                id: dto.id,
+                contenido: dto.contenido,
+                etiqueta: dto.etiqueta,
+                tipo_de_pregunta: dto.tipo_de_pregunta,
+                imagen_ref: dto.imagen_ref,
+                alternativas: dto.alternativas,
+                puntaje: dto.puntaje,
             })
             .collect();
 

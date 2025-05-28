@@ -1,11 +1,11 @@
-use crate::pregunta::domain::entity::tipo_pregunta_strategy::TipoPreguntaStrategy;
+use crate::pregunta::domain::entity::strategy::tipo_pregunta_strategy::TipoPreguntaStrategy;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;
 
-pub struct PreguntaAlternativasStrategy;
+pub struct PreguntaAlternativasConPesoStrategy;
 
-impl TipoPreguntaStrategy for PreguntaAlternativasStrategy {
+impl TipoPreguntaStrategy for PreguntaAlternativasConPesoStrategy {
     fn ajustar_alternativas(
         &self,
         alternativas: Option<HashMap<Alternativa, String>>,
@@ -17,13 +17,13 @@ impl TipoPreguntaStrategy for PreguntaAlternativasStrategy {
         }
     }
 
-    fn ajustar_puntos(
+    fn ajustar_puntaje(
         &self,
-        puntos: Option<HashMap<Alternativa, u32>>,
+        puntaje: Option<HashMap<Alternativa, u32>>,
     ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
-        match puntos {
+        match puntaje {
             None => Err(PreguntaError::AlternativasNoExisten),
-            Some(p) if p.is_empty() => Err(PreguntaError::PuntosVacios),
+            Some(p) if p.is_empty() => Err(PreguntaError::PuntajeVacio),
             Some(p) => Ok(Some(p)),
         }
     }

@@ -11,17 +11,17 @@ pub enum PreguntaError {
 
     #[error("Respuesta incorrecta")]
     RespuestaIncorrecta,
-    
-    #[error("Alternativas no existen")]   
+
+    #[error("Alternativas no existen")]
     AlternativasNoExisten,
 
     #[error("Alternativas vacias")]
     AlternativasVacias,
-    
-    #[error("Puntos no existen")]  
+
+    #[error("Puntos no existen")]
     PuntosNoExisten,
-    
-    #[error("Puntos vacios")] 
+
+    #[error("Puntos vacios")]
     PuntosVacios,
 
     #[error("Validacion de examenID fallida")]

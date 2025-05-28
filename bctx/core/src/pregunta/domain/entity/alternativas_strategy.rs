@@ -1,7 +1,7 @@
+use crate::pregunta::domain::entity::tipo_pregunta_strategy::TipoPreguntaStrategy;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;
-use crate::pregunta::domain::entity::tipo_pregunta_strategy::TipoPreguntaStrategy;
 
 pub struct PreguntaAlternativasStrategy;
 

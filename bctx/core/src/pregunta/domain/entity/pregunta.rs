@@ -1,3 +1,4 @@
+use crate::pregunta::domain::entity::tipo_pregunta_strategy::get_strategy;
 use crate::pregunta::domain::error::alternativa::AlternativaError;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
@@ -7,12 +8,6 @@ use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::str::FromStr;
-use crate::pregunta::domain::entity::alternativas_strategy::PreguntaAlternativasStrategy;
-use crate::pregunta::domain::entity::libre_strategy::PreguntaLibreStrategy;
-use crate::pregunta::domain::entity::si_no_strategy::PreguntaSiNoStrategy;
-use crate::pregunta::domain::entity::sola_respuesta_strategy::PreguntaSolaRespuestaStrategy;
-use crate::pregunta::domain::entity::tipo_pregunta_strategy::TipoPreguntaStrategy;
-use crate::pregunta::domain::service::pregunta_factory::PreguntaSolaRespuesta;
 
 pub trait PreguntaProps: Clone + PartialEq + Debug {
     fn verificar_respuesta(&self, respuesta: &str) -> Result<(), PreguntaError>;
@@ -50,6 +45,8 @@ impl PreguntaEntity {
         let alternativas = strategy.ajustar_alternativas(alternativas)?;
         let puntos = strategy.ajustar_puntos(puntos)?;
 
+        strategy.verificar_consistencia(&alternativas, &puntos)?;
+
         Ok(Self {
             id,
             contenido,
@@ -82,25 +79,6 @@ impl PreguntaEntity {
     //     }
     // }
 
-    // pub fn verificar_puntaje(&self) -> Result<(), PreguntaError> {
-    //     let alternativas = match &self.alternativas {
-    //         None => return Ok(()),
-    //         Some(alt) => alt,
-    //     };
-    // 
-    //     let puntos = match &self.puntos {
-    //         None => return Err(PreguntaError::RespuestaNoExiste),
-    //         Some(pts) => pts,
-    //     };
-    // 
-    //     let exists_in_puntos = alternativas.keys().any(|k| puntos.contains_key(k));
-    //     if !exists_in_puntos {
-    //         return Err(PreguntaError::RespuestaNoExiste);
-    //     }
-    // 
-    //     Ok(())
-    // }
-
     fn parse_map<V>(
         map: HashMap<String, V>,
     ) -> Result<Option<HashMap<Alternativa, V>>, PreguntaError>
@@ -120,14 +98,5 @@ impl PreguntaEntity {
             Ok(pairs) => Ok(Some(pairs.into_iter().collect())),
             Err(err) => Err(PreguntaError::PreguntaAlternativaError(err)),
         }
-    }
-}
-
-pub fn get_strategy(tipo: &TipoPregunta) -> Box<dyn TipoPreguntaStrategy> {
-    match tipo {
-        TipoPregunta::Alternativas => Box::new(PreguntaAlternativasStrategy),
-        TipoPregunta::Libre => Box::new(PreguntaLibreStrategy),
-        TipoPregunta::SolaRespuesta => Box::new(PreguntaSolaRespuestaStrategy),
-        TipoPregunta::SioNo => Box::new(PreguntaSiNoStrategy),
     }
 }

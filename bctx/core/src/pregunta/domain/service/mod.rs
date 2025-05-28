@@ -1,1 +1,1 @@
-pub mod pregunta_factory;
+pub mod lista_preguntas;

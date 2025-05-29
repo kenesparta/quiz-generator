@@ -24,6 +24,9 @@ pub enum PreguntaError {
     #[error("puntaje vacio")]
     PuntajeVacio,
 
+    #[error("puntaje no cincide con alternativa")]
+    PuntajeNoCoincideConAlternativa,
+
     #[error("Validacion de examenID fallida")]
     PreguntaErrorExamenID(#[from] IdError),
 

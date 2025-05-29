@@ -35,7 +35,7 @@ impl FromStr for Alternativa {
     type Err = AlternativaError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
+        match s.to_uppercase().as_str() {
             "A" => Ok(Alternativa::A),
             "B" => Ok(Alternativa::B),
             "C" => Ok(Alternativa::C),

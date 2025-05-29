@@ -24,21 +24,20 @@ pub trait TipoPreguntaStrategy {
         puntaje: &Option<HashMap<Alternativa, u32>>,
     ) -> Result<(), PreguntaError> {
         let alternativas = match alternativas {
-            None => return Ok(()),
-            Some(alt) => alt,
+            None => return Err(PreguntaError::AlternativasNoExisten),
+            Some(alternativa) => alternativa,
         };
 
         let puntaje = match puntaje {
-            None => return Err(PreguntaError::RespuestaNoExiste),
-            Some(pts) => pts,
+            None => return Err(PreguntaError::PuntajeNoExiste),
+            Some(puntaje) => puntaje,
         };
 
-        let exists_in_puntaje = alternativas.keys().any(|k| puntaje.contains_key(k));
-        if !exists_in_puntaje {
-            return Err(PreguntaError::RespuestaNoExiste);
+        let missing_key = puntaje.keys().find(|k| !alternativas.contains_key(k));
+        match missing_key {
+            Some(_) => Err(PreguntaError::PuntajeNoCoincideConAlternativa),
+            None => Ok(()),
         }
-
-        Ok(())
     }
 }
 
@@ -49,5 +48,109 @@ pub fn get_strategy(tipo: &TipoPregunta) -> Box<dyn TipoPreguntaStrategy> {
         TipoPregunta::Libre => Box::new(PreguntaLibreStrategy),
         TipoPregunta::SolaRespuesta => Box::new(PreguntaSolaRespuestaStrategy),
         TipoPregunta::SioNo => Box::new(PreguntaSiNoStrategy),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    struct MockStrategy;
+
+    impl TipoPreguntaStrategy for MockStrategy {
+        fn ajustar_alternativas(
+            &self,
+            _alternativas: Option<HashMap<Alternativa, String>>,
+        ) -> Result<Option<HashMap<Alternativa, String>>, PreguntaError> {
+            todo!()
+        }
+
+        fn ajustar_puntaje(
+            &self,
+            _puntaje: Option<HashMap<Alternativa, u32>>,
+        ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
+            todo!()
+        }
+    }
+
+    #[test]
+    fn test_verificar_consistencia_alternativas_none() {
+        let strategy = MockStrategy;
+        let alternativas: Option<HashMap<Alternativa, String>> = None;
+        let puntaje: Option<HashMap<Alternativa, u32>> = Some(HashMap::new());
+
+        let result = strategy.verificar_consistencia(&alternativas, &puntaje);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_verificar_consistencia_puntaje_none() {
+        let strategy = MockStrategy;
+        let mut alternativas = HashMap::new();
+        alternativas.insert(Alternativa::A, "Opción A".to_string());
+        let puntaje: Option<HashMap<Alternativa, u32>> = None;
+
+        let result = strategy.verificar_consistencia(&Some(alternativas), &puntaje);
+
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            PreguntaError::PuntajeNoExiste
+        ));
+    }
+
+    #[test]
+    fn test_verificar_consistencia_no_matching_keys() {
+        // Arrange
+        let strategy = MockStrategy;
+        let mut alternativas = HashMap::new();
+        alternativas.insert(Alternativa::A, "Opción A".to_string());
+
+        let mut puntaje = HashMap::new();
+        puntaje.insert(Alternativa::B, 10);
+
+        let result = strategy.verificar_consistencia(&Some(alternativas), &Some(puntaje));
+
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            PreguntaError::PuntajeNoCoincideConAlternativa
+        ));
+    }
+
+    #[test]
+    fn test_verificar_consistencia_matching_keys() {
+        let strategy = MockStrategy;
+        let mut alternativas = HashMap::new();
+        alternativas.insert(Alternativa::A, "Opción A".to_string());
+        alternativas.insert(Alternativa::B, "Opción B".to_string());
+
+        let mut puntaje = HashMap::new();
+        puntaje.insert(Alternativa::C, 10);
+        puntaje.insert(Alternativa::A, 5);
+
+        let result = strategy.verificar_consistencia(&Some(alternativas), &Some(puntaje));
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            PreguntaError::PuntajeNoCoincideConAlternativa
+        ));
+    }
+
+    #[test]
+    fn test_verificar_consistencia_empty_alternativas() {
+        let strategy = MockStrategy;
+        let alternativas: Option<HashMap<Alternativa, String>> = None;
+
+        let mut puntaje = HashMap::new();
+        puntaje.insert(Alternativa::A, 10);
+
+        let result = strategy.verificar_consistencia(&alternativas, &Some(puntaje));
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            PreguntaError::AlternativasNoExisten
+        ));
     }
 }

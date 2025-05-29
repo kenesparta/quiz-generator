@@ -15,7 +15,7 @@ async fn main() -> Result<(), std::io::Error> {
     let configuration = get_configuration().expect("Failed to read configuration.");
     let connection_pool = create_mongo_client(&configuration.database.connection_string())
         .await
-        .expect("Failed to connect to Postgres.");
+        .expect("failed to connect to a database");
     let address = format!("127.0.0.1:{}", configuration.application_port.to_string());
     let tcp_listener = TcpListener::bind(address)?;
     run(tcp_listener, connection_pool)?.await?;

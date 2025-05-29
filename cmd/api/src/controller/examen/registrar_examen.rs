@@ -3,7 +3,7 @@ use crate::controller::examen::mongo::write::ExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::examen::use_case::crear_examen::{CrearExamen, InputData};
-use tracing::log::{error, info};
+use tracing::log::error;
 
 pub struct ExamenControlller;
 

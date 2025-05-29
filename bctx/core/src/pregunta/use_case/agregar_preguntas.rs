@@ -1,7 +1,6 @@
 use crate::examen::domain::value_object::id::ExamenID;
 use crate::pregunta::domain::entity::pregunta::PreguntaEntity;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use crate::pregunta::provider::repositorio::RepositorioAgregarPregunta;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
@@ -24,18 +23,18 @@ pub struct PreguntaEntityInput {
     pub puntaje: HashMap<String, u32>,
 }
 
-pub struct AgregarPreguntas<RepoErr> {
-    reposotorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>,
+pub struct AgregarPreguntasParaExamen<RepoErr> {
+    repositorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>,
 }
 
-impl<RepoErr> AgregarPreguntas<RepoErr> {
-    pub fn new(reposotorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>) -> Self {
-        Self { reposotorio }
+impl<RepoErr> AgregarPreguntasParaExamen<RepoErr> {
+    pub fn new(repositorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>) -> Self {
+        Self { repositorio }
     }
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), PreguntaError> for AgregarPreguntas<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, (), PreguntaError> for AgregarPreguntasParaExamen<RepoErr>
 where
     PreguntaError: From<RepoErr>,
 {
@@ -56,7 +55,7 @@ where
                 )
             })
             .collect::<Result<Vec<PreguntaEntity>, PreguntaError>>()?;
-        self.reposotorio.agregar(examen_id, preguntas).await?;
+        self.repositorio.agregar(examen_id, preguntas).await?;
         Ok(())
     }
 }

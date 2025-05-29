@@ -3,7 +3,7 @@ use crate::controller::pregunta::mongo::write::PreguntaPorExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::pregunta::use_case::agregar_preguntas::{
-    AgregarPreguntas, InputData, PreguntaEntityInput,
+    AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,
 };
 use tracing::log;
 
@@ -22,7 +22,8 @@ impl AgregarPreguntaController {
             }
         };
 
-        let agregar_preguntas = AgregarPreguntas::new(Box::new(PreguntaPorExamenMongo::new(pool)));
+        let agregar_preguntas =
+            AgregarPreguntasParaExamen::new(Box::new(PreguntaPorExamenMongo::new(pool)));
         let dto = body.into_inner();
         let preguntas = dto
             .preguntas

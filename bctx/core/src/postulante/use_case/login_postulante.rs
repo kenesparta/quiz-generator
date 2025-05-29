@@ -7,7 +7,6 @@ use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub documento: String,
-    pub password: String,
 }
 
 pub struct OutputData {

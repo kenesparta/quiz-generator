@@ -1,5 +1,5 @@
-use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use crate::examen::domain::entity::examen::ExamenList;
+use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_common::domain::value_objects::fecha::FechaTiempoValueObject;
 
 pub struct Evaluacion {

@@ -21,12 +21,12 @@ impl ExamenControlller {
         };
 
         let registrar_examen = CrearExamen::new(Box::new(ExamenMongo::new(pool)));
-
         let dto = body.into_inner();
         let input = InputData {
             id: examen_id,
             titulo: dto.titulo,
             descripcion: dto.descripcion,
+            puntaje_maximo: dto.puntaje_maximo,
             activo: true,
         };
 

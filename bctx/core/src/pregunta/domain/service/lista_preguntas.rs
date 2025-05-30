@@ -1,5 +1,6 @@
 use crate::pregunta::domain::entity::pregunta::PreguntaEntity;
 
+#[derive(Debug, Clone)]
 pub struct ListaDePreguntas {
     preguntas: Vec<PreguntaEntity>,
 }

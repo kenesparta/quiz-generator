@@ -16,6 +16,9 @@ pub enum ExamenError {
     #[error("Descripción del examen inválida")]
     DescripcionInvalida,
 
+    #[error("El puntaje o debe ser cero")]
+    PuntajeIgualQueCero,
+
     #[error("Duración del examen inválida")]
     DuracionInvalida,
 

@@ -13,9 +13,6 @@ pub struct InputData {
     pub activo: String,
 }
 
-#[derive(Debug, Clone)]
-pub struct OutputData {}
-
 pub struct CrearExamen<RepoErr> {
     repositorio: Box<dyn RepositorioExamenEscritura<RepoErr>>,
 }
@@ -27,11 +24,11 @@ impl<RepoErr> CrearExamen<RepoErr> {
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, ExamenError> for CrearExamen<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, (), ExamenError> for CrearExamen<RepoErr>
 where
     ExamenError: From<RepoErr>,
 {
-    async fn ejecutar(&self, in_: InputData) -> Result<OutputData, ExamenError> {
+    async fn ejecutar(&self, in_: InputData) -> Result<(), ExamenError> {
         let examen = Examen::new(
             in_.id.to_string(),
             in_.titulo,
@@ -41,6 +38,6 @@ where
             None,
         )?;
         self.repositorio.guardar_examen(examen).await?;
-        Ok(OutputData {})
+        Ok(())
     }
 }

@@ -31,6 +31,10 @@ impl Examen {
             return Err(ExamenError::DescripcionInvalida);
         }
 
+        if puntaje_maximo == 0 {
+            return Err(ExamenError::PuntajeIgualQueCero);
+        }
+
         let estado = EstadoGeneral::from_str(&estado)?;
         let id = ExamenID::new(&id)?;
 

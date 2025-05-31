@@ -1,13 +1,15 @@
 use crate::examen::domain::error::examen::ExamenError;
 use crate::examen::domain::value_object::id::ExamenID;
 use crate::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
+use quizz_common::domain::value_objects::estado::EstadoGeneral;
+use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct Examen {
     pub id: ExamenID,
     pub titulo: String,
     pub descripcion: String,
-    pub activo: bool,
+    pub estado: EstadoGeneral,
     pub puntaje_maximo: u32,
     pub preguntas: Option<ListaDePreguntas>,
 }
@@ -17,7 +19,7 @@ impl Examen {
         id: String,
         titulo: String,
         descripcion: String,
-        activo: bool,
+        estado: String,
         puntaje_maximo: u32,
         preguntas: Option<ListaDePreguntas>,
     ) -> Result<Self, ExamenError> {
@@ -29,12 +31,14 @@ impl Examen {
             return Err(ExamenError::DescripcionInvalida);
         }
 
+        let estado = EstadoGeneral::from_str(&estado)?;
         let id = ExamenID::new(&id)?;
+
         Ok(Self {
             id,
             titulo,
             descripcion,
-            activo,
+            estado,
             puntaje_maximo,
             preguntas,
         })

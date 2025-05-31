@@ -1,14 +1,35 @@
+use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
+use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::examen::domain::entity::examen::ExamenList;
-use quizz_common::domain::value_objects::estado::EstadoGeneral;
-use quizz_common::domain::value_objects::fecha::FechaTiempoValueObject;
 
 pub struct Evaluacion {
-    pub id: String,
+    pub id: EvaluacionID,
     pub nombre: String,
     pub descripcion: String,
-    pub fecha_tiempo_inicio: FechaTiempoValueObject,
-    pub fecha_tiempo_fin: FechaTiempoValueObject,
-    pub estado: EstadoGeneral,
-    pub pregunta_id: String,
     pub examen_list: Option<ExamenList>,
+}
+
+impl Evaluacion {
+    pub fn new(
+        id: String,
+        nombre: String,
+        descripcion: String,
+        examen_list: Option<ExamenList>,
+    ) -> Result<Self, EvaluacionError> {
+        if nombre.trim().is_empty() {
+            return Err(EvaluacionError::NombreNoValido);
+        }
+
+        if descripcion.trim().is_empty() {
+            return Err(EvaluacionError::DescripcionNoValida);
+        }
+
+        let id = EvaluacionID::new(&id)?;
+        Ok(Self {
+            id,
+            nombre,
+            descripcion,
+            examen_list,
+        })
+    }
 }

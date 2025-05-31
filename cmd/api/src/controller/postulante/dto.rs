@@ -11,17 +11,6 @@ pub struct RegistrarPostulanteDTO {
     pub genero: String,
 }
 
-pub struct PostulanteDataBaseDTO {
-    pub id: uuid::Uuid,
-    pub documento: String,
-    pub nombre: String,
-    pub primer_apellido: String,
-    pub segundo_apellido: String,
-    pub fecha_nacimiento: String,
-    pub grado_instruccion: String,
-    pub genero: String,
-}
-
 #[derive(Deserialize)]
 pub struct PostulanteDocumentoQuery {
     pub documento: String,

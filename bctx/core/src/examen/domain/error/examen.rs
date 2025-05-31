@@ -1,3 +1,4 @@
+use quizz_common::domain::value_objects::estado::EstadoGeneralError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
 
@@ -5,6 +6,9 @@ use thiserror::Error;
 pub enum ExamenError {
     #[error("ID del examen no válido")]
     ExamenIdInvalido(#[from] IdError),
+
+    #[error("Error general del estado del examen")]
+    ExamenEstadoGeneralError(#[from] EstadoGeneralError),
 
     #[error("Título del examen inválido")]
     TituloInvalido,

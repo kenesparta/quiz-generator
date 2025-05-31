@@ -36,7 +36,7 @@ impl RepositorioExamenEscritura<ExamenError> for ExamenMongo {
             "id": examen.id.value().uuid().to_string(),
             "titulo": examen.titulo.to_string(),
             "descripcion": examen.descripcion.to_string(),
-            "activo": examen.activo,
+            "activo": examen.estado.to_string(),
         };
 
         match self.get_collection().insert_one(documento, None).await {

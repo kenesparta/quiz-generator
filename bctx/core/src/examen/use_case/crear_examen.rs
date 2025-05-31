@@ -10,7 +10,7 @@ pub struct InputData {
     pub titulo: String,
     pub descripcion: String,
     pub puntaje_maximo: u32,
-    pub activo: bool,
+    pub activo: String,
 }
 
 #[derive(Debug, Clone)]

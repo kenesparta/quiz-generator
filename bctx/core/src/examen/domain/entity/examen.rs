@@ -48,7 +48,3 @@ impl Examen {
         })
     }
 }
-
-pub struct ExamenList {
-    pub examenes: Vec<Examen>,
-}

@@ -1,6 +1,6 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use crate::evaluacion::value_object::id::EvaluacionID;
-use crate::examen::domain::entity::examen::ExamenList;
+use crate::examen::domain::service::examen::ExamenList;
 
 pub struct Evaluacion {
     pub id: EvaluacionID,

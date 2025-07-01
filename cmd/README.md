@@ -39,11 +39,3 @@ cargo install cargo-audit
 # Execute:
 cargo audit
 ```
-
-### Install sqlx-cli
-
-```shell
-cargo install --version="~0.8" sqlx-cli \
-  --no-default-features \
-  --features rustls,postgres
-```

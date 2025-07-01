@@ -1,3 +1,4 @@
+use crate::pregunta::domain::entity::strategy::alternativa_peso::PreguntaAlternativasConPesoStrategy;
 use crate::pregunta::domain::entity::strategy::alternativa_unica::PreguntaAlternativaRespuestaUnicaStrategy;
 use crate::pregunta::domain::entity::strategy::libre::PreguntaLibreStrategy;
 use crate::pregunta::domain::entity::strategy::si_no::PreguntaSiNoStrategy;
@@ -44,7 +45,7 @@ pub trait TipoPreguntaStrategy {
 pub fn get_strategy(tipo: &TipoPregunta) -> Box<dyn TipoPreguntaStrategy> {
     match tipo {
         TipoPregunta::AlternativaUnica => Box::new(PreguntaAlternativaRespuestaUnicaStrategy),
-        TipoPregunta::AlternativaConPeso => Box::new(PreguntaAlternativaRespuestaUnicaStrategy),
+        TipoPregunta::AlternativaConPeso => Box::new(PreguntaAlternativasConPesoStrategy),
         TipoPregunta::Libre => Box::new(PreguntaLibreStrategy),
         TipoPregunta::SolaRespuesta => Box::new(PreguntaSolaRespuestaStrategy),
         TipoPregunta::SioNo => Box::new(PreguntaSiNoStrategy),

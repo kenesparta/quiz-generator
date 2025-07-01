@@ -1,5 +1,4 @@
 [workspace]
-resolver = "2"
 members = [
     # Subdominio basico
     "bctx/core",
@@ -9,6 +8,6 @@ members = [
     "bctx/auth",
     "bctx/common",
 
-    # API backend
+    # API
     "cmd/api",
 ]

@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::strategy::tipo_pregunta_strategy::get_strategy;
+use crate::pregunta::domain::entity::strategy::strategy::get_strategy;
 use crate::pregunta::domain::error::alternativa::AlternativaError;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;

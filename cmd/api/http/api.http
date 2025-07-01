@@ -69,22 +69,6 @@ Content-Type: application/json
   "preguntas": [
     {
       "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
-      "contenido": "¿Cuál es la capital de Francia?",
-      "etiqueta": "no",
-      "tipo_de_pregunta": "alternativa_unica",
-      "imagen_ref": "",
-      "alternativas": {
-        "A": "París",
-        "B": "Londres",
-        "C": "Madrid",
-        "D": "Roma"
-      },
-      "puntaje": {
-        "A": 4
-      }
-    },
-    {
-      "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
       "contenido": "¿dadadsasdads?",
       "etiqueta": "no",
       "tipo_de_pregunta": "alternativa_unica",

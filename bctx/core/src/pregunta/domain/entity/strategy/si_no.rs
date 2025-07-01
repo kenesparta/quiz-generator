@@ -1,4 +1,4 @@
-use super::tipo_pregunta_strategy::TipoPreguntaStrategy;
+use super::strategy::TipoPreguntaStrategy;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;

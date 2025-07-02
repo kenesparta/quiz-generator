@@ -18,7 +18,7 @@ pub enum PreguntaError {
     #[error("AlternativaUnica vacias")]
     AlternativasVacias,
 
-    #[error("alternativa no ajustada correctamente")]
+    #[error("alternativa o puntaje no ajustado correctamente")]
     AlternativaNoAjustada,
 
     #[error("Puntos no existen")]

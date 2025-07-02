@@ -8,7 +8,6 @@ use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::str::FromStr;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct PreguntaEntity {

@@ -20,7 +20,8 @@ where
                 return Err(PreguntaError::AlternativaNoAjustada);
             }
 
-            if !filtered.contains_key(&Alternativa::Si) || !filtered.contains_key(&Alternativa::No) {
+            if !filtered.contains_key(&Alternativa::Si) || !filtered.contains_key(&Alternativa::No)
+            {
                 return Err(PreguntaError::AlternativaNoAjustada);
             }
 

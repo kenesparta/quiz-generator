@@ -1,12 +1,12 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
+use crate::evaluacion::value_object::examen_id::ExamenIDs;
 use crate::evaluacion::value_object::id::EvaluacionID;
-use crate::examen::domain::service::examen::ExamenList;
 
 pub struct Evaluacion {
     pub id: EvaluacionID,
     pub nombre: String,
     pub descripcion: String,
-    pub examen_list: Option<ExamenList>,
+    pub examen_list: ExamenIDs,
 }
 
 impl Evaluacion {
@@ -14,7 +14,7 @@ impl Evaluacion {
         id: String,
         nombre: String,
         descripcion: String,
-        examen_list: Option<ExamenList>,
+        examen_list: Vec<String>,
     ) -> Result<Self, EvaluacionError> {
         if nombre.trim().is_empty() {
             return Err(EvaluacionError::NombreNoValido);
@@ -25,6 +25,7 @@ impl Evaluacion {
         }
 
         let id = EvaluacionID::new(&id)?;
+        let examen_list = ExamenIDs::new(examen_list);
         Ok(Self {
             id,
             nombre,

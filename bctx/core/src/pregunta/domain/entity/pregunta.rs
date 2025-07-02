@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::strategy::strategy::get_strategy;
+use crate::pregunta::domain::entity::strategy::strategy::strategy_selection;
 use crate::pregunta::domain::error::alternativa::AlternativaError;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
@@ -8,6 +8,7 @@ use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::str::FromStr;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct PreguntaEntity {
@@ -16,8 +17,8 @@ pub struct PreguntaEntity {
     pub imagen_ref: Option<String>,
     pub etiqueta: Etiqueta,
     pub tipo_de_pregunta: TipoPregunta,
-    pub alternativas: Option<HashMap<Alternativa, String>>,
-    pub puntaje: Option<HashMap<Alternativa, u32>>,
+    pub alternativas: HashMap<String, String>,
+    pub puntaje: HashMap<String, u32>,
 }
 
 impl PreguntaEntity {
@@ -33,14 +34,9 @@ impl PreguntaEntity {
         let id = PreguntaID::new(&id)?;
         let etiqueta = Etiqueta::from_str(&etiqueta)?;
         let tipo_de_pregunta = TipoPregunta::from_str(&tipo_de_pregunta)?;
-        let alternativas = Self::parse_map(alternativas)?;
-        let puntaje = Self::parse_map(puntaje)?;
 
-        let strategy = get_strategy(&tipo_de_pregunta);
-        let alternativas = strategy.ajustar_alternativas(alternativas)?;
-        let puntaje = strategy.ajustar_puntaje(puntaje)?;
-
-        strategy.verificar_consistencia(&alternativas, &puntaje)?;
+        let strategy = strategy_selection(&tipo_de_pregunta);
+        strategy.verify(&alternativas, &puntaje)?;
 
         Ok(Self {
             id,
@@ -51,27 +47,6 @@ impl PreguntaEntity {
             puntaje,
             imagen_ref,
         })
-    }
-
-    fn parse_map<V>(
-        map: HashMap<String, V>,
-    ) -> Result<Option<HashMap<Alternativa, V>>, PreguntaError>
-    where
-        V: Clone,
-    {
-        if map.is_empty() {
-            return Ok(None);
-        }
-
-        let results: Result<Vec<(Alternativa, V)>, AlternativaError> = map
-            .into_iter()
-            .map(|(key, value)| key.parse::<Alternativa>().map(|alt| (alt, value)))
-            .collect();
-
-        match results {
-            Ok(pairs) => Ok(Some(pairs.into_iter().collect())),
-            Err(err) => Err(PreguntaError::PreguntaAlternativaError(err)),
-        }
     }
 }
 
@@ -114,16 +89,16 @@ mod tests {
         assert_eq!(pregunta.etiqueta.to_string(), etiqueta);
         assert_eq!(pregunta.tipo_de_pregunta.to_string(), tipo_de_pregunta);
 
-        let alt_map = pregunta.alternativas.unwrap();
-        let punt_map = pregunta.puntaje.unwrap();
+        let alt_map = pregunta.alternativas;
+        let punt_map = pregunta.puntaje;
 
-        assert!(alt_map.contains_key(&Alternativa::A));
-        assert!(alt_map.contains_key(&Alternativa::B));
-        assert!(alt_map.contains_key(&Alternativa::C));
-        assert!(alt_map.contains_key(&Alternativa::D));
+        assert!(alt_map.contains_key(&Alternativa::A.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::B.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::C.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::D.to_string()));
 
-        assert_eq!(alt_map.get(&Alternativa::A).unwrap(), "París");
-        assert_eq!(punt_map.get(&Alternativa::A).unwrap(), &4);
+        assert_eq!(alt_map.get(&Alternativa::A.to_string()).unwrap(), "París");
+        assert_eq!(punt_map.get(&Alternativa::A.to_string()).unwrap(), &4);
     }
 
     #[test]
@@ -164,20 +139,20 @@ mod tests {
         assert_eq!(pregunta.contenido, contenido);
         assert_eq!(pregunta.tipo_de_pregunta.to_string(), tipo_de_pregunta);
 
-        let alt_map = pregunta.alternativas.unwrap();
-        let punt_map = pregunta.puntaje.unwrap();
+        let alt_map = pregunta.alternativas;
+        let punt_map = pregunta.puntaje;
 
-        assert!(alt_map.contains_key(&Alternativa::A));
-        assert!(alt_map.contains_key(&Alternativa::B));
-        assert!(alt_map.contains_key(&Alternativa::C));
-        assert!(alt_map.contains_key(&Alternativa::D));
-        assert!(alt_map.contains_key(&Alternativa::E));
+        assert!(alt_map.contains_key(&Alternativa::A.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::B.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::C.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::D.to_string()));
+        assert!(alt_map.contains_key(&Alternativa::E.to_string()));
 
-        assert_eq!(punt_map.get(&Alternativa::A).unwrap(), &0);
-        assert_eq!(punt_map.get(&Alternativa::B).unwrap(), &1);
-        assert_eq!(punt_map.get(&Alternativa::C).unwrap(), &2);
-        assert_eq!(punt_map.get(&Alternativa::D).unwrap(), &3);
-        assert_eq!(punt_map.get(&Alternativa::E).unwrap(), &4);
+        assert_eq!(punt_map.get(&Alternativa::A.to_string()).unwrap(), &0);
+        assert_eq!(punt_map.get(&Alternativa::B.to_string()).unwrap(), &1);
+        assert_eq!(punt_map.get(&Alternativa::C.to_string()).unwrap(), &2);
+        assert_eq!(punt_map.get(&Alternativa::D.to_string()).unwrap(), &3);
+        assert_eq!(punt_map.get(&Alternativa::E.to_string()).unwrap(), &4);
     }
 
     #[test]
@@ -234,14 +209,5 @@ mod tests {
         );
 
         assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_parse_map_with_empty_map() {
-        let empty_map: HashMap<String, String> = HashMap::new();
-        let result = PreguntaEntity::parse_map(empty_map);
-
-        assert!(result.is_ok());
-        assert!(result.unwrap().is_none());
     }
 }

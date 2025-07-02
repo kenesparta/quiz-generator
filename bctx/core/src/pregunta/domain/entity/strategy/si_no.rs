@@ -1,4 +1,4 @@
-use super::strategy::TipoPreguntaStrategy;
+use super::strategy::{TipoPreguntaStrategy, parse_map};
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;
@@ -8,10 +8,10 @@ pub struct PreguntaSiNoStrategy;
 impl TipoPreguntaStrategy for PreguntaSiNoStrategy {
     fn ajustar_alternativas(
         &self,
-        alternativas: Option<HashMap<Alternativa, String>>,
-    ) -> Result<Option<HashMap<Alternativa, String>>, PreguntaError> {
-        match alternativas {
-            None => Ok(None),
+        alternativas: &HashMap<String, String>,
+    ) -> Result<(), PreguntaError> {
+        match parse_map(alternativas)? {
+            None => Ok(()),
             Some(alt) => {
                 let valid_keys = vec![Alternativa::Si, Alternativa::No];
                 let filtered: HashMap<_, _> = alt
@@ -19,21 +19,18 @@ impl TipoPreguntaStrategy for PreguntaSiNoStrategy {
                     .filter(|(key, _)| valid_keys.contains(key))
                     .collect();
 
-                if filtered.is_empty() {
-                    Ok(None)
-                } else {
-                    Ok(Some(filtered))
+                if !filtered.is_empty() {
+                    return Err(PreguntaError::AlternativaNoAjustada);
                 }
+
+                Ok(())
             }
         }
     }
 
-    fn ajustar_puntaje(
-        &self,
-        puntaje: Option<HashMap<Alternativa, u32>>,
-    ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
-        match puntaje {
-            None => Ok(None),
+    fn ajustar_puntaje(&self, puntaje: &HashMap<String, u32>) -> Result<(), PreguntaError> {
+        match parse_map(puntaje)? {
+            None => Ok(()),
             Some(pts) => {
                 let valid_keys = vec![Alternativa::Si, Alternativa::No];
                 let filtered: HashMap<_, _> = pts
@@ -41,11 +38,11 @@ impl TipoPreguntaStrategy for PreguntaSiNoStrategy {
                     .filter(|(key, _)| valid_keys.contains(key))
                     .collect();
 
-                if filtered.is_empty() {
-                    Ok(None)
-                } else {
-                    Ok(Some(filtered))
+                if !filtered.is_empty() {
+                    return Err(PreguntaError::PuntajeNoAjustado);
                 }
+
+                Ok(())
             }
         }
     }

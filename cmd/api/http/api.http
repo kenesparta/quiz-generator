@@ -1,9 +1,13 @@
-### Register a new Postulante
-GET http://localhost:8008/health-check
+### Variables
+@baseUrl = http://localhost:8008
+@examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
+
+### Health check
+GET {{baseUrl}}/health-check
 Content-Type: application/json
 
 ### Registrar nuevo Postulante
-POST http://localhost:8000/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
+POST {{baseUrl}}/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
 
 {
@@ -17,7 +21,7 @@ Content-Type: application/json
 }
 
 ### Registrar nuevo Postulante
-POST http://localhost:8000/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+POST {{baseUrl}}/postulante/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
 
 {
@@ -31,7 +35,7 @@ Content-Type: application/json
 }
 
 ### Registrar nuevo Postulante
-POST http://localhost:8000/postulantes/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
+POST {{baseUrl}}/postulante/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
 
 {
@@ -45,113 +49,39 @@ Content-Type: application/json
 }
 
 ### Obtener el postulante por documento
-GET http://localhost:8000/postulantes/buscar?documento=04009988
+GET {{baseUrl}}/postulante/buscar?documento=04009988
 Content-Type: application/json
 
 ### Obtener lista de postulantes
-GET http://localhost:8000/postulantes
+GET {{baseUrl}}/postulante
 Content-Type: application/json
 
 ### Crear Examen
-POST http://localhost:8000/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
+POST {{baseUrl}}/examen/{{examId}}
 Content-Type: application/json
 
 {
   "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
-  "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eros enim"
+  "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eros enim",
+  "puntaje_maximo": 100
 }
 
 ### Agregar preguntas
-POST http://localhost:8000/pregunta/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
+POST {{baseUrl}}/examen/{{examId}}/pregunta
 Content-Type: application/json
 
 {
   "preguntas": [
-    {
-      "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
-      "contenido": "¿dadadsasdads?",
-      "etiqueta": "no",
-      "tipo_de_pregunta": "alternativa_unica",
-      "imagen_ref": "",
-      "alternativas": {
-        "A": "wewe",
-        "B": "ewe",
-        "C": "www",
-        "D": "sdasd"
-      },
-      "puntaje": {
-        "C": 7
-      }
-    },
-    {
-      "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
-      "contenido": "¿Cuál es la capital de Francia?",
-      "etiqueta": "no",
-      "tipo_de_pregunta": "alternativa_peso",
-      "imagen_ref": "",
-      "alternativas": {
-        "A": "París",
-        "B": "Londres",
-        "C": "Madrid",
-        "D": "Roma",
-        "E": "Roma"
-      },
-      "puntaje": {
-        "A": 0,
-        "B": 1,
-        "C": 2,
-        "D": 3,
-        "E": 4
-      }
-    },
-    {
-      "id": "84a2c727-0ded-48e8-967c-e3cc1e35b8bc",
-      "contenido": "¿Le gusta la multitud o la bulla a su alrededor?",
-      "etiqueta": "extrovertido",
-      "tipo_de_pregunta": "si_o_no",
-      "imagen_ref": "",
-      "alternativas": {
-        "y": "si",
-        "n": "no"
-      },
-      "puntaje": {
-        "y": 0,
-        "n": 1
-      }
-    },
-    {
-      "id": "d1695032-4133-43f5-9275-26042db5583c",
-      "contenido": "Explique el ciclo del agua.",
-      "etiqueta": "no",
-      "tipo_de_pregunta": "libre",
-      "imagen_ref": null,
-      "alternativas": null,
-      "puntaje": null
-    },
+    
     {
       "id": "c5f75714-88d3-49a0-a6f1-d746426fed33",
       "contenido": "¿Cuál es el símbolo químico del oxígeno?",
       "etiqueta": "no",
       "tipo_de_pregunta": "sola_respuesta",
-      "imagen_ref": null,
-      "respuesta": {
-        "o": 4
-      }
-    }
-  ]
-}
-
-### Agregar preguntas
-POST http://localhost:8000/pregunta/examen/19573e4f-321d-41ad-a8a9-3807c6fd3d65
-Content-Type: application/json
-
-{
-  "preguntas": [
-    {
-      "Libre": {
-        "id": "8afafadf-aee1-4c68-a0ae-cf2e525ae270",
-        "contenido": "Explique ede forma breve sobre el ciclo del oxigeno",
-        "imagen_ref": null
+      "imagen_ref": "",
+      "alternativas": {},
+      "puntaje": {
+        "O": 4
       }
     }
   ]

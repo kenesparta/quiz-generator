@@ -13,6 +13,6 @@ pub struct PreguntaDetailDto {
     pub etiqueta: String,
     pub tipo_de_pregunta: String,
     pub imagen_ref: Option<String>,
-    pub alternativas: HashMap<String, String>,
-    pub puntaje: HashMap<String, u32>,
+    pub alternativas: Option<HashMap<String, String>>,
+    pub puntaje: Option<HashMap<String, u32>>,
 }

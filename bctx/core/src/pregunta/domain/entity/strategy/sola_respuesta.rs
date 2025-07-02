@@ -1,6 +1,5 @@
-use crate::pregunta::domain::entity::strategy::strategy::TipoPreguntaStrategy;
+use crate::pregunta::domain::entity::strategy::strategy::{TipoPreguntaStrategy, parse_map};
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use std::collections::HashMap;
 
 pub struct PreguntaSolaRespuestaStrategy;
@@ -8,33 +7,28 @@ pub struct PreguntaSolaRespuestaStrategy;
 impl TipoPreguntaStrategy for PreguntaSolaRespuestaStrategy {
     fn ajustar_alternativas(
         &self,
-        alternativas: Option<HashMap<Alternativa, String>>,
-    ) -> Result<Option<HashMap<Alternativa, String>>, PreguntaError> {
-        match alternativas {
-            None => Ok(None),
-            Some(alt) if alt.is_empty() => Ok(None),
-            Some(alt) => {
-                let entry = alt.into_iter().next().unwrap();
-                let mut new_map = HashMap::new();
-                new_map.insert(entry.0, entry.1);
-                Ok(Some(new_map))
-            }
-        }
+        _alternativas: &HashMap<String, String>,
+    ) -> Result<(), PreguntaError> {
+        Ok(())
     }
 
-    fn ajustar_puntaje(
+    fn ajustar_puntaje(&self, _puntaje: &HashMap<String, u32>) -> Result<(), PreguntaError> {
+        Ok(())
+    }
+
+    fn verificar_consistencia(
         &self,
-        puntaje: Option<HashMap<Alternativa, u32>>,
-    ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
-        match puntaje {
-            None => Ok(None),
-            Some(pts) if pts.is_empty() => Ok(None),
-            Some(pts) => {
-                let entry = pts.into_iter().next().unwrap();
-                let mut new_map = HashMap::new();
-                new_map.insert(entry.0, entry.1);
-                Ok(Some(new_map))
-            }
+        _alternativas: &HashMap<String, String>,
+        puntaje: &HashMap<String, u32>,
+    ) -> Result<(), PreguntaError> {
+        if puntaje.len() == 0 {
+            return Err(PreguntaError::PuntajeNoExiste);
         }
+
+        if puntaje.len() > 1 {
+            return Err(PreguntaError::DebeTenerUnaSolaRespuesta);
+        }
+
+        Ok(())
     }
 }

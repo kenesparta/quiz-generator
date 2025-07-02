@@ -8,22 +8,19 @@ pub struct PreguntaLibreStrategy;
 impl TipoPreguntaStrategy for PreguntaLibreStrategy {
     fn ajustar_alternativas(
         &self,
-        _alternativas: Option<HashMap<Alternativa, String>>,
-    ) -> Result<Option<HashMap<Alternativa, String>>, PreguntaError> {
-        Ok(None)
+        _alternativas: &HashMap<String, String>,
+    ) -> Result<(), PreguntaError> {
+        Ok(())
     }
 
-    fn ajustar_puntaje(
-        &self,
-        _puntaje: Option<HashMap<Alternativa, u32>>,
-    ) -> Result<Option<HashMap<Alternativa, u32>>, PreguntaError> {
-        Ok(None)
+    fn ajustar_puntaje(&self, _puntaje: &HashMap<String, u32>) -> Result<(), PreguntaError> {
+        Ok(())
     }
 
     fn verificar_consistencia(
         &self,
-        _alternativas: &Option<HashMap<Alternativa, String>>,
-        _puntaje: &Option<HashMap<Alternativa, u32>>,
+        _alternativas: &HashMap<String, String>,
+        _puntaje: &HashMap<String, u32>,
     ) -> Result<(), PreguntaError> {
         Ok(())
     }

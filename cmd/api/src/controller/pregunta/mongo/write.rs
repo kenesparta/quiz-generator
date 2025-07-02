@@ -101,23 +101,21 @@ fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
                 document.insert("imagen_ref", imagen.clone());
             }
 
-            if let Some(ref alternativas) = pregunta.alternativas {
-                let alternativas_doc = alternativas
-                    .iter()
-                    .map(|(key, value)| (key.to_string(), Bson::String(value.clone())))
-                    .collect::<Document>();
+            let ref alternativas = pregunta.alternativas;
+            let alternativas_doc = alternativas
+                .iter()
+                .map(|(key, value)| (key.to_string(), Bson::String(value.clone())))
+                .collect::<Document>();
 
-                document.insert("alternativas", alternativas_doc);
-            }
+            document.insert("alternativas", alternativas_doc);
 
-            if let Some(ref puntaje) = pregunta.puntaje {
-                let puntaje_doc = puntaje
-                    .iter()
-                    .map(|(key, value)| (key.to_string(), Bson::Int32(*value as i32)))
-                    .collect::<Document>();
+            let ref puntaje = pregunta.puntaje;
+            let puntaje_doc = puntaje
+                .iter()
+                .map(|(key, value)| (key.to_string(), Bson::Int32(*value as i32)))
+                .collect::<Document>();
 
-                document.insert("puntaje", puntaje_doc);
-            }
+            document.insert("puntaje", puntaje_doc);
 
             Bson::Document(document)
         })

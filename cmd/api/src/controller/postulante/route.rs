@@ -6,7 +6,7 @@ use actix_web::web;
 
 pub fn postulante(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/postulantes")
+        web::scope("/postulante")
             .service(
                 web::resource("/buscar")
                     .route(web::get().to(PostulanteObtenerPorDocumentoController::get)),

@@ -18,13 +18,22 @@ pub enum PreguntaError {
     #[error("AlternativaUnica vacias")]
     AlternativasVacias,
 
+    #[error("alternativa no ajustada correctamente")]
+    AlternativaNoAjustada,
+
     #[error("Puntos no existen")]
     PuntajeNoExiste,
+
+    #[error("Puntos no existen")]
+    DebeTenerUnaSolaRespuesta,
 
     #[error("puntaje vacio")]
     PuntajeVacio,
 
-    #[error("puntaje no cincide con alternativa")]
+    #[error("puntaje no ajustado correctamente")]
+    PuntajeNoAjustado,
+
+    #[error("puntaje no coincide con alternativa")]
     PuntajeNoCoincideConAlternativa,
 
     #[error("Validacion de examenID fallida")]

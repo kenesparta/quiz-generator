@@ -14,7 +14,6 @@ pub struct InputData {
 
 #[derive(Debug, Clone)]
 pub struct PreguntaEntityInput {
-    pub id: String,
     pub contenido: String,
     pub etiqueta: String,
     pub tipo_de_pregunta: String,
@@ -45,7 +44,6 @@ where
             .into_iter()
             .map(|i| {
                 PreguntaEntity::new(
-                    i.id,
                     i.contenido,
                     i.etiqueta,
                     i.tipo_de_pregunta,

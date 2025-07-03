@@ -32,6 +32,11 @@ impl ID {
             .map_err(|_| IdError::FormatoNoValido(type_string))
     }
 
+    pub fn new_v4(id_type: IdType) -> Self {
+        let uuid = Uuid::new_v4();
+        ID { uuid, id_type }
+    }
+
     pub fn value(&self) -> String {
         self.uuid.to_string()
     }

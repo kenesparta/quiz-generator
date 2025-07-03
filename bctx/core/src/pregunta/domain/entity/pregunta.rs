@@ -22,7 +22,6 @@ pub struct PreguntaEntity {
 
 impl PreguntaEntity {
     pub fn new(
-        id: String,
         contenido: String,
         etiqueta: String,
         tipo_de_pregunta: String,
@@ -30,7 +29,7 @@ impl PreguntaEntity {
         alternativas: HashMap<String, String>,
         puntaje: HashMap<String, u32>,
     ) -> Result<Self, PreguntaError> {
-        let id = PreguntaID::new(&id)?;
+        let id = PreguntaID::new_v4();
         let etiqueta = Etiqueta::from_str(&etiqueta)?;
         let tipo_de_pregunta = TipoPregunta::from_str(&tipo_de_pregunta)?;
 
@@ -56,7 +55,6 @@ mod tests {
 
     #[test]
     fn test_create_alternativa_unica_question() {
-        let id = "84a2c727-0ded-48e8-967c-e3cc1e35b8bc".to_string();
         let contenido = "¿Cuál es la capital de Francia?".to_string();
         let etiqueta = "no".to_string();
         let tipo_de_pregunta = "alternativa_unica".to_string();
@@ -72,7 +70,6 @@ mod tests {
         puntaje.insert("A".to_string(), 4);
 
         let result = PreguntaEntity::new(
-            id.clone(),
             contenido.clone(),
             etiqueta.clone(),
             tipo_de_pregunta.clone(),
@@ -83,7 +80,6 @@ mod tests {
 
         assert!(result.is_ok());
         let pregunta = result.unwrap();
-        assert_eq!(pregunta.id.to_string(), id);
         assert_eq!(pregunta.contenido, contenido);
         assert_eq!(pregunta.etiqueta.to_string(), etiqueta);
         assert_eq!(pregunta.tipo_de_pregunta.to_string(), tipo_de_pregunta);
@@ -102,7 +98,6 @@ mod tests {
 
     #[test]
     fn test_create_alternativa_peso_question() {
-        let id = "84a2c727-0ded-48e8-967c-e3cc1e35b8bc".to_string();
         let contenido = "¿Elige una de las alternativas?".to_string();
         let etiqueta = "no".to_string();
         let tipo_de_pregunta = "alternativa_peso".to_string();
@@ -123,7 +118,6 @@ mod tests {
         puntaje.insert("E".to_string(), 4);
 
         let result = PreguntaEntity::new(
-            id.clone(),
             contenido.clone(),
             etiqueta.clone(),
             tipo_de_pregunta.clone(),
@@ -134,7 +128,6 @@ mod tests {
 
         assert!(result.is_ok());
         let pregunta = result.unwrap();
-        assert_eq!(pregunta.id.to_string(), id);
         assert_eq!(pregunta.contenido, contenido);
         assert_eq!(pregunta.tipo_de_pregunta.to_string(), tipo_de_pregunta);
 
@@ -156,7 +149,6 @@ mod tests {
 
     #[test]
     fn test_invalid_alternative_key() {
-        let id = "84a2c727-0ded-48e8-967c-e3cc1e35b8bc".to_string();
         let contenido = "¿Pregunta de prueba?".to_string();
         let etiqueta = "no".to_string();
         let tipo_de_pregunta = "alternativa_unica".to_string();
@@ -170,7 +162,6 @@ mod tests {
         puntaje.insert("A".to_string(), 1);
 
         let result = PreguntaEntity::new(
-            id,
             contenido,
             etiqueta,
             tipo_de_pregunta,
@@ -188,7 +179,6 @@ mod tests {
 
     #[test]
     fn test_invalid_tipo_pregunta() {
-        let id = "84a2c727-0ded-48e8-967c-e3cc1e35b8bc".to_string();
         let contenido = "¿Pregunta de prueba?".to_string();
         let etiqueta = "no".to_string();
         let tipo_de_pregunta = "tipo_invalido".to_string();
@@ -198,7 +188,6 @@ mod tests {
         let puntaje = HashMap::new();
 
         let result = PreguntaEntity::new(
-            id,
             contenido,
             etiqueta,
             tipo_de_pregunta,

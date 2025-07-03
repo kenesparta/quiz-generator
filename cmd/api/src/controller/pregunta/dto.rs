@@ -8,7 +8,6 @@ pub struct PreguntaInputDto {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PreguntaDetailDto {
-    pub id: String,
     pub contenido: String,
     pub etiqueta: String,
     pub tipo_de_pregunta: String,

@@ -31,7 +31,6 @@ impl AgregarPreguntaController {
             .preguntas
             .into_iter()
             .map(|dto| PreguntaEntityInput {
-                id: dto.id,
                 contenido: dto.contenido,
                 etiqueta: dto.etiqueta,
                 tipo_de_pregunta: dto.tipo_de_pregunta,

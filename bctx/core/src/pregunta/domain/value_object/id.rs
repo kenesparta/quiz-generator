@@ -19,6 +19,12 @@ impl PreguntaID {
         ID::new(id, IdType::Pregunta).map(|id| PreguntaID { id })
     }
 
+    pub fn new_v4() -> Self {
+        PreguntaID {
+            id: ID::new_v4(IdType::Pregunta),
+        }
+    }
+
     pub fn value(&self) -> &ID {
         &self.id
     }

@@ -15,4 +15,16 @@ pub enum EvaluacionError {
 
     #[error("La descripcion no es valida")]
     DescripcionNoValida,
+
+    #[error("Error al manipular la base de datos: {0:?}")]
+    EvaluacionRepositorioError(#[from] RepositorioError),
+}
+
+#[derive(Error, Debug)]
+pub enum RepositorioError {
+    #[error("Persistencia no finalizada")]
+    PersistenciaNoFinalizada,
+
+    #[error("Lectura no finalizada")]
+    LecturaNoFinalizada,
 }

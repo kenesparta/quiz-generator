@@ -41,7 +41,7 @@ impl PostulanteController {
         };
 
         match registrar_postulante.ejecutar(input).await {
-            Ok(_output) => HttpResponse::Created().json(""),
+            Ok(_output) => HttpResponse::Created().finish(),
             Err(err) => match err {
                 PostulanteError::PostulanteIdError(id_err) => {
                     HttpResponse::BadRequest().json(format!("Error de ID: {}", id_err))

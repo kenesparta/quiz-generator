@@ -32,7 +32,7 @@ impl ExamenControlller {
         };
 
         match registrar_examen.ejecutar(input).await {
-            Ok(_) => HttpResponse::Created().json(""),
+            Ok(_) => HttpResponse::Created().finish(),
             Err(e) => {
                 error!("error al registrar el examen: {}", e);
                 HttpResponse::InternalServerError().json("error al registrar el examen")

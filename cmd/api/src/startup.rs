@@ -1,3 +1,4 @@
+use crate::controller::evaluacion::route::evaluacion;
 use crate::controller::examen::route::examen;
 use crate::controller::healthcheck::route::health_check;
 use crate::controller::postulante::route::postulante;
@@ -14,6 +15,7 @@ pub fn run(tcp_listener: TcpListener, mongo_client: Client) -> Result<Server, st
             .wrap(set_cors())
             .configure(postulante)
             .configure(examen)
+            .configure(evaluacion)
             .configure(health_check)
             .app_data(db_connection_pool.clone())
     })

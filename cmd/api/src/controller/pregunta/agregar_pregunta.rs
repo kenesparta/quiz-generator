@@ -46,7 +46,7 @@ impl AgregarPreguntaController {
         };
 
         match agregar_preguntas.ejecutar(input).await {
-            Ok(_) => HttpResponse::Created().json(""),
+            Ok(_) => HttpResponse::Created().finish(),
             Err(err) => match err {
                 PreguntaError::RespuestaNoExiste => {
                     HttpResponse::BadRequest().json("La pregunta debe tener una respuesta")

@@ -1,7 +1,6 @@
 use crate::evaluacion::domain::entity::evaluacion::Evaluacion;
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use crate::evaluacion::provider::repositorio::RepositorioEvaluacionEscritura;
-use crate::evaluacion::value_object::examen_id::ExamenIDs;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
 
@@ -11,7 +10,6 @@ pub struct InputData {
     pub titulo: String,
     pub descripcion: String,
     pub estado: String,
-    pub examen_list: Vec<String>,
 }
 
 pub struct CrearEvaluacion<RepoErr> {
@@ -30,13 +28,7 @@ where
     EvaluacionError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
-        let evaluacion = Evaluacion::new(
-            in_.id,
-            in_.titulo,
-            in_.descripcion,
-            in_.estado,
-            in_.examen_list,
-        )?;
+        let evaluacion = Evaluacion::new(in_.id, in_.titulo, in_.descripcion, in_.estado)?;
         self.repositorio.guardar_evaluacion(evaluacion).await?;
         Ok(())
     }

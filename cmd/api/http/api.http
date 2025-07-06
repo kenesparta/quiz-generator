@@ -158,7 +158,7 @@ Content-Type: application/json
 }
 
 ### Agregar examenes a evaluacion
-PUT {{baseUrl}}/evaluacion/{{evaluacionId}}/examen
+PUT {{baseUrl}}/evaluacion/{{evaluacionId}}
 Content-Type: application/json
 
 {

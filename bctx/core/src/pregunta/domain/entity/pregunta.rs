@@ -1,7 +1,5 @@
 use crate::pregunta::domain::entity::strategy::strategy::strategy_selection;
-use crate::pregunta::domain::error::alternativa::AlternativaError;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
-use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use crate::pregunta::domain::value_object::etiqueta::Etiqueta;
 use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
@@ -51,6 +49,7 @@ impl PreguntaEntity {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pregunta::domain::value_object::alternativa::Alternativa;
     use std::collections::HashMap;
 
     #[test]

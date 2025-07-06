@@ -1,4 +1,4 @@
-use crate::pregunta::domain::entity::strategy::strategy::{TipoPreguntaStrategy, parse_map};
+use crate::pregunta::domain::entity::strategy::strategy::TipoPreguntaStrategy;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use std::collections::HashMap;
 

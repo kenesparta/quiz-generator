@@ -93,7 +93,7 @@ fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
         .iter()
         .map(|pregunta| {
             let mut document = doc! {
-                "id": pregunta.id.to_string(),
+                "_id": pregunta.id.to_string(),
                 "contenido": pregunta.contenido.clone(),
                 "etiqueta": pregunta.etiqueta.to_string(),
                 "tipo_de_pregunta": pregunta.tipo_de_pregunta.to_string()

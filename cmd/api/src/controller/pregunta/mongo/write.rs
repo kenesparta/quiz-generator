@@ -40,7 +40,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
         preguntas: Vec<PreguntaEntity>,
     ) -> Result<(), PreguntaError> {
         let examen_filter = doc! {
-            "id": examen_id.to_string()
+            "_id": examen_id.to_string()
         };
 
         let examen_exists = self
@@ -68,11 +68,14 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
             }
         };
 
-        let examen_filter = doc! {
-            "id": examen_id.to_string()
-        };
         self.get_collection()
-            .update_one(examen_filter, update, None)
+            .update_one(
+                doc! {
+                    "_id": examen_id.to_string()
+                },
+                update,
+                None,
+            )
             .await
             .map_err(|e| {
                 error!("Error updating exam with questions: {}", e);
@@ -84,7 +87,6 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
     }
 }
 
-// Helper function to convert PreguntaEntity to BSON
 // Helper function to convert PreguntaEntity to BSON
 fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
     preguntas

@@ -27,4 +27,7 @@ pub enum RepositorioError {
 
     #[error("Lectura no finalizada")]
     LecturaNoFinalizada,
+
+    #[error("La evaluacion no existe")]
+    EvaluacionNoExiste,
 }

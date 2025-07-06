@@ -47,8 +47,8 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
 
         match self.get_collection().find_one(filter, None).await {
             Ok(Some(doc)) => {
-                let id = match doc.get("id") {
-                    Some(bson_id) => bson_id.as_str().unwrap_or_default().to_string(),
+                let id = match doc.get("_id") {
+                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
                             RepositorioError::LecturaNoFinalizada,
@@ -181,8 +181,8 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                     .into_iter()
                     .filter_map(|doc| {
                         match (|| {
-                            let id = match doc.get("id") {
-                                Some(bson_id) => bson_id
+                            let id = match doc.get("_id") {
+                                Some(doc_bson) => doc_bson
                                     .as_str()
                                     .ok_or_else(|| {
                                         PostulanteError::PostulanteRepositorioError(
@@ -330,8 +330,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             Ok(postulante) => Some(postulante),
                             Err(e) => {
                                 error!(
-                                    "Error al convertir documento MongoDB a entidad Postulante: {}",
-                                    e
+                                    "Error al convertir documento MongoDB a entidad Postulante: {e}",
                                 );
                                 None
                             }
@@ -342,10 +341,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 Ok(postulantes)
             }
             Err(e) => {
-                error!(
-                    "Error de base de datos al obtener la lista de postulantes: {}",
-                    e
-                );
+                error!("Error de base de datos al obtener la lista de postulantes: {e}",);
                 Err(PostulanteError::PostulanteRepositorioError(
                     RepositorioError::LecturaNoFinalizada,
                 ))

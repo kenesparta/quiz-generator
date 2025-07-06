@@ -5,7 +5,9 @@ use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
-use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::PersistenciaNoFinalizada;
+use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::{
+    EvaluacionNoExiste, PersistenciaNoFinalizada,
+};
 use quizz_core::evaluacion::provider::repositorio::RepositorioEvaluacionEscritura;
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
@@ -57,6 +59,66 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
         evaluacion_id: EvaluacionID,
         examen_ids: ExamenIDs,
     ) -> Result<(), EvaluacionError> {
-        todo!()
+        let evaluacion_exists = self
+            .get_collection()
+            .find_one(
+                doc! {
+                    "_id": evaluacion_id.to_string()
+                },
+                None,
+            )
+            .await
+            .map_err(|e| {
+                error!("Error checking if exam exists: {}", e);
+                EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+            })?;
+
+        if evaluacion_exists.is_none() {
+            return Err(EvaluacionError::EvaluacionRepositorioError(
+                EvaluacionNoExiste,
+            ));
+        }
+
+        let examen_ids_strings: Vec<String> = examen_ids
+            .examen_ids
+            .iter()
+            .map(|id| id.uuid().to_string())
+            .collect();
+
+        let update = doc! {
+            "$addToSet": {
+                "examenes": {
+                    "$each": examen_ids_strings
+                }
+            }
+        };
+
+        match self
+            .get_collection()
+            .update_one(
+                doc! {
+                    "_id": evaluacion_id.to_string()
+                },
+                update,
+                None,
+            )
+            .await
+        {
+            Ok(result) => {
+                if result.matched_count == 0 {
+                    error!("No evaluation found with ID: {}", evaluacion_id.to_string());
+                    return Err(EvaluacionError::EvaluacionRepositorioError(
+                        EvaluacionNoExiste,
+                    ));
+                }
+                Ok(())
+            }
+            Err(e) => {
+                error!("Error updating evaluation with exam IDs: {}", e);
+                Err(EvaluacionError::EvaluacionRepositorioError(
+                    PersistenciaNoFinalizada,
+                ))
+            }
+        }
     }
 }

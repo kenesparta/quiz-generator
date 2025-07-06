@@ -40,7 +40,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             .value();
 
         let documento = doc! {
-            "id": postulante.id.value().uuid().to_string(),
+            "_id": postulante.id.value().uuid().to_string(),
             "documento": postulante.documento.to_string(),
             "nombre": postulante.nombre_completo.nombre(),
             "primer_apellido": postulante.nombre_completo.primer_apellido(),
@@ -78,7 +78,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
         postulante_id: PostulanteID,
     ) -> Result<(), PostulanteError> {
         let filter = doc! {
-            "id": postulante_id.value().uuid().to_string(),
+            "_id": postulante_id.value().uuid().to_string(),
         };
 
         match self.get_collection().delete_one(filter, None).await {

@@ -68,7 +68,7 @@ Content-Type: application/json
 }
 
 ### Agregar preguntas
-POST {{baseUrl}}/examen/{{examId}}/pregunta
+PUT {{baseUrl}}/examen/{{examId}}
 Content-Type: application/json
 
 {
@@ -148,11 +148,21 @@ Content-Type: application/json
   ]
 }
 
-### Agregar preguntas
+### Agregar Evaluacion
 POST {{baseUrl}}/evaluacion/{{evaluacionId}}
 Content-Type: application/json
 
 {
   "titulo": "Proceso de evaluacion A-I",
   "descripcion": "Aqui el proceso de evaluacion para la licencia A-I"
+}
+
+### Agregar examenes a evaluacion
+PUT {{baseUrl}}/evaluacion/{{evaluacionId}}/examen
+Content-Type: application/json
+
+{
+  "examenes": [
+    "{{examId}}"
+  ]
 }

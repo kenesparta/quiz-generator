@@ -1,4 +1,6 @@
 [workspace]
+resolver = "3"
+
 members = [
     # Subdominio basico
     "bctx/core",

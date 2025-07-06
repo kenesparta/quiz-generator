@@ -1,9 +1,8 @@
-use crate::evaluacion::value_object::id::EvaluacionID;
 use quizz_common::domain::value_objects::id::ID;
 use quizz_common::domain::value_objects::id_type::IdType;
 
 pub struct ExamenIDs {
-    examen_ids: Vec<ID>,
+    pub examen_ids: Vec<ID>,
 }
 
 impl ExamenIDs {
@@ -14,9 +13,5 @@ impl ExamenIDs {
             .collect();
 
         Self { examen_ids }
-    }
-
-    pub fn examen_ids(&self) -> &Vec<ID> {
-        &self.examen_ids
     }
 }

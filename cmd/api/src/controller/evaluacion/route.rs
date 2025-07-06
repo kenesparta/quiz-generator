@@ -1,4 +1,3 @@
-use crate::controller::evaluacion::registrar_evaluacion::EvaluacionControlller;
 use actix_web::web;
 
 pub fn evaluacion(cfg: &mut web::ServiceConfig) {

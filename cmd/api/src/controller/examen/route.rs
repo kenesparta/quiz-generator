@@ -1,5 +1,3 @@
-use crate::controller::examen::registrar_examen::ExamenControlller;
-use crate::controller::pregunta::agregar_pregunta::AgregarPreguntaController;
 use actix_web::web;
 
 pub fn examen(cfg: &mut web::ServiceConfig) {

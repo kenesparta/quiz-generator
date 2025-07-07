@@ -1,6 +1,7 @@
 use crate::examen::domain::value_object::id::ExamenID;
 use crate::pregunta::domain::entity::pregunta::PreguntaEntity;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
+use crate::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use crate::pregunta::provider::repositorio::RepositorioAgregarPregunta;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
@@ -53,6 +54,8 @@ where
                 )
             })
             .collect::<Result<Vec<PreguntaEntity>, PreguntaError>>()?;
+        let preguntas = ListaDePreguntas::new(preguntas);
+
         self.repositorio.agregar(examen_id, preguntas).await?;
         Ok(())
     }

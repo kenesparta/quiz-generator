@@ -11,7 +11,7 @@ pub struct Examen {
     pub descripcion: String,
     pub estado: EstadoGeneral,
     pub puntaje_maximo: u32,
-    pub preguntas: Option<ListaDePreguntas>,
+    pub preguntas: ListaDePreguntas,
 }
 
 impl Examen {
@@ -21,7 +21,6 @@ impl Examen {
         descripcion: String,
         estado: String,
         puntaje_maximo: u32,
-        preguntas: Option<ListaDePreguntas>,
     ) -> Result<Self, ExamenError> {
         if titulo.trim().is_empty() {
             return Err(ExamenError::TituloInvalido);
@@ -44,7 +43,7 @@ impl Examen {
             descripcion,
             estado,
             puntaje_maximo,
-            preguntas,
+            preguntas: ListaDePreguntas::new(Vec::new()),
         })
     }
 }

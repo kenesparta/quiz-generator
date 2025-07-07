@@ -26,8 +26,16 @@ L1 -> L2 -> L3
 - Tiene como funcion de implementar una regla de negocio de dominio
 - No trabaja con I/O, DB, coin otras APIs
 
-Los servicios de dominio:
-- Se usa cuando existen reglas con objetos no relacionados
+#### Los servicios de dominio:
+Es una operacion sin estado (stateless) que realiza una tarea específica de dominio, frecuentemente a mejor indicacion
+que se debe crear un servicio en el modelo de dominio es cuando la operacion a ser ejecutada parece sin proposito en 
+un agregado o un objeto de valor.
+
+Para aliviar esa sensacion desconfortable, nuestra tendencia natural puede ser crear un metodo estatico en la clase de 
+la Raiz de un Agregado. Pero, al utilizar DDD, esa tactica es un codigo que probablemente indica que se necesita, 
+en vez de eso, de un Servicio.
+
+- Se usan cuando existen reglas con objetos no relacionados
 - Cuando una regla manipula una lista de objetos
 - Extraer una regla grande, esa regla puede ser un servicio de dominio
 
@@ -43,4 +51,4 @@ Son los flujos de la aplicacion.
 - Frontend -> Casos de uso -> Modelo de dominio
 
 ## Agregados (raiz)
-
+- Union de varias entidades y objetos de valor que son persistidos de forma transaccional (persistidos juntos).

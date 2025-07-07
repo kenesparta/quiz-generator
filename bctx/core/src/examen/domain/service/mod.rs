@@ -1,2 +1,1 @@
-pub mod examen;
-mod pregunta;
+pub mod lista_examenes;

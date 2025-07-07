@@ -35,7 +35,6 @@ where
             in_.descripcion,
             in_.activo,
             in_.puntaje_maximo,
-            None,
         )?;
         self.repositorio.guardar_examen(examen).await?;
         Ok(())

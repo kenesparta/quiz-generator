@@ -1,5 +1,6 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use crate::evaluacion::value_object::id::EvaluacionID;
+use crate::examen::domain::service::lista_examenes::ListaDeExamenes;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use std::str::FromStr;
 
@@ -8,6 +9,7 @@ pub struct Evaluacion {
     pub nombre: String,
     pub descripcion: String,
     pub estado: EstadoGeneral,
+    pub examenes: ListaDeExamenes,
 }
 
 impl Evaluacion {
@@ -33,6 +35,7 @@ impl Evaluacion {
             nombre,
             descripcion,
             estado,
+            examenes: ListaDeExamenes::new(Vec::new()),
         })
     }
 }

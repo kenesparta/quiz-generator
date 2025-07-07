@@ -9,6 +9,7 @@ use quizz_core::pregunta::domain::error::pregunta::PreguntaError;
 use quizz_core::pregunta::domain::error::pregunta::RepositorioError::{
     ActualizacionNoFinalizada, PersistenciaNoFinalizada,
 };
+use quizz_core::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use quizz_core::pregunta::provider::repositorio::RepositorioAgregarPregunta;
 use tracing::log::{error, info};
 
@@ -37,7 +38,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
     async fn agregar(
         &self,
         examen_id: ExamenID,
-        preguntas: Vec<PreguntaEntity>,
+        lista_de_preguntas: ListaDePreguntas,
     ) -> Result<(), PreguntaError> {
         let examen_filter = doc! {
             "_id": examen_id.to_string()
@@ -58,7 +59,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
             ));
         }
 
-        let preguntas_bson = preguntas_to_bson(&preguntas);
+        let preguntas_bson = preguntas_to_bson(&lista_de_preguntas.preguntas());
 
         let update = doc! {
             "$push": {

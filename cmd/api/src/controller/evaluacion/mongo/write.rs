@@ -8,7 +8,9 @@ use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
 use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::{
     EvaluacionNoExiste, PersistenciaNoFinalizada,
 };
-use quizz_core::evaluacion::provider::repositorio::RepositorioEvaluacionEscritura;
+use quizz_core::evaluacion::provider::repositorio::{
+    RepositorioEvaluacionEscritura, RepositorioLeerEvaluacion, RepositorioPublicarEvaluacion,
+};
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use tracing::log::error;
@@ -120,5 +122,22 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
                 ))
             }
         }
+    }
+}
+
+#[async_trait]
+impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
+    async fn obtener_evaluacion(
+        &self,
+        evaluacion_id: EvaluacionID,
+    ) -> Result<Evaluacion, EvaluacionError> {
+        todo!()
+    }
+}
+
+#[async_trait]
+impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
+    async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
+        todo!()
     }
 }

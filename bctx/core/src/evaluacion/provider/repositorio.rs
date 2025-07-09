@@ -23,3 +23,15 @@ pub trait RepositorioAsignarPostulante<Error>: Send + Sync {
         postulante_id: PostulanteID,
     ) -> Result<(), Error>;
 }
+
+#[async_trait]
+pub trait RepositorioLeerEvaluacion<Error>: Send + Sync {
+    async fn obtener_evaluacion(&self, evaluacion_id: EvaluacionID) -> Result<Evaluacion, Error>;
+}
+
+#[async_trait]
+pub trait RepositorioPublicarEvaluacion<Error>:
+    Send + Sync + RepositorioLeerEvaluacion<Error>
+{
+    async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), Error>;
+}

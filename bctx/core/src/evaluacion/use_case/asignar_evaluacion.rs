@@ -27,11 +27,11 @@ where
     EvaluacionError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
-        let evaluacion_id = EvaluacionID::new(in_.evaluacion_id.as_str())?;
-        let postulante_id = PostulanteID::new(in_.postulante_id.as_str())?;
-
         self.repositorio
-            .asignar_evaluacion_postulante(evaluacion_id, postulante_id)
+            .asignar_evaluacion_postulante(
+                EvaluacionID::new(in_.evaluacion_id.as_str())?,
+                PostulanteID::new(in_.postulante_id.as_str())?,
+            )
             .await?;
         Ok(())
     }

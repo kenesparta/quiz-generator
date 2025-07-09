@@ -1,6 +1,7 @@
 ### Variables
 @baseUrl = http://localhost:8008
 @examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
+@examId2 = 2fcb7b0d-30e2-4853-afbf-9df79dd83ecb
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 
 ### Health check
@@ -63,8 +64,8 @@ Content-Type: application/json
 
 {
   "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
-  "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eros enim",
-  "puntaje_maximo": 100
+  "descripcion": "Este examen califica...",
+  "instrucciones": ""
 }
 
 ### Agregar preguntas
@@ -96,11 +97,11 @@ Content-Type: application/json
       "tipo_de_pregunta": "alternativa_peso",
       "imagen_ref": "",
       "alternativas": {
-        "A": "París",
-        "B": "Londres",
-        "C": "Madrid",
-        "D": "Roma",
-        "E": "Roma"
+        "A": "Nunca",
+        "B": "una o mas veces",
+        "C": "de 2 a 4",
+        "D": "de 3 veces a la semana",
+        "E": "4 o mas veces a la semana"
       },
       "puntaje": {
         "A": 0,
@@ -126,15 +127,6 @@ Content-Type: application/json
       }
     },
     {
-      "id": "d1695032-4133-43f5-9275-26042db5583c",
-      "contenido": "Explique el ciclo del agua.",
-      "etiqueta": "no",
-      "tipo_de_pregunta": "libre",
-      "imagen_ref": "",
-      "alternativas": {},
-      "puntaje": {}
-    },
-    {
       "id": "c5f75714-88d3-49a0-a6f1-d746426fed33",
       "contenido": "¿Cuál es el símbolo químico del oxígeno?",
       "etiqueta": "no",
@@ -142,7 +134,87 @@ Content-Type: application/json
       "imagen_ref": "",
       "alternativas": {},
       "puntaje": {
-        "O": 4
+        "10": 4
+      }
+    }
+  ]
+}
+
+### Crear Examen
+POST {{baseUrl}}/examen/{{examId2}}
+Content-Type: application/json
+
+{
+  "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
+  "descripcion": "Este examen califica...",
+  "puntaje_maximo": 100
+}
+
+
+### TEST de EYSENCK
+PUT {{baseUrl}}/examen/{{examId2}}
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "id": "{{$uuid}}",
+      "contenido": "¿Le gusta la multitud o la bulla a su alrededor?",
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "si_o_no",
+      "imagen_ref": "",
+      "alternativas": {
+        "SI": "si",
+        "NO": "no"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "id": "{{$uuid}}",
+      "contenido": "¿Tiene a menudo..??",
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "si_o_no",
+      "imagen_ref": "",
+      "alternativas": {
+        "SI": "si",
+        "NO": "no"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "id": "{{$uuid}}",
+      "contenido": "¿Tiene casi siempre una respuesta...?",
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "si_o_no",
+      "imagen_ref": "",
+      "alternativas": {
+        "SI": "si",
+        "NO": "no"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "id": "{{$uuid}}",
+      "contenido": "¿Permanece Usualmente...?",
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "si_o_no",
+      "imagen_ref": "",
+      "alternativas": {
+        "SI": "si",
+        "NO": "no"
+      },
+      "puntaje": {
+        "SI": 0,
+        "NO": 1
       }
     }
   ]
@@ -163,6 +235,7 @@ Content-Type: application/json
 
 {
   "examenes": [
-    "{{examId}}"
+    "{{examId}}",
+    "{{examId2}}"
   ]
 }

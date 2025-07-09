@@ -6,7 +6,8 @@ use std::str::FromStr;
 pub enum Etiqueta {
     No,
     Extrovertido,
-    Introvertido,
+    Neurotismo,
+    Honestidad,
 }
 
 impl fmt::Display for Etiqueta {
@@ -14,7 +15,8 @@ impl fmt::Display for Etiqueta {
         match self {
             Self::No => write!(f, "no"),
             Self::Extrovertido => write!(f, "extrovertido"),
-            Self::Introvertido => write!(f, "introvertido"),
+            Self::Neurotismo => write!(f, "neurotismo"),
+            Self::Honestidad => write!(f, "honestidad"),
         }
     }
 }
@@ -26,7 +28,8 @@ impl FromStr for Etiqueta {
         match s.to_lowercase().as_str() {
             "no" => Ok(Etiqueta::No),
             "extrovertido" => Ok(Etiqueta::Extrovertido),
-            "introvertid" => Ok(Etiqueta::Introvertido),
+            "neurotismo" => Ok(Etiqueta::Neurotismo),
+            "honestidad" => Ok(Etiqueta::Honestidad),
             _ => Err(EtiquetaError::NoValido),
         }
     }

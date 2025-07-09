@@ -17,5 +17,4 @@ volumes:
   mongodb_data:
 
 networks:
-  frontend:
   backend:

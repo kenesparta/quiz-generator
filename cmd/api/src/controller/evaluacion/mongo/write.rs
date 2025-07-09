@@ -40,7 +40,7 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
             "_id": evaluacion.id.to_string(),
             "nombre": evaluacion.nombre,
             "descripcion": evaluacion.descripcion,
-            "estado": evaluacion.estado.to_string(),
+            "estado": evaluacion.esta_activo.to_string(),
         };
 
         match self.get_collection().insert_one(documento, None).await {

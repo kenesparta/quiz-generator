@@ -11,18 +11,16 @@ impl EvaluacionControlller {
         body: web::Json<AgregarExamenesDTO>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let evaluacion_id = match req.match_info().get("id") {
-            Some(id) => id.to_string(),
-            None => {
-                return HttpResponse::BadRequest()
-                    .json("no se esta enviando el id de la evaluacion");
-            }
-        };
-
         let agregar_examenes = AgregarExamenAEvaluacion::new(Box::new(EvaluacionMongo::new(pool)));
         match agregar_examenes
             .ejecutar(InputData {
-                evaluacion_id,
+                evaluacion_id: match req.match_info().get("id") {
+                    Some(id) => id.to_string(),
+                    None => {
+                        return HttpResponse::BadRequest()
+                            .json("no se esta enviando el id de la evaluacion");
+                    }
+                },
                 examen_ids: body.into_inner().examenes,
             })
             .await

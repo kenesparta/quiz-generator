@@ -1,4 +1,3 @@
-
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -26,7 +25,10 @@ pub trait Subject<T>: Send + Sync {
     async fn detach(&self, observer_id: &str);
 
     /// Notify all observers of a change
-    async fn notify_observers(&self, data: &T) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
+    async fn notify_observers(
+        &self,
+        data: &T,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
 }
 
 /// Concrete implementation of a subject that can be observed
@@ -66,7 +68,10 @@ where
         self.observers.write().await.remove(observer_id);
     }
 
-    async fn notify_observers(&self, data: &T) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn notify_observers(
+        &self,
+        data: &T,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let observers = self.observers.read().await;
 
         // Collect all notification results
@@ -91,13 +96,16 @@ where
 macro_rules! create_observer {
     ($name:ident, $data_type:ty, $handler:expr) => {
         pub struct $name;
-        
+
         #[async_trait::async_trait]
         impl Observer<$data_type> for $name {
-            async fn notify(&self, data: &$data_type) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+            async fn notify(
+                &self,
+                data: &$data_type,
+            ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 $handler(data).await
             }
-            
+
             fn id(&self) -> String {
                 stringify!($name).to_string()
             }
@@ -135,7 +143,10 @@ mod tests {
 
     #[async_trait]
     impl Observer<TestData> for TestObserver {
-        async fn notify(&self, _data: &TestData) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn notify(
+            &self,
+            _data: &TestData,
+        ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             self.call_count.fetch_add(1, Ordering::Relaxed);
             Ok(())
         }

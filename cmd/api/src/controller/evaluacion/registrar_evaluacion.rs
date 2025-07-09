@@ -14,23 +14,20 @@ impl EvaluacionControlller {
         body: web::Json<RegistrarEvaluacionDTO>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let evaluacion_id = match req.match_info().get("id") {
-            Some(id) => id.to_string(),
-            None => {
-                return HttpResponse::BadRequest()
-                    .json("no se esta enviando el id de la evaluacion");
-            }
+        let dto = body.into_inner();
+        let input = InputData {
+            id: match req.match_info().get("id") {
+                Some(id) => id.to_string(),
+                None => {
+                    return HttpResponse::BadRequest()
+                        .json("no se esta enviando el id de la evaluacion");
+                }
+            },
+            titulo: dto.titulo,
+            descripcion: dto.descripcion,
         };
 
         let registrar_evaluacion = CrearEvaluacion::new(Box::new(EvaluacionMongo::new(pool)));
-        let dto = body.into_inner();
-        let input = InputData {
-            id: evaluacion_id,
-            titulo: dto.titulo,
-            descripcion: dto.descripcion,
-            estado: EstadoGeneral::Activo.to_string(),
-        };
-
         match registrar_evaluacion.ejecutar(input).await {
             Ok(_) => HttpResponse::Created().finish(),
             Err(e) => {

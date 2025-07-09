@@ -9,7 +9,6 @@ pub struct InputData {
     pub id: String,
     pub titulo: String,
     pub descripcion: String,
-    pub estado: String,
 }
 
 pub struct CrearEvaluacion<RepoErr> {
@@ -28,8 +27,9 @@ where
     EvaluacionError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
-        let evaluacion = Evaluacion::new(in_.id, in_.titulo, in_.descripcion, in_.estado)?;
-        self.repositorio.guardar_evaluacion(evaluacion).await?;
+        self.repositorio
+            .guardar_evaluacion(Evaluacion::new(in_.id, in_.titulo, in_.descripcion)?)
+            .await?;
         Ok(())
     }
 }

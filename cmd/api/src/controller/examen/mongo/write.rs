@@ -170,7 +170,6 @@ impl ExamenMongo {
             }
         }
 
-        // Parse puntaje from document
         let puntaje_doc = documento.get_document("puntaje")?;
         let mut puntaje = HashMap::new();
         for (key, value) in puntaje_doc {
@@ -185,13 +184,12 @@ impl ExamenMongo {
             }
         }
 
-        // Create value objects
-        let pregunta_id = PreguntaID::new(id_str)?;
+        let id = PreguntaID::new(id_str)?;
         let etiqueta = Etiqueta::from_str(etiqueta_str)?;
         let tipo_de_pregunta = TipoPregunta::from_str(tipo_pregunta_str)?;
 
         Ok(PreguntaEntity {
-            id: pregunta_id,
+            id,
             contenido,
             imagen_ref,
             etiqueta,

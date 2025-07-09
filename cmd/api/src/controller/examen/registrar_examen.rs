@@ -27,8 +27,7 @@ impl ExamenControlller {
             id: examen_id,
             titulo: dto.titulo,
             descripcion: dto.descripcion,
-            puntaje_maximo: dto.puntaje_maximo,
-            activo: EstadoGeneral::Activo.to_string(),
+            instrucciones: dto.instrucciones,
         };
 
         match registrar_examen.ejecutar(input).await {

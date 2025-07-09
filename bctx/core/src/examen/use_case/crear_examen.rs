@@ -9,8 +9,7 @@ pub struct InputData {
     pub id: String,
     pub titulo: String,
     pub descripcion: String,
-    pub puntaje_maximo: u32,
-    pub activo: String,
+    pub instrucciones: String,
 }
 
 pub struct CrearExamen<RepoErr> {
@@ -33,8 +32,7 @@ where
             in_.id.to_string(),
             in_.titulo,
             in_.descripcion,
-            in_.activo,
-            in_.puntaje_maximo,
+            in_.instrucciones,
         )?;
         self.repositorio.guardar_examen(examen).await?;
         Ok(())

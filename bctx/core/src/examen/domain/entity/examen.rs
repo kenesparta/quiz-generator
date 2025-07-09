@@ -9,8 +9,8 @@ pub struct Examen {
     pub id: ExamenID,
     pub titulo: String,
     pub descripcion: String,
+    pub instrucciones: String,
     pub estado: EstadoGeneral,
-    pub puntaje_maximo: u32,
     pub preguntas: ListaDePreguntas,
 }
 
@@ -19,8 +19,7 @@ impl Examen {
         id: String,
         titulo: String,
         descripcion: String,
-        estado: String,
-        puntaje_maximo: u32,
+        instrucciones: String,
     ) -> Result<Self, ExamenError> {
         if titulo.trim().is_empty() {
             return Err(ExamenError::TituloInvalido);
@@ -30,19 +29,15 @@ impl Examen {
             return Err(ExamenError::DescripcionInvalida);
         }
 
-        if puntaje_maximo == 0 {
-            return Err(ExamenError::PuntajeIgualQueCero);
-        }
-
-        let estado = EstadoGeneral::from_str(&estado)?;
+        let estado = EstadoGeneral::Activo;
         let id = ExamenID::new(&id)?;
 
         Ok(Self {
             id,
             titulo,
             descripcion,
+            instrucciones,
             estado,
-            puntaje_maximo,
             preguntas: ListaDePreguntas::new(Vec::new()),
         })
     }

@@ -4,5 +4,5 @@ use serde::Deserialize;
 pub struct RegistrarExamenDTO {
     pub titulo: String,
     pub descripcion: String,
-    pub puntaje_maximo: u32,
+    pub instrucciones: String,
 }

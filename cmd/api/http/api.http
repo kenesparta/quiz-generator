@@ -65,7 +65,7 @@ Content-Type: application/json
 {
   "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
   "descripcion": "Este examen califica...",
-  "instrucciones": ""
+  "instrucciones": "abcde"
 }
 
 ### Agregar preguntas
@@ -147,7 +147,7 @@ Content-Type: application/json
 {
   "titulo": "Protocolo de Calificacion - Evaluacion Primaria",
   "descripcion": "Este examen califica...",
-  "puntaje_maximo": 100
+  "instrucciones": "Instrucciones"
 }
 
 

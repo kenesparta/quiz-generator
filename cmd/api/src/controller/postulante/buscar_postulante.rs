@@ -16,13 +16,17 @@ impl PostulanteObtenerPorDocumentoController {
         query: web::Query<PostulanteDocumentoQuery>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let postulante_documento = &query.documento;
-        let postulante_pool = PostulanteReadMongo::new(pool);
-        let obtener_postulante = ObtenerPostulantePorDocumento::new(Box::new(postulante_pool));
+        let documento = match &query.documento {
+            Some(documento) => documento.clone(),
+            None => return PostulanteListController::get(pool).await,
+        };
+
+        let obtener_postulante =
+            ObtenerPostulantePorDocumento::new(Box::new(PostulanteReadMongo::new(pool)));
 
         match obtener_postulante
             .ejecutar(InputData {
-                documento: postulante_documento.to_string(),
+                documento,
             })
             .await
         {
@@ -71,7 +75,7 @@ impl PostulanteObtenerPorDocumentoController {
 
 pub struct PostulanteListController;
 impl PostulanteListController {
-    pub async fn get(_req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn get(pool: web::Data<mongodb::Client>) -> HttpResponse {
         let postulante_pool = PostulanteReadMongo::new(pool);
         let lista_de_postulantes = ObtenerListaDePostulantes::new(Box::new(postulante_pool));
         match lista_de_postulantes.ejecutar(ListInputData {}).await {

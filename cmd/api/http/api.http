@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ### Obtener el postulante por documento
-GET {{baseUrl}}/postulante/buscar?documento=04009988
+GET {{baseUrl}}/postulante?documento=04009988
 Content-Type: application/json
 
 ### Obtener lista de postulantes

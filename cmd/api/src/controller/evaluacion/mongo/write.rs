@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME;
 use crate::controller::mongo_repository::MongoRepository;
 use actix_web::web;
@@ -14,6 +15,7 @@ use quizz_core::evaluacion::provider::repositorio::{
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use tracing::log::error;
+use quizz_common::domain::value_objects::estado::EstadoGeneral;
 
 pub struct EvaluacionMongo {
     client: web::Data<mongodb::Client>,
@@ -131,7 +133,75 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
         &self,
         evaluacion_id: EvaluacionID,
     ) -> Result<Evaluacion, EvaluacionError> {
-        todo!()
+        let documento = self
+            .get_collection()
+            .find_one(
+                doc! {
+                    "_id": evaluacion_id.to_string()
+                },
+                None,
+            )
+            .await
+            .map_err(|e| {
+                error!("Error al buscar evaluacion: {}", e);
+                EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+            })?;
+
+        match documento {
+            Some(doc) => {
+                let id = doc.get_str("_id")
+                    .map_err(|e| {
+                        error!("Error al obtener ID de evaluacion: {}", e);
+                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                    })?;
+
+                let nombre = doc.get_str("nombre")
+                    .map_err(|e| {
+                        error!("Error al obtener nombre de evaluacion: {}", e);
+                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                    })?;
+
+                let descripcion = doc.get_str("descripcion")
+                    .map_err(|e| {
+                        error!("Error al obtener descripcion de evaluacion: {}", e);
+                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                    })?;
+
+                let estado_str = doc.get_str("estado")
+                    .map_err(|e| {
+                        error!("Error al obtener estado de evaluacion: {}", e);
+                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                    })?;
+
+                // Parse the estado back to EstadoGeneral
+                let esta_activo = EstadoGeneral::from_str(estado_str)?;
+
+                // Get examenes array if it exists
+                let examenes_ids = doc.get_array("examenes")
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|item| item.as_str())
+                            .map(|s| s.to_string())
+                            .collect::<Vec<String>>()
+                    })
+                    .unwrap_or_default();
+
+                // Create the Evaluacion entity
+                let mut evaluacion = Evaluacion::new(
+                    id.to_string(),
+                    nombre.to_string(),
+                    descripcion.to_string(),
+                )?;
+
+                // Set the estado_activo to match what was stored
+                evaluacion.esta_activo = esta_activo;
+
+                
+
+                Ok(evaluacion)
+            }
+            None => Err(EvaluacionError::EvaluacionRepositorioError(EvaluacionNoExiste)),
+        }
     }
 }
 

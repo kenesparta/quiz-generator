@@ -239,3 +239,9 @@ Content-Type: application/json
     "{{examId2}}"
   ]
 }
+
+### Agregar examenes a evaluacion
+PATCH {{baseUrl}}/evaluacion/{{evaluacionId}}
+Content-Type: application/json
+
+{}

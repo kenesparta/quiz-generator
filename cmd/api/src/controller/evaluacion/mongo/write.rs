@@ -184,7 +184,7 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
                 })?;
 
                 let esta_activo_str = doc.get_str("esta_activo").map_err(|e| {
-                    error!("Error al obtener estado de evaluacion: {}", e);
+                    error!("Error al obtener si la evaluacion esta activa: {}", e);
                     EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
                 })?;
 
@@ -202,20 +202,21 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
                     .unwrap_or_default();
 
                 let examenes = if !examenes_ids.is_empty() {
-                    let futures: Vec<_> = examenes_ids
-                        .into_iter()
-                        .map(|examen_id| async move {
-                            self.repositorio_examen
-                                .obtener_examen(examen_id.as_str())
-                                .await
-                        })
-                        .collect();
+                    let mut examenes_vec = Vec::new();
 
-                    let examenes_vec = try_join_all(futures).await.map_err(|e| {
-                        error!("Error al obtener examenes: {}", e);
-                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-                    })?;
-
+                    for examen_id in examenes_ids {
+                        let examen = self
+                            .repositorio_examen
+                            .obtener_examen(examen_id.as_str())
+                            .await
+                            .map_err(|e| {
+                                error!("Error al obtener examen {}: {}", examen_id, e);
+                                EvaluacionError::EvaluacionRepositorioError(
+                                    PersistenciaNoFinalizada,
+                                )
+                            })?;
+                        examenes_vec.push(examen);
+                    }
                     ListaDeExamenes::new(examenes_vec)
                 } else {
                     ListaDeExamenes::new(Vec::new())

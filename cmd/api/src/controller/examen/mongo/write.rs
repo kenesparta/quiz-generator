@@ -36,6 +36,7 @@ impl RepositorioExamenEscritura<ExamenError> for ExamenMongo {
             "_id": examen.id.value().uuid().to_string(),
             "titulo": examen.titulo.to_string(),
             "descripcion": examen.descripcion.to_string(),
+            "instrucciones": examen.instrucciones.to_string(),
             "activo": examen.estado.to_string(),
         };
 

@@ -1,4 +1,4 @@
 mod dto;
-mod mongo;
+pub mod mongo;
 mod registrar_examen;
 pub mod route;

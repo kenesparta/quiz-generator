@@ -1,7 +1,9 @@
 use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME;
+use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use actix_web::web;
 use async_trait::async_trait;
+use futures::future::try_join_all;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
@@ -15,16 +17,26 @@ use quizz_core::evaluacion::provider::repositorio::{
 };
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
+use quizz_core::examen::domain::entity::examen::Examen;
+use quizz_core::examen::domain::error::examen::ExamenError;
+use quizz_core::examen::domain::service::lista_examenes::ListaDeExamenes;
+use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use std::str::FromStr;
+use std::sync::Arc;
 use tracing::log::error;
 
 pub struct EvaluacionMongo {
     client: web::Data<mongodb::Client>,
+    repositorio_examen: ExamenMongo,
 }
 
 impl EvaluacionMongo {
     pub fn new(client: web::Data<mongodb::Client>) -> Self {
-        EvaluacionMongo { client }
+        let repositorio_examen = ExamenMongo::new(client.clone());
+        EvaluacionMongo {
+            client,
+            repositorio_examen,
+        }
     }
 }
 
@@ -189,10 +201,31 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
                     })
                     .unwrap_or_default();
 
+                let examenes = if !examenes_ids.is_empty() {
+                    let futures: Vec<_> = examenes_ids
+                        .into_iter()
+                        .map(|examen_id| async move {
+                            self.repositorio_examen
+                                .obtener_examen(examen_id.as_str())
+                                .await
+                        })
+                        .collect();
+
+                    let examenes_vec = try_join_all(futures).await.map_err(|e| {
+                        error!("Error al obtener examenes: {}", e);
+                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                    })?;
+
+                    ListaDeExamenes::new(examenes_vec)
+                } else {
+                    ListaDeExamenes::new(Vec::new())
+                };
+
                 let mut evaluacion =
                     Evaluacion::new(id.to_string(), nombre.to_string(), descripcion.to_string())?;
                 evaluacion.esta_activo = esta_activo;
                 evaluacion.estado = estado;
+                evaluacion.examenes = examenes;
 
                 Ok(evaluacion)
             }

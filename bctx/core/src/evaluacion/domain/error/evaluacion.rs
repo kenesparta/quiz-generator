@@ -1,3 +1,4 @@
+use crate::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstadoError;
 use quizz_common::domain::value_objects::estado::EstadoGeneralError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
@@ -18,6 +19,9 @@ pub enum EvaluacionError {
 
     #[error("Error al manipular la base de datos: {0:?}")]
     EvaluacionRepositorioError(#[from] RepositorioError),
+
+    #[error("Error al en el estado de la evaluacion")]
+    EvaluacionEstadoError(#[from] EvaluacionEstadoError),
 }
 
 #[derive(Error, Debug)]

@@ -1,21 +1,22 @@
-use std::str::FromStr;
 use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME;
 use crate::controller::mongo_repository::MongoRepository;
 use actix_web::web;
 use async_trait::async_trait;
 use mongodb::bson::doc;
+use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
 use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::{
     EvaluacionNoExiste, PersistenciaNoFinalizada,
 };
+use quizz_core::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
 use quizz_core::evaluacion::provider::repositorio::{
     RepositorioEvaluacionEscritura, RepositorioLeerEvaluacion, RepositorioPublicarEvaluacion,
 };
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
+use std::str::FromStr;
 use tracing::log::error;
-use quizz_common::domain::value_objects::estado::EstadoGeneral;
 
 pub struct EvaluacionMongo {
     client: web::Data<mongodb::Client>,
@@ -44,7 +45,8 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
             "_id": evaluacion.id.to_string(),
             "nombre": evaluacion.nombre,
             "descripcion": evaluacion.descripcion,
-            "estado": evaluacion.esta_activo.to_string(),
+            "esta_activo": evaluacion.esta_activo.to_string(),
+            "estado": evaluacion.estado.to_string(),
         };
 
         match self.get_collection().insert_one(documento, None).await {
@@ -149,35 +151,36 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
 
         match documento {
             Some(doc) => {
-                let id = doc.get_str("_id")
-                    .map_err(|e| {
-                        error!("Error al obtener ID de evaluacion: {}", e);
-                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-                    })?;
+                let id = doc.get_str("_id").map_err(|e| {
+                    error!("Error al obtener ID de evaluacion: {}", e);
+                    EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                })?;
 
-                let nombre = doc.get_str("nombre")
-                    .map_err(|e| {
-                        error!("Error al obtener nombre de evaluacion: {}", e);
-                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-                    })?;
+                let nombre = doc.get_str("nombre").map_err(|e| {
+                    error!("Error al obtener nombre de evaluacion: {}", e);
+                    EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                })?;
 
-                let descripcion = doc.get_str("descripcion")
-                    .map_err(|e| {
-                        error!("Error al obtener descripcion de evaluacion: {}", e);
-                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-                    })?;
+                let descripcion = doc.get_str("descripcion").map_err(|e| {
+                    error!("Error al obtener descripcion de evaluacion: {}", e);
+                    EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                })?;
 
-                let estado_str = doc.get_str("estado")
-                    .map_err(|e| {
-                        error!("Error al obtener estado de evaluacion: {}", e);
-                        EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-                    })?;
+                let estado_str = doc.get_str("estado").map_err(|e| {
+                    error!("Error al obtener estado de evaluacion: {}", e);
+                    EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                })?;
 
-                // Parse the estado back to EstadoGeneral
-                let esta_activo = EstadoGeneral::from_str(estado_str)?;
+                let esta_activo_str = doc.get_str("esta_activo").map_err(|e| {
+                    error!("Error al obtener estado de evaluacion: {}", e);
+                    EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+                })?;
 
-                // Get examenes array if it exists
-                let examenes_ids = doc.get_array("examenes")
+                let estado = EvaluacionEstado::from_str(estado_str)?;
+                let esta_activo = EstadoGeneral::from_str(esta_activo_str)?;
+
+                let examenes_ids = doc
+                    .get_array("examenes")
                     .map(|arr| {
                         arr.iter()
                             .filter_map(|item| item.as_str())
@@ -186,28 +189,136 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
                     })
                     .unwrap_or_default();
 
-                // Create the Evaluacion entity
-                let mut evaluacion = Evaluacion::new(
-                    id.to_string(),
-                    nombre.to_string(),
-                    descripcion.to_string(),
-                )?;
-
-                // Set the estado_activo to match what was stored
+                let mut evaluacion =
+                    Evaluacion::new(id.to_string(), nombre.to_string(), descripcion.to_string())?;
                 evaluacion.esta_activo = esta_activo;
-
-                
+                evaluacion.estado = estado;
 
                 Ok(evaluacion)
             }
-            None => Err(EvaluacionError::EvaluacionRepositorioError(EvaluacionNoExiste)),
+            None => Err(EvaluacionError::EvaluacionRepositorioError(
+                EvaluacionNoExiste,
+            )),
         }
     }
 }
 
 #[async_trait]
 impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
-    async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
-        todo!()
+    async fn publicar_evaluacion(&self, mut evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
+        let evaluation_exists = self
+            .get_collection()
+            .find_one(
+                doc! {
+                    "_id": evaluacion.id.to_string()
+                },
+                None,
+            )
+            .await
+            .map_err(|e| {
+                error!("Error checking if evaluation exists: {}", e);
+                EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
+            })?;
+
+        if evaluation_exists.is_none() {
+            return Err(EvaluacionError::EvaluacionRepositorioError(
+                EvaluacionNoExiste,
+            ));
+        }
+
+        let examenes_docs: Vec<mongodb::bson::Document> = evaluacion
+            .examenes
+            .examenes()
+            .iter()
+            .map(|examen| {
+                let preguntas_docs: Vec<mongodb::bson::Document> = examen
+                    .preguntas
+                    .preguntas()
+                    .iter()
+                    .map(|pregunta| {
+                        let mut pregunta_doc = doc! {
+                            "id": pregunta.id.to_string(),
+                            "contenido": &pregunta.contenido,
+                            "etiqueta": pregunta.etiqueta.to_string(),
+                            "tipo_de_pregunta": pregunta.tipo_de_pregunta.to_string(),
+                        };
+
+                        // Add imagen_ref if it exists
+                        if let Some(ref imagen) = pregunta.imagen_ref {
+                            pregunta_doc.insert("imagen_ref", imagen);
+                        }
+
+                        // Convert alternativas HashMap to BSON document
+                        let alternativas_doc: mongodb::bson::Document = pregunta
+                            .alternativas
+                            .iter()
+                            .map(|(key, value)| {
+                                (key.clone(), mongodb::bson::Bson::String(value.clone()))
+                            })
+                            .collect();
+                        pregunta_doc.insert("alternativas", alternativas_doc);
+
+                        let puntaje_doc: mongodb::bson::Document = pregunta
+                            .puntaje
+                            .iter()
+                            .map(|(key, value)| {
+                                (key.clone(), mongodb::bson::Bson::Int32(*value as i32))
+                            })
+                            .collect();
+                        pregunta_doc.insert("puntaje", puntaje_doc);
+
+                        pregunta_doc
+                    })
+                    .collect();
+
+                doc! {
+                    "id": examen.id.to_string(),
+                    "titulo": &examen.titulo,
+                    "descripcion": &examen.descripcion,
+                    "instrucciones": &examen.instrucciones,
+                    "estado": examen.estado.to_string(),
+                    "preguntas": preguntas_docs,
+                }
+            })
+            .collect();
+
+        evaluacion.publicar();
+        let update_doc = doc! {
+            "$set": {
+                "nombre": evaluacion.nombre,
+                "descripcion": evaluacion.descripcion,
+                "estado": evaluacion.esta_activo.to_string(),
+                "evaluacion_estado": evaluacion.estado.to_string(),
+                "examenes": examenes_docs,
+            }
+        };
+
+        match self
+            .get_collection()
+            .update_one(
+                doc! {
+                    "_id": evaluacion.id.to_string()
+                },
+                update_doc,
+                None,
+            )
+            .await
+        {
+            Ok(result) => {
+                if result.matched_count == 0 {
+                    error!("No evaluation found with ID: {}", evaluacion.id.to_string());
+                    return Err(EvaluacionError::EvaluacionRepositorioError(
+                        EvaluacionNoExiste,
+                    ));
+                }
+                Ok(())
+            }
+            Err(e) => {
+                error!("Error updating evaluation: {}", e);
+                Err(EvaluacionError::EvaluacionRepositorioError(
+                    PersistenciaNoFinalizada,
+                ))
+            }
+        }
     }
 }

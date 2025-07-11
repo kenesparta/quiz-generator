@@ -24,8 +24,8 @@ impl Evaluacion {
         }
 
         let id = EvaluacionID::new(&id)?;
-        let esta_activo = EstadoGeneral::Activo;
-        let estado = EvaluacionEstado::Borrador;
+        let esta_activo = EstadoGeneral::default();
+        let estado = EvaluacionEstado::default();
 
         Ok(Self {
             id,
@@ -38,6 +38,6 @@ impl Evaluacion {
     }
 
     pub fn publicar(&mut self) {
-        self.estado = EvaluacionEstado::Publicada
+        self.estado = EvaluacionEstado::Publicado
     }
 }

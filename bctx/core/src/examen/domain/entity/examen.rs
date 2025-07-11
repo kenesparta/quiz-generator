@@ -29,7 +29,7 @@ impl Examen {
             return Err(ExamenError::DescripcionInvalida);
         }
 
-        let estado = EstadoGeneral::Activo;
+        let estado = EstadoGeneral::default();
         let id = ExamenID::new(&id)?;
 
         Ok(Self {

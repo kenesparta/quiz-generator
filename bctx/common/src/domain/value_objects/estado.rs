@@ -14,6 +14,12 @@ pub enum EstadoGeneral {
     Inactivo,
 }
 
+impl Default for EstadoGeneral {
+    fn default() -> Self {
+        Self::Activo
+    }
+}
+
 impl fmt::Display for EstadoGeneral {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

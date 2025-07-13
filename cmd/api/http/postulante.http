@@ -1,0 +1,56 @@
+### Variables
+@baseUrl = http://localhost:8008
+
+### Health check
+GET {{baseUrl}}/health-check
+Content-Type: application/json
+
+### Registrar nuevo Postulante
+POST {{baseUrl}}/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
+Content-Type: application/json
+
+{
+  "documento": "12345678",
+  "nombre": "Juan",
+  "primer_apellido": "Perez",
+  "segundo_apellido": "Quispe",
+  "fecha_nacimiento": "1990-01-01",
+  "grado_instruccion": "superior",
+  "genero": "masculino"
+}
+
+### Registrar nuevo Postulante
+POST {{baseUrl}}/postulante/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+Content-Type: application/json
+
+{
+  "documento": "99449988",
+  "nombre": "Mauricio",
+  "primer_apellido": "De la Cruz",
+  "segundo_apellido": "Núñez",
+  "fecha_nacimiento": "1990-01-01",
+  "grado_instruccion": "superior",
+  "genero": "masculino"
+}
+
+### Registrar nuevo Postulante
+POST {{baseUrl}}/postulante/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
+Content-Type: application/json
+
+{
+  "documento": "04009988",
+  "nombre": "Fabrizzio",
+  "primer_apellido": "Fernández",
+  "segundo_apellido": "De la Torre",
+  "fecha_nacimiento": "1990-01-01",
+  "grado_instruccion": "superior",
+  "genero": "masculino"
+}
+
+### Obtener el postulante por documento
+GET {{baseUrl}}/postulante?documento=04009988
+Content-Type: application/json
+
+### Obtener lista de postulantes
+GET {{baseUrl}}/postulante
+Content-Type: application/json

@@ -319,10 +319,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
         evaluacion.publicar();
         let update_doc = doc! {
             "$set": {
-                "nombre": evaluacion.nombre,
-                "descripcion": evaluacion.descripcion,
-                "estado": evaluacion.esta_activo.to_string(),
-                "evaluacion_estado": evaluacion.estado.to_string(),
+                "estado": evaluacion.estado.to_string(),
                 "examenes": examenes_docs,
             }
         };

@@ -1,0 +1,402 @@
+### Variables
+@baseUrl = http://localhost:8008
+@examId2 = 2fcb7b0d-30e2-4853-afbf-9df79dd83ecb
+
+### Crear Examen
+POST {{baseUrl}}/examen/{{examId2}}
+Content-Type: application/json
+
+{
+  "titulo": "Test de OTIS abreviado",
+  "descripcion": "Protocolo de Calificación - Evaluación Primaria",
+  "instrucciones": "Marcar las opciones"
+}
+
+### Agregar preguntas
+PUT {{baseUrl}}/examen/{{examId2}}
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto al ODIO es:",
+      "alternativas": {
+        "A": "Enemigo",
+        "B": "Temor",
+        "C": "Amor",
+        "D": "Amigo",
+        "E": "Alegría"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto al HONOR es:",
+      "alternativas": {
+        "A": "Derrota",
+        "B": "Villanía",
+        "C": "Humillación",
+        "D": "Cobardía",
+        "E": "Miedo"
+      },
+      "puntaje": {
+        "B": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "El ZORRO se parece más a:",
+      "alternativas": {
+        "A": "El lobo",
+        "B": "La cabra",
+        "C": "El cerdo",
+        "D": "El tigre",
+        "E": "El gato"
+      },
+      "puntaje": {
+        "E": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "El SILENCIO tiene la misma relación con el SONIDO, que la OSCURIDAD con:",
+      "alternativas": {
+        "A": "Sótano",
+        "B": "Luz",
+        "C": "Ruido",
+        "D": "Quietud",
+        "E": "Noche"
+      },
+      "puntaje": {
+        "B": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Un grupo consiste en dos matrimonios, dos hermanos, dos hermanas. ¿Cuál es número MÍNIMO de personas que podrían componer el grupo?",
+      "alternativas": {
+        "A": "4",
+        "B": "6",
+        "C": "8",
+        "D": "10",
+        "E": "12"
+      },
+      "puntaje": {
+        "A": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Un ÁRBOL siempre tiene:",
+      "alternativas": {
+        "A": "Hojas",
+        "B": "Fruto",
+        "C": "Yemas",
+        "D": "Raíces",
+        "E": "Sombra"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto a ECONÓMICO es:",
+      "alternativas": {
+        "A": "Barato",
+        "B": "Avaro",
+        "C": "Gastador",
+        "D": "Valor",
+        "E": "Rico"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Una COMIDA siempre supone:",
+      "alternativas": {
+        "A": "Mesa",
+        "B": "Plato",
+        "C": "Hambre",
+        "D": "Alimento",
+        "E": "Agua"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "De las 5 palabras siguientes 4 son parecidas. ¿Cuál es la NO PARECIDA a esas 4?",
+      "alternativas": {
+        "A": "Postre",
+        "B": "Lima",
+        "C": "Pato",
+        "D": "Papel",
+        "E": "Claro"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto a NUNCA es:",
+      "alternativas": {
+        "A": "A menudo",
+        "B": "A veces",
+        "C": "Frecuentemente",
+        "D": "Siempre",
+        "E": "De vez en cuando"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Un RELOJ tiene con el TIEMPO, la misma relación que un TERMÓMETRO con:",
+      "alternativas": {
+        "A": "Un reloj",
+        "B": "Caliente",
+        "C": "Tubo",
+        "D": "Mercurio",
+        "E": "Temperatura"
+      },
+      "puntaje": {
+        "E": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Una LUCHA siempre tiene:",
+      "alternativas": {
+        "A": "Reñir",
+        "B": "Contendientes",
+        "C": "Espectadores",
+        "D": "Aplausos",
+        "E": "Victoria"
+      },
+      "puntaje": {
+        "B": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "La LUNA se relaciona con la TIERRA, como la TIERRA con:",
+      "alternativas": {
+        "A": "Marte",
+        "B": "Sol",
+        "C": "Nubes",
+        "D": "Las estrellas",
+        "E": "El Universo"
+      },
+      "puntaje": {
+        "B": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto a TORPE es:",
+      "alternativas": {
+        "A": "Fuerte",
+        "B": "Bonito",
+        "C": "Corto",
+        "D": "Hábil",
+        "E": "Rápido"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Una madre es _______ que su hija:",
+      "alternativas": {
+        "A": "Más sabia",
+        "B": "Más alta",
+        "C": "Más gruesa",
+        "D": "Más Vieja",
+        "E": "Más arrugada"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "¿Qué se relaciona con ENFERMEDAD, como CUIDADO se relaciona con ACCIDENTE?",
+      "alternativas": {
+        "A": "Doctor",
+        "B": "Cirugía",
+        "C": "Medicina",
+        "D": "Hospital",
+        "E": "Salubridad"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto a ESPERANZA es:",
+      "alternativas": {
+        "A": "Fe",
+        "B": "Desaliento",
+        "C": "Tristeza",
+        "D": "Desgracia",
+        "E": "Odio"
+      },
+      "puntaje": {
+        "B": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo que la gente dice una persona constituye su:",
+      "alternativas": {
+        "A": "Carácter",
+        "B": "Nombradía",
+        "C": "Reputación",
+        "D": "Disposición",
+        "E": "Personalidad"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Si las dos proposiciones son verdaderas, la tercera es:\n\n- **Jorge es mayor que Paco**\n- **Jaime es mayor que Jorge**\n- **Paco es menor que Jaime**",
+      "alternativas": {
+        "A": "Verdadera",
+        "B": "Falsa",
+        "C": "Dudosa"
+      },
+      "puntaje": {
+        "A": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Lo opuesto a TRAIDOR es:",
+      "alternativas": {
+        "A": "Amistoso",
+        "B": "Valiente",
+        "C": "Sabio",
+        "D": "Cobarde",
+        "E": "Leal"
+      },
+      "puntaje": {
+        "E": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "sola_respuesta",
+      "imagen_ref": "",
+      "contenido": "¿Qué número está en el espacio que pertenece al rectángulo y al triángulo pero no al círculo?",
+      "alternativas": {},
+      "puntaje": {
+        "10": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "sola_respuesta",
+      "imagen_ref": "diagrama_figuras_geometricas",
+      "contenido": "¿Qué número está en las mismas figuras geométricas que el número 8?",
+      "alternativas": {},
+      "puntaje": {
+        "6": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Una SUPERFICIE se relaciona con LÍNEA, como una LÍNEA se relaciona con:",
+      "alternativas": {
+        "A": "Sólido",
+        "B": "Plano",
+        "C": "Curva",
+        "D": "Punto",
+        "E": "Hilo"
+      },
+      "puntaje": {
+        "D": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "Un JUICIO cuyo significado no es definido, se dice que es:",
+      "alternativas": {
+        "A": "Erróneo",
+        "B": "Dudoso",
+        "C": "Ambiguo",
+        "D": "Desfigurado",
+        "E": "Hipotético"
+      },
+      "puntaje": {
+        "C": 1
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "sola_respuesta",
+      "imagen_ref": "",
+      "contenido": "Si se corta un alambre de 20 cm de largo de modo que un pedazo sea 2/3 del otro ¿Cuántos centímetros más corto será el menor?",
+      "alternativas": {},
+      "puntaje": {
+        "4": 1
+      }
+    }
+  ]
+}

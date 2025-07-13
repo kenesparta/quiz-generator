@@ -1,8 +1,10 @@
 use crate::pregunta::domain::value_object::etiqueta::Etiqueta;
+use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
 use std::collections::HashMap;
 
 pub struct Pregunta {
+    pub id: PreguntaID,
     pub contenido: String,
     pub imagen_ref: Option<String>,
     pub etiqueta: Etiqueta,

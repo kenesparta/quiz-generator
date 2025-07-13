@@ -1,7 +1,6 @@
 use crate::controller::examen::dto::RegistrarExamenDTO;
 use crate::controller::examen::mongo::write::ExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
-use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::examen::use_case::crear_examen::{CrearExamen, InputData};
 use tracing::log::error;

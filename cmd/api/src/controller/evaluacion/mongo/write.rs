@@ -273,12 +273,10 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                             "tipo_de_pregunta": pregunta.tipo_de_pregunta.to_string(),
                         };
 
-                        // Add imagen_ref if it exists
                         if let Some(ref imagen) = pregunta.imagen_ref {
                             pregunta_doc.insert("imagen_ref", imagen);
                         }
 
-                        // Convert alternativas HashMap to BSON document
                         let alternativas_doc: mongodb::bson::Document = pregunta
                             .alternativas
                             .iter()

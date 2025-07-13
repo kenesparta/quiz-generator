@@ -3,7 +3,6 @@ use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use async_trait::async_trait;
 use mongodb::bson;
-use mongodb::bson::Bson::Document;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::examen::domain::entity::examen::Examen;
@@ -13,10 +12,6 @@ use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
 use quizz_core::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
-use quizz_core::pregunta::domain::value_object::etiqueta::Etiqueta;
-use quizz_core::pregunta::domain::value_object::id::PreguntaID;
-use quizz_core::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
-use std::collections::HashMap;
 use std::str::FromStr;
 use tracing::log::error;
 

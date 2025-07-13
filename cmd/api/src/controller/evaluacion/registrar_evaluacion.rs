@@ -1,7 +1,6 @@
 use crate::controller::evaluacion::dto::RegistrarEvaluacionDTO;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
-use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::evaluacion::use_case::crear_evaluacion::{CrearEvaluacion, InputData};
 use tracing::log::error;

@@ -1,4 +1,5 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
+use crate::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
 use crate::evaluacion::provider::repositorio::RepositorioPublicarEvaluacion;
 use crate::evaluacion::value_object::id::EvaluacionID;
 use async_trait::async_trait;
@@ -29,6 +30,10 @@ where
             .repositorio
             .obtener_evaluacion(EvaluacionID::new(in_.evaluacion_id.as_str())?)
             .await?;
+
+        if evaluacion.estado == EvaluacionEstado::Publicado {
+            return Err(EvaluacionError::EvaluacionYaFuePublicada);
+        }
 
         self.repositorio.publicar_evaluacion(evaluacion).await?;
 

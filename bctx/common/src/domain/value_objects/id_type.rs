@@ -8,6 +8,7 @@ pub enum IdType {
     Examen,
     Pregunta,
     Evaluacion,
+    Respuesta,
     Custom(String),
 }
 
@@ -19,6 +20,7 @@ impl fmt::Display for IdType {
             IdType::Examen => write!(f, "Examen"),
             IdType::Evaluacion => write!(f, "Evaluacion"),
             IdType::Pregunta => write!(f, "Pregunta"),
+            IdType::Respuesta => write!(f, "Respuesta"),
             IdType::Custom(name) => write!(f, "{}", name),
         }
     }

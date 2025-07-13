@@ -22,6 +22,9 @@ pub enum EvaluacionError {
 
     #[error("Error al en el estado de la evaluacion")]
     EvaluacionEstadoError(#[from] EvaluacionEstadoError),
+
+    #[error("La evaluacion ya fue publicada")]
+    EvaluacionYaFuePublicada,
 }
 
 #[derive(Error, Debug)]

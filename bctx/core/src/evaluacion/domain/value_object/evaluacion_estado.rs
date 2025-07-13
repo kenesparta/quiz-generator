@@ -9,7 +9,7 @@ pub enum EvaluacionEstadoError {
     NoValido,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum EvaluacionEstado {
     Borrador,
     Publicado,

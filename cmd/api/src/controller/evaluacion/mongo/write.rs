@@ -267,7 +267,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                     .iter()
                     .map(|pregunta| {
                         let mut pregunta_doc = doc! {
-                            "id": pregunta.id.to_string(),
+                            "_id": pregunta.id.to_string(),
                             "contenido": &pregunta.contenido,
                             "etiqueta": pregunta.etiqueta.to_string(),
                             "tipo_de_pregunta": pregunta.tipo_de_pregunta.to_string(),
@@ -300,7 +300,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                     .collect();
 
                 doc! {
-                    "id": examen.id.to_string(),
+                    "_id": examen.id.to_string(),
                     "titulo": &examen.titulo,
                     "descripcion": &examen.descripcion,
                     "instrucciones": &examen.instrucciones,
@@ -338,6 +338,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                 }
                 Ok(())
             }
+
             Err(e) => {
                 error!("Error updating evaluation: {}", e);
                 Err(EvaluacionError::EvaluacionRepositorioError(

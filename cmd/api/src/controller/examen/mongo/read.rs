@@ -65,7 +65,9 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
                             Ok(entities) => ListaDePreguntas::new(entities),
                             Err(e) => {
                                 error!("Error converting preguntas to entities: {}", e);
-                                return Err(ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada));
+                                return Err(ExamenError::ExamenRepositorioError(
+                                    PersistenciaNoFinalizada,
+                                ));
                             }
                         }
                     }
@@ -100,6 +102,4 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
     }
 }
 
-impl ExamenMongo {
-
-}
+impl ExamenMongo {}

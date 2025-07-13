@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
 use quizz_core::pregunta::domain::value_object::etiqueta::Etiqueta;
 use quizz_core::pregunta::domain::value_object::id::PreguntaID;
 use quizz_core::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::str::FromStr;
 
 #[derive(Deserialize)]
 pub struct RegistrarExamenDTO {
@@ -36,7 +36,8 @@ impl PreguntaMongoDTO {
             Some(self.imagen_ref)
         };
 
-        let puntaje = self.puntaje
+        let puntaje = self
+            .puntaje
             .into_iter()
             .map(|(key, value)| (key, value as u32))
             .collect();

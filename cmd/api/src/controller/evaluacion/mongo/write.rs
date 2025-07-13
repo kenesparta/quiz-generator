@@ -3,7 +3,6 @@ use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use actix_web::web;
 use async_trait::async_trait;
-use futures::future::try_join_all;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
@@ -17,12 +16,9 @@ use quizz_core::evaluacion::provider::repositorio::{
 };
 use quizz_core::evaluacion::value_object::examen_id::ExamenIDs;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
-use quizz_core::examen::domain::entity::examen::Examen;
-use quizz_core::examen::domain::error::examen::ExamenError;
 use quizz_core::examen::domain::service::lista_examenes::ListaDeExamenes;
 use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use std::str::FromStr;
-use std::sync::Arc;
 use tracing::log::error;
 
 pub struct EvaluacionMongo {

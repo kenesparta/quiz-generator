@@ -88,7 +88,6 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
     }
 }
 
-// Helper function to convert PreguntaEntity to BSON
 fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
     preguntas
         .iter()

@@ -1,1 +1,1 @@
-mod asignar_postulante;
+pub mod asignar_postulante;

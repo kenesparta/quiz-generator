@@ -31,7 +31,7 @@ where
             .obtener_evaluacion(EvaluacionID::new(in_.evaluacion_id.as_str())?)
             .await?;
 
-        if evaluacion.estado == EvaluacionEstado::Publicado {
+        if evaluacion.esta_publicada() {
             return Err(EvaluacionError::EvaluacionYaFuePublicada);
         }
 

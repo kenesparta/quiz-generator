@@ -40,4 +40,8 @@ impl Evaluacion {
     pub fn publicar(&mut self) {
         self.estado = EvaluacionEstado::Publicado
     }
+
+    pub fn esta_publicada(&self) -> bool {
+        self.estado == EvaluacionEstado::Publicado
+    }
 }

@@ -1,5 +1,5 @@
-mod correccion;
-mod evaluacion;
-mod examen;
-mod pregunta;
-mod respuesta;
+pub mod correccion;
+pub mod evaluacion;
+pub mod examen;
+pub mod pregunta;
+pub mod respuesta;

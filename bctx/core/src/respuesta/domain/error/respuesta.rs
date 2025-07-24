@@ -17,4 +17,10 @@ pub enum RespuestaError {
 
     #[error("La evaluacion ya fue asignada")]
     EvaluacionAlreadyAssigned,
+
+    #[error("Error en el repositorio")]
+    RepositorioError,
+
+    #[error("La respuesta no existe")]
+    RespuestaNoEncontrada,
 }

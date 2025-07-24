@@ -1,13 +1,12 @@
-use crate::postulante::domain::entity::postulante::Postulante;
 use crate::postulante::domain::value_object::id::PostulanteID;
+use crate::respuesta::domain::entity::evaluacion::Evaluacion;
+use crate::respuesta::domain::entity::examen::Examen;
 use crate::respuesta::domain::entity::pregunta::Pregunta;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaLectura;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
-use crate::respuesta::domain::entity::evaluacion::Evaluacion;
-use crate::respuesta::domain::entity::examen::Examen;
 
 #[derive(Debug, Clone)]
 pub struct InputData {
@@ -19,7 +18,6 @@ pub struct OutputData {
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
     pub evaluacion: OutputEvaluacion,
-    pub postulante: OutputPostulante,
 }
 
 pub struct OutputEvaluacion {
@@ -90,28 +88,6 @@ impl From<Pregunta> for OutputPregunta {
     }
 }
 
-pub struct OutputPostulante {
-    pub id: String,
-    pub documento: String,
-    pub nombre_completo: String,
-    pub fecha_nacimiento: String,
-    pub grado_instruccion: String,
-    pub genero: String,
-}
-
-impl From<Postulante> for OutputPostulante {
-    fn from(postulante: Postulante) -> Self {
-        Self {
-            id: postulante.id.to_string(),
-            documento: postulante.documento.to_string(),
-            nombre_completo: postulante.nombre_completo.nombre_completo(),
-            fecha_nacimiento: postulante.fecha_nacimiento.to_string(),
-            grado_instruccion: postulante.grado_instruccion.to_string(),
-            genero: postulante.genero.to_string(),
-        }
-    }
-}
-
 pub struct RespuestaPorPostulante<RepoErr> {
     repositorio: Box<dyn RepositorioRespuestaLectura<RepoErr>>,
 }
@@ -139,7 +115,6 @@ where
             fecha_tiempo_inicio: respuestas.fecha_tiempo_inicio.to_string(),
             fecha_tiempo_fin: respuestas.fecha_tiempo_fin.to_string(),
             evaluacion: respuestas.evaluacion.into(),
-            postulante: respuestas.postulante_details.into(),
         })
     }
 }

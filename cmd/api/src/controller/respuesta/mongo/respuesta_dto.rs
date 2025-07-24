@@ -16,6 +16,7 @@ use quizz_core::respuesta::use_case::respuesta_postulante::{
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
+use actix_web::http::header::CacheDirective::MinFresh;
 
 #[derive(Serialize, Deserialize)]
 pub struct RespuestaDTO {
@@ -31,12 +32,8 @@ impl From<RespuestaDTO> for Respuesta {
     fn from(respuesta: RespuestaDTO) -> Self {
         Self {
             id: RespuestaID::new(respuesta.id.as_str()).unwrap(),
-            fecha_tiempo_inicio: FechaTiempoValueObject::new(
-                respuesta.fecha_tiempo_inicio.as_str(),
-            )
-            .unwrap(),
-            fecha_tiempo_fin: FechaTiempoValueObject::new(respuesta.fecha_tiempo_fin.as_str())
-                .unwrap(),
+            fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
+            fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             evaluacion: respuesta.evaluacion.into(),
             postulante: PostulanteID::new(respuesta.postulante_id.as_str()).unwrap(),
         }
@@ -144,9 +141,10 @@ pub struct PreguntaDTO {
     pub contenido: String,
     pub tipo_de_pregunta: String,
     pub etiqueta: String,
-    pub imagen_ref: String,
+    // pub imagen_ref: String,
     pub alternativas: HashMap<String, String>,
-    pub respuestas: Vec<String>,
+    #[serde(default)]
+    pub respuestas: Option<Vec<String>>,
 }
 
 impl From<PreguntaDTO> for Pregunta {
@@ -157,10 +155,10 @@ impl From<PreguntaDTO> for Pregunta {
             observaciones: "".to_string(),
             etiqueta: Etiqueta::from_str(&*pregunta.etiqueta).unwrap(),
             tipo_de_pregunta: TipoPregunta::from_str(&*pregunta.tipo_de_pregunta).unwrap(),
-            imagen_ref: pregunta.imagen_ref.to_string(),
+            imagen_ref: "".to_string(),
             alternativas: pregunta.alternativas,
             puntaje: Default::default(),
-            respuestas: pregunta.respuestas,
+            respuestas: Option::from(pregunta.respuestas.unwrap_or_default()),
         }
     }
 }
@@ -172,7 +170,7 @@ impl From<OutputPregunta> for PreguntaDTO {
             contenido: pregunta.contenido,
             tipo_de_pregunta: pregunta.tipo_de_pregunta,
             etiqueta: "".to_owned(),
-            imagen_ref: pregunta.imagen_ref.to_string(),
+            // imagen_ref: pregunta.imagen_ref.to_string(),
             alternativas: pregunta.alternativas,
             respuestas: pregunta.respuestas,
         }

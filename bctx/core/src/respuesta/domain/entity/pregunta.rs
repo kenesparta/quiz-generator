@@ -12,5 +12,5 @@ pub struct Pregunta {
     pub imagen_ref: String,
     pub alternativas: HashMap<String, String>,
     pub puntaje: HashMap<String, u32>,
-    pub respuestas: Vec<String>,
+    pub respuestas: Option<Vec<String>>,
 }

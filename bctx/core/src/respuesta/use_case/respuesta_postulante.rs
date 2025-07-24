@@ -72,7 +72,7 @@ pub struct OutputPregunta {
     pub tipo_de_pregunta: String,
     pub imagen_ref: String,
     pub alternativas: HashMap<String, String>,
-    pub respuestas: Vec<String>,
+    pub respuestas: Option<Vec<String>>,
 }
 
 impl From<Pregunta> for OutputPregunta {

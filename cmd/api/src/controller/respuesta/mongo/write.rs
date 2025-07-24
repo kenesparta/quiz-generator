@@ -103,7 +103,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         self.get_collection()
             .insert_one(respuesta_doc, None)
             .await
-            .map_err(|e| RespuestaError::DatabaseError)?;
+            .map_err(|_| RespuestaError::DatabaseError)?;
 
         Ok(())
     }

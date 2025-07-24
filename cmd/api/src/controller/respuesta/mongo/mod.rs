@@ -1,3 +1,4 @@
 mod constantes;
-mod read;
+pub mod read;
+pub mod respuesta_dto;
 pub mod write;

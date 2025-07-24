@@ -47,3 +47,8 @@ pub struct RespuestaMongoDTO {
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ReadRespuestaDTO {
+    pub postulante_id: String,
+}

@@ -750,8 +750,7 @@
 
     .exam-title {
         padding: 1rem;
-        background: var(--color-accent-error);
-        color: white;
+        background: var(--color-input-focus);
     }
 
     .timer {
@@ -759,6 +758,8 @@
         text-align: center;
         font-family: monospace;
         font-size: 2rem;
+        font-weight: bold;
+        color: white;
     }
 
     .exam-tabs {
@@ -801,13 +802,13 @@
     .progress-indicator {
         margin-top: 0.5rem;
         height: 4px;
-        background-color: #ddd;
+        background-color: var(--color-input-shadow-overlay);
         overflow: hidden;
     }
 
     .progress-bar {
         height: 100%;
-        background-color: var(--color-accent-success-hover, #28a745);
+        background-color: var(--color-primary);
         transition: width 0.3s ease;
     }
 

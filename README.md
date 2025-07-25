@@ -57,3 +57,8 @@ Son los flujos de la aplicacion.
 - Use un evento de dominio para capturar una ocurrencia de algo que acontecio en el Dominio. Esta es una herramienta 
   estremadamente poderosa de modelaje. Despues de dominar el uso de eventos de domnio, nos quedaremoos viciados de 
   usarlo y nos preguntaremos com hemos podido vivir sin el.
+
+## Ejecutar
+```sh
+cargo run --bin quizz
+```

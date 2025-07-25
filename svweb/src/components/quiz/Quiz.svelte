@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { v4 as uuidv4 } from 'uuid';
 
   // Types
   type Alternative = {
@@ -580,8 +579,7 @@
 
   function finishQuiz() {
     clearInterval(timer);
-    const endTime = new Date().toISOString();
-    quizData.fecha_tiempo_fin = endTime;
+    quizData.fecha_tiempo_fin = new Date().toISOString();
 
     // Store answers in the quizData structure
     quizData.evaluacion.examenes.forEach(exam => {
@@ -632,7 +630,7 @@
     {#if !showResults}
         <div class="quiz-sidebar">
             <div class="exam-title">
-                <div class="timer">⏱️ {elapsedTime}</div>
+                <div class="timer">{elapsedTime}</div>
             </div>
 
             <ul class="exam-tabs">
@@ -658,9 +656,9 @@
 
         <div class="quiz-content">
             <div class="exam-header">
-                <h3>{quizData.evaluacion.nombre}</h3>
+                <h1>{quizData.evaluacion.nombre}</h1>
                 <h2>{currentExam.titulo}</h2>
-                <p class="instructions">{currentExam.instrucciones}</p>
+                <p class="instructions">Instrucciones: {currentExam.instrucciones}</p>
                 <div class="question-progress">
                     Pregunta {currentQuestionIndex + 1} de {currentExam.preguntas.length}
                 </div>
@@ -744,8 +742,7 @@
     }
 
     .quiz-sidebar {
-        background: #f5f5f5;
-        border-right: 1px solid #ddd;
+        background: #eee;
         display: flex;
         flex-direction: column;
         padding: 0;
@@ -761,7 +758,7 @@
         align-self: center;
         text-align: center;
         font-family: monospace;
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
 
     .exam-tabs {
@@ -828,9 +825,9 @@
         color: white;
         border: 2px solid #000;
         font-weight: bold;
-        font-size: 0.9rem;
+        font-size: 1.2rem;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.3s;
     }
 
     .finish-button:hover {
@@ -838,29 +835,39 @@
     }
 
     .quiz-content {
-        padding: 2rem;
+        padding: 1rem;
         overflow-y: auto;
     }
 
     .exam-header {
-        margin-bottom: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .exam-header h1 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 0 .2rem 0;
+        color: var(--color-primary);
     }
 
     .exam-header h2 {
+        font-size: 1.2rem;
+        font-weight: bold;
         margin-top: 0;
         margin-bottom: 0.5rem;
+        color: var(--color-secondary);
     }
 
     .instructions {
         font-style: italic;
-        color: #666;
-        margin-bottom: 1rem;
+        margin: 1rem 0 1.5rem 0;
     }
 
     .question-progress {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0;
+        color: var(--color-accent-warning);
     }
 
     .question-container {
@@ -887,13 +894,13 @@
     }
 
     .alternative-option:hover {
-        background-color: var(--color-secondary-hover);
+        background-color: var(--color-input-border);
         border-color: var(--color-secondary);
     }
 
     .alternative-option.selected {
-        background-color: var(--color-secondary-hover);
-        border-color: var(--color-secondary);
+        background-color: var(--color-input-shadow-overlay);
+        border-color: var(--color-primary);
         font-weight: bold;
     }
 
@@ -909,8 +916,8 @@
     }
 
     .navigation-buttons {
-        display: flex;
-        justify-content: space-between;
+        /*display: flex;*/
+        /*justify-content: space-between;*/
     }
 
     .btn {

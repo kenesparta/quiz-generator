@@ -1,7 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: 'Sora', sans-serif;
+    font-family: 'Sora', sans-serif, monospace;
 }
 
 html, body {
@@ -24,7 +24,7 @@ body {
 
     /* Accent colors */
     --color-accent-success: #50e100;
-    --color-accent-success-hover: #50e100bb;
+    --color-accent-success-hover: #50e10066;
     --color-accent-error: #e04100;
     --color-accent-error-hover: #e04100bb;
     --color-accent-warning: #613f30;

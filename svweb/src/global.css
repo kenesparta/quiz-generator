@@ -20,6 +20,7 @@ body {
 
     /* Secondary colors */
     --color-secondary: #444661;
+    --color-secondary-hover: #44466155;
 
     /* Accent colors */
     --color-accent-success: #50e100;

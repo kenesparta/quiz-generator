@@ -1,4 +1,3 @@
-use quizz_common::domain::value_objects::fecha::FechaTiempoValueObject;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
@@ -16,7 +15,6 @@ use quizz_core::respuesta::use_case::respuesta_postulante::{
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
-use actix_web::http::header::CacheDirective::MinFresh;
 
 #[derive(Serialize, Deserialize)]
 pub struct RespuestaDTO {

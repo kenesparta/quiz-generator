@@ -56,11 +56,10 @@ impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo
 
         match respuesta_doc {
             Some(doc) => {
-                let respuesta_dto: RespuestaDTO =
-                    bson::from_document(doc).map_err(|e| {
-                        error!("Error deserializing respuesta document: {}", e);
-                        RespuestaError::RepositorioError
-                    })?;
+                let respuesta_dto: RespuestaDTO = bson::from_document(doc).map_err(|e| {
+                    error!("Error deserializing respuesta document: {}", e);
+                    RespuestaError::RepositorioError
+                })?;
 
                 Ok(respuesta_dto.into())
             }

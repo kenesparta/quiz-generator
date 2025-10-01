@@ -1,27 +1,41 @@
 ### Variables
 @baseUrl = http://localhost:8008
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
+@postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
+@postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
 
-### Health check
+### Asignar una evaluacion al postulante01
 POST {{baseUrl}}/respuesta
 Content-Type: application/json
 
 {
   "evaluacion_id": "{{evaluacionId}}",
-  "postulante_id": "e17439e0-79e1-47e3-b5f9-5b54367fa290"
+  "postulante_id": "{{postulante01}}"
 }
 
-### Crear Respuesta
+### Asignar una evaluacion al postulante02
 POST {{baseUrl}}/respuesta
 Content-Type: application/json
 
 {
   "evaluacion_id": "{{evaluacionId}}",
-  "postulante_id": "d4e92ac2-882a-4e46-ae56-b2361ac5327e"
+  "postulante_id": "{{postulante02}}"
 }
 
-### Obtener repuesta del postulante
-GET {{baseUrl}}/respuesta/e17439e0-79e1-47e3-b5f9-5b54367fa290
+### Obtener repuesta del postulante01
+GET {{baseUrl}}/respuesta/{{postulante01}}
+Content-Type: application/json
+
+{}
+
+### Obtener repuesta del postulante02
+GET {{baseUrl}}/respuesta/{{postulante02}}
+Content-Type: application/json
+
+{}
+
+### Enviar Respuesta del postulante
+POST {{baseUrl}}/respuesta/{{postulante02}}
 Content-Type: application/json
 
 {}

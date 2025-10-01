@@ -24,7 +24,7 @@ Content-Type: application/json
   ]
 }
 
-### Agregar examenes a evaluacion
+### Publicar la evaluacion
 PATCH {{baseUrl}}/evaluacion/{{evaluacionId}}
 Content-Type: application/json
 

@@ -34,8 +34,8 @@ Content-Type: application/json
 
 {}
 
-### Enviar Respuesta del postulante
-POST {{baseUrl}}/respuesta/{{postulante02}}
+### Enviar Respuesta del postulante01
+POST {{baseUrl}}/respuesta/{{postulante01}}
 Content-Type: application/json
 
 {}

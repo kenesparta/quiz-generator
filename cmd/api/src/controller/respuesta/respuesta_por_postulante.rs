@@ -1,4 +1,3 @@
-use crate::controller::respuesta::dto::{EvaluacionMongoDTO, ReadRespuestaDTO};
 use crate::controller::respuesta::mongo::read::RespuestaPorPostulanteMongo;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
 use actix_web::{HttpRequest, HttpResponse, web};

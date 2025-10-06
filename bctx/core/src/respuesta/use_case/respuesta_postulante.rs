@@ -5,6 +5,7 @@ use crate::respuesta::domain::entity::pregunta::Pregunta;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaLectura;
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
@@ -16,6 +17,7 @@ pub struct InputData {
 pub struct OutputData {
     pub id: String,
     pub fecha_tiempo_inicio: String,
+    pub fecha_tiempo_transcurrido: i64,
     pub fecha_tiempo_fin: String,
     pub evaluacion: OutputEvaluacion,
 }
@@ -110,9 +112,20 @@ where
             .obtener_por_postulante(postulante_id)
             .await?;
 
+        let fecha_inicio_str = respuestas.fecha_tiempo_inicio.to_string();
+        let fecha_tiempo_transcurrido =
+            if let Ok(fecha_inicio) = DateTime::parse_from_rfc3339(&fecha_inicio_str) {
+                let now = Utc::now();
+                let duration = now.signed_duration_since(fecha_inicio.with_timezone(&Utc));
+                duration.num_seconds()
+            } else {
+                0
+            };
+
         Ok(OutputData {
             id: respuestas.id.to_string(),
-            fecha_tiempo_inicio: respuestas.fecha_tiempo_inicio.to_string(),
+            fecha_tiempo_inicio: fecha_inicio_str,
+            fecha_tiempo_transcurrido,
             fecha_tiempo_fin: respuestas.fecha_tiempo_fin.to_string(),
             evaluacion: respuestas.evaluacion.into(),
         })

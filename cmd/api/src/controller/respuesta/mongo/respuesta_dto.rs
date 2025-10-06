@@ -20,7 +20,12 @@ use std::str::FromStr;
 pub struct RespuestaDTO {
     #[serde(rename = "_id")]
     pub id: String,
+
     pub fecha_tiempo_inicio: String,
+
+    #[serde(skip_deserializing)]
+    pub fecha_tiempo_transcurrido: i64,
+
     pub fecha_tiempo_fin: String,
     pub postulante_id: String,
     pub evaluacion: EvaluacionDTO,
@@ -43,6 +48,7 @@ impl From<OutputData> for RespuestaDTO {
         Self {
             id: respuesta.id,
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
+            fecha_tiempo_transcurrido: respuesta.fecha_tiempo_transcurrido,
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             postulante_id: "".to_owned(),
             evaluacion: respuesta.evaluacion.into(),

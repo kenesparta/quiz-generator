@@ -10,6 +10,8 @@ pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
         evaluacion_id: EvaluacionID,
         postulante_id: PostulanteID,
     ) -> Result<(), Error>;
+
+    async fn responder_evaluacion(&self, evaluacion_id: EvaluacionID);
 }
 
 #[async_trait]

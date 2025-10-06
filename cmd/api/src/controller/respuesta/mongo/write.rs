@@ -107,4 +107,8 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
 
         Ok(())
     }
+
+    async fn responder_evaluacion(&self, evaluacion_id: EvaluacionID) {
+        todo!()
+    }
 }

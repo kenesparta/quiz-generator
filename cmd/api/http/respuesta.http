@@ -38,4 +38,22 @@ Content-Type: application/json
 POST {{baseUrl}}/respuesta/{{postulante01}}
 Content-Type: application/json
 
-{}
+{
+  "_id": "2f00992d-0f70-40c8-94ae-e566d961c34a",
+  "evaluacion": {
+    "_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
+    "examenes": [
+      {
+        "_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
+        "preguntas": [
+          {
+            "_id": "e06743ff-8090-49b0-98c2-bd59db7d610f",
+            "respuestas": [
+              "E"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

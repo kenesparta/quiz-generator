@@ -1,6 +1,6 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
-use crate::respuesta::domain::entity::respuesta::Respuesta;
+use crate::respuesta::domain::entity::respuesta::{Respuesta, RespuestaEvaluacion};
 use async_trait::async_trait;
 
 #[async_trait]
@@ -11,7 +11,10 @@ pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
         postulante_id: PostulanteID,
     ) -> Result<(), Error>;
 
-    async fn responder_evaluacion(&self, evaluacion_id: EvaluacionID);
+    async fn responder_evaluacion(
+        &self,
+        respuesta_evaluacion: RespuestaEvaluacion,
+    ) -> Result<(), Error>;
 }
 
 #[async_trait]

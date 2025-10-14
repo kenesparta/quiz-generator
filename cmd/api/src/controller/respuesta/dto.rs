@@ -50,32 +50,9 @@ pub struct RespuestaMongoDTO {
 
 #[derive(Serialize, Deserialize)]
 pub struct ResponderEvaluacionDTO {
-    #[serde(rename = "_id")]
     pub id: String,
-
-    pub evaluacion: DetallesEvaluacionDTO,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DetallesEvaluacionDTO {
-    #[serde(rename = "_id")]
-    pub id: String,
-
-    pub examenes: Vec<ExamenDTO>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ExamenDTO {
-    #[serde(rename = "_id")]
-    pub id: String,
-
-    pub preguntas: Vec<PreguntaDTO>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PreguntaDTO {
-    #[serde(rename = "_id")]
-    pub id: String,
-
+    pub evaluacion_id: String,
+    pub examen_id: String,
+    pub pregunta_id: String,
     pub respuestas: Vec<String>,
 }

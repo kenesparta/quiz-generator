@@ -10,6 +10,7 @@ use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
+use quizz_core::respuesta::domain::entity::respuesta::RespuestaEvaluacion;
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::RepositorioRespuestaEscritura;
@@ -108,7 +109,51 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         Ok(())
     }
 
-    async fn responder_evaluacion(&self, evaluacion_id: EvaluacionID) {
-        todo!()
+    async fn responder_evaluacion(
+        &self,
+        respuesta_evaluacion: RespuestaEvaluacion,
+    ) -> Result<(), RespuestaError> {
+        let filter = doc! {
+            "_id": &respuesta_evaluacion.id.to_string(),
+            "evaluacion._id": &respuesta_evaluacion.evaluacion_id,
+            "evaluacion.examenes._id": &respuesta_evaluacion.examen_id,
+            "evaluacion.examenes.preguntas._id": &respuesta_evaluacion.pregunta_id
+        };
+
+        // Build the update operation using positional operators
+        // $[examen] and $[pregunta] are array filters to identify the specific elements
+        let update = doc! {
+            "$set": {
+                "evaluacion.examenes.$[examen].preguntas.$[pregunta].respuestas": &respuesta_evaluacion.respuestas
+            }
+        };
+
+        // Define array filters to identify which exam and question to update
+        let array_filters = vec![
+            doc! { "examen._id": &respuesta_evaluacion.examen_id },
+            doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id }
+        ];
+
+        // Set up the update options with array filters
+        let mut options = mongodb::options::UpdateOptions::default();
+        options.array_filters = Some(array_filters);
+
+        // Execute the update operation
+        let _result = self
+            .get_collection()
+            .update_one(filter, update, Some(options))
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        // Check if the update was successful
+        // if result.matched_count == 0 {
+        //     return Err(RespuestaError::RespuestaNotFound);
+        // }
+        //
+        // if result.modified_count == 0 {
+        //     return Err(RespuestaError::UpdateFailed);
+        // }
+
+        Ok(())
     }
 }

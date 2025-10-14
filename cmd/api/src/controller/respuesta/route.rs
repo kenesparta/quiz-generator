@@ -1,5 +1,5 @@
 use crate::controller::respuesta::asignar_evaluacion_postulante::AsignarEvaluacionPostulanteController;
-use crate::controller::respuesta::respuesta_evaluacion::RespuestaEvaluacionController;
+use crate::controller::respuesta::responder_evaluacion::RespuestaEvaluacionController;
 use crate::controller::respuesta::respuesta_por_postulante::RespuestaPorPostulanteController;
 use actix_web::web;
 

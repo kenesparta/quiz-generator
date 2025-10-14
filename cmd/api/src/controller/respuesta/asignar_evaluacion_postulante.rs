@@ -23,7 +23,7 @@ impl AsignarEvaluacionPostulanteController {
         };
 
         match asociar.ejecutar(input).await {
-            Ok(_) => HttpResponse::Ok().finish(),
+            Ok(()) => HttpResponse::Ok().finish(),
             Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
         }
     }

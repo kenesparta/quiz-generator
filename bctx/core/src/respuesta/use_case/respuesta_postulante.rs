@@ -113,6 +113,8 @@ where
             .await?;
 
         let fecha_inicio_str = respuestas.fecha_tiempo_inicio.to_string();
+        // todo: pasar esta logica al dominio
+
         let fecha_tiempo_transcurrido =
             if let Ok(fecha_inicio) = DateTime::parse_from_rfc3339(&fecha_inicio_str) {
                 let now = Utc::now();

@@ -1,0 +1,17 @@
+### Variables
+@baseUrl = http://localhost:8008
+@user = 12345678
+@pass = 5678
+
+### Agregar Evaluacion
+POST {{baseUrl}}/evaluacion/{{evaluacionId}}
+Content-Type: application/json
+
+### Login del postulante
+POST {{baseUrl}}/login/postulante
+Content-Type: application/json
+
+{
+  "user_name": "{{user}}",
+  "password": "{{pass}}"
+}

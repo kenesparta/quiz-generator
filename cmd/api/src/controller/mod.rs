@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod evaluacion;
 pub mod examen;
 pub mod healthcheck;

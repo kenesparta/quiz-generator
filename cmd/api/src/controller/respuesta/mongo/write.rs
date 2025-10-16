@@ -131,7 +131,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         // Define array filters to identify which exam and question to update
         let array_filters = vec![
             doc! { "examen._id": &respuesta_evaluacion.examen_id },
-            doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id }
+            doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id },
         ];
 
         // Set up the update options with array filters

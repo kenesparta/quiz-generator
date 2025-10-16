@@ -4,9 +4,9 @@ use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::responder_evaluacion::{InputData, ResponderEvaluacion};
 
-pub struct RespuestaEvaluacionController;
+pub struct ResponderEvaluacionController;
 
-impl RespuestaEvaluacionController {
+impl ResponderEvaluacionController {
     pub async fn read(
         req: HttpRequest,
         body: web::Json<ResponderEvaluacionDTO>,

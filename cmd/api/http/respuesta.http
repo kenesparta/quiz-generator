@@ -35,7 +35,7 @@ Content-Type: application/json
 {}
 
 ### Enviar Respuesta del postulante01
-POST {{baseUrl}}/respuesta/{{postulante01}}
+PATCH {{baseUrl}}/respuesta/{{postulante01}}
 Content-Type: application/json
 
 {
@@ -44,6 +44,6 @@ Content-Type: application/json
   "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
   "pregunta_id": "e06743ff-8090-49b0-98c2-bd59db7d610f",
   "respuestas": [
-    "D"
+    "B"
   ]
 }

@@ -145,15 +145,6 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
-        // Check if the update was successful
-        // if result.matched_count == 0 {
-        //     return Err(RespuestaError::RespuestaNotFound);
-        // }
-        //
-        // if result.modified_count == 0 {
-        //     return Err(RespuestaError::UpdateFailed);
-        // }
-
         Ok(())
     }
 }

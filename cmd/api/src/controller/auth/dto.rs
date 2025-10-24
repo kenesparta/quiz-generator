@@ -9,5 +9,5 @@ pub struct PostulanteLoginRequestDTO {
 #[derive(Serialize, Deserialize)]
 pub struct PostulanteLoginResponseDTO {
     pub token: String,
-    pub expires_in: i64,
+    pub expires_in: u32,
 }

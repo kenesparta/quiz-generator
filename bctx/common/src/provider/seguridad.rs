@@ -7,5 +7,5 @@ pub trait SeguridadCifrar<Error>: Send + Sync {
 
 #[async_trait]
 pub trait SeguridadComparar<Error>: Send + Sync {
-    async fn comparar(&self, password: String, hashed: String) -> Result<bool, Error>;
+    async fn comparar(&self, password: String, hashed: String) -> Result<(), Error>;
 }

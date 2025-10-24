@@ -13,8 +13,20 @@ services:
     networks:
       - backend
 
+  redis:
+    container_name: quizz-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   backend:

@@ -13,15 +13,19 @@ async fn main() -> Result<(), std::io::Error> {
         .init();
 
     let configuration = get_configuration().expect("Failed to read configuration.");
+
     let connection_pool = create_mongo_client(&configuration.database.connection_string())
         .await
         .expect("failed to connect to a database");
+
     let address = format!(
         "{}:{}",
         configuration.application_host.to_string(),
         configuration.application_port.to_string()
     );
+
     let tcp_listener = TcpListener::bind(address)?;
     run(tcp_listener, connection_pool)?.await?;
+
     Ok(())
 }

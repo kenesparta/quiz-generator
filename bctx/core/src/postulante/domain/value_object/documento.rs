@@ -18,6 +18,7 @@ impl fmt::Display for Documento {
 impl Documento {
     pub fn new(value: &str) -> Result<Self, DocumentoError> {
         let document = Documento(value.trim().to_string());
+        print!("{}", document);
         document.asegurar_documento_es_valido()?;
         Ok(document)
     }
@@ -84,10 +85,10 @@ mod test_documento {
 
     #[test]
     fn test_get_last_four_characters_exact_length() {
-        let documento = Documento::new("1234").unwrap();
+        let documento = Documento::new("12345678").unwrap();
         assert_eq!(
             documento.obtener_ultimos_cuatro_caracteres().unwrap(),
-            "1234"
+            "5678"
         );
     }
 

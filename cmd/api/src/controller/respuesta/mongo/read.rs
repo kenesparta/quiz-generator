@@ -32,6 +32,10 @@ impl MongoRepository for RespuestaPorPostulanteMongo {
     }
 }
 
+string: {asdadsadsasd asdasdasdasd ("123")}
+int: {asdadsadsasd asdasdasdasd (123)}
+float: {asdadsadsasd asdasdasdasd (1.2+1)}
+
 #[async_trait]
 impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo {
     async fn obtener_por_postulante(

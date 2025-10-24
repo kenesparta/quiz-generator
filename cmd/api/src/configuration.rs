@@ -1,6 +1,7 @@
 #[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
+    pub redis: RedisSettings,
     pub application_port: u16,
     pub application_host: String,
 }
@@ -18,6 +19,23 @@ impl DatabaseSettings {
     pub fn connection_string(&self) -> String {
         format!(
             "mongodb://{}:{}@{}:{}",
+            self.username, self.password, self.host, self.port
+        )
+    }
+}
+
+#[derive(serde::Deserialize, Clone)]
+pub struct RedisSettings {
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+}
+
+impl RedisSettings {
+    pub fn connection_string(&self) -> String {
+        format!(
+            "redis://{}:{}@{}:{}",
             self.username, self.password, self.host, self.port
         )
     }

@@ -1,5 +1,6 @@
 use quizz_api::configuration::get_configuration;
 use quizz_api::mongo::create_mongo_client;
+use quizz_api::redis::create_redis_client;
 use quizz_api::startup::run;
 use std::net::TcpListener;
 use tracing_subscriber::EnvFilter;
@@ -18,6 +19,10 @@ async fn main() -> Result<(), std::io::Error> {
         .await
         .expect("failed to connect to a database");
 
+    let redis_pool = create_redis_client(&configuration.redis.connection_string())
+        .await
+        .expect("Failed to create Redis client");
+
     let address = format!(
         "{}:{}",
         configuration.application_host.to_string(),
@@ -25,7 +30,7 @@ async fn main() -> Result<(), std::io::Error> {
     );
 
     let tcp_listener = TcpListener::bind(address)?;
-    run(tcp_listener, connection_pool)?.await?;
+    run(tcp_listener, connection_pool, redis_pool)?.await?;
 
     Ok(())
 }

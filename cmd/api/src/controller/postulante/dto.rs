@@ -13,7 +13,7 @@ pub struct RegistrarPostulanteDTO {
 
 #[derive(Deserialize)]
 pub struct PostulanteDocumentoQuery {
-    pub documento: Option<String>,
+    pub id: Option<String>,
 }
 
 #[derive(Serialize)]

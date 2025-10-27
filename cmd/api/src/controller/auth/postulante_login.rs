@@ -18,16 +18,19 @@ impl PostulanteLoginController {
     ) -> HttpResponse {
         let dto = body.into_inner();
 
-        let redis_impl = match PostulanteLoginRedis::new(&redis_client.get_ref().get_connection_info().addr.to_string()) {
+        let redis_impl = match PostulanteLoginRedis::new(redis_client) {
             Ok(r) => r,
-            Err(_) => return HttpResponse::InternalServerError().finish(),
+            Err(e) => {
+                println!("{:?}", e);
+                return HttpResponse::InternalServerError().finish();
+            }
         };
 
         let use_case = LoginPostulantePorDocumento::new(
             Box::new(CifradoPorDefecto),
             Box::new(PostulanteLoginMongo::new(pool)),
             Box::new(redis_impl),
-            Box::new(JWTProvider::new("secret".to_string(), 3600)),
+            Box::new(JWTProvider::new("secret".to_string(), 36000)),
         );
 
         match use_case

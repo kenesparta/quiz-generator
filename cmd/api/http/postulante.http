@@ -51,6 +51,10 @@ Content-Type: application/json
 GET {{baseUrl}}/postulante?documento=04009988
 Content-Type: application/json
 
+### Obtener el postulante por id
+GET {{baseUrl}}/postulante?id=0b9fbef0-fc03-4e24-b5d0-dfb42b537324
+Content-Type: application/json
+
 ### Obtener lista de postulantes
 GET {{baseUrl}}/postulante
 Content-Type: application/json

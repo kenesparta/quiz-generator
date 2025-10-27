@@ -1,6 +1,7 @@
 use crate::postulante::domain::entity::postulante::Postulante;
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::id::PostulanteID;
+
 use async_trait::async_trait;
 
 #[async_trait]

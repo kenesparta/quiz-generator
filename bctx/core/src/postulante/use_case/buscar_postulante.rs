@@ -1,11 +1,11 @@
 use crate::postulante::domain::error::postulante::PostulanteError;
-use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::provider::repositorio::RepositorioPostulanteLectura;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
+use crate::postulante::domain::value_object::id::PostulanteID;
 
 pub struct InputData {
-    pub documento: String,
+    pub postulante_id: String,
 }
 
 pub struct OutputData {
@@ -39,10 +39,10 @@ where
     PostulanteError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<OutputData, PostulanteError> {
-        let documento = Documento::new(&in_.documento)?;
+        let postulante_id = PostulanteID::new(&in_.postulante_id)?;
         let postulante = self
             .repositorio
-            .obtener_postulante_por_documento(documento)
+            .obtener_postulante_por_id(postulante_id)
             .await?;
 
         Ok(OutputData {

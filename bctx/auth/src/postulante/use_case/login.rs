@@ -14,7 +14,7 @@ pub struct InputData {
 
 pub struct OutputData {
     pub jwt_value: String,
-    pub expiration: u32,
+    pub expiration: u64,
 }
 
 pub struct LoginPostulantePorDocumento<RepoErr> {
@@ -59,7 +59,7 @@ where
         let jwt_object = self.jwt.generar(postulante.id).await?;
 
         self.repositorio_cache
-            .guardar_token(jwt_object.value.clone())
+            .guardar_token(jwt_object.clone())
             .await?;
 
         Ok(OutputData {

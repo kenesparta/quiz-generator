@@ -156,9 +156,118 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
 
     async fn obtener_postulante_por_id(
         &self,
-        _postulante_id: PostulanteID,
+        postulante_id: PostulanteID,
     ) -> Result<Postulante, PostulanteError> {
-        todo!()
+        let postulante_id = postulante_id.to_string();
+        let filter = doc! { "_id": postulante_id.clone() };
+
+        match self.get_collection().find_one(filter, None).await {
+            Ok(Some(doc)) => {
+                let id = match doc.get("_id") {
+                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let documento = match doc.get("documento") {
+                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let nombre = match doc.get("nombre") {
+                    Some(bson_nombre) => bson_nombre.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let primer_apellido = match doc.get("primer_apellido") {
+                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let segundo_apellido = match doc.get("segundo_apellido") {
+                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let fecha_nacimiento = match doc.get("fecha_nacimiento") {
+                    Some(bson_fecha) => bson_fecha.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let grado_instruccion = match doc.get("grado_instruccion") {
+                    Some(bson_grado) => bson_grado.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let genero = match doc.get("genero") {
+                    Some(bson_genero) => bson_genero.as_str().unwrap_or_default().to_string(),
+                    None => {
+                        return Err(PostulanteError::PostulanteRepositorioError(
+                            RepositorioError::LecturaNoFinalizada,
+                        ));
+                    }
+                };
+
+                let id = PostulanteID::new(&id)?;
+                let documento = Documento::new(&documento)?;
+                let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
+                let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
+                let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
+                let genero = Genero::from_str(&genero)?;
+
+                Ok(Postulante {
+                    id,
+                    documento,
+                    nombre_completo,
+                    fecha_nacimiento,
+                    grado_instruccion,
+                    genero,
+                    password: None,
+                })
+            }
+            Ok(None) => {
+                error!("No postulante found with documento: {}", postulante_id);
+                Err(PostulanteError::PostulanteRepositorioError(
+                    RepositorioError::RegistroNoEncontrado,
+                ))
+            }
+            Err(e) => {
+                error!(
+                    "Database error while fetching postulante with documento={}, error={}",
+                    postulante_id, e
+                );
+                Err(PostulanteError::PostulanteRepositorioError(
+                    RepositorioError::LecturaNoFinalizada,
+                ))
+            }
+        }
     }
 
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {

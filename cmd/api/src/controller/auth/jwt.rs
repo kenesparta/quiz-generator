@@ -15,7 +15,7 @@ struct Claims {
 
 pub struct JWTProvider {
     secret: String,
-    expiration_seconds: i64
+    expiration_seconds: i64,
 }
 
 impl JWTProvider {
@@ -34,7 +34,7 @@ impl JwtProviderGenerate<PostulanteLoginError> for JWTProvider {
         let expiration = now + self.expiration_seconds;
 
         let claims = Claims {
-            sub: postulante_id,
+            sub: postulante_id.clone(),
             exp: expiration,
             iat: now,
         };
@@ -47,8 +47,9 @@ impl JwtProviderGenerate<PostulanteLoginError> for JWTProvider {
         .map_err(|e| PostulanteLoginError::JWTErrorAlGenerar)?;
 
         Ok(JwtObject {
+            key: postulante_id,
             value: token,
-            expiration: self.expiration_seconds as u32,
+            expiration: self.expiration_seconds as u64,
         })
     }
 }

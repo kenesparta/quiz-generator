@@ -16,15 +16,15 @@ impl PostulanteObtenerPorDocumentoController {
         query: web::Query<PostulanteDocumentoQuery>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let documento = match &query.documento {
-            Some(documento) => documento.clone(),
+        let postulante_id = match &query.id {
+            Some(id) => id.clone(),
             None => return PostulanteListController::get(pool).await,
         };
 
         let obtener_postulante =
             ObtenerPostulantePorDocumento::new(Box::new(PostulanteReadMongo::new(pool)));
 
-        match obtener_postulante.ejecutar(InputData { documento }).await {
+        match obtener_postulante.ejecutar(InputData { postulante_id }).await {
             Ok(output) => HttpResponse::Ok().json(PostulanteResponseDTO {
                 id: output.id.to_string(),
                 documento: output.documento.to_string(),

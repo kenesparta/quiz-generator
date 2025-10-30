@@ -46,13 +46,20 @@ pub struct RespuestaMongoDTO {
     pub postulante_id: String,
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
+    pub estado: String,
+    pub revision: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ResponderEvaluacionDTO {
-    pub id: String,
+    pub postulante_id: String,
     pub evaluacion_id: String,
     pub examen_id: String,
     pub pregunta_id: String,
     pub respuestas: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ActualizarEstadoDeEvaluacionDTO {
+    pub estado: String,
 }

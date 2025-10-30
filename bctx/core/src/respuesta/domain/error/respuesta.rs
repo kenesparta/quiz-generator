@@ -24,3 +24,15 @@ pub enum RespuestaError {
     #[error("La respuesta no existe")]
     RespuestaNoEncontrada,
 }
+
+#[derive(Error, Debug)]
+pub enum EstadoErr {
+    #[error("No es un estado valido")]
+    NoValido,
+}
+
+#[derive(Error, Debug)]
+pub enum RevisionErr {
+    #[error("No es un estado valido")]
+    NoValido,
+}

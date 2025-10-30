@@ -1,9 +1,10 @@
-use crate::evaluacion::value_object::id::EvaluacionID;
-use crate::examen::domain::value_object::id::ExamenID;
 use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::respuesta::domain::entity::evaluacion::Evaluacion;
+use crate::respuesta::domain::error::respuesta::{EstadoErr, RevisionErr};
 use crate::respuesta::domain::value_object::id::RespuestaID;
+use std::fmt;
+use std::str::FromStr;
 
 pub struct Respuesta {
     pub id: RespuestaID,
@@ -11,13 +12,6 @@ pub struct Respuesta {
     pub fecha_tiempo_fin: String,
     pub evaluacion: Evaluacion,
     pub postulante: PostulanteID,
-    // pub estado: RespuestaEstado,
-}
-
-enum RespuestaEstado {
-    Creado,
-    EnProceso,
-    Finalizado,
 }
 
 pub struct RespuestaEvaluacion {
@@ -27,4 +21,64 @@ pub struct RespuestaEvaluacion {
     pub examen_id: String,
     pub pregunta_id: String,
     pub respuestas: Vec<String>,
+}
+
+#[derive(Clone, Debug)]
+pub enum Estado {
+    Creado,
+    EnProceso,
+    Finalizado,
+}
+
+impl fmt::Display for Estado {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Creado => write!(f, "creado"),
+            Self::EnProceso => write!(f, "en_proceso"),
+            Self::Finalizado => write!(f, "finalizado"),
+        }
+    }
+}
+
+impl FromStr for Estado {
+    type Err = EstadoErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "creado" => Ok(Estado::Creado),
+            "en_proceso" => Ok(Estado::EnProceso),
+            "finalizado" => Ok(Estado::Finalizado),
+            _ => Err(EstadoErr::NoValido),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Revision {
+    SinIniciar,
+    EnProgreso,
+    Finalizada,
+}
+
+impl fmt::Display for Revision {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::SinIniciar => write!(f, "sin_iniciar"),
+            Self::EnProgreso => write!(f, "en_proceso"),
+            Self::Finalizada => write!(f, "finalizada"),
+        }
+    }
+}
+
+impl FromStr for Revision {
+    type Err = RevisionErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "sin_iniciar" => Ok(Revision::SinIniciar),
+            "en_proceso" => Ok(Revision::EnProgreso),
+            "finalizado" => Ok(Revision::Finalizada),
+            _ => Err(RevisionErr::NoValido),
+        }
+    }
 }

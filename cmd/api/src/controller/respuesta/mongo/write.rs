@@ -10,7 +10,7 @@ use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
-use quizz_core::respuesta::domain::entity::respuesta::RespuestaEvaluacion;
+use quizz_core::respuesta::domain::entity::respuesta::{Estado, RespuestaEvaluacion, Revision};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::RepositorioRespuestaEscritura;
@@ -94,8 +94,10 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             id: RespuestaID::new_v4().to_string(),
             evaluacion,
             postulante_id: postulante_id.to_string(),
-            fecha_tiempo_inicio: Utc::now().to_rfc3339(),
+            fecha_tiempo_inicio: String::new(),
             fecha_tiempo_fin: String::new(),
+            estado: Estado::Creado.to_string(),
+            revision: Revision::SinIniciar.to_string(),
         };
 
         let respuesta_doc =

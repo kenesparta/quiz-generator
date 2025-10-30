@@ -1,8 +1,8 @@
 use crate::postulante::domain::error::postulante::PostulanteError;
+use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::postulante::provider::repositorio::RepositorioPostulanteLectura;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
-use crate::postulante::domain::value_object::id::PostulanteID;
 
 pub struct InputData {
     pub postulante_id: String,

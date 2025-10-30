@@ -6,3 +6,4 @@ mod mongo_repository;
 pub mod postulante;
 pub mod pregunta;
 pub mod respuesta;
+pub mod revision;

@@ -24,7 +24,10 @@ impl PostulanteObtenerPorDocumentoController {
         let obtener_postulante =
             ObtenerPostulantePorDocumento::new(Box::new(PostulanteReadMongo::new(pool)));
 
-        match obtener_postulante.ejecutar(InputData { postulante_id }).await {
+        match obtener_postulante
+            .ejecutar(InputData { postulante_id })
+            .await
+        {
             Ok(output) => HttpResponse::Ok().json(PostulanteResponseDTO {
                 id: output.id.to_string(),
                 documento: output.documento.to_string(),

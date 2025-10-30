@@ -1,4 +1,4 @@
-use crate::controller::respuesta::dto::ResponderEvaluacionDTO;
+use crate::controller::respuesta::dto::{ActualizarEstadoDeEvaluacionDTO, ResponderEvaluacionDTO};
 use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
@@ -7,12 +7,12 @@ use quizz_core::respuesta::use_case::responder_evaluacion::{InputData, Responder
 pub struct ResponderEvaluacionController;
 
 impl ResponderEvaluacionController {
-    pub async fn read(
+    pub async fn response(
         req: HttpRequest,
         body: web::Json<ResponderEvaluacionDTO>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let postulante_id = match req.match_info().get("id") {
+        let id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {
                 return HttpResponse::BadRequest().json("se debe enviar el ID del postulante");
@@ -21,8 +21,8 @@ impl ResponderEvaluacionController {
 
         let dto = body.into_inner();
         let input = InputData {
-            id: dto.id,
-            postulante_id,
+            id,
+            postulante_id: dto.postulante_id,
             evaluacion_id: dto.evaluacion_id,
             examen_id: dto.examen_id,
             pregunta_id: dto.pregunta_id,
@@ -39,5 +39,13 @@ impl ResponderEvaluacionController {
                 HttpResponse::InternalServerError().json("Hubo un error")
             }
         }
+    }
+
+    pub async fn update_state(
+        req: HttpRequest,
+        body: web::Json<ActualizarEstadoDeEvaluacionDTO>,
+        pool: web::Data<mongodb::Client>,
+    ) -> HttpResponse {
+        HttpResponse::Ok().finish()
     }
 }

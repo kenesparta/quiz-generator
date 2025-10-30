@@ -23,23 +23,23 @@ Content-Type: application/json
 }
 
 ### Obtener repuesta del postulante01
-GET {{baseUrl}}/respuesta/{{postulante01}}
+GET {{baseUrl}}/respuesta/postulante/{{postulante01}}
 Content-Type: application/json
 
 {}
 
 ### Obtener repuesta del postulante02
-GET {{baseUrl}}/respuesta/{{postulante02}}
+GET {{baseUrl}}/respuesta/postulante/{{postulante02}}
 Content-Type: application/json
 
 {}
 
 ### Enviar Respuesta del postulante01
-PATCH {{baseUrl}}/respuesta/{{postulante01}}
+PATCH {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f
 Content-Type: application/json
 
 {
-  "id": "4331a6ca-03de-45c1-b961-44a1628ed7a0",
+  "postulante_id": "{{postulante01}}",
   "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
   "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
   "pregunta_id": "e06743ff-8090-49b0-98c2-bd59db7d610f",

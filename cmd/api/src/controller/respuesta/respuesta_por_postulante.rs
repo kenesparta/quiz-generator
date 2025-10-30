@@ -9,7 +9,7 @@ pub struct RespuestaPorPostulanteController;
 
 impl RespuestaPorPostulanteController {
     pub async fn read(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
-        let postulante_id = match req.match_info().get("id") {
+        let postulante_id = match req.match_info().get("postulante_id") {
             Some(id) => id.to_string(),
             None => {
                 return HttpResponse::BadRequest().json("se debe enviar el ID del postulante");

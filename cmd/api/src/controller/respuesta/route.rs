@@ -11,9 +11,16 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
                     .route(web::post().to(AsignarEvaluacionPostulanteController::create)),
             )
             .service(
+                web::resource("/postulante/{postulante_id}")
+                    .route(web::get().to(RespuestaPorPostulanteController::read)),
+            )
+            .service(
                 web::resource("/{id}")
-                    .route(web::get().to(RespuestaPorPostulanteController::read))
-                    .route(web::patch().to(ResponderEvaluacionController::read)),
+                    .route(web::patch().to(ResponderEvaluacionController::response)),
+            )
+            .service(
+                web::resource("/{id}/estado")
+                    .route(web::patch().to(ResponderEvaluacionController::update_state)),
             ),
     );
 }

@@ -1,0 +1,26 @@
+### Variables
+@baseUrl = http://localhost:8008
+
+### Obtener la evaluacion para revisar
+GET {{baseUrl}}/revision/123
+Content-Type: application/json
+
+{
+  "evaluacion_id": ""
+}
+
+### Revisar la evaluacion
+PATCH {{baseUrl}}/revision/123
+Content-Type: application/json
+
+{
+  "evaluacion_id": "",
+  "examen_id": "",
+  "observation": ""
+}
+
+### Finalizar la evaluacion
+POST {{baseUrl}}/revision/123
+Content-Type: application/json
+
+{}

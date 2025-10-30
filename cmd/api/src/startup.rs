@@ -4,6 +4,7 @@ use crate::controller::examen::route::examen;
 use crate::controller::healthcheck::route::health_check;
 use crate::controller::postulante::route::postulante;
 use crate::controller::respuesta::route::respuesta;
+use crate::controller::revision::route::revision;
 use crate::cors::set_cors;
 use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
@@ -25,6 +26,7 @@ pub fn run(
             .configure(examen)
             .configure(evaluacion)
             .configure(respuesta)
+            .configure(revision)
             .configure(postulante_login)
             .configure(health_check)
             .app_data(db_connection_pool.clone())

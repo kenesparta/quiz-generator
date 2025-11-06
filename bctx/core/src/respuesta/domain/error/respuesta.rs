@@ -23,6 +23,12 @@ pub enum RespuestaError {
 
     #[error("La respuesta no existe")]
     RespuestaNoEncontrada,
+
+    #[error("La pregunta no existe")]
+    PreguntaNotFound,
+
+    #[error("El examen no existe")]
+    ExamenNotFound,
 }
 
 #[derive(Error, Debug)]

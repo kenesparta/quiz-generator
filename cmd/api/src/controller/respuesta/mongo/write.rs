@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
@@ -10,6 +11,7 @@ use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
+use quizz_core::respuesta::domain::entity::pregunta::Puntaje;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, RespuestaEvaluacion, Revision};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
@@ -113,7 +115,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
 
     async fn responder_evaluacion(
         &self,
-        respuesta_evaluacion: RespuestaEvaluacion,
+        respuesta_evaluacion: &RespuestaEvaluacion,
     ) -> Result<(), RespuestaError> {
         let filter = doc! {
             "_id": &respuesta_evaluacion.id.to_string(),
@@ -122,25 +124,21 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             "evaluacion.examenes.preguntas._id": &respuesta_evaluacion.pregunta_id
         };
 
-        // Build the update operation using positional operators
-        // $[examen] and $[pregunta] are array filters to identify the specific elements
         let update = doc! {
             "$set": {
-                "evaluacion.examenes.$[examen].preguntas.$[pregunta].respuestas": &respuesta_evaluacion.respuestas
+                "evaluacion.examenes.$[examen].preguntas.$[pregunta].respuestas": &respuesta_evaluacion.respuestas,
+                "evaluacion.examenes.$[examen].preguntas.$[pregunta].puntos": &respuesta_evaluacion.puntos,
             }
         };
 
-        // Define array filters to identify which exam and question to update
         let array_filters = vec![
             doc! { "examen._id": &respuesta_evaluacion.examen_id },
             doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id },
         ];
 
-        // Set up the update options with array filters
         let mut options = mongodb::options::UpdateOptions::default();
         options.array_filters = Some(array_filters);
 
-        // Execute the update operation
         let _result = self
             .get_collection()
             .update_one(filter, update, Some(options))
@@ -148,5 +146,82 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             .map_err(|_| RespuestaError::DatabaseError)?;
 
         Ok(())
+    }
+
+
+
+    async fn obtener_puntaje(&self, respuesta_evaluacion: &RespuestaEvaluacion) -> Result<Puntaje, RespuestaError> {
+        use std::collections::HashMap;
+
+        let filter = doc! {
+            "_id": &respuesta_evaluacion.id.to_string(),
+        };
+
+        let result = self
+            .get_collection()
+            .find_one(filter, None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?
+            .ok_or(RespuestaError::DatabaseError)?;
+
+        // Navigate through the nested structure to find the specific question
+        let evaluacion = result
+            .get_document("evaluacion")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        let examenes = evaluacion
+            .get_array("examenes")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        // Find the specific examen by ID
+        let examen_doc = examenes
+            .iter()
+            .filter_map(|e| e.as_document())
+            .find(|doc| {
+                doc.get_str("_id")
+                    .map(|id| id == respuesta_evaluacion.examen_id)
+                    .unwrap_or(false)
+            })
+            .ok_or(RespuestaError::DatabaseError)?;
+
+        let preguntas = examen_doc
+            .get_array("preguntas")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        // Find the specific pregunta by ID
+        let pregunta_doc = preguntas
+            .iter()
+            .filter_map(|p| p.as_document())
+            .find(|doc| {
+                doc.get_str("_id")
+                    .map(|id| id == respuesta_evaluacion.pregunta_id)
+                    .unwrap_or(false)
+            })
+            .ok_or(RespuestaError::DatabaseError)?;
+
+        let puntaje_doc = pregunta_doc
+            .get_document("puntaje")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        // Convert BSON document to HashMap<String, u32>
+        let mut puntaje: Puntaje = HashMap::new();
+        for (key, value) in puntaje_doc.iter() {
+            let puntos = match value {
+                bson::Bson::Document(doc) => {
+                    // Handle MongoDB's NumberLong format {"$numberLong": "1"}
+                    if let Ok(num_str) = doc.get_str("$numberLong") {
+                        num_str.parse::<u32>().map_err(|_| RespuestaError::DatabaseError)?
+                    } else {
+                        return Err(RespuestaError::DatabaseError);
+                    }
+                }
+                bson::Bson::Int32(n) => *n as u32,
+                bson::Bson::Int64(n) => *n as u32,
+                _ => return Err(RespuestaError::DatabaseError),
+            };
+            puntaje.insert(key.to_string(), puntos);
+        }
+
+        Ok(puntaje)
     }
 }

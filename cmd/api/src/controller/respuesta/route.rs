@@ -19,8 +19,8 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
                     .route(web::patch().to(ResponderEvaluacionController::response)),
             )
             .service(
-                web::resource("/{id}/estado")
-                    .route(web::patch().to(ResponderEvaluacionController::update_state)),
+                web::resource("/{id}/finalizar")
+                    .route(web::patch().to(ResponderEvaluacionController::finalizar)),
             ),
     );
 }

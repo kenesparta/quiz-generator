@@ -16,11 +16,12 @@ pub struct Respuesta {
 
 pub struct RespuestaEvaluacion {
     pub id: RespuestaID,
-    pub postulante_id: PreguntaID,
+    pub postulante_id: String,
     pub evaluacion_id: String,
     pub examen_id: String,
     pub pregunta_id: String,
     pub respuestas: Vec<String>,
+    pub puntos: u32,
 }
 
 #[derive(Clone, Debug)]

@@ -23,10 +23,7 @@ impl RevisarEvaluacionPostulanteController {
         HttpResponse::Ok().finish()
     }
 
-    pub async fn finalize(
-        req: HttpRequest,
-        pool: web::Data<mongodb::Client>,
-    ) -> HttpResponse {
+    pub async fn finalize(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
         HttpResponse::Ok().finish()
     }
 }

@@ -2,6 +2,9 @@ use crate::controller::respuesta::dto::{ActualizarEstadoDeEvaluacionDTO, Respond
 use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
+use quizz_core::respuesta::use_case::finalizar_evaluacion::{
+    FinalizarEvaluacion, InputData as InputDataFinEval,
+};
 use quizz_core::respuesta::use_case::responder_evaluacion::{InputData, ResponderEvaluacion};
 
 pub struct ResponderEvaluacionController;
@@ -41,11 +44,21 @@ impl ResponderEvaluacionController {
         }
     }
 
-    pub async fn update_state(
-        req: HttpRequest,
-        body: web::Json<ActualizarEstadoDeEvaluacionDTO>,
-        pool: web::Data<mongodb::Client>,
-    ) -> HttpResponse {
+    // Actualizar estado de la evaluacion, en este caso solo se puede cambiar a finalizada
+    pub async fn finalizar(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+        // let id = match req.match_info().get("id") {
+        //     Some(id) => id.to_string(),
+        //     None => {
+        //         return HttpResponse::BadRequest().json("se debe enviar el ID del postulante");
+        //     }
+        // };
+        // let input = InputDataFinEval {
+        //     id,
+        // };
+        //
+        // let respuesta_fin_evaluacion =
+        //     FinalizarEvaluacion::new(Box::new(RespuestaEvaluacionMongo::new(pool)));
+
         HttpResponse::Ok().finish()
     }
 }

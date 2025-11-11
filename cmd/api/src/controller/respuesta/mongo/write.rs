@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
@@ -6,7 +5,6 @@ use crate::controller::respuesta::dto::{EvaluacionMongoDTO, RespuestaMongoDTO};
 use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use chrono::Utc;
 use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
@@ -15,7 +13,11 @@ use quizz_core::respuesta::domain::entity::pregunta::Puntaje;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, RespuestaEvaluacion, Revision};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
-use quizz_core::respuesta::provider::repositorio::RepositorioRespuestaEscritura;
+use quizz_core::respuesta::provider::repositorio::{
+    RepositorioRespuestaEscritura, RespositorioFinalizarEvaluacion,
+};
+use std::collections::HashMap;
+use std::str::FromStr;
 
 pub struct RespuestaEvaluacionMongo {
     client: web::Data<mongodb::Client>,
@@ -148,9 +150,10 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         Ok(())
     }
 
-
-
-    async fn obtener_puntaje(&self, respuesta_evaluacion: &RespuestaEvaluacion) -> Result<Puntaje, RespuestaError> {
+    async fn obtener_puntaje(
+        &self,
+        respuesta_evaluacion: &RespuestaEvaluacion,
+    ) -> Result<Puntaje, RespuestaError> {
         use std::collections::HashMap;
 
         let filter = doc! {
@@ -210,7 +213,9 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
                 bson::Bson::Document(doc) => {
                     // Handle MongoDB's NumberLong format {"$numberLong": "1"}
                     if let Ok(num_str) = doc.get_str("$numberLong") {
-                        num_str.parse::<u32>().map_err(|_| RespuestaError::DatabaseError)?
+                        num_str
+                            .parse::<u32>()
+                            .map_err(|_| RespuestaError::DatabaseError)?
                     } else {
                         return Err(RespuestaError::DatabaseError);
                     }
@@ -223,5 +228,142 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         }
 
         Ok(puntaje)
+    }
+}
+
+pub struct RespositorioFinalizarEvaluacionMongo {
+    client: web::Data<mongodb::Client>,
+    repositorio_evaluacion: EvaluacionMongo,
+}
+
+impl RespositorioFinalizarEvaluacionMongo {
+    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+        let repositorio_evaluacion = EvaluacionMongo::new(client.clone());
+        Self {
+            client,
+            repositorio_evaluacion,
+        }
+    }
+}
+
+impl MongoRepository for RespositorioFinalizarEvaluacionMongo {
+    fn get_collection_name(&self) -> &str {
+        RESPUESTA_COLLECTION_NAME
+    }
+
+    fn get_client(&self) -> &web::Data<mongodb::Client> {
+        &self.client
+    }
+}
+
+#[async_trait]
+impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEvaluacionMongo {
+    async fn sumar_puntos(&self, evaluacion_id: String) -> Result<(), RespuestaError> {
+        let filter = doc! {
+            "_id": &evaluacion_id,
+        };
+
+        let result = self
+            .get_collection()
+            .find_one(filter.clone(), None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?
+            .ok_or(RespuestaError::DatabaseError)?;
+
+        let evaluacion = result
+            .get_document("evaluacion")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        let examenes = evaluacion
+            .get_array("examenes")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        // Calculate puntos_obtenidos for each examen
+        for examen_bson in examenes.iter() {
+            if let bson::Bson::Document(examen_doc) = examen_bson {
+                let examen_id = examen_doc
+                    .get_str("_id")
+                    .map_err(|_| RespuestaError::DatabaseError)?;
+
+                let mut examen_total_puntos: u32 = 0;
+
+                if let Ok(preguntas) = examen_doc.get_array("preguntas") {
+                    for pregunta_bson in preguntas.iter() {
+                        if let bson::Bson::Document(pregunta_doc) = pregunta_bson {
+                            if let Some(puntos_value) = pregunta_doc.get("puntos") {
+                                let puntos = match puntos_value {
+                                    bson::Bson::Int32(n) => *n as u32,
+                                    bson::Bson::Int64(n) => *n as u32,
+                                    bson::Bson::Double(n) => *n as u32,
+                                    _ => 0,
+                                };
+                                examen_total_puntos += puntos;
+                            }
+                        }
+                    }
+                }
+
+                let update = doc! {
+                    "$set": {
+                        "evaluacion.examenes.$[examen].puntos_obtenidos": examen_total_puntos as i64,
+                    }
+                };
+
+                let array_filters = vec![doc! { "examen._id": examen_id }];
+
+                let mut options = mongodb::options::UpdateOptions::default();
+                options.array_filters = Some(array_filters);
+
+                self.get_collection()
+                    .update_one(filter.clone(), update, Some(options))
+                    .await
+                    .map_err(|_| RespuestaError::DatabaseError)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn obtener_estado(&self, evaluacion_id: String) -> Result<Estado, RespuestaError> {
+        let filter = doc! {
+            "_id": &evaluacion_id,
+        };
+
+        let result = self
+            .get_collection()
+            .find_one(filter, None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?
+            .ok_or(RespuestaError::DatabaseError)?;
+
+        let estado_str = result
+            .get_str("estado")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        let estado = Estado::from_str(estado_str).map_err(|_| RespuestaError::DatabaseError)?;
+
+        Ok(estado)
+    }
+
+    async fn alterar_estado(&self, evaluacion_id: String) -> Result<(), RespuestaError> {
+        let filter = doc! {
+            "_id": &evaluacion_id,
+        };
+
+        let fecha_actual = chrono::Utc::now().to_rfc3339();
+
+        let update = doc! {
+            "$set": {
+                "estado": Estado::Finalizado.to_string(),
+                "fecha_tiempo_fin": fecha_actual,
+            }
+        };
+
+        self.get_collection()
+            .update_one(filter, update, None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        Ok(())
     }
 }

@@ -52,12 +52,4 @@ Content-Type: application/json
 PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/finalizar
 Content-Type: application/json
 
-{
-  "postulante_id": "{{postulante01}}",
-  "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
-  "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
-  "pregunta_id": "e06743ff-8090-49b0-98c2-bd59db7d610f",
-  "respuestas": [
-    "B"
-  ]
-}
+{}

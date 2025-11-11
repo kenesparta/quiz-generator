@@ -1,7 +1,7 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::pregunta::Puntaje;
-use crate::respuesta::domain::entity::respuesta::{Respuesta, RespuestaEvaluacion};
+use crate::respuesta::domain::entity::respuesta::{Estado, Respuesta, RespuestaEvaluacion};
 use async_trait::async_trait;
 
 #[async_trait]
@@ -32,5 +32,7 @@ pub trait RepositorioRespuestaLectura<Error>: Send + Sync {
 
 #[async_trait]
 pub trait RespositorioFinalizarEvaluacion<Error>: Send + Sync {
-    async fn finalizar_evaluacion(&self, evaluacion_id: EvaluacionID) -> Result<(), Error>;
+    async fn sumar_puntos(&self, evaluacion_id: String) -> Result<(), Error>;
+    async fn obtener_estado(&self, evaluacion_id: String) -> Result<Estado, Error>;
+    async fn alterar_estado(&self, evaluacion_id: String) -> Result<(), Error>;
 }

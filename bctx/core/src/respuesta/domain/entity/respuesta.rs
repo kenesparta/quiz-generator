@@ -54,6 +54,12 @@ impl FromStr for Estado {
     }
 }
 
+impl Estado {
+    pub fn can_finalize(&self) -> bool {
+        matches!(self, Self::EnProceso)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Revision {
     SinIniciar,

@@ -23,6 +23,13 @@ where
     RespuestaError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
-        todo!()
+        let estado = self.repositorio.obtener_estado(in_.id.clone()).await?;
+        if !estado.can_finalize() {
+            return Err(RespuestaError::EvaluacionNoEstaEnProceso);
+        }
+
+        self.repositorio.sumar_puntos(in_.id.clone()).await?;
+        self.repositorio.alterar_estado(in_.id).await?;
+        Ok(())
     }
 }

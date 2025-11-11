@@ -29,6 +29,9 @@ pub enum RespuestaError {
 
     #[error("El examen no existe")]
     ExamenNotFound,
+
+    #[error("La evaluacion no esta en proceso")]
+    EvaluacionNoEstaEnProceso,
 }
 
 #[derive(Error, Debug)]

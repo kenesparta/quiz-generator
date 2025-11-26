@@ -1,4 +1,5 @@
 use crate::controller::respuesta::asignar_evaluacion_postulante::AsignarEvaluacionPostulanteController;
+use crate::controller::respuesta::lista_respuesta::ListaRespuestaController;
 use crate::controller::respuesta::responder_evaluacion::ResponderEvaluacionController;
 use crate::controller::respuesta::respuesta_por_postulante::RespuestaPorPostulanteController;
 use actix_web::web;
@@ -9,6 +10,10 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
             .service(
                 web::resource("")
                     .route(web::post().to(AsignarEvaluacionPostulanteController::create)),
+            )
+            .service(
+                web::resource("/revision")
+                    .route(web::get().to(ListaRespuestaController::list_respuestas_revision)),
             )
             .service(
                 web::resource("/postulante/{postulante_id}")

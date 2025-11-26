@@ -53,3 +53,9 @@ PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/finalizar
 Content-Type: application/json
 
 {}
+
+### Retorna todas las respuestas listas para ser corregidas
+GET {{baseUrl}}/respuesta/revision
+Content-Type: application/json
+
+{}

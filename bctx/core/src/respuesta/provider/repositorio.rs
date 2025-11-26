@@ -36,3 +36,8 @@ pub trait RespositorioFinalizarEvaluacion<Error>: Send + Sync {
     async fn obtener_estado(&self, evaluacion_id: String) -> Result<Estado, Error>;
     async fn alterar_estado(&self, evaluacion_id: String) -> Result<(), Error>;
 }
+
+#[async_trait]
+pub trait RespositorioRespuestaRevision<Error>: Send + Sync {
+    async fn obtener_respuesta_revision(&self, estado: Estado) -> Result<Vec<Respuesta>, Error>;
+}

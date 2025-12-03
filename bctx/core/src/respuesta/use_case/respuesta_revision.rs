@@ -10,6 +10,7 @@ pub struct OutputData {
     pub postulante_id: String,
 }
 
+// Lista las revisiones finalizadas
 pub struct RespuestaRevision<RepoErr> {
     repo: Box<dyn RespositorioRespuestaRevision<RepoErr>>,
 }

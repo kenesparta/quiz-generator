@@ -16,7 +16,6 @@ use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::{
     RepositorioRespuestaEscritura, RespositorioFinalizarEvaluacion,
 };
-use std::collections::HashMap;
 use std::str::FromStr;
 
 pub struct RespuestaEvaluacionMongo {

@@ -5,9 +5,7 @@ pub fn revision(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/revision").service(
             web::resource("/{id}")
-                .route(web::get().to(RevisarEvaluacionPostulanteController::read))
-                .route(web::patch().to(RevisarEvaluacionPostulanteController::review))
-                .route(web::post().to(RevisarEvaluacionPostulanteController::finalize)),
+                .route(web::patch().to(RevisarEvaluacionPostulanteController::review)),
         ),
     );
 }

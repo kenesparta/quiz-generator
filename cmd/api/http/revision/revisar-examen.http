@@ -1,26 +1,21 @@
 ### Variables
 @baseUrl = http://localhost:8008
 
-### Obtener la evaluacion para revisar
-GET {{baseUrl}}/revision/123
-Content-Type: application/json
-
-{
-  "evaluacion_id": ""
-}
-
 ### Revisar la evaluacion
 PATCH {{baseUrl}}/revision/123
 Content-Type: application/json
 
 {
-  "evaluacion_id": "",
-  "examen_id": "",
-  "observation": ""
+  "respuesta_id": "2c687ba9-9120-4d08-8290-233551b81c50",
+  "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
+  "examenes": [
+    {
+        "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
+        "observacion": "Ejemplo 01."
+    },
+    {
+      "examen_id": "2fcb7b0d-30e2-4853-afbf-9df79dd83ecb",
+      "observacion": "Ejemplo 02."
+    }
+  ]
 }
-
-### Finalizar la evaluacion
-POST {{baseUrl}}/revision/123
-Content-Type: application/json
-
-{}

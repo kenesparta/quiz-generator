@@ -1,18 +1,14 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-pub struct RevisarEvaluacionPostulanteReadDTO {
-    evaluacion_id: String,
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct RevisarEvaluacionPostulanteReviewDTO {
+    pub respuesta_id: String,
     pub evaluacion_id: String,
-    pub examen_id: String,
-    pub observation: String,
+    pub examenes: Vec<ExamenRevisionDTO>,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct RevisarEvaluacionPostulanteFinalizeDTO {
-    pub estado: String,
+pub struct ExamenRevisionDTO {
+    pub examen_id: String,
+    pub observacion: String,
 }

@@ -1,8 +1,11 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::pregunta::Puntaje;
-use crate::respuesta::domain::entity::respuesta::{Estado, Respuesta, RespuestaEvaluacion};
+use crate::respuesta::domain::entity::respuesta::{
+    Estado, Respuesta, RespuestaEvaluacion, Revision,
+};
 use async_trait::async_trait;
+use crate::respuesta::domain::entity::revision::ExamenRevision;
 
 #[async_trait]
 pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
@@ -40,4 +43,15 @@ pub trait RespositorioFinalizarEvaluacion<Error>: Send + Sync {
 #[async_trait]
 pub trait RespositorioRespuestaRevision<Error>: Send + Sync {
     async fn obtener_respuesta_revision(&self, estado: Estado) -> Result<Vec<Respuesta>, Error>;
+}
+
+#[async_trait]
+pub trait RespositorioRealizarRevision<Error>: Send + Sync {
+    async fn realizar_revision(
+        &self,
+        revision_id: String,
+        evaluacion_id: String,
+        examenes: Vec<ExamenRevision>,
+        estado: Revision
+    ) -> Result<(), Error>;
 }

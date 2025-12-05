@@ -63,9 +63,6 @@ impl ResponderEvaluacionController {
             Ok(_) => HttpResponse::Ok().finish(),
             Err(e) => {
                 println!("{:?}", e);
-                // Error de cara al usuario (consume la API)
-                // Error al servidor: logs, traces, metrics
-                // 40X (Client Error) ID no valido, estado no valido...
                 HttpResponse::InternalServerError().json("Hubo un error")
             }
         }

@@ -1,9 +1,9 @@
 use crate::respuesta::domain::entity::respuesta::Revision;
+use crate::respuesta::domain::entity::revision::ExamenRevision;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RespositorioRealizarRevision;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
-use crate::respuesta::domain::entity::revision::ExamenRevision;
 
 pub struct InputData {
     pub respuesta_id: String,
@@ -37,10 +37,13 @@ where
             .realizar_revision(
                 in_.respuesta_id,
                 in_.evaluacion_id,
-                in_.examenes.iter().map(|ex| ExamenRevision{
-                    examen_id: ex.examen_id.clone(),
-                    observacion: ex.observacion.clone(),
-                }).collect::<Vec<ExamenRevision>>(),
+                in_.examenes
+                    .iter()
+                    .map(|ex| ExamenRevision {
+                        examen_id: ex.examen_id.clone(),
+                        observacion: ex.observacion.clone(),
+                    })
+                    .collect::<Vec<ExamenRevision>>(),
                 Revision::Finalizada,
             )
             .await?)

@@ -34,7 +34,7 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
         revision_id: String,
         evaluacion_id: String,
         examenes: Vec<ExamenRevision>,
-        estado: Revision
+        estado: Revision,
     ) -> Result<(), RespuestaError> {
         use mongodb::bson::doc;
 
@@ -74,9 +74,7 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
                 }
             };
 
-            let array_filters = vec![
-                doc! { "examen._id": &examen.examen_id },
-            ];
+            let array_filters = vec![doc! { "examen._id": &examen.examen_id }];
 
             let mut options = mongodb::options::UpdateOptions::default();
             options.array_filters = Some(array_filters);

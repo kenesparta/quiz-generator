@@ -2,7 +2,7 @@
 @baseUrl = http://localhost:8008
 
 ### Revisar la evaluacion
-PATCH {{baseUrl}}/revision/123
+PATCH {{baseUrl}}/revision
 Content-Type: application/json
 
 {

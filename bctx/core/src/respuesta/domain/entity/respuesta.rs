@@ -1,5 +1,4 @@
 use crate::postulante::domain::value_object::id::PostulanteID;
-use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::respuesta::domain::entity::evaluacion::Evaluacion;
 use crate::respuesta::domain::error::respuesta::{EstadoErr, RevisionErr};
 use crate::respuesta::domain::value_object::id::RespuestaID;
@@ -12,6 +11,7 @@ pub struct Respuesta {
     pub fecha_tiempo_fin: String,
     pub evaluacion: Evaluacion,
     pub postulante: PostulanteID,
+    pub revision: Revision,
 }
 
 pub struct RespuestaEvaluacion {
@@ -65,6 +65,7 @@ pub enum Revision {
     SinIniciar,
     EnProgreso,
     Finalizada,
+    Default,
 }
 
 impl fmt::Display for Revision {
@@ -73,6 +74,7 @@ impl fmt::Display for Revision {
             Self::SinIniciar => write!(f, "sin_iniciar"),
             Self::EnProgreso => write!(f, "en_proceso"),
             Self::Finalizada => write!(f, "finalizada"),
+            Self::Default => write!(f, ""),
         }
     }
 }
@@ -84,7 +86,8 @@ impl FromStr for Revision {
         match s.to_lowercase().as_str() {
             "sin_iniciar" => Ok(Revision::SinIniciar),
             "en_proceso" => Ok(Revision::EnProgreso),
-            "finalizado" => Ok(Revision::Finalizada),
+            "finalizada" => Ok(Revision::Finalizada),
+            "" => Ok(Revision::Default),
             _ => Err(RevisionErr::NoValido),
         }
     }

@@ -124,7 +124,7 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
                 error!("Error deserializing respuesta document: {}", e);
                 RespuestaError::RepositorioError
             })?;
-
+            println!("respDTO: {:?}", respuesta_dto.revision);
             respuestas.push(respuesta_dto.into());
         }
 

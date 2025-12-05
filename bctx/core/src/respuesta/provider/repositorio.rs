@@ -4,8 +4,8 @@ use crate::respuesta::domain::entity::pregunta::Puntaje;
 use crate::respuesta::domain::entity::respuesta::{
     Estado, Respuesta, RespuestaEvaluacion, Revision,
 };
-use async_trait::async_trait;
 use crate::respuesta::domain::entity::revision::ExamenRevision;
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
@@ -52,6 +52,6 @@ pub trait RespositorioRealizarRevision<Error>: Send + Sync {
         revision_id: String,
         evaluacion_id: String,
         examenes: Vec<ExamenRevision>,
-        estado: Revision
+        estado: Revision,
     ) -> Result<(), Error>;
 }

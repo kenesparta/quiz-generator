@@ -6,3 +6,9 @@ database:
   username: "quizz"
   password: "quizz"
   database_name: "quizz"
+
+redis:
+  host:
+  port:
+  username:
+  password:

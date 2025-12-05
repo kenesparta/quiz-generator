@@ -7,6 +7,7 @@ use quizz_common::use_case::CasoDeUso;
 pub struct OutputData {
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
+    pub estado_revision: String,
     pub postulante_id: String,
 }
 
@@ -37,6 +38,7 @@ where
             .map(|r| OutputData {
                 nombre_evaluacion: r.evaluacion.nombre.clone(),
                 descripcion_evaluacion: r.evaluacion.descripcion.clone(),
+                estado_revision: r.revision.to_string(),
                 postulante_id: r.postulante.to_string(),
             })
             .collect::<Vec<OutputData>>())

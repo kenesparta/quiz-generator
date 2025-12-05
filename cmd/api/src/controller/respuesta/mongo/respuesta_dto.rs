@@ -7,7 +7,7 @@ use quizz_core::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
 use quizz_core::respuesta::domain::entity::evaluacion::Evaluacion;
 use quizz_core::respuesta::domain::entity::examen::Examen;
 use quizz_core::respuesta::domain::entity::pregunta::Pregunta;
-use quizz_core::respuesta::domain::entity::respuesta::Respuesta;
+use quizz_core::respuesta::domain::entity::respuesta::{Respuesta, Revision};
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::use_case::respuesta_postulante::{
     OutputData, OutputEvaluacion, OutputExamen, OutputPregunta,
@@ -29,16 +29,22 @@ pub struct RespuestaDTO {
     pub fecha_tiempo_fin: String,
     pub postulante_id: String,
     pub evaluacion: EvaluacionDTO,
+
+    #[serde(skip_deserializing)]
+    pub revision: String,
 }
 
 impl From<RespuestaDTO> for Respuesta {
     fn from(respuesta: RespuestaDTO) -> Self {
+        let revision = Revision::from_str(respuesta.revision.as_str())
+            .unwrap_or_else(|_| Revision::Default);
         Self {
             id: RespuestaID::new(respuesta.id.as_str()).unwrap(),
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             evaluacion: respuesta.evaluacion.into(),
             postulante: PostulanteID::new(respuesta.postulante_id.as_str()).unwrap(),
+            revision,
         }
     }
 }
@@ -52,6 +58,7 @@ impl From<OutputData> for RespuestaDTO {
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             postulante_id: "".to_owned(),
             evaluacion: respuesta.evaluacion.into(),
+            revision: "".to_string(),
         }
     }
 }
@@ -185,5 +192,6 @@ impl From<OutputPregunta> for PreguntaDTO {
 pub struct RespuestaRevisionDTO {
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
+    pub estado_revision: String,
     pub postulante_id: String,
 }

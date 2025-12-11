@@ -1,0 +1,31 @@
+### Variables
+@baseUrl = http://localhost:8008
+@examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
+@examId2 = 2fcb7b0d-30e2-4853-afbf-9df79dd83ecb
+@evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
+
+### Agregar Evaluacion
+POST {{baseUrl}}/evaluacion/{{evaluacionId}}
+Content-Type: application/json
+
+{
+  "titulo": "Proceso de evaluacion A-I",
+  "descripcion": "Aqui el proceso de evaluacion para la licencia A-I"
+}
+
+### Agregar examenes a evaluacion
+PUT {{baseUrl}}/evaluacion/{{evaluacionId}}
+Content-Type: application/json
+
+{
+  "examenes": [
+    "{{examId}}",
+    "{{examId2}}"
+  ]
+}
+
+### Publicar la evaluacion
+PATCH {{baseUrl}}/evaluacion/{{evaluacionId}}
+Content-Type: application/json
+
+{}

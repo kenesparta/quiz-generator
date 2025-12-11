@@ -1,0 +1,214 @@
+### Variables
+@baseUrl = http://localhost:8008
+@examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
+
+### Crear Examen
+POST {{baseUrl}}/examen/{{examId}}
+Content-Type: application/json
+
+{
+  "titulo": "Test de Audit",
+  "descripcion": "Protocolo de Calificación - Evaluación Primaria",
+  "instrucciones": "Marcar las opciones"
+}
+
+### Agregar preguntas
+PUT {{baseUrl}}/examen/{{examId}}
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia consume alguna bebida alcohólica?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Una o menos veces al mes",
+        "C": "De 2 a 4 veces al mes",
+        "D": "De 2 a 3 veces a la semana",
+        "E": "4 o más veces a la semana"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Cuántos consumos de bebidas alcohólicas suele realizar en un día de consumo normal?",
+      "alternativas": {
+        "A": "1 ó 2",
+        "B": "3 ó 4",
+        "C": "5 ó 6",
+        "D": "7, 8 ó 9",
+        "E": "10 o más"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia toma 6 o más bebidas alcohólicas en un solo día?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia en el curso del último año ha sido incapaz de parar de beber una vez había empezado?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia en el curso del último año no pudo hacer lo que se esperaba de usted porque había bebido?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia en el curso del último año ha necesitado beber en ayunas para recuperarse después de haber bebido mucho el día anterior?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia en el curso del último año ha tenido remordimientos o sentimientos de culpa después de haber bebido?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Con qué frecuencia en el curso del último año no ha podido recordar lo que sucedió la noche anterior porque había estado bebiendo?",
+      "alternativas": {
+        "A": "Nunca",
+        "B": "Menos de una vez al mes",
+        "C": "Mensualmente",
+        "D": "Semanalmente",
+        "E": "A diario o casi a diario"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 1,
+        "C": 2,
+        "D": 3,
+        "E": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Usted o alguna otra persona ha resultado herido porque usted había bebido?",
+      "alternativas": {
+        "A": "No",
+        "B": "Sí, pero no en curso del último año",
+        "C": "Sí, en el último año"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 2,
+        "C": 4
+      }
+    },
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Algún familiar, amigo, médico o profesional sanitario ha mostrado preocupación por su consumo de bebidas alcohólicas o le han sugerido que deje de beber?",
+      "alternativas": {
+        "A": "No",
+        "B": "Sí, pero no en curso del último año",
+        "C": "Sí, en el último año"
+      },
+      "puntaje": {
+        "A": 0,
+        "B": 2,
+        "C": 4
+      }
+    }
+  ]
+}

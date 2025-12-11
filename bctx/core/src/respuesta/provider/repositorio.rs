@@ -29,8 +29,11 @@ pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
 
 #[async_trait]
 pub trait RepositorioRespuestaLectura<Error>: Send + Sync {
-    async fn obtener_por_postulante(&self, postulante_id: PostulanteID)
-    -> Result<Respuesta, Error>;
+    async fn obtener_por_postulante(
+        &self,
+        respuesta_id: String,
+        postulante_id: PostulanteID,
+    ) -> Result<Respuesta, Error>;
 }
 
 #[async_trait]

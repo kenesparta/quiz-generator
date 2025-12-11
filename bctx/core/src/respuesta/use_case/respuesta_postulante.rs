@@ -12,6 +12,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct InputData {
     pub postulante_id: String,
+    pub respuesta_id: String,
 }
 
 pub struct OutputData {
@@ -109,7 +110,7 @@ where
         let postulante_id = PostulanteID::new(&input.postulante_id)?;
         let respuestas = self
             .repositorio
-            .obtener_por_postulante(postulante_id)
+            .obtener_por_postulante(input.respuesta_id, postulante_id)
             .await?;
 
         let fecha_inicio_str = respuestas.fecha_tiempo_inicio.to_string();

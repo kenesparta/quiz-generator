@@ -2,7 +2,7 @@ use crate::controller::respuesta::mongo::read::RespuestaRevisionMongo;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaRevisionDTO;
 use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
-use quizz_core::respuesta::use_case::respuesta_revision::{RespuestaRevision};
+use quizz_core::respuesta::use_case::respuesta_revision::RespuestaRevision;
 
 pub struct ListaRespuestaController;
 
@@ -14,6 +14,8 @@ impl ListaRespuestaController {
             Ok(r) => HttpResponse::Ok().json(
                 r.into_iter()
                     .map(|rev| RespuestaRevisionDTO {
+                        // revision_id u respuesta_id son lo mismo
+                        revision_id: rev.revision_id,
                         nombre_evaluacion: rev.nombre_evaluacion,
                         descripcion_evaluacion: rev.descripcion_evaluacion,
                         estado_revision: rev.estado_revision,

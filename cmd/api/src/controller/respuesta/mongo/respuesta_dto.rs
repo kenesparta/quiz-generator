@@ -29,15 +29,13 @@ pub struct RespuestaDTO {
     pub fecha_tiempo_fin: String,
     pub postulante_id: String,
     pub evaluacion: EvaluacionDTO,
-
-    #[serde(skip_deserializing)]
     pub revision: String,
 }
 
 impl From<RespuestaDTO> for Respuesta {
     fn from(respuesta: RespuestaDTO) -> Self {
-        let revision = Revision::from_str(respuesta.revision.as_str())
-            .unwrap_or_else(|_| Revision::Default);
+        let revision =
+            Revision::from_str(respuesta.revision.as_str()).unwrap_or_else(|_| Revision::Default);
         Self {
             id: RespuestaID::new(respuesta.id.as_str()).unwrap(),
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
@@ -190,6 +188,7 @@ impl From<OutputPregunta> for PreguntaDTO {
 
 #[derive(Serialize)]
 pub struct RespuestaRevisionDTO {
+    pub revision_id: String,
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
     pub estado_revision: String,

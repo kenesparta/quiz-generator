@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
 
 pub struct OutputData {
+    pub revision_id: String,
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
     pub estado_revision: String,
@@ -36,6 +37,7 @@ where
         Ok(respuestas
             .iter()
             .map(|r| OutputData {
+                revision_id: r.id.to_string(),
                 nombre_evaluacion: r.evaluacion.nombre.clone(),
                 descripcion_evaluacion: r.evaluacion.descripcion.clone(),
                 estado_revision: r.revision.to_string(),

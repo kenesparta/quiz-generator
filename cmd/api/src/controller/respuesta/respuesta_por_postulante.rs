@@ -12,12 +12,20 @@ impl RespuestaPorPostulanteController {
         let postulante_id = match req.match_info().get("postulante_id") {
             Some(id) => id.to_string(),
             None => {
-                return HttpResponse::BadRequest().json("se debe enviar el ID del postulante");
+                return HttpResponse::BadRequest().json("Se debe enviar el ID del postulante");
             }
         };
+
+        let respuesta_id = match req.match_info().get("id") {
+            Some(id) => id.to_string(),
+            None => {
+                return HttpResponse::BadRequest().json("Se debe enviar el ID de la respuesta");
+            }
+        };
+
         let resp_post =
             RespuestaPorPostulante::new(Box::new(RespuestaPorPostulanteMongo::new(pool)));
-        let input = InputData { postulante_id };
+        let input = InputData { postulante_id, respuesta_id };
         match resp_post.ejecutar(input).await {
             Ok(r) => {
                 let respuesta_dto: RespuestaDTO = r.into();

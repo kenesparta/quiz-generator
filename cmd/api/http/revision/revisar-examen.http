@@ -19,3 +19,9 @@ Content-Type: application/json
     }
   ]
 }
+
+### Retorna todas las respuestas listas para ser corregidas
+GET {{baseUrl}}/respuesta/revision
+Content-Type: application/json
+
+{}

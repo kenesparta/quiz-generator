@@ -38,10 +38,12 @@ impl MongoRepository for RespuestaPorPostulanteMongo {
 impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo {
     async fn obtener_por_postulante(
         &self,
+        respuesta_id: String,
         postulante_id: PostulanteID,
     ) -> Result<Respuesta, RespuestaError> {
         let filter = doc! {
-            "postulante_id": postulante_id.to_string()
+            "postulante_id": postulante_id.to_string(),
+            "_id": respuesta_id,
         };
 
         let respuesta_doc = self
@@ -124,7 +126,6 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
                 error!("Error deserializing respuesta document: {}", e);
                 RespuestaError::RepositorioError
             })?;
-            println!("respDTO: {:?}", respuesta_dto.revision);
             respuestas.push(respuesta_dto.into());
         }
 

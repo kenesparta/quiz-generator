@@ -16,7 +16,7 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
                     .route(web::get().to(ListaRespuestaController::list_respuestas_revision)),
             )
             .service(
-                web::resource("/postulante/{postulante_id}")
+                web::resource("/{id}/postulante/{postulante_id}")
                     .route(web::get().to(RespuestaPorPostulanteController::read)),
             )
             .service(

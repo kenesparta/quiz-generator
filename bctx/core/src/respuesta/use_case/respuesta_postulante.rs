@@ -51,6 +51,7 @@ pub struct OutputExamen {
     pub descripcion: String,
     pub instrucciones: String,
     pub preguntas: Vec<OutputPregunta>,
+    pub puntos_obtenidos: i64,
 }
 
 impl From<Examen> for OutputExamen {
@@ -65,6 +66,7 @@ impl From<Examen> for OutputExamen {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
+            puntos_obtenidos: examen.puntos_obtenidos,
         }
     }
 }
@@ -76,6 +78,7 @@ pub struct OutputPregunta {
     pub imagen_ref: String,
     pub alternativas: HashMap<String, String>,
     pub respuestas: Option<Vec<String>>,
+    pub puntos: i64,
 }
 
 impl From<Pregunta> for OutputPregunta {
@@ -87,6 +90,7 @@ impl From<Pregunta> for OutputPregunta {
             imagen_ref: pregunta.imagen_ref.to_string(),
             alternativas: pregunta.alternativas,
             respuestas: pregunta.respuestas,
+            puntos: pregunta.puntos,
         }
     }
 }

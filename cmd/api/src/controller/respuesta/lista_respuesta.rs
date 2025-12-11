@@ -28,10 +28,3 @@ impl ListaRespuestaController {
         }
     }
 }
-
-// todo
-// Del lado del postulante:
-// - Lista de evaluacion por postulante
-// - Endpoint para iniciar evaluacion
-// Del lado del admin:
-// - Obtener el puntaje de cada postulante por examen y pregunta

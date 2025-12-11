@@ -32,6 +32,9 @@ pub enum RespuestaError {
 
     #[error("La evaluacion no esta en proceso")]
     EvaluacionNoEstaEnProceso,
+
+    #[error("La evaluacion ya fue iniciada")]
+    EvaluacionYaIniciada,
 }
 
 #[derive(Error, Debug)]

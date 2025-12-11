@@ -14,7 +14,7 @@ use quizz_core::respuesta::domain::entity::respuesta::{Estado, RespuestaEvaluaci
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::{
-    RepositorioRespuestaEscritura, RespositorioFinalizarEvaluacion,
+    RepositorioEmpezarExamen, RepositorioRespuestaEscritura, RespositorioFinalizarEvaluacion,
 };
 use std::str::FromStr;
 
@@ -355,6 +355,72 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
             "$set": {
                 "estado": Estado::Finalizado.to_string(),
                 "fecha_tiempo_fin": fecha_actual,
+            }
+        };
+
+        self.get_collection()
+            .update_one(filter, update, None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        Ok(())
+    }
+}
+
+pub struct RepositorioEmpezarExamenMongo {
+    client: web::Data<mongodb::Client>,
+}
+
+impl RepositorioEmpezarExamenMongo {
+    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+        Self { client }
+    }
+}
+
+impl MongoRepository for RepositorioEmpezarExamenMongo {
+    fn get_collection_name(&self) -> &str {
+        RESPUESTA_COLLECTION_NAME
+    }
+
+    fn get_client(&self) -> &web::Data<mongodb::Client> {
+        &self.client
+    }
+}
+
+#[async_trait]
+impl RepositorioEmpezarExamen<RespuestaError> for RepositorioEmpezarExamenMongo {
+    async fn obtener_estado(&self, respuesta_id: String) -> Result<Estado, RespuestaError> {
+        let filter = doc! {
+            "_id": &respuesta_id,
+        };
+
+        let result = self
+            .get_collection()
+            .find_one(filter, None)
+            .await
+            .map_err(|_| RespuestaError::DatabaseError)?
+            .ok_or(RespuestaError::RespuestaNoEncontrada)?;
+
+        let estado_str = result
+            .get_str("estado")
+            .map_err(|_| RespuestaError::DatabaseError)?;
+
+        let estado = Estado::from_str(estado_str).map_err(|_| RespuestaError::DatabaseError)?;
+
+        Ok(estado)
+    }
+
+    async fn empezar_examen(&self, respuesta_id: String) -> Result<(), RespuestaError> {
+        let filter = doc! {
+            "_id": &respuesta_id,
+        };
+
+        let fecha_actual = chrono::Utc::now().to_rfc3339();
+
+        let update = doc! {
+            "$set": {
+                "estado": Estado::EnProceso.to_string(),
+                "fecha_tiempo_inicio": fecha_actual,
             }
         };
 

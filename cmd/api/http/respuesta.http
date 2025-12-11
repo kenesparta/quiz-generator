@@ -22,6 +22,18 @@ Content-Type: application/json
   "postulante_id": "{{postulante02}}"
 }
 
+### Empezar examen del postulante01
+PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/empezar
+Content-Type: application/json
+
+{}
+
+### Empezar examen del postulante02
+PATCH {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/empezar
+Content-Type: application/json
+
+{}
+
 ### Obtener repuesta del postulante01
 GET {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/postulante/{{postulante01}}
 Content-Type: application/json
@@ -50,6 +62,12 @@ Content-Type: application/json
 
 ### Finalizar la evaluacion
 PATCH {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/finalizar
+Content-Type: application/json
+
+{}
+
+### Finalizar la evaluacion
+PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/finalizar
 Content-Type: application/json
 
 {}

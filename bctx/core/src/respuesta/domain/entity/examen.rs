@@ -8,4 +8,5 @@ pub struct Examen {
     pub instrucciones: String,
     pub observaciones: String,
     pub preguntas: Vec<Pregunta>,
+    pub puntos_obtenidos: i64,
 }

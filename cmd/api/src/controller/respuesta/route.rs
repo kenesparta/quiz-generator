@@ -1,4 +1,5 @@
 use crate::controller::respuesta::asignar_evaluacion_postulante::AsignarEvaluacionPostulanteController;
+use crate::controller::respuesta::empezar_examen::EmpezarExamenController;
 use crate::controller::respuesta::lista_respuesta::ListaRespuestaController;
 use crate::controller::respuesta::responder_evaluacion::ResponderEvaluacionController;
 use crate::controller::respuesta::respuesta_por_postulante::RespuestaPorPostulanteController;
@@ -26,6 +27,10 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
             .service(
                 web::resource("/{id}/finalizar")
                     .route(web::patch().to(ResponderEvaluacionController::finalizar)),
+            )
+            .service(
+                web::resource("/{id}/empezar")
+                    .route(web::patch().to(EmpezarExamenController::empezar)),
             ),
     );
 }

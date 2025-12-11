@@ -17,6 +17,7 @@ pub struct Pregunta {
     // puntaje se refiere al puntaje dado por pregunta
     pub puntaje: Puntaje,
     pub respuestas: Option<Vec<String>>,
+    pub puntos: i64,
 }
 
 pub fn corregir_respuesta(respuesta: &Vec<String>, puntaje: Puntaje) -> u32 {

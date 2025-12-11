@@ -108,6 +108,7 @@ pub struct ExamenDTO {
     pub descripcion: String,
     pub instrucciones: String,
     pub preguntas: Vec<PreguntaDTO>,
+    pub puntos_obtenidos: Option<i64>,
 }
 
 impl From<ExamenDTO> for Examen {
@@ -123,6 +124,7 @@ impl From<ExamenDTO> for Examen {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
+            puntos_obtenidos: examen.puntos_obtenidos.unwrap_or_default(),
         }
     }
 }
@@ -139,6 +141,7 @@ impl From<OutputExamen> for ExamenDTO {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
+            puntos_obtenidos: Option::from(examen.puntos_obtenidos),
         }
     }
 }
@@ -154,6 +157,7 @@ pub struct PreguntaDTO {
     pub alternativas: HashMap<String, String>,
     #[serde(default)]
     pub respuestas: Option<Vec<String>>,
+    pub puntos: Option<i64>,
 }
 
 impl From<PreguntaDTO> for Pregunta {
@@ -168,6 +172,7 @@ impl From<PreguntaDTO> for Pregunta {
             alternativas: pregunta.alternativas,
             puntaje: Default::default(),
             respuestas: Option::from(pregunta.respuestas.unwrap_or_default()),
+            puntos: pregunta.puntos.unwrap_or_default(),
         }
     }
 }
@@ -182,6 +187,7 @@ impl From<OutputPregunta> for PreguntaDTO {
             // imagen_ref: pregunta.imagen_ref.to_string(),
             alternativas: pregunta.alternativas,
             respuestas: pregunta.respuestas,
+            puntos: Option::from(pregunta.puntos),
         }
     }
 }

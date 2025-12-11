@@ -64,3 +64,11 @@ pub trait RepositorioEmpezarExamen<Error>: Send + Sync {
     async fn obtener_estado(&self, respuesta_id: String) -> Result<Estado, Error>;
     async fn empezar_examen(&self, respuesta_id: String) -> Result<(), Error>;
 }
+
+#[async_trait]
+pub trait RepositorioListaRespuestaPostulante<Error>: Send + Sync {
+    async fn obtener_respuestas_por_postulante(
+        &self,
+        postulante_id: crate::postulante::domain::value_object::id::PostulanteID,
+    ) -> Result<Vec<crate::respuesta::use_case::lista_respuesta_postulante::OutputData>, Error>;
+}

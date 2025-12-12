@@ -124,8 +124,15 @@ database:
 - `/examen/{id}` - Create exams, add questions
 - `/evaluacion/{id}` - Create evaluations, associate exams, publish
 - `/postulante` - CRUD operations for candidates
-- `/respuesta` - Assign evaluations to candidates, submit answers
+- `/respuesta` - Assign evaluations to candidates, manage exam lifecycle, submit answers
+  - `POST /respuesta` - Assign evaluation to candidate (creates respuesta with estado: Creado)
+  - `GET /respuesta/postulante/{postulante_id}` - List candidate's respuestas (excludes finalized)
+  - `GET /respuesta/{id}/postulante/{postulante_id}` - Get specific respuesta details
+  - `PATCH /respuesta/{id}/empezar` - Start exam (Creado → EnProceso, sets fecha_tiempo_inicio)
+  - `PATCH /respuesta/{id}` - Submit answers to questions
+  - `PATCH /respuesta/{id}/finalizar` - Finalize exam (EnProceso → Finalizado, sets fecha_tiempo_fin)
 - `/revision` - Grade and review completed evaluations
+  - `GET /respuesta/revision` - List finalized respuestas awaiting review
 - `/login` - Authentication endpoints
 
 Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/IntelliJ HTTP Client).
@@ -140,9 +147,12 @@ Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/Intel
 
 **Postulante (Candidate):** The person taking an evaluation.
 
-**Respuesta (Answer):** Tracks a candidate's assigned evaluation, their submitted answers, and completion status. Contains the full evaluation snapshot at assignment time.
+**Respuesta (Answer):** Tracks a candidate's assigned evaluation, their submitted answers, and completion status. Contains the full evaluation snapshot at assignment time. Follows a state machine with three estados (states):
+- **Creado** - Initial state when evaluation is assigned to candidate
+- **EnProceso** - Exam in progress (after empezar endpoint is called, fecha_tiempo_inicio is set)
+- **Finalizado** - Exam completed (after finalizar endpoint, fecha_tiempo_fin is set)
 
-**Revision:** The grading/review process for completed evaluations.
+**Revision:** The grading/review process for completed evaluations. Only respuestas with estado "Finalizado" are eligible for revision.
 
 ## Docker
 

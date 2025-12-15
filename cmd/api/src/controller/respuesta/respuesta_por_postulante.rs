@@ -25,7 +25,10 @@ impl RespuestaPorPostulanteController {
 
         let resp_post =
             RespuestaPorPostulante::new(Box::new(RespuestaPorPostulanteMongo::new(pool)));
-        let input = InputData { postulante_id, respuesta_id };
+        let input = InputData {
+            postulante_id,
+            respuesta_id,
+        };
         match resp_post.ejecutar(input).await {
             Ok(r) => {
                 let respuesta_dto: RespuestaDTO = r.into();

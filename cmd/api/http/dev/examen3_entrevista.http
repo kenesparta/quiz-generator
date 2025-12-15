@@ -1,0 +1,36 @@
+### Variables
+@baseUrl = http://localhost:8008
+@examId3 = 8e65028c-30e6-47e5-b7dc-121ee2133d49
+
+### Crear Examen
+POST {{baseUrl}}/examen/{{examId3}}
+Content-Type: application/json
+
+{
+  "titulo": "Entrevista",
+  "descripcion": "Entrevista",
+  "instrucciones": "Entrevista"
+}
+
+### Agregar preguntas
+PUT {{baseUrl}}/examen/{{examId3}}
+Content-Type: application/json
+
+{
+  "preguntas": [
+    {
+      "etiqueta": "no",
+      "tipo_de_pregunta": "alternativa_unica",
+      "imagen_ref": "",
+      "contenido": "¿Usted ha sido Entrevistado?",
+      "alternativas": {
+        "A": "Sí",
+        "B": "No"
+      },
+      "puntaje": {
+        "A": 1,
+        "B": 0
+      }
+    }
+  ]
+}

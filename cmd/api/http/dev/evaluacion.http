@@ -2,9 +2,10 @@
 @baseUrl = http://localhost:8008
 @examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
 @examId2 = 2fcb7b0d-30e2-4853-afbf-9df79dd83ecb
+@examId3 = 8e65028c-30e6-47e5-b7dc-121ee2133d49
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 
-### Agregar Evaluacion
+### Crear Evaluacion
 POST {{baseUrl}}/evaluacion/{{evaluacionId}}
 Content-Type: application/json
 
@@ -20,7 +21,8 @@ Content-Type: application/json
 {
   "examenes": [
     "{{examId}}",
-    "{{examId2}}"
+    "{{examId2}}",
+    "{{examId3}}"
   ]
 }
 

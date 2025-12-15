@@ -1,8 +1,8 @@
+use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioEmpezarExamen;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
-use crate::respuesta::domain::entity::respuesta::Estado;
 
 pub struct InputData {
     pub id: String,
@@ -26,8 +26,12 @@ where
     async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
         let estado = self.repositorio.obtener_estado(in_.id.clone()).await?;
 
-        if !matches!(estado, Estado::Creado) {
+        if matches!(estado, Estado::Finalizado) {
             return Err(RespuestaError::EvaluacionYaIniciada);
+        }
+
+        if matches!(estado, Estado::EnProceso) {
+            return Ok(());
         }
 
         self.repositorio.empezar_examen(in_.id).await?;

@@ -45,6 +45,9 @@ pub enum ExamenError {
 
     #[error("Error al manipular la base de datos: {0:?}")]
     ExamenRepositorioError(#[from] RepositorioError),
+
+    #[error("Tipo de examen no valido")]
+    TipoExamenNoValido,
 }
 
 #[derive(Error, Debug)]

@@ -10,8 +10,7 @@ use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::provider::repositorio::{
-    RepositorioListaRespuestaPostulante, RepositorioRespuestaLectura,
-    RespositorioRespuestaRevision,
+    RepositorioListaRespuestaPostulante, RepositorioRespuestaLectura, RespositorioRespuestaRevision,
 };
 use tracing::error;
 

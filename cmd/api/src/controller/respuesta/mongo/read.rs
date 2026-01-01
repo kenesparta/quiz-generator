@@ -46,17 +46,13 @@ impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo
             "_id": respuesta_id,
         };
 
-        let respuesta_doc = self
-            .get_collection()
-            .find_one(filter)
-            .await
-            .map_err(|e| {
-                error!(
-                    "Error finding respuesta by postulante_id {}: {}",
-                    postulante_id, e
-                );
-                RespuestaError::RepositorioError
-            })?;
+        let respuesta_doc = self.get_collection().find_one(filter).await.map_err(|e| {
+            error!(
+                "Error finding respuesta by postulante_id {}: {}",
+                postulante_id, e
+            );
+            RespuestaError::RepositorioError
+        })?;
 
         match respuesta_doc {
             Some(doc) => {
@@ -103,14 +99,10 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
             "estado": estado.to_string()
         };
 
-        let mut cursor = self
-            .get_collection()
-            .find(filter)
-            .await
-            .map_err(|e| {
-                error!("Error finding respuestas by estado {}: {}", estado, e);
-                RespuestaError::RepositorioError
-            })?;
+        let mut cursor = self.get_collection().find(filter).await.map_err(|e| {
+            error!("Error finding respuestas by estado {}: {}", estado, e);
+            RespuestaError::RepositorioError
+        })?;
 
         let mut respuestas = Vec::new();
 
@@ -169,17 +161,13 @@ impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostu
             }
         };
 
-        let mut cursor = self
-            .get_collection()
-            .find(filter)
-            .await
-            .map_err(|e| {
-                error!(
-                    "Error finding respuestas by postulante_id {}: {}",
-                    postulante_id, e
-                );
-                RespuestaError::RepositorioError
-            })?;
+        let mut cursor = self.get_collection().find(filter).await.map_err(|e| {
+            error!(
+                "Error finding respuestas by postulante_id {}: {}",
+                postulante_id, e
+            );
+            RespuestaError::RepositorioError
+        })?;
 
         let mut respuestas = Vec::new();
 

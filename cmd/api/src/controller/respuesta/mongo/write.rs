@@ -56,9 +56,9 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         let existing_respuesta = self
             .get_collection()
             .find_one(doc! {
-                    "evaluacion._id": evaluacion_id.to_string(),
-                    "postulante_id": postulante_id.to_string(),
-                })
+                "evaluacion._id": evaluacion_id.to_string(),
+                "postulante_id": postulante_id.to_string(),
+            })
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 

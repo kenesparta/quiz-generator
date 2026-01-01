@@ -76,8 +76,8 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
         let evaluacion_exists = self
             .get_collection()
             .find_one(doc! {
-                    "_id": evaluacion_id.to_string()
-                })
+                "_id": evaluacion_id.to_string()
+            })
             .await
             .map_err(|e| {
                 error!("Error checking if exam exists: {}", e);
@@ -142,8 +142,8 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
         let documento = self
             .get_collection()
             .find_one(doc! {
-                    "_id": evaluacion_id.to_string()
-                })
+                "_id": evaluacion_id.to_string()
+            })
             .await
             .map_err(|e| {
                 error!("Error al buscar evaluacion: {}", e);
@@ -232,8 +232,8 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
         let evaluation_exists = self
             .get_collection()
             .find_one(doc! {
-                    "_id": evaluacion.id.to_string()
-                })
+                "_id": evaluacion.id.to_string()
+            })
             .await
             .map_err(|e| {
                 error!("Error checking if evaluation exists: {}", e);

@@ -35,7 +35,7 @@ impl RepositorioPostulanteLoginLectura<PostulanteLoginError> for PostulanteLogin
     ) -> Result<PostulanteLogin, PostulanteLoginError> {
         let filter = doc! { "documento": documento.clone() };
 
-        match self.get_collection().find_one(filter, None).await {
+        match self.get_collection().find_one(filter).await {
             Ok(Some(doc)) => {
                 let id = match doc.get("_id") {
                     Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),

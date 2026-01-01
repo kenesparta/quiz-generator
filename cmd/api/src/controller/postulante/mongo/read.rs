@@ -45,7 +45,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
         let doc_string = documento.to_string();
         let filter = doc! { "documento": doc_string.clone() };
 
-        match self.get_collection().find_one(filter, None).await {
+        match self.get_collection().find_one(filter).await {
             Ok(Some(doc)) => {
                 let id = match doc.get("_id") {
                     Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
@@ -161,7 +161,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
         let postulante_id = postulante_id.to_string();
         let filter = doc! { "_id": postulante_id.clone() };
 
-        match self.get_collection().find_one(filter, None).await {
+        match self.get_collection().find_one(filter).await {
             Ok(Some(doc)) => {
                 let id = match doc.get("_id") {
                     Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
@@ -271,7 +271,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
     }
 
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-        match self.get_collection().find(None, None).await {
+        match self.get_collection().find(doc! {}).await {
             Ok(mut cursor) => {
                 let mut docs = Vec::new();
                 while let Some(result) = cursor.next().await {

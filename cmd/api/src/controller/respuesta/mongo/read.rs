@@ -48,7 +48,7 @@ impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo
 
         let respuesta_doc = self
             .get_collection()
-            .find_one(filter, None)
+            .find_one(filter)
             .await
             .map_err(|e| {
                 error!(
@@ -105,7 +105,7 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
 
         let mut cursor = self
             .get_collection()
-            .find(filter, None)
+            .find(filter)
             .await
             .map_err(|e| {
                 error!("Error finding respuestas by estado {}: {}", estado, e);
@@ -171,7 +171,7 @@ impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostu
 
         let mut cursor = self
             .get_collection()
-            .find(filter, None)
+            .find(filter)
             .await
             .map_err(|e| {
                 error!(

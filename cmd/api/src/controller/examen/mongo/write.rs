@@ -40,7 +40,7 @@ impl RepositorioExamenEscritura<ExamenError> for ExamenMongo {
             "activo": examen.estado.to_string(),
         };
 
-        match self.get_collection().insert_one(documento, None).await {
+        match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!(

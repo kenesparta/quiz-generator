@@ -46,7 +46,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
 
         let examen_exists = self
             .get_collection()
-            .find_one(examen_filter, None)
+            .find_one(examen_filter)
             .await
             .map_err(|e| {
                 error!("Error checking if exam exists: {}", e);
@@ -75,7 +75,6 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
                     "_id": examen_id.to_string()
                 },
                 update,
-                None,
             )
             .await
             .map_err(|e| {

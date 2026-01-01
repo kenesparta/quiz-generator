@@ -52,7 +52,7 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
 
         let result = self
             .get_collection()
-            .update_one(filter.clone(), update, None)
+            .update_one(filter.clone(), update)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -76,12 +76,10 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
 
             let array_filters = vec![doc! { "examen._id": &examen.examen_id }];
 
-            let mut options = mongodb::options::UpdateOptions::default();
-            options.array_filters = Some(array_filters);
-
             let examen_result = self
                 .get_collection()
-                .update_one(examen_filter, examen_update, Some(options))
+                .update_one(examen_filter, examen_update)
+                .array_filters(array_filters)
                 .await
                 .map_err(|_| RespuestaError::DatabaseError)?;
 

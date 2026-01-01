@@ -57,7 +57,7 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
             "estado": evaluacion.estado.to_string(),
         };
 
-        match self.get_collection().insert_one(documento, None).await {
+        match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!("Error al guardar evaluacion: {e}");
@@ -75,12 +75,9 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
     ) -> Result<(), EvaluacionError> {
         let evaluacion_exists = self
             .get_collection()
-            .find_one(
-                doc! {
+            .find_one(doc! {
                     "_id": evaluacion_id.to_string()
-                },
-                None,
-            )
+                })
             .await
             .map_err(|e| {
                 error!("Error checking if exam exists: {}", e);
@@ -114,7 +111,6 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
                     "_id": evaluacion_id.to_string()
                 },
                 update,
-                None,
             )
             .await
         {
@@ -145,12 +141,9 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
     ) -> Result<Evaluacion, EvaluacionError> {
         let documento = self
             .get_collection()
-            .find_one(
-                doc! {
+            .find_one(doc! {
                     "_id": evaluacion_id.to_string()
-                },
-                None,
-            )
+                })
             .await
             .map_err(|e| {
                 error!("Error al buscar evaluacion: {}", e);
@@ -238,12 +231,9 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
     async fn publicar_evaluacion(&self, mut evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
         let evaluation_exists = self
             .get_collection()
-            .find_one(
-                doc! {
+            .find_one(doc! {
                     "_id": evaluacion.id.to_string()
-                },
-                None,
-            )
+                })
             .await
             .map_err(|e| {
                 error!("Error checking if evaluation exists: {}", e);
@@ -325,7 +315,6 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                     "_id": evaluacion.id.to_string()
                 },
                 update_doc,
-                None,
             )
             .await
         {

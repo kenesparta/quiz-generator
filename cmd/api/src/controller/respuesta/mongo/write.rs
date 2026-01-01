@@ -55,13 +55,10 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
     ) -> Result<(), RespuestaError> {
         let existing_respuesta = self
             .get_collection()
-            .find_one(
-                doc! {
+            .find_one(doc! {
                     "evaluacion._id": evaluacion_id.to_string(),
                     "postulante_id": postulante_id.to_string(),
-                },
-                None,
-            )
+                })
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -72,7 +69,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         let postulante_exists = self
             .reposiorio_postulante
             .get_collection()
-            .find_one(doc! { "_id": postulante_id.to_string() }, None)
+            .find_one(doc! { "_id": postulante_id.to_string() })
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -83,7 +80,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
         let evaluacion_doc = self
             .repositorio_evaluacion
             .get_collection()
-            .find_one(doc! { "_id": evaluacion_id.to_string() }, None)
+            .find_one(doc! { "_id": evaluacion_id.to_string() })
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -107,7 +104,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             bson::to_document(&respuesta_dto).map_err(|_| RespuestaError::DatabaseError)?;
 
         self.get_collection()
-            .insert_one(respuesta_doc, None)
+            .insert_one(respuesta_doc)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -137,12 +134,10 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id },
         ];
 
-        let mut options = mongodb::options::UpdateOptions::default();
-        options.array_filters = Some(array_filters);
-
         let _result = self
             .get_collection()
-            .update_one(filter, update, Some(options))
+            .update_one(filter, update)
+            .array_filters(array_filters)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -161,7 +156,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
 
         let result = self
             .get_collection()
-            .find_one(filter, None)
+            .find_one(filter)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?
             .ok_or(RespuestaError::DatabaseError)?;
@@ -264,7 +259,7 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
 
         let result = self
             .get_collection()
-            .find_one(filter.clone(), None)
+            .find_one(filter.clone())
             .await
             .map_err(|_| RespuestaError::DatabaseError)?
             .ok_or(RespuestaError::DatabaseError)?;
@@ -310,11 +305,9 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
 
                 let array_filters = vec![doc! { "examen._id": examen_id }];
 
-                let mut options = mongodb::options::UpdateOptions::default();
-                options.array_filters = Some(array_filters);
-
                 self.get_collection()
-                    .update_one(filter.clone(), update, Some(options))
+                    .update_one(filter.clone(), update)
+                    .array_filters(array_filters)
                     .await
                     .map_err(|_| RespuestaError::DatabaseError)?;
             }
@@ -330,7 +323,7 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
 
         let result = self
             .get_collection()
-            .find_one(filter, None)
+            .find_one(filter)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?
             .ok_or(RespuestaError::DatabaseError)?;
@@ -359,7 +352,7 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
         };
 
         self.get_collection()
-            .update_one(filter, update, None)
+            .update_one(filter, update)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 
@@ -396,7 +389,7 @@ impl RepositorioEmpezarExamen<RespuestaError> for RepositorioEmpezarExamenMongo 
 
         let result = self
             .get_collection()
-            .find_one(filter, None)
+            .find_one(filter)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?
             .ok_or(RespuestaError::RespuestaNoEncontrada)?;
@@ -425,7 +418,7 @@ impl RepositorioEmpezarExamen<RespuestaError> for RepositorioEmpezarExamenMongo 
         };
 
         self.get_collection()
-            .update_one(filter, update, None)
+            .update_one(filter, update)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
 

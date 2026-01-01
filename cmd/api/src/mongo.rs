@@ -10,7 +10,7 @@ pub async fn create_mongo_client(connection_string: &str) -> Result<Client, Box<
     let client = Client::with_options(client_options)?;
     client
         .database("admin")
-        .run_command(doc! {"ping": 1}, None)
+        .run_command(doc! {"ping": 1})
         .await?;
     println!("Connected to MongoDB successfully");
 

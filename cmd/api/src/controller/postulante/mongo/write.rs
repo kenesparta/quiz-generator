@@ -51,7 +51,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "password": password,
         };
 
-        match self.get_collection().insert_one(documento, None).await {
+        match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!(
@@ -81,7 +81,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "_id": postulante_id.value().uuid().to_string(),
         };
 
-        match self.get_collection().delete_one(filter, None).await {
+        match self.get_collection().delete_one(filter).await {
             Ok(result) => {
                 if result.deleted_count == 0 {
                     return Err(PostulanteError::PostulanteRepositorioError(

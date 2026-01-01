@@ -20,7 +20,7 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
     async fn obtener_examen(&self, id: &str) -> Result<Examen, ExamenError> {
         let filter = doc! { "_id": id };
 
-        match self.get_collection().find_one(filter, None).await {
+        match self.get_collection().find_one(filter).await {
             Ok(Some(documento)) => {
                 let id_str = documento
                     .get_str("_id")

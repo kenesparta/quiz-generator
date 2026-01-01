@@ -21,7 +21,7 @@ async fn main() -> Result<(), std::io::Error> {
 
     let redis_pool = create_redis_client(&configuration.redis.connection_string())
         .await
-        .expect("Failed to create Redis client");
+        .expect("Failed to create a Redis client");
 
     let address = format!(
         "{}:{}",

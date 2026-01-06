@@ -13,10 +13,15 @@ members = [
     # ---
     # New Implementation
     # Subdominio principal (Core)
-    "bounded-contexts/evaluacion/core",
+    # Gestión y correccion de respuestas
+    "bounded-contexts/evaluacion/respuesta",
 
     # Subdominios de soporte
-    "bounded-contexts/evaluacion/aplicacion-evaluaciones",
+    "bounded-contexts/evaluacion/creacion", # Gestion de la creacion de los examenes
+    "bounded-contexts/evaluacion/postulante", # Gestión de postulantes que envian la respuesta
+
+    # Subdominio Genérico
+    # Utilidades compartidas
     "bounded-contexts/evaluacion/common",
 
     # API

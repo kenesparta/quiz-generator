@@ -28,7 +28,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```
-/// use education_platform_common::Id;
+/// use common::Id;
 ///
 /// let id1 = Id::new();
 /// let id2 = Id::new();
@@ -55,7 +55,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::new();
     /// println!("Generated ID: {}", id);
@@ -75,7 +75,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let timestamp = 1234567890123u64;
     /// let random = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -103,7 +103,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::new();
     /// let timestamp = id.timestamp_ms();
@@ -125,7 +125,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::new();
     /// assert_eq!(id.as_bytes().len(), 16);
@@ -193,7 +193,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::new();
     /// let s = id.to_string();
@@ -240,7 +240,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::from_crockford_base32("01ARZ3NDEKTSV4RRFFQ69G5FAV").unwrap();
     /// assert_eq!(id.to_string(), "01ARZ3NDEKTSV4RRFFQ69G5FAV");
@@ -337,7 +337,7 @@ impl Id {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Id;
+    /// use common::Id;
     ///
     /// let id = Id::from_string("01ARZ3NDEKTSV4RRFFQ69G5FAV".to_string()).unwrap();
     /// assert_eq!(id.to_string(), "01ARZ3NDEKTSV4RRFFQ69G5FAV");

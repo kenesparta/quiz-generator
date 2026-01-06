@@ -40,7 +40,7 @@ impl Validator {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Validator;
+    /// use common::Validator;
     ///
     /// assert!(Validator::is_not_empty("hello").is_ok());
     /// assert!(Validator::is_not_empty("  hello  ").is_ok());
@@ -63,7 +63,7 @@ impl Validator {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Validator;
+    /// use common::Validator;
     ///
     /// assert!(Validator::has_min_length("hello", 3).is_ok());
     /// assert!(Validator::has_min_length("hello", 5).is_ok());
@@ -86,7 +86,7 @@ impl Validator {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Validator;
+    /// use common::Validator;
     ///
     /// assert!(Validator::has_max_length("hello", 10).is_ok());
     /// assert!(Validator::has_max_length("hello", 5).is_ok());
@@ -109,7 +109,7 @@ impl Validator {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::Validator;
+    /// use common::Validator;
     ///
     /// assert!(Validator::has_length_between("hello", 3, 10).is_ok());
     /// assert!(Validator::has_length_between("hello", 5, 5).is_ok());

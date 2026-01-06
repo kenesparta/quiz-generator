@@ -26,7 +26,7 @@ pub enum SimpleNameError {
 /// # Examples
 ///
 /// ```
-/// use education_platform_common::SimpleNameConfig;
+/// use common::SimpleNameConfig;
 ///
 /// let config = SimpleNameConfig::default();
 /// assert_eq!(config.min_length(), 1);
@@ -156,7 +156,7 @@ impl Default for SimpleNameConfigBuilder {
 /// # Examples
 ///
 /// ```
-/// use education_platform_common::SimpleName;
+/// use common::SimpleName;
 ///
 /// // Course names with spaces and punctuation
 /// let course = SimpleName::new("This is 'my awesome' course!".to_string()).unwrap();
@@ -193,7 +193,7 @@ impl SimpleName {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::SimpleName;
+    /// use common::SimpleName;
     ///
     /// let name = SimpleName::new("Introduction to Rust".to_string()).unwrap();
     /// assert_eq!(name.as_str(), "Introduction to Rust");
@@ -219,7 +219,7 @@ impl SimpleName {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::{SimpleName, SimpleNameConfig};
+    /// use common::{SimpleName, SimpleNameConfig};
     ///
     /// let config = SimpleNameConfig::builder()
     ///     .min_length(5)
@@ -265,7 +265,7 @@ impl SimpleName {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::SimpleName;
+    /// use common::SimpleName;
     ///
     /// // Valid course/blog names
     /// assert!(SimpleName::is_valid_simple_name("This is 'my awesome' course!").is_ok());

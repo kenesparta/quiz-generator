@@ -23,7 +23,7 @@ use crate::Id;
 /// # Examples
 ///
 /// ```
-/// use education_platform_common::{Entity, Id};
+/// use common::{Entity, Id};
 ///
 /// #[derive(Debug, Clone)]
 /// struct Product {
@@ -78,7 +78,7 @@ pub trait Entity {
     /// # Examples
     ///
     /// ```
-    /// use education_platform_common::{Entity, Id};
+    /// use common::{Entity, Id};
     ///
     /// # #[derive(Debug, Clone)]
     /// # struct User { id: Id, name: String }

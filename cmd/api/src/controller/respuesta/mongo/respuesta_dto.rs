@@ -30,6 +30,7 @@ pub struct RespuestaDTO {
     pub postulante_id: String,
     pub evaluacion: EvaluacionDTO,
     pub revision: String,
+    pub resultado: Option<String>,
 }
 
 impl From<RespuestaDTO> for Respuesta {
@@ -41,6 +42,7 @@ impl From<RespuestaDTO> for Respuesta {
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             evaluacion: respuesta.evaluacion.into(),
+            resultado: respuesta.resultado.unwrap_or_default(),
             postulante: PostulanteID::new(respuesta.postulante_id.as_str()).unwrap(),
             revision,
         }
@@ -57,6 +59,7 @@ impl From<OutputData> for RespuestaDTO {
             postulante_id: "".to_owned(),
             evaluacion: respuesta.evaluacion.into(),
             revision: "".to_string(),
+            resultado: Option::from(respuesta.resultado),
         }
     }
 }
@@ -109,6 +112,7 @@ pub struct ExamenDTO {
     pub instrucciones: String,
     pub preguntas: Vec<PreguntaDTO>,
     pub puntos_obtenidos: Option<i64>,
+    pub observacion: Option<String>,
 }
 
 impl From<ExamenDTO> for Examen {
@@ -125,6 +129,7 @@ impl From<ExamenDTO> for Examen {
                 .map(|pregunta| pregunta.into())
                 .collect(),
             puntos_obtenidos: examen.puntos_obtenidos.unwrap_or_default(),
+            observacion: examen.observacion.unwrap_or_default(),
         }
     }
 }
@@ -142,6 +147,7 @@ impl From<OutputExamen> for ExamenDTO {
                 .map(|pregunta| pregunta.into())
                 .collect(),
             puntos_obtenidos: Option::from(examen.puntos_obtenidos),
+            observacion: examen.observacion,
         }
     }
 }

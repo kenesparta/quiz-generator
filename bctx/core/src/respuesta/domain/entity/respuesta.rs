@@ -12,6 +12,7 @@ pub struct Respuesta {
     pub evaluacion: Evaluacion,
     pub postulante: PostulanteID,
     pub revision: Revision,
+    pub resultado: String,
 }
 
 pub struct RespuestaEvaluacion {

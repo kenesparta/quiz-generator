@@ -9,4 +9,5 @@ pub struct Examen {
     pub observaciones: String,
     pub preguntas: Vec<Pregunta>,
     pub puntos_obtenidos: i64,
+    pub observacion: String,
 }

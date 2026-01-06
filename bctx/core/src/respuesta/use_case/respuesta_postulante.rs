@@ -21,6 +21,7 @@ pub struct OutputData {
     pub fecha_tiempo_transcurrido: i64,
     pub fecha_tiempo_fin: String,
     pub evaluacion: OutputEvaluacion,
+    pub resultado: String,
 }
 
 pub struct OutputEvaluacion {
@@ -52,6 +53,7 @@ pub struct OutputExamen {
     pub instrucciones: String,
     pub preguntas: Vec<OutputPregunta>,
     pub puntos_obtenidos: i64,
+    pub observacion: Option<String>,
 }
 
 impl From<Examen> for OutputExamen {
@@ -67,6 +69,7 @@ impl From<Examen> for OutputExamen {
                 .map(|pregunta| pregunta.into())
                 .collect(),
             puntos_obtenidos: examen.puntos_obtenidos,
+            observacion: Option::from(examen.observacion),
         }
     }
 }
@@ -118,8 +121,9 @@ where
             .await?;
 
         let fecha_inicio_str = respuestas.fecha_tiempo_inicio.to_string();
-        // todo: pasar esta logica al dominio
 
+        // todo: pasar esta logica al dominio
+        // todo: REVISAR ESTO!!!!
         let fecha_tiempo_transcurrido =
             if let Ok(fecha_inicio) = DateTime::parse_from_rfc3339(&fecha_inicio_str) {
                 let now = Utc::now();
@@ -135,6 +139,7 @@ where
             fecha_tiempo_transcurrido,
             fecha_tiempo_fin: respuestas.fecha_tiempo_fin.to_string(),
             evaluacion: respuestas.evaluacion.into(),
+            resultado: respuestas.resultado,
         })
     }
 }

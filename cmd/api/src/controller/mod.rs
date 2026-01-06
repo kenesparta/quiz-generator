@@ -3,7 +3,6 @@ pub mod evaluacion;
 pub mod examen;
 pub mod healthcheck;
 mod mongo_repository;
-pub mod pdf;
 pub mod postulante;
 pub mod pregunta;
 pub mod respuesta;

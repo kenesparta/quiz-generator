@@ -8,6 +8,7 @@ use quizz_common::use_case::CasoDeUso;
 pub struct InputData {
     pub respuesta_id: String,
     pub evaluacion_id: String,
+    pub resultado: String,
     pub examenes: Vec<InputDataExamen>,
 }
 
@@ -45,6 +46,7 @@ where
                     })
                     .collect::<Vec<ExamenRevision>>(),
                 Revision::Finalizada,
+                in_.resultado,
             )
             .await?)
     }

@@ -2,6 +2,7 @@ use crate::controller::auth::route::postulante_login;
 use crate::controller::evaluacion::route::evaluacion;
 use crate::controller::examen::route::examen;
 use crate::controller::healthcheck::route::health_check;
+use crate::controller::pdf::route::pdf;
 use crate::controller::postulante::route::postulante;
 use crate::controller::respuesta::route::respuesta;
 use crate::controller::revision::route::revision;
@@ -27,6 +28,7 @@ pub fn run(
             .configure(evaluacion)
             .configure(respuesta)
             .configure(revision)
+            .configure(pdf)
             .configure(postulante_login)
             .configure(health_check)
             .app_data(db_connection_pool.clone())

@@ -18,6 +18,7 @@ impl RevisarEvaluacionPostulanteController {
         let input = InputData {
             respuesta_id: body.respuesta_id,
             evaluacion_id: body.evaluacion_id,
+            resultado: body.resultado,
             examenes: body
                 .examenes
                 .into_iter()

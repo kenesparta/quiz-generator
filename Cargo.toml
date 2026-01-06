@@ -10,6 +10,15 @@ members = [
     "bctx/auth",
     "bctx/common",
 
+    # ---
+    # New Implementation
+    # Subdominio principal (Core)
+    "bounded-contexts/evaluacion/core",
+
+    # Subdominios de soporte
+    "bounded-contexts/evaluacion/aplicacion-evaluaciones",
+    "bounded-contexts/evaluacion/common",
+
     # API
     "cmd/api",
 ]

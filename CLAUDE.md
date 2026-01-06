@@ -169,3 +169,85 @@ docker run --rm -p 8008:8008 \
 ```
 
 Note: `docker-compose.dev.yml` only includes MongoDB and Redis, not the API service.
+
+## Code Conventions
+
+### Rust Module Organization
+
+When organizing Rust modules, prefer the modern file-based pattern over `mod.rs`:
+
+```
+# Preferred (Rust 2018+ style)
+my_module.rs           # Module declaration file
+my_module/             # Directory for submodules
+  submodule_a.rs
+  submodule_b.rs
+
+# Avoid (legacy style)
+my_module/
+  mod.rs               # Don't use mod.rs
+  submodule_a.rs
+  submodule_b.rs
+```
+
+Example: For a `value_object` module containing multiple files:
+```
+pregunta/
+  value_object.rs      # Declares: mod alternativa; mod puntaje; pub use ...
+  value_object/
+    alternativa.rs
+    puntaje.rs
+    etiqueta.rs
+```
+
+### DDD Structure in bounded-contexts
+
+The `bounded-contexts/` directory follows Domain-Driven Design principles:
+- **Value Objects**: Immutable objects compared by value (e.g., `AlternativaClave`, `Puntaje`)
+- **Entities**: Objects with identity, compared by ID (e.g., `PreguntaAlternativaUnica`)
+- **Sum Types**: Use Rust enums for type-safe variants instead of dynamic dispatch (e.g., `Pregunta` enum)
+
+Prefer static dispatch (enums with match) over dynamic dispatch (`Box<dyn Trait>`) for domain types.
+
+### Error Handling
+
+Use `Result<T, E>` for all fallible operations. Never use `panic!`, `unwrap()`, or `expect()` in production code.
+
+**Guidelines:**
+- Use `thiserror` crate for defining custom error types
+- Every domain module should have its own error type in `error.rs`
+- Avoid functions that can panic; always return `Result<T, E>` or `Option<T>`
+- Use `?` operator for error propagation
+- Name error types with the suffix `Error` (e.g., `ExamenError`, `PreguntaError`)
+- **NEVER use `unwrap()` or `expect()`** in production code; use `?` or explicit error handling
+- `unwrap()` is **only acceptable in tests** (`#[cfg(test)]` modules) where panicking on failure is desired behavior
+
+**Example:**
+```rust
+use thiserror::Error;
+
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum ExamenError {
+    #[error("Índice fuera de rango: {indice}, máximo: {maximo}")]
+    IndiceFueraDeRango { indice: usize, maximo: usize },
+
+    #[error("Pregunta no encontrada: {0}")]
+    PreguntaNoEncontrada(Id),
+}
+
+// Good: Returns Result
+pub fn eliminar_pregunta_por_indice(&mut self, indice: usize) -> Result<Pregunta, ExamenError> {
+    if indice >= self.preguntas.len() {
+        return Err(ExamenError::IndiceFueraDeRango {
+            indice,
+            maximo: self.preguntas.len().saturating_sub(1),
+        });
+    }
+    Ok(self.preguntas.remove(indice))
+}
+
+// Bad: Can panic
+pub fn eliminar_pregunta_por_indice(&mut self, indice: usize) -> Pregunta {
+    self.preguntas.remove(indice) // panics if out of bounds!
+}
+```

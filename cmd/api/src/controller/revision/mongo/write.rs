@@ -35,6 +35,7 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
         evaluacion_id: String,
         examenes: Vec<ExamenRevision>,
         estado: Revision,
+        resultado: String,
     ) -> Result<(), RespuestaError> {
         use mongodb::bson::doc;
 
@@ -47,6 +48,7 @@ impl RespositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
         let update = doc! {
             "$set": {
                 "revision": estado.to_string(),
+                "resultado": resultado,
             }
         };
 

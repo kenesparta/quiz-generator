@@ -1,0 +1,8 @@
+[package]
+name = "quizz-core-gestion-evaluaciones"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+evaluacion-common = { path = "../common" }
+thiserror = "2.0.11"

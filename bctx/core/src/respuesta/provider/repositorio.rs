@@ -56,6 +56,7 @@ pub trait RespositorioRealizarRevision<Error>: Send + Sync {
         evaluacion_id: String,
         examenes: Vec<ExamenRevision>,
         estado: Revision,
+        resultado: String, // Deberia ser enum
     ) -> Result<(), Error>;
 }
 

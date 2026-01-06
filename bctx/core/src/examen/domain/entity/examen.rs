@@ -2,8 +2,6 @@ use crate::examen::domain::error::examen::ExamenError;
 use crate::examen::domain::value_object::id::ExamenID;
 use crate::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
-use std::fmt;
-use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct Examen {

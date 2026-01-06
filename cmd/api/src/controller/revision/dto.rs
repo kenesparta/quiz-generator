@@ -5,6 +5,7 @@ pub struct RevisarEvaluacionPostulanteReviewDTO {
     pub respuesta_id: String,
     pub evaluacion_id: String,
     pub examenes: Vec<ExamenRevisionDTO>,
+    pub resultado: String,
 }
 
 #[derive(Serialize, Deserialize)]

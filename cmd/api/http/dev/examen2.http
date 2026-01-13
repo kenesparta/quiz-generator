@@ -47,7 +47,7 @@ Content-Type: application/json
         "E": "Miedo"
       },
       "puntaje": {
-        "B": 4
+        "B": 1
       }
     },
     {
@@ -63,7 +63,7 @@ Content-Type: application/json
         "E": "El gato"
       },
       "puntaje": {
-        "E": 1
+        "A": 1
       }
     },
     {

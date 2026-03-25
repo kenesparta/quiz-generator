@@ -4,6 +4,13 @@ pub struct Settings {
     pub redis: RedisSettings,
     pub application_port: u16,
     pub application_host: String,
+    pub jwt: JwtSettings,
+}
+
+#[derive(serde::Deserialize, Clone)]
+pub struct JwtSettings {
+    pub secret: String,
+    pub expiration_seconds: i64,
 }
 
 #[derive(serde::Deserialize, Clone)]

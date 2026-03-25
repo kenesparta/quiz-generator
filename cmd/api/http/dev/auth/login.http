@@ -1,7 +1,7 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@user = 04009988
-@pass = 9988
+@user = 22334455
+@pass = 4455
 
 ### Agregar Evaluacion
 POST {{baseUrl}}/evaluacion/{{evaluacionId}}

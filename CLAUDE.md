@@ -102,7 +102,35 @@ Each controller module typically has:
 Uses JWT tokens stored in Redis for session management. Auth is handled in:
 - `bctx/auth/src/postulante/` - Candidate authentication
 - `bctx/auth/src/psicologo/` - Psychologist authentication
-- `cmd/api/src/controller/auth/` - Login endpoints
+- `bctx/auth/src/usuario/` - User registration domain (entity, use case, provider)
+- `cmd/api/src/controller/auth/` - Login endpoints, JWT provider, and auth middleware
+
+### Authorization (RBAC with Casbin)
+
+The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RBAC). The authorization layer follows the same DDD/hexagonal architecture as the rest of the project:
+
+**Domain layer** (`bctx/auth/src/autorizacion/`):
+- **Value Objects**: `Rol` (Postulante, Psicologo, Admin), `Recurso` (Examen, Evaluacion, Postulante, Respuesta, Revision, Usuario), `Accion` (Leer, Escribir, Actualizar, Eliminar)
+- **Entity**: `SolicitudAcceso` — represents an access request (sujeto, rol, recurso, accion)
+- **Error**: `AutorizacionError`
+- **Provider (Port)**: `AutorizacionVerificar` trait — defines the authorization contract
+- **Use Case**: `VerificarPermiso` — implements `CasoDeUso` to check permissions
+
+**Infrastructure layer** (`cmd/api/`):
+- **Casbin adapter**: `controller/auth/casbin_enforcer.rs` — implements `AutorizacionVerificar` using `casbin::Enforcer`
+- **Actix middleware**: `controller/auth/middleware.rs` — extracts JWT from `Authorization: Bearer` header, verifies token, maps HTTP method/path to `Accion`/`Recurso`, and enforces RBAC via Casbin
+- **RBAC model**: `rbac/model.conf` — standard RBAC model (request, policy, role definitions, matchers)
+- **Policies**: `rbac/policy.csv` — defines permissions per role
+
+**Roles and permissions:**
+- `admin` — full access to all resources
+- `psicologo` — manage exams, evaluations, candidates, and reviews
+- `postulante` — read/write/update own respuestas only
+
+**Public routes** (no auth required): `/health-check`, `/login/*`
+**Protected routes** (JWT + RBAC): all other endpoints
+
+**Configuration**: JWT settings (`secret`, `expiration_seconds`) are in `configuration.yaml` under the `jwt:` key.
 
 ### Configuration
 
@@ -133,6 +161,8 @@ database:
   - `PATCH /respuesta/{id}/finalizar` - Finalize exam (EnProceso → Finalizado, sets fecha_tiempo_fin)
 - `/revision` - Grade and review completed evaluations
   - `GET /respuesta/revision` - List finalized respuestas awaiting review
+- `/usuario` - User management (protected, admin only)
+  - `POST /usuario` - Register a new user (nombre, email, password, rol)
 - `/login` - Authentication endpoints
 
 Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/IntelliJ HTTP Client).

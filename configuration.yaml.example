@@ -12,3 +12,7 @@ redis:
   port:
   username:
   password:
+
+jwt:
+  secret: "your-secret-key-here"
+  expiration_seconds: 36000

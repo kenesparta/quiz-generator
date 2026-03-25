@@ -1,3 +1,4 @@
+use crate::configuration::JwtSettings;
 use crate::controller::auth::crypto::CifradoPorDefecto;
 use crate::controller::auth::dto::{PostulanteLoginRequestDTO, PostulanteLoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
@@ -15,6 +16,7 @@ impl PostulanteLoginController {
         body: web::Json<PostulanteLoginRequestDTO>,
         pool: web::Data<mongodb::Client>,
         redis_client: web::Data<redis::Client>,
+        jwt_settings: web::Data<JwtSettings>,
     ) -> HttpResponse {
         let dto = body.into_inner();
 
@@ -30,7 +32,10 @@ impl PostulanteLoginController {
             Box::new(CifradoPorDefecto),
             Box::new(PostulanteLoginMongo::new(pool)),
             Box::new(redis_impl),
-            Box::new(JWTProvider::new("secret".to_string(), 36000)),
+            Box::new(JWTProvider::new(
+                jwt_settings.secret.clone(),
+                jwt_settings.expiration_seconds,
+            )),
         );
 
         match use_case

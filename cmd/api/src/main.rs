@@ -1,7 +1,7 @@
 use quizz_api::configuration::get_configuration;
 use quizz_api::mongo::create_mongo_client;
 use quizz_api::redis::create_redis_client;
-use quizz_api::startup::run;
+use quizz_api::startup::{init_casbin_enforcer, run};
 use std::net::TcpListener;
 use tracing_subscriber::EnvFilter;
 
@@ -23,14 +23,24 @@ async fn main() -> Result<(), std::io::Error> {
         .await
         .expect("Failed to create a Redis client");
 
+    let enforcer = init_casbin_enforcer()
+        .await
+        .expect("Failed to initialize casbin enforcer");
+
     let address = format!(
         "{}:{}",
-        configuration.application_host.to_string(),
-        configuration.application_port.to_string()
+        configuration.application_host, configuration.application_port
     );
 
     let tcp_listener = TcpListener::bind(address)?;
-    run(tcp_listener, connection_pool, redis_pool)?.await?;
+    run(
+        tcp_listener,
+        connection_pool,
+        redis_pool,
+        configuration.jwt,
+        enforcer,
+    )?
+    .await?;
 
     Ok(())
 }

@@ -15,3 +15,8 @@ pub trait JwtProviderGenerateCertificate<Error>: Send + Sync {
 pub trait JwtProviderVerify<Error>: Send + Sync {
     async fn verificar(&self, jwt_string: String) -> Result<(), Error>;
 }
+
+#[async_trait]
+pub trait JwtProviderGenerateConRol<Error>: Send + Sync {
+    async fn generar_con_rol(&self, sujeto_id: String, rol: String) -> Result<JwtObject, Error>;
+}

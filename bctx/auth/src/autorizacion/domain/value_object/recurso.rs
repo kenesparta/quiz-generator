@@ -10,23 +10,25 @@ pub enum RecursoError {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Recurso {
+    Admin,
     Examen,
     Evaluacion,
     Postulante,
+    Psicologo,
     Respuesta,
     Revision,
-    Usuario,
 }
 
 impl fmt::Display for Recurso {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Recurso::Admin => write!(f, "admin"),
             Recurso::Examen => write!(f, "examen"),
             Recurso::Evaluacion => write!(f, "evaluacion"),
             Recurso::Postulante => write!(f, "postulante"),
+            Recurso::Psicologo => write!(f, "psicologo"),
             Recurso::Respuesta => write!(f, "respuesta"),
             Recurso::Revision => write!(f, "revision"),
-            Recurso::Usuario => write!(f, "usuario"),
         }
     }
 }
@@ -36,12 +38,13 @@ impl FromStr for Recurso {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
+            "admin" => Ok(Recurso::Admin),
             "examen" => Ok(Recurso::Examen),
             "evaluacion" => Ok(Recurso::Evaluacion),
             "postulante" => Ok(Recurso::Postulante),
+            "psicologo" => Ok(Recurso::Psicologo),
             "respuesta" => Ok(Recurso::Respuesta),
             "revision" => Ok(Recurso::Revision),
-            "usuario" => Ok(Recurso::Usuario),
             _ => Err(RecursoError::NoValido(s.to_string())),
         }
     }
@@ -61,6 +64,7 @@ mod tests {
 
     #[test]
     fn test_recurso_from_str_valido() {
+        assert_eq!("admin".parse::<Recurso>().unwrap(), Recurso::Admin);
         assert_eq!("examen".parse::<Recurso>().unwrap(), Recurso::Examen);
         assert_eq!(
             "evaluacion".parse::<Recurso>().unwrap(),
@@ -70,6 +74,7 @@ mod tests {
             "postulante".parse::<Recurso>().unwrap(),
             Recurso::Postulante
         );
+        assert_eq!("psicologo".parse::<Recurso>().unwrap(), Recurso::Psicologo);
         assert_eq!("respuesta".parse::<Recurso>().unwrap(), Recurso::Respuesta);
         assert_eq!("revision".parse::<Recurso>().unwrap(), Recurso::Revision);
     }

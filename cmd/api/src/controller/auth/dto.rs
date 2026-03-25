@@ -11,3 +11,15 @@ pub struct PostulanteLoginResponseDTO {
     pub token: String,
     pub expires_in: u64,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct EmailLoginRequestDTO {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct LoginResponseDTO {
+    pub token: String,
+    pub expires_in: u64,
+}

@@ -12,3 +12,9 @@ exec:
 
 prod:
 	docker compose -f docker-compose.prod.yml up -d --build
+
+run:
+	cargo run --bin quizz
+
+run-log:
+	RUST_LOG=quizz_api=info cargo run --bin quizz

@@ -2,6 +2,7 @@ use crate::controller::examen::dto::PreguntaMongoDTO;
 use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use async_trait::async_trait;
+use log::error;
 use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
@@ -13,7 +14,6 @@ use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
 use quizz_core::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use std::str::FromStr;
-use tracing::log::error;
 
 #[async_trait]
 impl RepositorioExamenLectura<ExamenError> for ExamenMongo {

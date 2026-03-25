@@ -1,0 +1,20 @@
+### Variables
+@baseUrl = http://localhost:8008
+
+### Login del admin
+POST {{baseUrl}}/login/admin
+Content-Type: application/json
+
+{
+  "email": "andrea.torres@example.com",
+  "password": "admin_password_seguro"
+}
+
+### Login del segundo admin
+POST {{baseUrl}}/login/admin
+Content-Type: application/json
+
+{
+  "email": "luis.mendoza@example.com",
+  "password": "otro_admin_password"
+}

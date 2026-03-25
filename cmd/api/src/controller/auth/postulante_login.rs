@@ -5,6 +5,7 @@ use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::mongo::read::PostulanteLoginMongo;
 use crate::controller::auth::redis::write::PostulanteLoginRedis;
 use actix_web::{HttpRequest, HttpResponse, web};
+use log::{error, info};
 use quizz_auth::postulante::use_case::login::{InputData, LoginPostulantePorDocumento};
 use quizz_common::use_case::CasoDeUso;
 
@@ -19,11 +20,15 @@ impl PostulanteLoginController {
         jwt_settings: web::Data<JwtSettings>,
     ) -> HttpResponse {
         let dto = body.into_inner();
+        info!("POST /login/postulante - documento={}", dto.user_name);
 
         let redis_impl = match PostulanteLoginRedis::new(redis_client) {
             Ok(r) => r,
             Err(e) => {
-                println!("{:?}", e);
+                error!(
+                    "POST /login/postulante - error al conectar con redis: {:?}",
+                    e
+                );
                 return HttpResponse::InternalServerError().finish();
             }
         };
@@ -46,13 +51,17 @@ impl PostulanteLoginController {
             .await
         {
             Ok(jwt_data) => {
+                info!("POST /login/postulante - login exitoso");
                 let response_dto = PostulanteLoginResponseDTO {
                     token: jwt_data.jwt_value,
                     expires_in: jwt_data.expiration,
                 };
                 HttpResponse::Ok().json(response_dto)
             }
-            Err(_) => HttpResponse::InternalServerError().finish(),
+            Err(e) => {
+                error!("POST /login/postulante - error en login: {:?}", e);
+                HttpResponse::InternalServerError().finish()
+            }
         }
     }
 }

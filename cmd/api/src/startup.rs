@@ -1,13 +1,14 @@
 use crate::configuration::JwtSettings;
+use crate::controller::admin::route::admin;
 use crate::controller::auth::middleware::AuthMiddleware;
-use crate::controller::auth::route::postulante_login;
+use crate::controller::auth::route::login_routes;
 use crate::controller::evaluacion::route::evaluacion;
 use crate::controller::examen::route::examen;
 use crate::controller::healthcheck::route::health_check;
 use crate::controller::postulante::route::postulante;
+use crate::controller::psicologo::route::psicologo;
 use crate::controller::respuesta::route::respuesta;
 use crate::controller::revision::route::revision;
-use crate::controller::usuario::route::usuario;
 use crate::cors::set_cors;
 use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
@@ -41,7 +42,7 @@ pub fn run(
         App::new()
             .wrap(set_cors())
             .configure(health_check)
-            .configure(postulante_login)
+            .configure(login_routes)
             .service(
                 web::scope("")
                     .wrap(auth_middleware)
@@ -50,7 +51,8 @@ pub fn run(
                     .configure(respuesta)
                     .configure(revision)
                     .configure(postulante)
-                    .configure(usuario),
+                    .configure(psicologo)
+                    .configure(admin),
             )
             .app_data(db_connection_pool.clone())
             .app_data(redis_connection_pool.clone())

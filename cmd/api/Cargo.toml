@@ -20,6 +20,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1.0.218", features = ["derive"] }
 config = "0.15.19"
 bcrypt = "0.17.1"
+log = "0.4"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-trait = "0.1.88"
@@ -32,4 +33,3 @@ redis = { version = "1.0.2", features = ["tokio-comp", "connection-manager"] }
 
 mongodb = "3.4.1"
 casbin = "2"
-uuid = { version = "1", features = ["v4"] }

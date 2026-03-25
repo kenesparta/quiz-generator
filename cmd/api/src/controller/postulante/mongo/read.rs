@@ -3,6 +3,7 @@ use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME
 use actix_web::web;
 use async_trait::async_trait;
 use futures::StreamExt;
+use log::error;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
@@ -14,7 +15,6 @@ use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::domain::value_object::nombre::Nombre;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
 use std::str::FromStr;
-use tracing::log::error;
 
 pub struct PostulanteReadMongo {
     client: web::Data<mongodb::Client>,

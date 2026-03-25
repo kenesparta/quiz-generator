@@ -2,12 +2,12 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
+use log::error;
 use mongodb::bson::doc;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteEscritura;
-use tracing::log::error;
 
 pub struct PostulanteMongo {
     client: web::Data<mongodb::Client>,

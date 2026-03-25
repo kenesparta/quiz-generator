@@ -2,6 +2,7 @@ use crate::controller::postulante::crypto::CifradoPorDefecto;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
+use log::{error, info, warn};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::registrar_postulante::{
@@ -19,9 +20,12 @@ impl PostulanteController {
         let postulante_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {
+                warn!("POST /postulante - id no proporcionado");
                 return HttpResponse::BadRequest().json("no se esta enviando el id del postulante");
             }
         };
+
+        info!("POST /postulante/{}", postulante_id);
 
         let registrar_postulante = RegistrarPostulantePasswordTemporal::new(
             Box::new(CifradoPorDefecto),
@@ -30,7 +34,7 @@ impl PostulanteController {
 
         let dto = body.into_inner();
         let input = InputData {
-            id: postulante_id,
+            id: postulante_id.clone(),
             documento: dto.documento,
             nombre: dto.nombre,
             primer_apellido: dto.primer_apellido,
@@ -41,34 +45,66 @@ impl PostulanteController {
         };
 
         match registrar_postulante.ejecutar(input).await {
-            Ok(_output) => HttpResponse::Created().finish(),
+            Ok(_output) => {
+                info!("POST /postulante/{} - creado exitosamente", postulante_id);
+                HttpResponse::Created().finish()
+            }
             Err(err) => match err {
-                PostulanteError::PostulanteIdError(id_err) => {
+                PostulanteError::PostulanteIdError(ref id_err) => {
+                    warn!(
+                        "POST /postulante/{} - error de ID: {}",
+                        postulante_id, id_err
+                    );
                     HttpResponse::BadRequest().json(format!("Error de ID: {}", id_err))
                 }
-                PostulanteError::PostulanteDocumentoError(doc_err) => {
+                PostulanteError::PostulanteDocumentoError(ref doc_err) => {
+                    warn!(
+                        "POST /postulante/{} - error de documento: {}",
+                        postulante_id, doc_err
+                    );
                     HttpResponse::BadRequest().json(format!("Error de documento: {}", doc_err))
                 }
-                PostulanteError::PostulanteNombreError(name_err) => {
+                PostulanteError::PostulanteNombreError(ref name_err) => {
+                    warn!(
+                        "POST /postulante/{} - error de nombre: {}",
+                        postulante_id, name_err
+                    );
                     HttpResponse::BadRequest().json(format!("Error de nombre: {}", name_err))
                 }
-                PostulanteError::PostulanteGradoInstruccionError(grado_err) => {
+                PostulanteError::PostulanteGradoInstruccionError(ref grado_err) => {
+                    warn!(
+                        "POST /postulante/{} - error de grado de instruccion: {}",
+                        postulante_id, grado_err
+                    );
                     HttpResponse::BadRequest()
                         .json(format!("Error de grado de instrucción: {}", grado_err))
                 }
-                PostulanteError::PostulanteGeneroError(genero_err) => {
+                PostulanteError::PostulanteGeneroError(ref genero_err) => {
+                    warn!(
+                        "POST /postulante/{} - error de genero: {}",
+                        postulante_id, genero_err
+                    );
                     HttpResponse::BadRequest().json(format!("Error de género: {}", genero_err))
                 }
-                PostulanteError::PostulantePasswordError(_pwd_err) => {
-                    // log::error!("Error de password: {}", pwd_err);
+                PostulanteError::PostulantePasswordError(ref pwd_err) => {
+                    error!(
+                        "POST /postulante/{} - error de password: {}",
+                        postulante_id, pwd_err
+                    );
                     HttpResponse::InternalServerError().json("Error al procesar la contraseña")
                 }
-                PostulanteError::PostulanteRepositorioError(_repo_error) => {
-                    // log::error!("Error de persistencia {}", repo_error);
+                PostulanteError::PostulanteRepositorioError(ref repo_err) => {
+                    error!(
+                        "POST /postulante/{} - error de repositorio: {:?}",
+                        postulante_id, repo_err
+                    );
                     HttpResponse::InternalServerError().json("Error al guardar el postulante")
                 }
                 _ => {
-                    // log::error!("Error inesperado: {:?}", err);
+                    error!(
+                        "POST /postulante/{} - error inesperado: {:?}",
+                        postulante_id, err
+                    );
                     HttpResponse::InternalServerError().json("Error inesperado")
                 }
             },
@@ -76,17 +112,17 @@ impl PostulanteController {
     }
 
     pub async fn update(
-        req: HttpRequest,
-        body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<mongodb::Client>,
+        _req: HttpRequest,
+        _body: web::Json<RegistrarPostulanteDTO>,
+        _pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }
 
     pub async fn remove(
-        req: HttpRequest,
-        body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<mongodb::Client>,
+        _req: HttpRequest,
+        _body: web::Json<RegistrarPostulanteDTO>,
+        _pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }

@@ -1,0 +1,29 @@
+### Variables
+@baseUrl = http://localhost:8008
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MTQ0ODYzMS1lY2I0LTQ2NDMtYTk1NS0wYzRjN2RlYWFiZTIiLCJleHAiOjE3NzQ0NDY2NDgsImlhdCI6MTc3NDQxMDY0OCwicm9sIjoiYWRtaW4ifQ.inaTWnBfzxj1JulHnv_E6fTQWWQLkmt4Y3YpU1JU6T0
+
+### Registrar nuevo Admin
+POST {{baseUrl}}/admin/c3d4e5f6-a7b8-9012-cdef-123456789012
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Andrea",
+  "primer_apellido": "Torres",
+  "segundo_apellido": "Vasquez",
+  "email": "andrea.torres@example.com",
+  "password": "admin_password_seguro"
+}
+
+### Registrar segundo Admin
+POST {{baseUrl}}/admin/d4e5f6a7-b8c9-0123-defa-234567890123
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Luis",
+  "primer_apellido": "Mendoza",
+  "segundo_apellido": "Quispe",
+  "email": "luis.mendoza@example.com",
+  "password": "otro_admin_password"
+}

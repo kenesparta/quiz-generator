@@ -1,0 +1,19 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Clone)]
+pub struct RegistrarAdminDTO {
+    pub nombre: String,
+    pub primer_apellido: String,
+    pub segundo_apellido: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Serialize)]
+pub struct AdminResponseDTO {
+    pub id: String,
+    pub nombre: String,
+    pub primer_apellido: String,
+    pub segundo_apellido: String,
+    pub email: String,
+}

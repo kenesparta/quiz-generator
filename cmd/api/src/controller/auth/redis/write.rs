@@ -23,7 +23,7 @@ impl RepositorioPostulanteCacheEscritura<PostulanteLoginError> for PostulanteLog
             .get_multiplexed_async_connection()
             .await
             .map_err(|e| {
-                println!("{:?}", e);
+                log::error!("error de redis: {:?}", e);
                 PostulanteLoginError::ErrorGenericoCache
             })?;
 
@@ -31,7 +31,7 @@ impl RepositorioPostulanteCacheEscritura<PostulanteLoginError> for PostulanteLog
             .set_ex(jwt.key, &jwt.value, jwt.expiration)
             .await
             .map_err(|e| {
-                println!("{:?}", e);
+                log::error!("error de redis: {:?}", e);
                 PostulanteLoginError::ErrorGenericoCache
             })?;
 

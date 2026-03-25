@@ -1,13 +1,13 @@
 use crate::controller::pregunta::dto::PreguntaInputDto;
 use crate::controller::pregunta::mongo::write::PreguntaPorExamenMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
+use log;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::pregunta::domain::error::pregunta::PreguntaError;
 use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,
 };
 use std::collections::HashMap;
-use tracing::log;
 
 pub struct AgregarPreguntaController;
 

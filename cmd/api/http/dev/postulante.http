@@ -1,5 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8008
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlMTc0MzllMC03OWUxLTQ3ZTMtYjVmOS01YjU0MzY3ZmEyOTAiLCJleHAiOjE3NzQ0NDY5MzgsImlhdCI6MTc3NDQxMDkzOCwicm9sIjoicG9zdHVsYW50ZSJ9.u_sWr89wbp1ii1Fxyt0migcUFlZCI-6O3fe8-GdfVJg
 
 ### Health check
 GET {{baseUrl}}/health-check
@@ -8,6 +9,7 @@ Content-Type: application/json
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "documento": "12345678",
@@ -22,6 +24,7 @@ Content-Type: application/json
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulante/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "documento": "99449988",
@@ -36,6 +39,7 @@ Content-Type: application/json
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulante/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "documento": "04009988",
@@ -50,11 +54,15 @@ Content-Type: application/json
 ### Obtener el postulante por documento
 GET {{baseUrl}}/postulante?documento=04009988
 Content-Type: application/json
+Authorization: Bearer {{token}}
+
 
 ### Obtener el postulante por id
 GET {{baseUrl}}/postulante?id=0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### Obtener lista de postulantes
 GET {{baseUrl}}/postulante
 Content-Type: application/json
+Authorization: Bearer {{token}}

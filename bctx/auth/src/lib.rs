@@ -1,4 +1,4 @@
+pub mod admin;
 pub mod autorizacion;
 pub mod postulante;
-mod psicologo;
-pub mod usuario;
+pub mod psicologo;

@@ -1,0 +1,20 @@
+### Variables
+@baseUrl = http://localhost:8008
+
+### Login del psicologo
+POST {{baseUrl}}/login/psicologo
+Content-Type: application/json
+
+{
+  "email": "maria.garcia@example.com",
+  "password": "mi_password_seguro"
+}
+
+### Login del segundo psicologo
+POST {{baseUrl}}/login/psicologo
+Content-Type: application/json
+
+{
+  "email": "carlos.rodriguez@example.com",
+  "password": "otro_password_seguro"
+}

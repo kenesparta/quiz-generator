@@ -18,11 +18,11 @@ p, admin, revision, leer
 p, admin, revision, escribir
 p, admin, revision, actualizar
 p, admin, revision, eliminar
-p, admin, usuario, leer
-p, admin, usuario, escribir
-p, admin, usuario, actualizar
-p, admin, usuario, eliminar
-
+p, admin, psicologo, leer
+p, admin, psicologo, escribir
+p, admin, admin, leer
+p, admin, admin, escribir
+p, psicologo, psicologo, leer
 p, psicologo, examen, leer
 p, psicologo, examen, escribir
 p, psicologo, examen, actualizar

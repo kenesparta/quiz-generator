@@ -12,7 +12,7 @@ pub async fn create_mongo_client(connection_string: &str) -> Result<Client, Box<
         .database("admin")
         .run_command(doc! {"ping": 1})
         .await?;
-    println!("Connected to MongoDB successfully");
+    log::info!("Connected to MongoDB successfully");
 
     Ok(client)
 }

@@ -2,11 +2,10 @@
 @baseUrl = http://localhost:8008
 
 ### Revisar la evaluacion
-PATCH {{baseUrl}}/revision
+POST {{baseUrl}}/revisiones/2c687ba9-9120-4d08-8290-233551b81c50
 Content-Type: application/json
 
 {
-  "respuesta_id": "2c687ba9-9120-4d08-8290-233551b81c50",
   "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
   "examenes": [
     {
@@ -21,7 +20,7 @@ Content-Type: application/json
 }
 
 ### Retorna todas las respuestas listas para ser corregidas
-GET {{baseUrl}}/respuesta/revision
+GET {{baseUrl}}/revisiones
 Content-Type: application/json
 
 {}

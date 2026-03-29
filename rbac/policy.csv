@@ -22,6 +22,7 @@ p, admin, psicologo, leer
 p, admin, psicologo, escribir
 p, admin, admin, leer
 p, admin, admin, escribir
+
 p, psicologo, psicologo, leer
 p, psicologo, examen, leer
 p, psicologo, examen, escribir
@@ -34,6 +35,8 @@ p, psicologo, postulante, escribir
 p, psicologo, respuesta, leer
 p, psicologo, revision, leer
 p, psicologo, revision, escribir
+
+p, postulante, postulante, leer
 
 p, postulante, respuesta, leer
 p, postulante, respuesta, escribir

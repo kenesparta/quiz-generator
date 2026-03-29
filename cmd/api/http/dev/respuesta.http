@@ -3,75 +3,84 @@
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 @postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
 @postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlMTc0MzllMC03OWUxLTQ3ZTMtYjVmOS01YjU0MzY3ZmEyOTAiLCJleHAiOjE3NzQ4MzU1NDMsImlhdCI6MTc3NDc5OTU0Mywicm9sIjoicG9zdHVsYW50ZSJ9.8AL6rMSlBBELw3wHgtQzrRUGfNrvX7aQSgERwCExUM8
 
 ### Asignar una evaluacion al postulante01
-POST {{baseUrl}}/respuesta
+POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "evaluacion_id": "{{evaluacionId}}",
   "postulante_id": "{{postulante01}}"
 }
 
 ### Asignar una evaluacion al postulante02
-POST {{baseUrl}}/respuesta
+POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "evaluacion_id": "{{evaluacionId}}",
   "postulante_id": "{{postulante02}}"
 }
 
 ### Empezar examen del postulante01
-PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/empezar
+PATCH {{baseUrl}}/respuestas/dff8e230-3c3f-4473-8864-254d9b00b94d/estado
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
-{}
+{
+  "accion": "empezar"
+}
 
 ### Empezar examen del postulante02
-PATCH {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/empezar
-Content-Type: application/json
-
-{}
-
-### Listar respuestas del postulante01 (excluye finalizadas)
-GET {{baseUrl}}/respuesta/postulante/{{postulante01}}
-Content-Type: application/json
-
-### Listar respuestas del postulante02 (excluye finalizadas)
-GET {{baseUrl}}/respuesta/postulante/{{postulante02}}
-Content-Type: application/json
-
-### Obtener repuesta del postulante01
-GET {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/postulante/{{postulante01}}
-Content-Type: application/json
-
-### Obtener repuesta del postulante02
-GET {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/postulante/{{postulante02}}
-Content-Type: application/json
-
-### Enviar Respuesta del postulante01
-PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50
+PATCH {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/estado
 Content-Type: application/json
 
 {
-  "postulante_id": "{{postulante01}}",
-  "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
-  "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
-  "pregunta_id": "e06743ff-8090-49b0-98c2-bd59db7d610f",
+  "accion": "empezar"
+}
+
+### Listar respuestas del postulante01 (excluye finalizadas)
+GET {{baseUrl}}/respuestas?postulante_id={{postulante01}}
+Authorization: Bearer {{token}}
+
+Content-Type: application/json
+
+### Listar respuestas del postulante02 (excluye finalizadas)
+GET {{baseUrl}}/respuestas?postulante_id={{postulante02}}
+Content-Type: application/json
+
+### Obtener repuesta del postulante01
+GET {{baseUrl}}/respuestas/dff8e230-3c3f-4473-8864-254d9b00b94d
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Obtener repuesta del postulante02
+GET {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f
+Content-Type: application/json
+
+### Enviar Respuesta del postulante01
+POST {{baseUrl}}/respuestas/2c687ba9-9120-4d08-8290-233551b81c50/examenes/19573e4f-321d-41ad-a8a9-3807c6fd3d65/preguntas/e06743ff-8090-49b0-98c2-bd59db7d610f/contestaciones
+Content-Type: application/json
+
+{
   "respuestas": [
     "D"
   ]
 }
 
 ### Finalizar la evaluacion
-PATCH {{baseUrl}}/respuesta/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/finalizar
+PATCH {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/estado
 Content-Type: application/json
 
-{}
+{
+  "accion": "finalizar"
+}
 
 ### Finalizar la evaluacion
-PATCH {{baseUrl}}/respuesta/2c687ba9-9120-4d08-8290-233551b81c50/finalizar
+PATCH {{baseUrl}}/respuestas/2c687ba9-9120-4d08-8290-233551b81c50/estado
 Content-Type: application/json
 
-{}
+{
+  "accion": "finalizar"
+}

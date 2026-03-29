@@ -197,12 +197,3 @@ impl From<OutputPregunta> for PreguntaDTO {
         }
     }
 }
-
-#[derive(Serialize)]
-pub struct RespuestaRevisionDTO {
-    pub revision_id: String,
-    pub nombre_evaluacion: String,
-    pub descripcion_evaluacion: String,
-    pub estado_revision: String,
-    pub postulante_id: String,
-}

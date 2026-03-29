@@ -227,16 +227,11 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
 
 pub struct RespositorioFinalizarEvaluacionMongo {
     client: web::Data<mongodb::Client>,
-    repositorio_evaluacion: EvaluacionMongo,
 }
 
 impl RespositorioFinalizarEvaluacionMongo {
     pub fn new(client: web::Data<mongodb::Client>) -> Self {
-        let repositorio_evaluacion = EvaluacionMongo::new(client.clone());
-        Self {
-            client,
-            repositorio_evaluacion,
-        }
+        Self { client }
     }
 }
 

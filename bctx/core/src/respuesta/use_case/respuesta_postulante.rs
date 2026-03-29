@@ -20,7 +20,9 @@ pub struct OutputData {
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_transcurrido: i64,
     pub fecha_tiempo_fin: String,
+    pub estado: String,
     pub evaluacion: OutputEvaluacion,
+    pub revision: String,
     pub resultado: String,
 }
 
@@ -133,12 +135,24 @@ where
                 0
             };
 
+        let estado = if respuestas.fecha_tiempo_fin.is_empty()
+            && respuestas.fecha_tiempo_inicio.is_empty()
+        {
+            "Creado".to_string()
+        } else if respuestas.fecha_tiempo_fin.is_empty() {
+            "EnProceso".to_string()
+        } else {
+            "Finalizado".to_string()
+        };
+
         Ok(OutputData {
             id: respuestas.id.to_string(),
             fecha_tiempo_inicio: fecha_inicio_str,
             fecha_tiempo_transcurrido,
             fecha_tiempo_fin: respuestas.fecha_tiempo_fin.to_string(),
+            estado,
             evaluacion: respuestas.evaluacion.into(),
+            revision: respuestas.revision.to_string(),
             resultado: respuestas.resultado,
         })
     }

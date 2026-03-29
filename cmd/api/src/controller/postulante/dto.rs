@@ -1,3 +1,4 @@
+use crate::controller::hateoas::{Link, Links};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Clone)]
@@ -28,14 +29,26 @@ pub struct PostulanteResponseDTO {
     pub grado_instruccion: String,
     pub genero: String,
     #[serde(rename = "_links")]
-    pub links_: Links,
+    pub links: Links,
 }
 
-#[derive(Serialize)]
-pub struct Links {
-    pub self_: String,
-    pub update: String,
-    pub delete: String,
-    pub exams: String,
-    pub results: String,
+pub fn build_postulante_links(postulante_id: &str) -> Links {
+    let mut links = Links::new();
+    links.insert(
+        "self".into(),
+        Link::get(format!("/postulantes/{}", postulante_id)),
+    );
+    links.insert(
+        "update".into(),
+        Link::put(format!("/postulantes/{}", postulante_id)),
+    );
+    links.insert(
+        "delete".into(),
+        Link::delete(format!("/postulantes/{}", postulante_id)),
+    );
+    links.insert(
+        "respuestas".into(),
+        Link::get(format!("/respuestas?postulante_id={}", postulante_id)),
+    );
+    links
 }

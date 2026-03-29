@@ -4,7 +4,7 @@ use crate::postulante::provider::repositorio::{
 };
 use async_trait::async_trait;
 use quizz_common::provider::jwt::JwtProviderGenerate;
-use quizz_common::provider::seguridad::{SeguridadCifrar, SeguridadComparar};
+use quizz_common::provider::seguridad::SeguridadComparar;
 use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {

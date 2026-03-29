@@ -1,13 +1,13 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlMTc0MzllMC03OWUxLTQ3ZTMtYjVmOS01YjU0MzY3ZmEyOTAiLCJleHAiOjE3NzQ0NDY5MzgsImlhdCI6MTc3NDQxMDkzOCwicm9sIjoicG9zdHVsYW50ZSJ9.u_sWr89wbp1ii1Fxyt0migcUFlZCI-6O3fe8-GdfVJg
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzQ4MzQyODYsImlhdCI6MTc3NDc5ODI4Niwicm9sIjoicHNpY29sb2dvIn0.WkszCYgK7s7ciEYTRDO22RFTcJIK6VGiD3bVqabMNAg
 
 ### Health check
 GET {{baseUrl}}/health-check
 Content-Type: application/json
 
 ### Registrar nuevo Postulante
-POST {{baseUrl}}/postulante/e17439e0-79e1-47e3-b5f9-5b54367fa290
+POST {{baseUrl}}/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -22,7 +22,7 @@ Authorization: Bearer {{token}}
 }
 
 ### Registrar nuevo Postulante
-POST {{baseUrl}}/postulante/d4e92ac2-882a-4e46-ae56-b2361ac5327e
+POST {{baseUrl}}/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -37,7 +37,7 @@ Authorization: Bearer {{token}}
 }
 
 ### Registrar nuevo Postulante
-POST {{baseUrl}}/postulante/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
+POST {{baseUrl}}/postulantes/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -52,17 +52,17 @@ Authorization: Bearer {{token}}
 }
 
 ### Obtener el postulante por documento
-GET {{baseUrl}}/postulante?documento=04009988
+GET {{baseUrl}}/postulantes?documento=04009988
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
 ### Obtener el postulante por id
-GET {{baseUrl}}/postulante?id=0b9fbef0-fc03-4e24-b5d0-dfb42b537324
+GET {{baseUrl}}/postulantes?id=0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### Obtener lista de postulantes
-GET {{baseUrl}}/postulante
+GET {{baseUrl}}/postulantes
 Content-Type: application/json
 Authorization: Bearer {{token}}

@@ -68,7 +68,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
 
     async fn actualizar_postulante(
         &self,
-        postulante_id: PostulanteID,
+        _postulante_id: PostulanteID,
     ) -> Result<(), PostulanteError> {
         todo!()
     }

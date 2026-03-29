@@ -11,6 +11,7 @@ pub struct RegistrarPsicologoDTO {
 }
 
 #[derive(Serialize)]
+#[allow(dead_code)]
 pub struct PsicologoResponseDTO {
     pub id: String,
     pub nombre: String,

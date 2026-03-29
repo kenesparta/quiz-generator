@@ -1,4 +1,3 @@
-use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::respuesta::domain::entity::pregunta::corregir_respuesta;
 use crate::respuesta::domain::entity::respuesta::RespuestaEvaluacion;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
@@ -43,6 +42,7 @@ where
             respuestas: in_.respuestas,
         };
 
+        // TODO: No puede responder evaluaciones ya finalizadas
         let puntaje = self.repositorio.obtener_puntaje(&resp).await?;
         resp.puntos = corregir_respuesta(&resp.respuestas, puntaje);
 

@@ -1,5 +1,5 @@
 mod dto;
-mod listar_postulante;
+mod listar_revisiones;
 mod mongo;
 mod revisar_evaluacion_postulante;
 pub mod route;

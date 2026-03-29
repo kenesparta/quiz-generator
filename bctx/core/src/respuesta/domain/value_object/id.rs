@@ -1,4 +1,3 @@
-use crate::pregunta::domain::value_object::id::PreguntaID;
 use quizz_common::domain::value_objects::id::{ID, IdError};
 use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;

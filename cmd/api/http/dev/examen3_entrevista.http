@@ -3,7 +3,7 @@
 @examId3 = 8e65028c-30e6-47e5-b7dc-121ee2133d49
 
 ### Crear Examen
-POST {{baseUrl}}/examen/{{examId3}}
+POST {{baseUrl}}/examenes/{{examId3}}
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ### Agregar preguntas
-PUT {{baseUrl}}/examen/{{examId3}}
+PUT {{baseUrl}}/examenes/{{examId3}}
 Content-Type: application/json
 
 {

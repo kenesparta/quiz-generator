@@ -10,6 +10,7 @@ pub struct RegistrarAdminDTO {
 }
 
 #[derive(Serialize)]
+#[allow(dead_code)]
 pub struct AdminResponseDTO {
     pub id: String,
     pub nombre: String,

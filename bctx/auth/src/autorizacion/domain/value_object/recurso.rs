@@ -38,13 +38,13 @@ impl FromStr for Recurso {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "admin" => Ok(Recurso::Admin),
-            "examen" => Ok(Recurso::Examen),
-            "evaluacion" => Ok(Recurso::Evaluacion),
-            "postulante" => Ok(Recurso::Postulante),
-            "psicologo" => Ok(Recurso::Psicologo),
-            "respuesta" => Ok(Recurso::Respuesta),
-            "revision" => Ok(Recurso::Revision),
+            "admin" | "admins" => Ok(Recurso::Admin),
+            "examen" | "examenes" => Ok(Recurso::Examen),
+            "evaluacion" | "evaluaciones" => Ok(Recurso::Evaluacion),
+            "postulante" | "postulantes" => Ok(Recurso::Postulante),
+            "psicologo" | "psicologos" => Ok(Recurso::Psicologo),
+            "respuesta" | "respuestas" => Ok(Recurso::Respuesta),
+            "revision" | "revisiones" => Ok(Recurso::Revision),
             _ => Err(RecursoError::NoValido(s.to_string())),
         }
     }
@@ -63,7 +63,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_recurso_from_str_valido() {
+    fn test_recurso_from_str_singular() {
         assert_eq!("admin".parse::<Recurso>().unwrap(), Recurso::Admin);
         assert_eq!("examen".parse::<Recurso>().unwrap(), Recurso::Examen);
         assert_eq!(
@@ -80,12 +80,52 @@ mod tests {
     }
 
     #[test]
-    fn test_recurso_desde_ruta() {
+    fn test_recurso_from_str_plural() {
+        assert_eq!("admins".parse::<Recurso>().unwrap(), Recurso::Admin);
+        assert_eq!("examenes".parse::<Recurso>().unwrap(), Recurso::Examen);
+        assert_eq!(
+            "evaluaciones".parse::<Recurso>().unwrap(),
+            Recurso::Evaluacion
+        );
+        assert_eq!(
+            "postulantes".parse::<Recurso>().unwrap(),
+            Recurso::Postulante
+        );
+        assert_eq!("psicologos".parse::<Recurso>().unwrap(), Recurso::Psicologo);
+        assert_eq!("respuestas".parse::<Recurso>().unwrap(), Recurso::Respuesta);
+        assert_eq!("revisiones".parse::<Recurso>().unwrap(), Recurso::Revision);
+    }
+
+    #[test]
+    fn test_recurso_desde_ruta_plural() {
+        assert_eq!(
+            Recurso::desde_ruta("/examenes/123").unwrap(),
+            Recurso::Examen
+        );
+        assert_eq!(
+            Recurso::desde_ruta("/respuestas/456").unwrap(),
+            Recurso::Respuesta
+        );
+        assert_eq!(
+            Recurso::desde_ruta("/revisiones").unwrap(),
+            Recurso::Revision
+        );
+    }
+
+    #[test]
+    fn test_recurso_desde_ruta_singular() {
         assert_eq!(Recurso::desde_ruta("/examen/123").unwrap(), Recurso::Examen);
         assert_eq!(
             Recurso::desde_ruta("/respuesta/456/postulante/789").unwrap(),
             Recurso::Respuesta
         );
+    }
+
+    #[test]
+    fn test_recurso_display_siempre_singular() {
+        assert_eq!(Recurso::Respuesta.to_string(), "respuesta");
+        assert_eq!(Recurso::Revision.to_string(), "revision");
+        assert_eq!(Recurso::Examen.to_string(), "examen");
     }
 
     #[test]

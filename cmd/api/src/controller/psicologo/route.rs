@@ -3,7 +3,7 @@ use actix_web::web;
 
 pub fn psicologo(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/psicologo")
+        web::scope("/psicologos")
             .service(web::resource("/{id}").route(web::post().to(PsicologoController::create))),
     );
 }

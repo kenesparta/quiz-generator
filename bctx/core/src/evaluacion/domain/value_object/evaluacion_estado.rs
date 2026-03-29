@@ -1,4 +1,3 @@
-use quizz_common::domain::value_objects::estado::EstadoGeneralError;
 use std::fmt;
 use std::str::FromStr;
 use thiserror::Error;

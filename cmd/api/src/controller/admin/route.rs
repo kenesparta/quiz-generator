@@ -3,7 +3,7 @@ use actix_web::web;
 
 pub fn admin(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/admin")
+        web::scope("/admins")
             .service(web::resource("/{id}").route(web::post().to(AdminController::create))),
     );
 }

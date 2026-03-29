@@ -2,6 +2,7 @@ pub mod admin;
 pub mod auth;
 pub mod evaluacion;
 pub mod examen;
+pub mod hateoas;
 pub mod healthcheck;
 mod mongo_repository;
 pub mod postulante;

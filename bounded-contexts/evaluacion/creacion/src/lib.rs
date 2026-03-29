@@ -24,6 +24,7 @@
 //! - **Value Objects**: Puntajes, etiquetas, alternativas como objetos inmutables
 //! - **Aggregate Root**: Examen como raíz de agregado que contiene preguntas
 
+#[allow(dead_code)]
 mod evaluacion;
 mod examen;
 mod pregunta;

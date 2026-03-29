@@ -4,7 +4,7 @@
 @pass = 5678
 
 ### Agregar Evaluacion
-POST {{baseUrl}}/evaluacion/{{evaluacionId}}
+POST {{baseUrl}}/evaluaciones/{{evaluacionId}}
 Content-Type: application/json
 
 ### Login del postulante

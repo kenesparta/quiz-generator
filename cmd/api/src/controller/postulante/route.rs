@@ -4,7 +4,7 @@ use actix_web::web;
 
 pub fn postulante(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/postulante")
+        web::scope("/postulantes")
             .service(
                 web::resource("")
                     .route(web::get().to(PostulanteObtenerPorDocumentoController::get)),

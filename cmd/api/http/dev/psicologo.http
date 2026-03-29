@@ -3,7 +3,7 @@
 @token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MTQ0ODYzMS1lY2I0LTQ2NDMtYTk1NS0wYzRjN2RlYWFiZTIiLCJleHAiOjE3NzQ0NDY2NDgsImlhdCI6MTc3NDQxMDY0OCwicm9sIjoiYWRtaW4ifQ.inaTWnBfzxj1JulHnv_E6fTQWWQLkmt4Y3YpU1JU6T0
 
 ### Registrar nuevo Psicologo
-POST {{baseUrl}}/psicologo/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+POST {{baseUrl}}/psicologos/a1b2c3d4-e5f6-7890-abcd-ef1234567890
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -17,7 +17,7 @@ Authorization: Bearer {{token}}
 }
 
 ### Registrar segundo Psicologo
-POST {{baseUrl}}/psicologo/b2c3d4e5-f6a7-8901-bcde-f12345678901
+POST {{baseUrl}}/psicologos/b2c3d4e5-f6a7-8901-bcde-f12345678901
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

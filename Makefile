@@ -14,7 +14,7 @@ prod:
 	docker compose -f docker-compose.prod.yml up -d --build
 
 run:
-	cargo run --bin quizz
+	RUST_LOG=info cargo run -p quizz-api --bin quizz
 
 run-log:
 	RUST_LOG=quizz_api=info cargo run --bin quizz

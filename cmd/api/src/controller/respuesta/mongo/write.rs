@@ -117,7 +117,6 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
     ) -> Result<(), RespuestaError> {
         let filter = doc! {
             "_id": &respuesta_evaluacion.id.to_string(),
-            "evaluacion._id": &respuesta_evaluacion.evaluacion_id,
             "evaluacion.examenes._id": &respuesta_evaluacion.examen_id,
             "evaluacion.examenes.preguntas._id": &respuesta_evaluacion.pregunta_id
         };
@@ -134,12 +133,16 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             doc! { "pregunta._id": &respuesta_evaluacion.pregunta_id },
         ];
 
-        let _result = self
+        let result = self
             .get_collection()
             .update_one(filter, update)
             .array_filters(array_filters)
             .await
             .map_err(|_| RespuestaError::DatabaseError)?;
+
+        if result.matched_count == 0 {
+            return Err(RespuestaError::RespuestaNoEncontrada);
+        }
 
         Ok(())
     }

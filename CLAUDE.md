@@ -149,21 +149,33 @@ database:
 ### API Routes
 
 - `GET /health-check` - Health check endpoint
-- `/examen/{id}` - Create exams, add questions
-- `/evaluacion/{id}` - Create evaluations, associate exams, publish
-- `/postulante` - CRUD operations for candidates
-- `/respuesta` - Assign evaluations to candidates, manage exam lifecycle, submit answers
-  - `POST /respuesta` - Assign evaluation to candidate (creates respuesta with estado: Creado)
-  - `GET /respuesta/postulante/{postulante_id}` - List candidate's respuestas (excludes finalized)
-  - `GET /respuesta/{id}/postulante/{postulante_id}` - Get specific respuesta details
-  - `PATCH /respuesta/{id}/empezar` - Start exam (Creado → EnProceso, sets fecha_tiempo_inicio)
-  - `PATCH /respuesta/{id}` - Submit answers to questions
-  - `PATCH /respuesta/{id}/finalizar` - Finalize exam (EnProceso → Finalizado, sets fecha_tiempo_fin)
-- `/revision` - Grade and review completed evaluations
-  - `GET /respuesta/revision` - List finalized respuestas awaiting review
-- `/usuario` - User management (protected, admin only)
-  - `POST /usuario` - Register a new user (nombre, email, password, rol)
+- `/examenes` - Create exams, add questions
+  - `POST /examenes/{id}` - Create an exam
+  - `PUT /examenes/{id}` - Add a question to an exam
+- `/evaluaciones` - Create evaluations, associate exams, publish, assign to candidates
+  - `POST /evaluaciones/{id}` - Create an evaluation
+  - `PUT /evaluaciones/{id}` - Associate exams with an evaluation
+  - `PATCH /evaluaciones/{id}` - Publish an evaluation
+  - `POST /evaluaciones/{evaluacion_id}/respuestas` - Assign evaluation to a candidate (creates respuesta with estado: Creado)
+- `/postulantes` - CRUD operations for candidates
+  - `GET /postulantes` - Search candidate by document
+  - `POST /postulantes/{id}` - Create candidate
+  - `PUT /postulantes/{id}` - Update candidate
+  - `DELETE /postulantes/{id}` - Remove candidate
+- `/respuestas` - Manage exam lifecycle, submit answers
+  - `GET /respuestas` - List respuestas
+  - `GET /respuestas/{id}` - Get specific respuesta details
+  - `PATCH /respuestas/{id}/estado` - Transition respuesta state (body: `{"accion":"empezar"}` or `{"accion":"finalizar"}`)
+    - `empezar`: Creado → EnProceso (sets fecha_tiempo_inicio)
+    - `finalizar`: EnProceso → Finalizado (sets fecha_tiempo_fin)
+  - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` - Submit answer to a question
+- `/revisiones` - Grade and review completed evaluations
+  - `GET /revisiones` - List revisiones
+  - `POST /revisiones/{respuesta_id}` - Review evaluation for a candidate
 - `/login` - Authentication endpoints
+  - `POST /login/postulante` - Candidate login
+  - `POST /login/psicologo` - Psychologist login
+  - `POST /login/admin` - Admin login
 
 Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/IntelliJ HTTP Client).
 

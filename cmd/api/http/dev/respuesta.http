@@ -3,7 +3,7 @@
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 @postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
 @postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlMTc0MzllMC03OWUxLTQ3ZTMtYjVmOS01YjU0MzY3ZmEyOTAiLCJleHAiOjE3NzQ4MzU1NDMsImlhdCI6MTc3NDc5OTU0Mywicm9sIjoicG9zdHVsYW50ZSJ9.8AL6rMSlBBELw3wHgtQzrRUGfNrvX7aQSgERwCExUM8
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzU0NzgyNjAsImlhdCI6MTc3NTQ0MjI2MCwicm9sIjoicHNpY29sb2dvIn0.f7AFJJsv2DQtx2FYRa3un9RuvR_s7NXS0MFzbw66VKg
 
 ### Asignar una evaluacion al postulante01
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas

@@ -82,22 +82,31 @@ curl -i http://localhost:8008/health-check
 Routes are grouped by scope:
 
 - GET /health-check
-- /examen/{id}
-  - POST: create an exam
-  - PUT: add questions to an exam
-- /evaluacion/{id}
-  - POST: create an evaluation
-  - PUT: associate exams with an evaluation
-  - PATCH: publish an evaluation
-- /postulante
-  - GET /postulante: get candidate by document (see controller for expected query fields)
-  - POST /postulante/{id}: create candidate
-  - PUT /postulante/{id}: update candidate
-  - DELETE /postulante/{id}: remove candidate
-- /respuesta
-  - POST /respuesta: assign an evaluation to a candidate
-  - GET /respuesta/{id}: get a candidate’s evaluation/answers
-  - POST /respuesta/{id}: submit answers for a question in an evaluation
+- /examenes
+  - POST /examenes/{id}: create an exam
+  - PUT /examenes/{id}: add a question to an exam
+- /evaluaciones
+  - POST /evaluaciones/{id}: create an evaluation
+  - PUT /evaluaciones/{id}: associate exams with an evaluation
+  - PATCH /evaluaciones/{id}: publish an evaluation
+  - POST /evaluaciones/{evaluacion_id}/respuestas: assign evaluation to a candidate
+- /postulantes
+  - GET /postulantes: search candidate by document
+  - POST /postulantes/{id}: create candidate
+  - PUT /postulantes/{id}: update candidate
+  - DELETE /postulantes/{id}: remove candidate
+- /respuestas
+  - GET /respuestas: list respuestas
+  - GET /respuestas/{id}: get a specific respuesta
+  - PATCH /respuestas/{id}/estado: transition state (body: `{"accion":"empezar"}` or `{"accion":"finalizar"}`)
+  - POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones: submit answer to a question
+- /revisiones
+  - GET /revisiones: list revisiones
+  - POST /revisiones/{respuesta_id}: review evaluation for a candidate
+- /login
+  - POST /login/postulante: candidate login
+  - POST /login/psicologo: psychologist login
+  - POST /login/admin: admin login
 
 Example requests are provided as HTTP files you can use with VS Code/IntelliJ HTTP Client:
 

@@ -1,5 +1,5 @@
 pub struct AdminLogin {
     pub id: String,
-    pub email: String,
+    pub documento: String,
     pub password: String,
 }

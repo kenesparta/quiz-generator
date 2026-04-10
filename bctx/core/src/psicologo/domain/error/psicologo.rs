@@ -9,11 +9,8 @@ pub enum PsicologoError {
     #[error("Nombre no valido: {0}")]
     NombreNoValido(String),
 
-    #[error("Email vacio")]
-    EmailVacio,
-
-    #[error("Email no valido: {0}")]
-    EmailNoValido(String),
+    #[error("Documento no valido: {0}")]
+    DocumentoNoValido(String),
 
     #[error("Especialidad vacia")]
     EspecialidadVacia,

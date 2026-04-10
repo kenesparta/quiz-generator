@@ -10,7 +10,7 @@ pub struct InputData {
     pub nombre: String,
     pub primer_apellido: String,
     pub segundo_apellido: String,
-    pub email: String,
+    pub documento: String,
     pub especialidad: String,
     pub password: String,
 }
@@ -46,7 +46,7 @@ where
             in_.nombre,
             in_.primer_apellido,
             in_.segundo_apellido,
-            in_.email,
+            in_.documento,
             in_.especialidad,
             password,
         )?;
@@ -105,7 +105,7 @@ mod tests {
                 nombre: "Maria".to_string(),
                 primer_apellido: "Garcia".to_string(),
                 segundo_apellido: "Lopez".to_string(),
-                email: "maria@example.com".to_string(),
+                documento: "44556677".to_string(),
                 especialidad: "Psicologia Clinica".to_string(),
                 password: "mi_password_seguro".to_string(),
             })
@@ -115,7 +115,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_registrar_psicologo_invalid_email() {
+    async fn test_registrar_psicologo_invalid_documento() {
         let password_crypto = Box::new(MockSeguridadPasswordPsicologo {
             _cifrar_result: Ok("hashed_password".to_string()),
         });
@@ -133,7 +133,7 @@ mod tests {
                 nombre: "Maria".to_string(),
                 primer_apellido: "Garcia".to_string(),
                 segundo_apellido: "Lopez".to_string(),
-                email: "maria-sin-arroba.com".to_string(),
+                documento: "12".to_string(),
                 especialidad: "Psicologia Clinica".to_string(),
                 password: "mi_password_seguro".to_string(),
             })

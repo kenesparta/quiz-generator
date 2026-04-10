@@ -8,7 +8,7 @@ use quizz_common::provider::seguridad::SeguridadComparar;
 use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
-    pub email: String,
+    pub documento: String,
     pub password: String,
 }
 
@@ -17,20 +17,20 @@ pub struct OutputData {
     pub expiration: u64,
 }
 
-pub struct LoginAdminPorEmail<RepoErr> {
+pub struct LoginAdminPorDocumento<RepoErr> {
     crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
     repositorio: Box<dyn RepositorioAdminLoginLectura<RepoErr>>,
     repositorio_cache: Box<dyn RepositorioAdminCacheEscritura<RepoErr>>,
     jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
 }
 
-impl<RepoErr> LoginAdminPorEmail<RepoErr> {
+impl<RepoErr> LoginAdminPorDocumento<RepoErr> {
     pub fn new(
         crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
         repositorio: Box<dyn RepositorioAdminLoginLectura<RepoErr>>,
         repositorio_cache: Box<dyn RepositorioAdminCacheEscritura<RepoErr>>,
         jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
-    ) -> LoginAdminPorEmail<RepoErr> {
+    ) -> LoginAdminPorDocumento<RepoErr> {
         Self {
             crypto_comparar,
             repositorio,
@@ -41,12 +41,12 @@ impl<RepoErr> LoginAdminPorEmail<RepoErr> {
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, AdminLoginError> for LoginAdminPorEmail<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, OutputData, AdminLoginError> for LoginAdminPorDocumento<RepoErr>
 where
     AdminLoginError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<OutputData, AdminLoginError> {
-        let admin = self.repositorio.obtener_admin_por_email(in_.email).await?;
+        let admin = self.repositorio.obtener_admin_por_documento(in_.documento).await?;
 
         self.crypto_comparar
             .comparar(in_.password, admin.password)

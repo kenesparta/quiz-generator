@@ -1,5 +1,5 @@
 pub struct PsicologoLogin {
     pub id: String,
-    pub email: String,
+    pub documento: String,
     pub password: String,
 }

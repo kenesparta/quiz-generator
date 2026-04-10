@@ -1,5 +1,6 @@
 use crate::admin::domain::error::admin::AdminError;
 use crate::admin::domain::value_object::id::AdminID;
+use crate::postulante::domain::value_object::documento::Documento;
 
 /// Representa al administrador del sistema.
 #[derive(Debug)]
@@ -8,7 +9,7 @@ pub struct Admin {
     pub nombre: String,
     pub primer_apellido: String,
     pub segundo_apellido: String,
-    pub email: String,
+    pub documento: String,
     pub password: Option<String>,
 }
 
@@ -18,7 +19,7 @@ impl Admin {
         nombre: String,
         primer_apellido: String,
         segundo_apellido: String,
-        email: String,
+        documento: String,
         password: String,
     ) -> Result<Self, AdminError> {
         let id = AdminID::new(&id)?;
@@ -31,12 +32,8 @@ impl Admin {
                 "primer apellido vacio".to_string(),
             ));
         }
-        if email.trim().is_empty() {
-            return Err(AdminError::EmailVacio);
-        }
-        if !email.contains('@') {
-            return Err(AdminError::EmailNoValido(email));
-        }
+        let documento_vo = Documento::new(&documento)
+            .map_err(|e| AdminError::DocumentoNoValido(e.to_string()))?;
         if password.trim().is_empty() {
             return Err(AdminError::PasswordVacio);
         }
@@ -46,7 +43,7 @@ impl Admin {
             nombre: nombre.trim().to_string(),
             primer_apellido: primer_apellido.trim().to_string(),
             segundo_apellido: segundo_apellido.trim().to_string(),
-            email: email.trim().to_lowercase(),
+            documento: documento_vo.value().clone(),
             password: Some(password),
         })
     }
@@ -65,6 +62,10 @@ mod tests {
         "$2a$12$b0a7aabc6PcLyAMKifb3pOCSwi8zgqf0ylujb8DgF3I1r.xn.Mrn2".to_string()
     }
 
+    fn valid_documento() -> String {
+        "11223344".to_string()
+    }
+
     #[test]
     fn test_new_success() {
         let result = Admin::new(
@@ -72,14 +73,14 @@ mod tests {
             "Carlos".to_string(),
             "Martinez".to_string(),
             "Lopez".to_string(),
-            "carlos@example.com".to_string(),
+            valid_documento(),
             valid_password(),
         );
         assert!(result.is_ok());
         let admin = result.unwrap();
         assert_eq!(admin.nombre, "Carlos");
         assert_eq!(admin.primer_apellido, "Martinez");
-        assert_eq!(admin.email, "carlos@example.com");
+        assert_eq!(admin.documento, "11223344");
     }
 
     #[test]
@@ -89,7 +90,7 @@ mod tests {
             "Carlos".to_string(),
             "Martinez".to_string(),
             "Lopez".to_string(),
-            "carlos@example.com".to_string(),
+            valid_documento(),
             valid_password(),
         );
         assert!(matches!(
@@ -105,7 +106,7 @@ mod tests {
             "".to_string(),
             "Martinez".to_string(),
             "Lopez".to_string(),
-            "carlos@example.com".to_string(),
+            valid_documento(),
             valid_password(),
         );
         assert!(matches!(result.unwrap_err(), AdminError::NombreNoValido(_)));
@@ -118,14 +119,14 @@ mod tests {
             "Carlos".to_string(),
             "  ".to_string(),
             "Lopez".to_string(),
-            "carlos@example.com".to_string(),
+            valid_documento(),
             valid_password(),
         );
         assert!(matches!(result.unwrap_err(), AdminError::NombreNoValido(_)));
     }
 
     #[test]
-    fn test_empty_email() {
+    fn test_empty_documento() {
         let result = Admin::new(
             valid_id(),
             "Carlos".to_string(),
@@ -134,20 +135,26 @@ mod tests {
             "".to_string(),
             valid_password(),
         );
-        assert!(matches!(result.unwrap_err(), AdminError::EmailVacio));
+        assert!(matches!(
+            result.unwrap_err(),
+            AdminError::DocumentoNoValido(_)
+        ));
     }
 
     #[test]
-    fn test_invalid_email() {
+    fn test_invalid_documento() {
         let result = Admin::new(
             valid_id(),
             "Carlos".to_string(),
             "Martinez".to_string(),
             "Lopez".to_string(),
-            "carlos-sin-arroba.com".to_string(),
+            "12".to_string(),
             valid_password(),
         );
-        assert!(matches!(result.unwrap_err(), AdminError::EmailNoValido(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            AdminError::DocumentoNoValido(_)
+        ));
     }
 
     #[test]
@@ -157,7 +164,7 @@ mod tests {
             "Carlos".to_string(),
             "Martinez".to_string(),
             "Lopez".to_string(),
-            "carlos@example.com".to_string(),
+            valid_documento(),
             "".to_string(),
         );
         assert!(matches!(result.unwrap_err(), AdminError::PasswordVacio));

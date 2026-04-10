@@ -10,7 +10,7 @@ pub struct InputData {
     pub nombre: String,
     pub primer_apellido: String,
     pub segundo_apellido: String,
-    pub email: String,
+    pub documento: String,
     pub password: String,
 }
 
@@ -44,7 +44,7 @@ where
             in_.nombre,
             in_.primer_apellido,
             in_.segundo_apellido,
-            in_.email,
+            in_.documento,
             password,
         )?;
         self.repositorio.registrar_admin(admin).await?;
@@ -102,7 +102,7 @@ mod tests {
                 nombre: "Carlos".to_string(),
                 primer_apellido: "Martinez".to_string(),
                 segundo_apellido: "Lopez".to_string(),
-                email: "carlos@example.com".to_string(),
+                documento: "11223344".to_string(),
                 password: "mi_password_seguro".to_string(),
             })
             .await;
@@ -111,7 +111,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_registrar_admin_invalid_email() {
+    async fn test_registrar_admin_invalid_documento() {
         let password_crypto = Box::new(MockSeguridadPasswordAdmin {
             _cifrar_result: Ok("hashed_password".to_string()),
         });
@@ -129,7 +129,7 @@ mod tests {
                 nombre: "Carlos".to_string(),
                 primer_apellido: "Martinez".to_string(),
                 segundo_apellido: "Lopez".to_string(),
-                email: "carlos-sin-arroba.com".to_string(),
+                documento: "12".to_string(),
                 password: "mi_password_seguro".to_string(),
             })
             .await;

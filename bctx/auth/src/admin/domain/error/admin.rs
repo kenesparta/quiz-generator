@@ -5,8 +5,8 @@ pub enum AdminLoginError {
     #[error("NoExisteUsuarioOPassword")]
     NoExisteUsuarioOPassword,
 
-    #[error("Password o Email Incorrectos")]
-    PasswordEmailIncorrectos,
+    #[error("Password o Documento Incorrectos")]
+    PasswordDocumentoIncorrectos,
 
     #[error("Error Al Generar JWT")]
     JWTErrorAlGenerar,

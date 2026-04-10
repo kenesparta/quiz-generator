@@ -4,7 +4,7 @@ use quizz_common::domain::entity::jwt::JwtObject;
 
 #[async_trait]
 pub trait RepositorioAdminLoginLectura<Error>: Send + Sync {
-    async fn obtener_admin_por_email(&self, email: String) -> Result<AdminLogin, Error>;
+    async fn obtener_admin_por_documento(&self, documento: String) -> Result<AdminLogin, Error>;
 }
 
 #[async_trait]

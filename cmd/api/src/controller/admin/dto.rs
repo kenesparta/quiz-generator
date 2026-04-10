@@ -5,7 +5,7 @@ pub struct RegistrarAdminDTO {
     pub nombre: String,
     pub primer_apellido: String,
     pub segundo_apellido: String,
-    pub email: String,
+    pub documento: String,
     pub password: String,
 }
 
@@ -16,5 +16,5 @@ pub struct AdminResponseDTO {
     pub nombre: String,
     pub primer_apellido: String,
     pub segundo_apellido: String,
-    pub email: String,
+    pub documento: String,
 }

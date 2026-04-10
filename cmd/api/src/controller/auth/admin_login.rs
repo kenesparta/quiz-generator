@@ -1,26 +1,35 @@
 use crate::configuration::JwtSettings;
 use crate::controller::auth::crypto::CifradoPorDefecto;
-use crate::controller::auth::dto::{EmailLoginRequestDTO, LoginResponseDTO};
+use crate::controller::auth::dto::{DocumentoLoginRequestDTO, LoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::mongo::admin_read::AdminLoginMongo;
 use crate::controller::auth::redis::admin_write::AdminLoginRedis;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info};
-use quizz_auth::admin::use_case::login::{InputData, LoginAdminPorEmail};
+use quizz_auth::admin::use_case::login::{InputData, LoginAdminPorDocumento};
 use quizz_common::use_case::CasoDeUso;
+use quizz_core::postulante::domain::value_object::documento::Documento;
 
 pub struct AdminLoginController;
 
 impl AdminLoginController {
     pub async fn login(
         _req: HttpRequest,
-        body: web::Json<EmailLoginRequestDTO>,
+        body: web::Json<DocumentoLoginRequestDTO>,
         pool: web::Data<mongodb::Client>,
         redis_client: web::Data<redis::Client>,
         jwt_settings: web::Data<JwtSettings>,
     ) -> HttpResponse {
         let dto = body.into_inner();
-        info!("POST /login/admin - email={}", dto.email);
+        info!("POST /login/admin - documento={}", dto.documento);
+
+        let documento = match Documento::new(&dto.documento) {
+            Ok(d) => d,
+            Err(e) => {
+                error!("POST /login/admin - documento no válido: {:?}", e);
+                return HttpResponse::BadRequest().finish();
+            }
+        };
 
         let redis_impl = match AdminLoginRedis::new(redis_client) {
             Ok(r) => r,
@@ -30,7 +39,7 @@ impl AdminLoginController {
             }
         };
 
-        let use_case = LoginAdminPorEmail::new(
+        let use_case = LoginAdminPorDocumento::new(
             Box::new(CifradoPorDefecto),
             Box::new(AdminLoginMongo::new(pool)),
             Box::new(redis_impl),
@@ -42,7 +51,7 @@ impl AdminLoginController {
 
         match use_case
             .ejecutar(InputData {
-                email: dto.email,
+                documento: documento.value().clone(),
                 password: dto.password,
             })
             .await

@@ -42,7 +42,7 @@ impl RepositorioPsicologoEscritura<PsicologoError> for PsicologoMongo {
             "nombre": psicologo.nombre,
             "primer_apellido": psicologo.primer_apellido,
             "segundo_apellido": psicologo.segundo_apellido,
-            "email": psicologo.email,
+            "documento": psicologo.documento,
             "especialidad": psicologo.especialidad,
             "password": password,
         };

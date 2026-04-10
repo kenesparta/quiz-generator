@@ -29,8 +29,11 @@ impl MongoRepository for AdminLoginMongo {
 
 #[async_trait]
 impl RepositorioAdminLoginLectura<AdminLoginError> for AdminLoginMongo {
-    async fn obtener_admin_por_email(&self, email: String) -> Result<AdminLogin, AdminLoginError> {
-        let filter = doc! { "email": email };
+    async fn obtener_admin_por_documento(
+        &self,
+        documento: String,
+    ) -> Result<AdminLogin, AdminLoginError> {
+        let filter = doc! { "documento": documento };
 
         match self.get_collection().find_one(filter).await {
             Ok(Some(doc)) => {
@@ -40,8 +43,8 @@ impl RepositorioAdminLoginLectura<AdminLoginError> for AdminLoginMongo {
                     .ok_or(AdminLoginError::RepositorioError)?
                     .to_string();
 
-                let email_db = doc
-                    .get("email")
+                let documento_db = doc
+                    .get("documento")
                     .and_then(|v| v.as_str())
                     .ok_or(AdminLoginError::RepositorioError)?
                     .to_string();
@@ -54,7 +57,7 @@ impl RepositorioAdminLoginLectura<AdminLoginError> for AdminLoginMongo {
 
                 Ok(AdminLogin {
                     id,
-                    email: email_db,
+                    documento: documento_db,
                     password: password_db,
                 })
             }

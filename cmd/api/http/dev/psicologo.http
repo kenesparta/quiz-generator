@@ -11,7 +11,7 @@ Authorization: Bearer {{token}}
   "nombre": "Maria",
   "primer_apellido": "Garcia",
   "segundo_apellido": "Lopez",
-  "email": "maria.garcia@example.com",
+  "documento": "44556677",
   "especialidad": "Psicologia Clinica",
   "password": "mi_password_seguro"
 }
@@ -25,7 +25,7 @@ Authorization: Bearer {{token}}
   "nombre": "Carlos",
   "primer_apellido": "Rodriguez",
   "segundo_apellido": "Martinez",
-  "email": "carlos.rodriguez@example.com",
+  "documento": "55667788",
   "especialidad": "Psicologia Organizacional",
   "password": "otro_password_seguro"
 }

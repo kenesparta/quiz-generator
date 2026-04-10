@@ -36,7 +36,7 @@ impl PsicologoController {
             nombre: dto.nombre,
             primer_apellido: dto.primer_apellido,
             segundo_apellido: dto.segundo_apellido,
-            email: dto.email,
+            documento: dto.documento,
             especialidad: dto.especialidad,
             password: dto.password,
         };
@@ -58,9 +58,12 @@ impl PsicologoController {
                     );
                     HttpResponse::BadRequest().json(format!("Error de nombre: {}", msg))
                 }
-                PsicologoError::EmailVacio | PsicologoError::EmailNoValido(_) => {
-                    warn!("POST /psicologo/{} - error de email: {}", psicologo_id, err);
-                    HttpResponse::BadRequest().json(format!("Error de email: {}", err))
+                PsicologoError::DocumentoNoValido(_) => {
+                    warn!(
+                        "POST /psicologo/{} - error de documento: {}",
+                        psicologo_id, err
+                    );
+                    HttpResponse::BadRequest().json(format!("Error de documento: {}", err))
                 }
                 PsicologoError::EspecialidadVacia => {
                     warn!("POST /psicologo/{} - especialidad vacia", psicologo_id);

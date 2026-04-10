@@ -34,7 +34,7 @@ impl AdminController {
             nombre: dto.nombre,
             primer_apellido: dto.primer_apellido,
             segundo_apellido: dto.segundo_apellido,
-            email: dto.email,
+            documento: dto.documento,
             password: dto.password,
         };
 
@@ -52,9 +52,9 @@ impl AdminController {
                     warn!("POST /admin/{} - error de nombre: {}", admin_id, msg);
                     HttpResponse::BadRequest().json(format!("Error de nombre: {}", msg))
                 }
-                AdminError::EmailVacio | AdminError::EmailNoValido(_) => {
-                    warn!("POST /admin/{} - error de email: {}", admin_id, err);
-                    HttpResponse::BadRequest().json(format!("Error de email: {}", err))
+                AdminError::DocumentoNoValido(_) => {
+                    warn!("POST /admin/{} - error de documento: {}", admin_id, err);
+                    HttpResponse::BadRequest().json(format!("Error de documento: {}", err))
                 }
                 AdminError::PasswordVacio => {
                     error!("POST /admin/{} - error de password", admin_id);

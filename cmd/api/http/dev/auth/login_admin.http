@@ -6,7 +6,7 @@ POST {{baseUrl}}/login/admin
 Content-Type: application/json
 
 {
-  "email": "andrea.torres@example.com",
+  "documento": "11223344",
   "password": "admin_password_seguro"
 }
 
@@ -15,6 +15,6 @@ POST {{baseUrl}}/login/admin
 Content-Type: application/json
 
 {
-  "email": "luis.mendoza@example.com",
+  "documento": "22334455",
   "password": "otro_admin_password"
 }

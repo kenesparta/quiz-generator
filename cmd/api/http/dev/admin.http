@@ -11,7 +11,7 @@ Authorization: Bearer {{token}}
   "nombre": "Andrea",
   "primer_apellido": "Torres",
   "segundo_apellido": "Vasquez",
-  "email": "andrea.torres@example.com",
+  "documento": "11223344",
   "password": "admin_password_seguro"
 }
 
@@ -24,6 +24,6 @@ Authorization: Bearer {{token}}
   "nombre": "Luis",
   "primer_apellido": "Mendoza",
   "segundo_apellido": "Quispe",
-  "email": "luis.mendoza@example.com",
+  "documento": "22334455",
   "password": "otro_admin_password"
 }

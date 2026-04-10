@@ -29,11 +29,11 @@ impl MongoRepository for PsicologoLoginMongo {
 
 #[async_trait]
 impl RepositorioPsicologoLoginLectura<PsicologoLoginError> for PsicologoLoginMongo {
-    async fn obtener_psicologo_por_email(
+    async fn obtener_psicologo_por_documento(
         &self,
-        email: String,
+        documento: String,
     ) -> Result<PsicologoLogin, PsicologoLoginError> {
-        let filter = doc! { "email": email };
+        let filter = doc! { "documento": documento };
 
         match self.get_collection().find_one(filter).await {
             Ok(Some(doc)) => {
@@ -43,8 +43,8 @@ impl RepositorioPsicologoLoginLectura<PsicologoLoginError> for PsicologoLoginMon
                     .ok_or(PsicologoLoginError::RepositorioError)?
                     .to_string();
 
-                let email_db = doc
-                    .get("email")
+                let documento_db = doc
+                    .get("documento")
                     .and_then(|v| v.as_str())
                     .ok_or(PsicologoLoginError::RepositorioError)?
                     .to_string();
@@ -57,7 +57,7 @@ impl RepositorioPsicologoLoginLectura<PsicologoLoginError> for PsicologoLoginMon
 
                 Ok(PsicologoLogin {
                     id,
-                    email: email_db,
+                    documento: documento_db,
                     password: password_db,
                 })
             }

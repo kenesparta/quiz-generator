@@ -6,7 +6,7 @@ POST {{baseUrl}}/login/psicologo
 Content-Type: application/json
 
 {
-  "email": "maria.garcia@example.com",
+  "documento": "44556677",
   "password": "mi_password_seguro"
 }
 
@@ -15,6 +15,6 @@ POST {{baseUrl}}/login/psicologo
 Content-Type: application/json
 
 {
-  "email": "carlos.rodriguez@example.com",
+  "documento": "55667788",
   "password": "otro_password_seguro"
 }

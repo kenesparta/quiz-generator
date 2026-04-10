@@ -40,7 +40,7 @@ impl RepositorioAdminEscritura<AdminError> for AdminMongo {
             "nombre": admin.nombre,
             "primer_apellido": admin.primer_apellido,
             "segundo_apellido": admin.segundo_apellido,
-            "email": admin.email,
+            "documento": admin.documento,
             "password": password,
         };
 

@@ -13,8 +13,8 @@ pub struct PostulanteLoginResponseDTO {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct EmailLoginRequestDTO {
-    pub email: String,
+pub struct DocumentoLoginRequestDTO {
+    pub documento: String,
     pub password: String,
 }
 

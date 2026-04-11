@@ -1,17 +1,29 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@user = 12345678
-@pass = 5678
 
-### Agregar Evaluacion
-POST {{baseUrl}}/evaluaciones/{{evaluacionId}}
-Content-Type: application/json
-
-### Login del postulante
-POST {{baseUrl}}/login/postulante
+### Login como postulante
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "user_name": "{{user}}",
-  "password": "{{pass}}"
+  "documento": "12345678",
+  "password": "5678"
+}
+
+### Login como psicologo
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "documento": "44556677",
+  "password": "mi_password_seguro"
+}
+
+### Login como admin
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "documento": "11223344",
+  "password": "admin_password_seguro"
 }

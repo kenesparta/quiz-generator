@@ -37,7 +37,7 @@ impl ListarRevisionesController {
                         );
                         links.insert(
                             "postulante".into(),
-                            Link::get(format!("/postulantes/{}", rev.postulante_id)),
+                            Link::get(format!("/postulantes?id={}", rev.postulante_id)),
                         );
 
                         RevisionListItemDTO {

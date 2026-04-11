@@ -193,7 +193,7 @@ pub fn build_respuesta_links(
     if rol == "psicologo" || rol == "admin" {
         links.insert(
             "postulante".into(),
-            Link::get(format!("/postulantes/{}", postulante_id)),
+            Link::get(format!("/postulantes?id={}", postulante_id)),
         );
     }
 

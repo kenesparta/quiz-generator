@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzQ4MzQyODYsImlhdCI6MTc3NDc5ODI4Niwicm9sIjoicHNpY29sb2dvIn0.WkszCYgK7s7ciEYTRDO22RFTcJIK6VGiD3bVqabMNAg
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzU4MjQ3NTEsImlhdCI6MTc3NTc4ODc1MSwicm9sIjoicHNpY29sb2dvIn0.mLIiu9vwH8x8cezUo9qesN9cKd9Emjknd5dcIo7QsMA
 
 ### Health check
 GET {{baseUrl}}/health-check

@@ -1,30 +1,30 @@
 use actix_web::web;
 use async_trait::async_trait;
-use quizz_auth::postulante::domain::error::postulante::PostulanteLoginError;
-use quizz_auth::postulante::provider::repositorio::RepositorioPostulanteCacheEscritura;
+use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
+use quizz_auth::universal::provider::repositorio::RepositorioLoginUniversalCacheEscritura;
 use quizz_common::domain::entity::jwt::JwtObject;
 use redis::AsyncCommands;
 
-pub struct PostulanteLoginRedis {
+pub struct LoginUniversalRedis {
     client: web::Data<redis::Client>,
 }
 
-impl PostulanteLoginRedis {
-    pub fn new(client: web::Data<redis::Client>) -> Result<Self, PostulanteLoginError> {
+impl LoginUniversalRedis {
+    pub fn new(client: web::Data<redis::Client>) -> Result<Self, LoginUniversalError> {
         Ok(Self { client })
     }
 }
 
 #[async_trait]
-impl RepositorioPostulanteCacheEscritura<PostulanteLoginError> for PostulanteLoginRedis {
-    async fn guardar_token(&self, jwt: JwtObject) -> Result<(), PostulanteLoginError> {
+impl RepositorioLoginUniversalCacheEscritura<LoginUniversalError> for LoginUniversalRedis {
+    async fn guardar_token(&self, jwt: JwtObject) -> Result<(), LoginUniversalError> {
         let mut conn = self
             .client
             .get_multiplexed_async_connection()
             .await
             .map_err(|e| {
                 log::error!("error de redis: {:?}", e);
-                PostulanteLoginError::ErrorGenericoCache
+                LoginUniversalError::ErrorGenericoCache
             })?;
 
         let _: () = conn
@@ -32,7 +32,7 @@ impl RepositorioPostulanteCacheEscritura<PostulanteLoginError> for PostulanteLog
             .await
             .map_err(|e| {
                 log::error!("error de redis: {:?}", e);
-                PostulanteLoginError::ErrorGenericoCache
+                LoginUniversalError::ErrorGenericoCache
             })?;
 
         Ok(())

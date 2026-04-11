@@ -1,12 +1,10 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
-use quizz_auth::admin::domain::error::admin::AdminLoginError;
 use quizz_auth::autorizacion::domain::error::autorizacion::AutorizacionError;
-use quizz_auth::postulante::domain::error::postulante::PostulanteLoginError;
-use quizz_auth::psicologo::domain::error::psicologo::PsicologoLoginError;
+use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_common::domain::entity::jwt::JwtObject;
-use quizz_common::provider::jwt::{JwtProviderGenerate, JwtProviderGenerateConRol};
+use quizz_common::provider::jwt::JwtProviderGenerateConRol;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -48,41 +46,12 @@ impl JWTProvider {
 }
 
 #[async_trait]
-impl JwtProviderGenerate<PostulanteLoginError> for JWTProvider {
-    async fn generar(&self, postulante_id: String) -> Result<JwtObject, PostulanteLoginError> {
-        let now = Utc::now().timestamp();
-        let expiration = now + self.expiration_seconds;
-
-        let claims = Claims {
-            sub: postulante_id.clone(),
-            exp: expiration,
-            iat: now,
-            rol: Some("postulante".to_string()),
-        };
-
-        let token = encode(
-            &Header::new(Algorithm::HS256),
-            &claims,
-            &EncodingKey::from_secret(self.secret.as_bytes()),
-        )
-        .map_err(|_| PostulanteLoginError::JWTErrorAlGenerar)?;
-
-        Ok(JwtObject {
-            key: postulante_id,
-            value: token,
-            expiration: self.expiration_seconds as u64,
-            rol: Some("postulante".to_string()),
-        })
-    }
-}
-
-#[async_trait]
-impl JwtProviderGenerateConRol<PostulanteLoginError> for JWTProvider {
+impl JwtProviderGenerateConRol<LoginUniversalError> for JWTProvider {
     async fn generar_con_rol(
         &self,
         sujeto_id: String,
         rol: String,
-    ) -> Result<JwtObject, PostulanteLoginError> {
+    ) -> Result<JwtObject, LoginUniversalError> {
         let now = Utc::now().timestamp();
         let expiration = now + self.expiration_seconds;
 
@@ -98,73 +67,7 @@ impl JwtProviderGenerateConRol<PostulanteLoginError> for JWTProvider {
             &claims,
             &EncodingKey::from_secret(self.secret.as_bytes()),
         )
-        .map_err(|_| PostulanteLoginError::JWTErrorAlGenerar)?;
-
-        Ok(JwtObject {
-            key: sujeto_id,
-            value: token,
-            expiration: self.expiration_seconds as u64,
-            rol: Some(rol),
-        })
-    }
-}
-
-#[async_trait]
-impl JwtProviderGenerateConRol<PsicologoLoginError> for JWTProvider {
-    async fn generar_con_rol(
-        &self,
-        sujeto_id: String,
-        rol: String,
-    ) -> Result<JwtObject, PsicologoLoginError> {
-        let now = Utc::now().timestamp();
-        let expiration = now + self.expiration_seconds;
-
-        let claims = Claims {
-            sub: sujeto_id.clone(),
-            exp: expiration,
-            iat: now,
-            rol: Some(rol.clone()),
-        };
-
-        let token = encode(
-            &Header::new(Algorithm::HS256),
-            &claims,
-            &EncodingKey::from_secret(self.secret.as_bytes()),
-        )
-        .map_err(|_| PsicologoLoginError::JWTErrorAlGenerar)?;
-
-        Ok(JwtObject {
-            key: sujeto_id,
-            value: token,
-            expiration: self.expiration_seconds as u64,
-            rol: Some(rol),
-        })
-    }
-}
-
-#[async_trait]
-impl JwtProviderGenerateConRol<AdminLoginError> for JWTProvider {
-    async fn generar_con_rol(
-        &self,
-        sujeto_id: String,
-        rol: String,
-    ) -> Result<JwtObject, AdminLoginError> {
-        let now = Utc::now().timestamp();
-        let expiration = now + self.expiration_seconds;
-
-        let claims = Claims {
-            sub: sujeto_id.clone(),
-            exp: expiration,
-            iat: now,
-            rol: Some(rol.clone()),
-        };
-
-        let token = encode(
-            &Header::new(Algorithm::HS256),
-            &claims,
-            &EncodingKey::from_secret(self.secret.as_bytes()),
-        )
-        .map_err(|_| AdminLoginError::JWTErrorAlGenerar)?;
+        .map_err(|_| LoginUniversalError::JWTErrorAlGenerar)?;
 
         Ok(JwtObject {
             key: sujeto_id,

@@ -99,11 +99,12 @@ Each controller module typically has:
 
 ### Authentication Flow
 
-Uses JWT tokens stored in Redis for session management. Auth is handled in:
-- `bctx/auth/src/postulante/` - Candidate authentication
-- `bctx/auth/src/psicologo/` - Psychologist authentication
-- `bctx/auth/src/usuario/` - User registration domain (entity, use case, provider)
-- `cmd/api/src/controller/auth/` - Login endpoints, JWT provider, and auth middleware
+Uses JWT tokens stored in Redis for session management. There is a **single universal login endpoint** `POST /login` that accepts `{ "documento": "...", "password": "..." }` and searches across all collections (admin → psicologo → postulante) to find the user and return a JWT with the appropriate role.
+
+Auth is handled in:
+- `bctx/auth/src/universal/` - Universal login domain (use case, provider traits, entity, error)
+- `cmd/api/src/controller/auth/` - Login controller, JWT provider, and auth middleware
+- Users are identified by their `Documento` (DNI) number, validated with the `Documento` VO from `bctx/core`
 
 ### Authorization (RBAC with Casbin)
 
@@ -127,7 +128,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 - `psicologo` — manage exams, evaluations, candidates, and reviews
 - `postulante` — read/write/update own respuestas only
 
-**Public routes** (no auth required): `/health-check`, `/login/*`
+**Public routes** (no auth required): `/health-check`, `/login`
 **Protected routes** (JWT + RBAC): all other endpoints
 
 **Configuration**: JWT settings (`secret`, `expiration_seconds`) are in `configuration.yaml` under the `jwt:` key.
@@ -172,10 +173,7 @@ database:
 - `/revisiones` - Grade and review completed evaluations
   - `GET /revisiones` - List revisiones
   - `POST /revisiones/{respuesta_id}` - Review evaluation for a candidate
-- `/login` - Authentication endpoints
-  - `POST /login/postulante` - Candidate login
-  - `POST /login/psicologo` - Psychologist login
-  - `POST /login/admin` - Admin login
+- `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role)
 
 Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/IntelliJ HTTP Client).
 
@@ -292,4 +290,19 @@ pub fn eliminar_pregunta_por_indice(&mut self, indice: usize) -> Result<Pregunta
 pub fn eliminar_pregunta_por_indice(&mut self, indice: usize) -> Pregunta {
     self.preguntas.remove(indice) // panics if out of bounds!
 }
+```
+
+### Domain Enums over Hardcoded Strings
+
+**NEVER use hardcoded strings** for values that have a corresponding domain enum. Always use the enum variant and convert with `.to_string()` when a `String` is needed.
+
+This applies to: roles (`Rol`), resources (`Recurso`), actions (`Accion`), and any other domain Value Object that implements `Display`/`FromStr`.
+
+```rust
+// Good: use the Rol enum
+use crate::autorizacion::domain::value_object::rol::Rol;
+let rol = Rol::Psicologo.to_string();
+
+// Bad: hardcoded string
+let rol = "psicologo".to_string();
 ```

@@ -10,6 +10,9 @@ use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::buscar_postulante::{
     InputData, ObtenerPostulantePorDocumento,
 };
+use quizz_core::postulante::use_case::buscar_postulante_por_documento::{
+    InputData as DocumentoInputData, ObtenerPostulantePorDNI,
+};
 use quizz_core::postulante::use_case::lista_postulantes::{
     InputData as ListInputData, ObtenerListaDePostulantes,
 };
@@ -50,6 +53,10 @@ impl PostulanteObtenerPorDocumentoController {
             }
         }
 
+        if let Some(ref documento) = query.documento {
+            return PostulanteBuscarPorDocumentoController::get(documento.clone(), pool).await;
+        }
+
         let postulante_id = match &query.id {
             Some(id) => id.clone(),
             None => return PostulanteListController::get(pool).await,
@@ -68,7 +75,7 @@ impl PostulanteObtenerPorDocumentoController {
         {
             Ok(output) => {
                 info!("GET /postulantes?id={} - encontrado", postulante_id);
-                let links = build_postulante_links(&output.id);
+                let links = build_postulante_links(&output.id, &output.documento);
                 HttpResponse::Ok().json(PostulanteResponseDTO {
                     id: output.id.to_string(),
                     documento: output.documento.to_string(),
@@ -113,6 +120,54 @@ impl PostulanteObtenerPorDocumentoController {
     }
 }
 
+pub struct PostulanteBuscarPorDocumentoController;
+impl PostulanteBuscarPorDocumentoController {
+    pub async fn get(documento: String, pool: web::Data<mongodb::Client>) -> HttpResponse {
+        info!("GET /postulantes?documento={}", documento);
+
+        let obtener_postulante =
+            ObtenerPostulantePorDNI::new(Box::new(PostulanteReadMongo::new(pool)));
+
+        match obtener_postulante
+            .ejecutar(DocumentoInputData {
+                documento: documento.clone(),
+            })
+            .await
+        {
+            Ok(output) => {
+                info!("GET /postulantes?documento={} - encontrado", documento);
+                let links = build_postulante_links(&output.id, &output.documento);
+                HttpResponse::Ok().json(PostulanteResponseDTO {
+                    id: output.id.to_string(),
+                    documento: output.documento.to_string(),
+                    nombre: output.nombre.to_string(),
+                    primer_apellido: output.primer_apellido.to_string(),
+                    segundo_apellido: output.segundo_apellido.to_string(),
+                    nombre_completo: output.nombre_completo.to_string(),
+                    fecha_nacimiento: output.fecha_nacimiento.to_string(),
+                    grado_instruccion: output.grado_instruccion.to_string(),
+                    genero: output.genero.to_string(),
+                    links,
+                })
+            }
+            Err(err) => {
+                warn!(
+                    "GET /postulantes?documento={} - error: {:?}",
+                    documento, err
+                );
+                match err {
+                    PostulanteError::PostulanteDocumentoError(_) => HttpResponse::BadRequest()
+                        .json(serde_json::json!({"error": "Invalid document format"})),
+                    PostulanteError::PostulanteRepositorioError(_) => HttpResponse::NotFound()
+                        .json(serde_json::json!({"error": "Postulante not found"})),
+                    _ => HttpResponse::InternalServerError()
+                        .json(serde_json::json!({"error": "An unexpected error occurred"})),
+                }
+            }
+        }
+    }
+}
+
 pub struct PostulanteListController;
 impl PostulanteListController {
     pub async fn get(pool: web::Data<mongodb::Client>) -> HttpResponse {
@@ -131,7 +186,8 @@ impl PostulanteListController {
                     .into_iter()
                     .map(|p| {
                         let id = p.id.to_string();
-                        let links = build_postulante_links(&id);
+                        let documento = p.documento.to_string();
+                        let links = build_postulante_links(&id, &documento);
                         PostulanteResponseDTO {
                             id,
                             documento: p.documento.to_string(),

@@ -2,6 +2,7 @@ use crate::admin::domain::error::admin::AdminLoginError;
 use crate::admin::provider::repositorio::{
     RepositorioAdminCacheEscritura, RepositorioAdminLoginLectura,
 };
+use crate::autorizacion::domain::value_object::rol::Rol;
 use async_trait::async_trait;
 use quizz_common::provider::jwt::JwtProviderGenerateConRol;
 use quizz_common::provider::seguridad::SeguridadComparar;
@@ -54,7 +55,7 @@ where
 
         let jwt_object = self
             .jwt
-            .generar_con_rol(admin.id, "admin".to_string())
+            .generar_con_rol(admin.id, Rol::Admin.to_string())
             .await?;
 
         self.repositorio_cache

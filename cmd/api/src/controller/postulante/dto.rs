@@ -15,6 +15,7 @@ pub struct RegistrarPostulanteDTO {
 #[derive(Deserialize)]
 pub struct PostulanteDocumentoQuery {
     pub id: Option<String>,
+    pub documento: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -32,11 +33,15 @@ pub struct PostulanteResponseDTO {
     pub links: Links,
 }
 
-pub fn build_postulante_links(postulante_id: &str) -> Links {
+pub fn build_postulante_links(postulante_id: &str, documento: &str) -> Links {
     let mut links = Links::new();
     links.insert(
         "self".into(),
-        Link::get(format!("/postulantes/{}", postulante_id)),
+        Link::get(format!("/postulantes?id={}", postulante_id)),
+    );
+    links.insert(
+        "self_by_documento".into(),
+        Link::get(format!("/postulantes?documento={}", documento)),
     );
     links.insert(
         "update".into(),

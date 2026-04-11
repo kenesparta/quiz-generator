@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MTQ0ODYzMS1lY2I0LTQ2NDMtYTk1NS0wYzRjN2RlYWFiZTIiLCJleHAiOjE3NzQ0NDY2NDgsImlhdCI6MTc3NDQxMDY0OCwicm9sIjoiYWRtaW4ifQ.inaTWnBfzxj1JulHnv_E6fTQWWQLkmt4Y3YpU1JU6T0
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjM2Q0ZTVmNi1hN2I4LTkwMTItY2RlZi0xMjM0NTY3ODkwMTIiLCJleHAiOjE3NzU4MjQzMTksImlhdCI6MTc3NTc4ODMxOSwicm9sIjoiYWRtaW4ifQ.tk4cg47xlUlgN-Whf7JHfkAXlFWfJx1-gqeOy-gW2nI
 
 ### Registrar nuevo Psicologo
 POST {{baseUrl}}/psicologos/a1b2c3d4-e5f6-7890-abcd-ef1234567890

@@ -1,5 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8008
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzU4MjYxMzAsImlhdCI6MTc3NTc5MDEzMCwicm9sIjoicHNpY29sb2dvIn0.kP1kNgrrdwrPf5MUsSKFuqRMB82dYoIMOR6p3h29WS4
 
 ### Revisar la evaluacion
 POST {{baseUrl}}/revisiones/2c687ba9-9120-4d08-8290-233551b81c50
@@ -22,5 +23,6 @@ Content-Type: application/json
 ### Retorna todas las respuestas listas para ser corregidas
 GET {{baseUrl}}/revisiones
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {}

@@ -1,7 +1,6 @@
-use crate::autorizacion::domain::value_object::rol::Rol;
-use crate::psicologo::domain::error::psicologo::PsicologoLoginError;
-use crate::psicologo::provider::repositorio::{
-    RepositorioPsicologoCacheEscritura, RepositorioPsicologoLoginLectura,
+use crate::universal::domain::error::login_universal::LoginUniversalError;
+use crate::universal::provider::repositorio::{
+    RepositorioLoginUniversalCacheEscritura, RepositorioLoginUniversalLectura,
 };
 use async_trait::async_trait;
 use quizz_common::provider::jwt::JwtProviderGenerateConRol;
@@ -16,22 +15,23 @@ pub struct InputData {
 pub struct OutputData {
     pub jwt_value: String,
     pub expiration: u64,
+    pub rol: String,
 }
 
-pub struct LoginPsicologoPorDocumento<RepoErr> {
+pub struct LoginUniversal<RepoErr> {
     crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
-    repositorio: Box<dyn RepositorioPsicologoLoginLectura<RepoErr>>,
-    repositorio_cache: Box<dyn RepositorioPsicologoCacheEscritura<RepoErr>>,
+    repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
+    repositorio_cache: Box<dyn RepositorioLoginUniversalCacheEscritura<RepoErr>>,
     jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
 }
 
-impl<RepoErr> LoginPsicologoPorDocumento<RepoErr> {
+impl<RepoErr> LoginUniversal<RepoErr> {
     pub fn new(
         crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
-        repositorio: Box<dyn RepositorioPsicologoLoginLectura<RepoErr>>,
-        repositorio_cache: Box<dyn RepositorioPsicologoCacheEscritura<RepoErr>>,
+        repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
+        repositorio_cache: Box<dyn RepositorioLoginUniversalCacheEscritura<RepoErr>>,
         jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
-    ) -> LoginPsicologoPorDocumento<RepoErr> {
+    ) -> LoginUniversal<RepoErr> {
         Self {
             crypto_comparar,
             repositorio,
@@ -42,24 +42,24 @@ impl<RepoErr> LoginPsicologoPorDocumento<RepoErr> {
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, PsicologoLoginError>
-    for LoginPsicologoPorDocumento<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, OutputData, LoginUniversalError>
+    for LoginUniversal<RepoErr>
 where
-    PsicologoLoginError: From<RepoErr>,
+    LoginUniversalError: From<RepoErr>,
 {
-    async fn ejecutar(&self, in_: InputData) -> Result<OutputData, PsicologoLoginError> {
-        let psicologo = self
+    async fn ejecutar(&self, in_: InputData) -> Result<OutputData, LoginUniversalError> {
+        let usuario = self
             .repositorio
-            .obtener_psicologo_por_documento(in_.documento)
+            .buscar_por_documento(in_.documento)
             .await?;
 
         self.crypto_comparar
-            .comparar(in_.password, psicologo.password)
+            .comparar(in_.password, usuario.password)
             .await?;
 
         let jwt_object = self
             .jwt
-            .generar_con_rol(psicologo.id, Rol::Psicologo.to_string())
+            .generar_con_rol(usuario.id, usuario.rol.clone())
             .await?;
 
         self.repositorio_cache
@@ -69,6 +69,7 @@ where
         Ok(OutputData {
             jwt_value: jwt_object.value,
             expiration: jwt_object.expiration,
+            rol: usuario.rol,
         })
     }
 }

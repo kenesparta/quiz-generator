@@ -17,7 +17,7 @@ impl RevisarEvaluacionPostulanteController {
         body: web::Json<CrearRevisionDTO>,
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        let respuesta_id = match req.match_info().get("respuesta_id") {
+        let respuesta_id = match req.match_info().get("revision_id") {
             Some(id) => id.to_string(),
             None => {
                 return HttpResponse::BadRequest()

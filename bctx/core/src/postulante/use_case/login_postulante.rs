@@ -19,6 +19,7 @@ pub struct OutputData {
     pub fecha_nacimiento: String,
     pub grado_instruccion: String,
     pub genero: String,
+    pub fecha_registro: String,
 }
 
 pub struct LoginPostulantePorDocumento<PassErr, RepoErr> {
@@ -77,6 +78,7 @@ where
             grado_instruccion: postulante.grado_instruccion.to_string(),
             fecha_nacimiento: postulante.fecha_nacimiento.to_string(),
             genero: postulante.genero.to_string(),
+            fecha_registro: postulante.fecha_registro.to_string(),
         })
     }
 }

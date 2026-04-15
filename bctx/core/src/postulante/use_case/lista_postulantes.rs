@@ -16,6 +16,7 @@ pub struct OutputData {
     pub fecha_nacimiento: String,
     pub grado_instruccion: String,
     pub genero: String,
+    pub fecha_registro: String,
 }
 
 pub struct ListaOutput {
@@ -34,6 +35,7 @@ impl From<Postulante> for OutputData {
             fecha_nacimiento: p.fecha_nacimiento.to_string(),
             grado_instruccion: p.grado_instruccion.to_string(),
             genero: p.genero.to_string(),
+            fecha_registro: p.fecha_registro.to_string(),
         }
     }
 }

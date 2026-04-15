@@ -3,7 +3,7 @@
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 @postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
 @postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjM2Q0ZTVmNi1hN2I4LTkwMTItY2RlZi0xMjM0NTY3ODkwMTIiLCJleHAiOjE3NzU4MjQzMTksImlhdCI6MTc3NTc4ODMxOSwicm9sIjoiYWRtaW4ifQ.tk4cg47xlUlgN-Whf7JHfkAXlFWfJx1-gqeOy-gW2nI
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzYyNTU5MDgsImlhdCI6MTc3NjIxOTkwOCwicm9sIjoicHNpY29sb2dvIn0.KknRmQvSq3z5Kl6GR9VaHx0w9ma-r3anDhhzpMLs8Fk
 
 ### Asignar una evaluacion al postulante01
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
@@ -55,7 +55,8 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 ### Obtener repuesta del postulante02
-GET {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f
+GET {{baseUrl}}/respuestas/ab035402-a356-4a89-a5ce-38a50b068a3e
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 ### Enviar Respuesta del postulante01

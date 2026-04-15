@@ -1,5 +1,6 @@
 use crate::controller::hateoas::Links;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 // --- Request DTOs ---
 
@@ -35,4 +36,44 @@ pub struct RevisionCreatedDTO {
     pub estado_revision: String,
     #[serde(rename = "_links")]
     pub links: Links,
+}
+
+#[derive(Serialize)]
+pub struct RevisionDetalleDTO {
+    pub id: String,
+    pub postulante_id: String,
+    pub resultado: String,
+    pub revision: String,
+    pub evaluacion: RevisionEvaluacionDTO,
+    #[serde(rename = "_links")]
+    pub links: Links,
+}
+
+#[derive(Serialize)]
+pub struct RevisionEvaluacionDTO {
+    pub id: String,
+    pub nombre: String,
+    pub descripcion: String,
+    pub examenes: Vec<RevisionExamenDTO>,
+}
+
+#[derive(Serialize)]
+pub struct RevisionExamenDTO {
+    pub id: String,
+    pub titulo: String,
+    pub descripcion: String,
+    pub instrucciones: String,
+    pub preguntas: Vec<RevisionPreguntaDTO>,
+    pub puntos_obtenidos: i64,
+    pub observacion: String,
+}
+
+#[derive(Serialize)]
+pub struct RevisionPreguntaDTO {
+    pub id: String,
+    pub contenido: String,
+    pub tipo_de_pregunta: String,
+    pub alternativas: HashMap<String, String>,
+    pub respuestas: Option<Vec<String>>,
+    pub puntos: i64,
 }

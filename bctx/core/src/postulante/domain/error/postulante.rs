@@ -4,6 +4,7 @@ use crate::postulante::domain::error::grado_instruccion::GradoInstruccionError;
 use crate::postulante::domain::error::nombre::NombreError;
 use crate::postulante::domain::error::password::PasswordError;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
+use quizz_common::domain::value_objects::fecha_registro::FechaRegistroError;
 use quizz_common::domain::value_objects::id::IdError;
 use thiserror::Error;
 
@@ -29,6 +30,9 @@ pub enum PostulanteError {
 
     #[error("Error en el genero: {0}")]
     PostulanteGeneroError(#[from] GeneroError),
+
+    #[error("Fecha de registro no válida: {0}")]
+    PostulanteFechaRegistroError(#[from] FechaRegistroError),
 
     #[error("El password no coincide")]
     PasswordNoCoincide,

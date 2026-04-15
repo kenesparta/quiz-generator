@@ -61,6 +61,11 @@ pub trait RespositorioRealizarRevision<Error>: Send + Sync {
 }
 
 #[async_trait]
+pub trait RepositorioObtenerRevisionPorId<Error>: Send + Sync {
+    async fn obtener_revision_por_id(&self, revision_id: String) -> Result<Respuesta, Error>;
+}
+
+#[async_trait]
 pub trait RepositorioEmpezarExamen<Error>: Send + Sync {
     async fn obtener_estado(&self, respuesta_id: String) -> Result<Estado, Error>;
     async fn empezar_examen(&self, respuesta_id: String) -> Result<(), Error>;

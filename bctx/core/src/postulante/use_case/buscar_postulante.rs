@@ -18,6 +18,7 @@ pub struct OutputData {
     pub fecha_nacimiento: String,
     pub grado_instruccion: String,
     pub genero: String,
+    pub fecha_registro: String,
 }
 
 pub struct ObtenerPostulantePorDocumento<RepoErr> {
@@ -55,6 +56,7 @@ where
             fecha_nacimiento: postulante.fecha_nacimiento.to_string(),
             grado_instruccion: postulante.grado_instruccion.to_string(),
             genero: postulante.genero.to_string(),
+            fecha_registro: postulante.fecha_registro.to_string(),
         })
     }
 }

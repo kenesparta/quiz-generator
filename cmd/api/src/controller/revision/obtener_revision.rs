@@ -1,0 +1,102 @@
+use crate::controller::hateoas::{Link, Links};
+use crate::controller::revision::dto::{
+    RevisionDetalleDTO, RevisionEvaluacionDTO, RevisionExamenDTO, RevisionPreguntaDTO,
+};
+use crate::controller::revision::mongo::read::RevisionReadMongo;
+use actix_web::{HttpRequest, HttpResponse, web};
+use log::{error, info, warn};
+use quizz_common::use_case::CasoDeUso;
+use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
+use serde_json::json;
+
+pub struct ObtenerRevisionController;
+
+impl ObtenerRevisionController {
+    pub async fn get(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+        let revision_id = match req.match_info().get("revision_id") {
+            Some(id) => id.to_string(),
+            None => {
+                return HttpResponse::BadRequest()
+                    .json(json!({"error": "Se debe enviar el ID de la revision"}));
+            }
+        };
+
+        info!("GET /revisiones/{}", revision_id);
+
+        let obtener_revision =
+            ObtenerRevisionPorId::new(Box::new(RevisionReadMongo::new(pool)));
+
+        match obtener_revision
+            .ejecutar(InputData {
+                revision_id: revision_id.clone(),
+            })
+            .await
+        {
+            Ok(output) => {
+                info!("GET /revisiones/{} - encontrado", revision_id);
+
+                let mut links = Links::new();
+                links.insert(
+                    "self".into(),
+                    Link::get(format!("/revisiones/{}", output.id)),
+                );
+                links.insert(
+                    "postulante".into(),
+                    Link::get(format!("/postulantes?id={}", output.postulante_id)),
+                );
+
+                HttpResponse::Ok().json(RevisionDetalleDTO {
+                    id: output.id,
+                    postulante_id: output.postulante_id,
+                    resultado: output.resultado,
+                    revision: output.revision,
+                    evaluacion: RevisionEvaluacionDTO {
+                        id: output.evaluacion.id,
+                        nombre: output.evaluacion.nombre,
+                        descripcion: output.evaluacion.descripcion,
+                        examenes: output
+                            .evaluacion
+                            .examenes
+                            .into_iter()
+                            .map(|ex| RevisionExamenDTO {
+                                id: ex.id,
+                                titulo: ex.titulo,
+                                descripcion: ex.descripcion,
+                                instrucciones: ex.instrucciones,
+                                preguntas: ex
+                                    .preguntas
+                                    .into_iter()
+                                    .map(|p| RevisionPreguntaDTO {
+                                        id: p.id,
+                                        contenido: p.contenido,
+                                        tipo_de_pregunta: p.tipo_de_pregunta,
+                                        alternativas: p.alternativas,
+                                        respuestas: p.respuestas,
+                                        puntos: p.puntos,
+                                    })
+                                    .collect(),
+                                puntos_obtenidos: ex.puntos_obtenidos,
+                                observacion: ex.observacion,
+                            })
+                            .collect(),
+                    },
+                    links,
+                })
+            }
+            Err(err) => {
+                warn!("GET /revisiones/{} - error: {:?}", revision_id, err);
+                match err {
+                    quizz_core::respuesta::domain::error::respuesta::RespuestaError::RespuestaNoEncontrada => {
+                        HttpResponse::NotFound()
+                            .json(json!({"error": "Revision no encontrada o la evaluacion no ha sido finalizada"}))
+                    }
+                    _ => {
+                        error!("GET /revisiones/{} - error inesperado: {:?}", revision_id, err);
+                        HttpResponse::InternalServerError()
+                            .json(json!({"error": "Error al obtener la revision"}))
+                    }
+                }
+            }
+        }
+    }
+}

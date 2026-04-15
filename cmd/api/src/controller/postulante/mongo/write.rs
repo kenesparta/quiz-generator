@@ -49,6 +49,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "grado_instruccion": postulante.grado_instruccion.to_string(),
             "genero": postulante.genero.to_string(),
             "password": password,
+            "fecha_registro": mongodb::bson::DateTime::from_millis(postulante.fecha_registro.naive_datetime().and_utc().timestamp_millis()),
         };
 
         match self.get_collection().insert_one(documento).await {

@@ -29,6 +29,7 @@ pub struct PostulanteResponseDTO {
     pub fecha_nacimiento: String,
     pub grado_instruccion: String,
     pub genero: String,
+    pub fecha_registro: String,
     #[serde(rename = "_links")]
     pub links: Links,
 }

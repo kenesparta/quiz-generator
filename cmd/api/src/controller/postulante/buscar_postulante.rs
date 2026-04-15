@@ -86,6 +86,7 @@ impl PostulanteObtenerPorDocumentoController {
                     fecha_nacimiento: output.fecha_nacimiento.to_string(),
                     grado_instruccion: output.grado_instruccion.to_string(),
                     genero: output.genero.to_string(),
+                    fecha_registro: output.fecha_registro.to_string(),
                     links,
                 })
             }
@@ -147,6 +148,7 @@ impl PostulanteBuscarPorDocumentoController {
                     fecha_nacimiento: output.fecha_nacimiento.to_string(),
                     grado_instruccion: output.grado_instruccion.to_string(),
                     genero: output.genero.to_string(),
+                    fecha_registro: output.fecha_registro.to_string(),
                     links,
                 })
             }
@@ -198,6 +200,7 @@ impl PostulanteListController {
                             fecha_nacimiento: p.fecha_nacimiento.to_string(),
                             grado_instruccion: p.grado_instruccion.to_string(),
                             genero: p.genero.to_string(),
+                            fecha_registro: p.fecha_registro.to_string(),
                             links,
                         }
                     })

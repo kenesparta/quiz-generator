@@ -6,6 +6,7 @@ use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::postulante::domain::value_object::nombre::Nombre;
 use crate::postulante::domain::value_object::password::Password;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
+use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
 
 /// Representa al postulante para obtener la licencia de conducir.
 #[derive(Debug)]
@@ -17,6 +18,7 @@ pub struct Postulante {
     pub grado_instruccion: GradoInstruccion,
     pub genero: Genero,
     pub password: Option<Password>,
+    pub fecha_registro: FechaRegistro,
 }
 
 impl Postulante {
@@ -36,6 +38,7 @@ impl Postulante {
         let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
         let fecha_nacimiento = FechaNacimiento::new(fecha_nacimiento.as_str())?;
         let password = Password::new(password)?;
+        let fecha_registro = FechaRegistro::ahora();
         Ok(Postulante {
             id,
             documento,
@@ -44,6 +47,7 @@ impl Postulante {
             grado_instruccion,
             genero,
             password: Some(password),
+            fecha_registro,
         })
     }
 }

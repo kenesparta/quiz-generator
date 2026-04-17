@@ -10,7 +10,8 @@ pub fn revision(cfg: &mut web::ServiceConfig) {
             .service(
                 web::resource("/{revision_id}")
                     .route(web::get().to(ObtenerRevisionController::get))
-                    .route(web::post().to(RevisarEvaluacionPostulanteController::review)),
+                    .route(web::post().to(RevisarEvaluacionPostulanteController::review))
+                    .route(web::patch().to(RevisarEvaluacionPostulanteController::review)),
             ),
     );
 }

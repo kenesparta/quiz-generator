@@ -5,3 +5,4 @@ pub mod fecha_registro;
 pub mod id;
 pub mod id_type;
 pub mod nombre;
+pub mod zona_horaria;

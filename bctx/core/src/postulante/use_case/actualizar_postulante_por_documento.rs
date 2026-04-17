@@ -1,8 +1,8 @@
 use crate::postulante::domain::entity::postulante::Postulante;
 use crate::postulante::domain::error::postulante::PostulanteError;
+use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
-use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::postulante::domain::value_object::nombre::Nombre;
 use crate::postulante::provider::repositorio::{
     RepositorioPostulanteEscritura, RepositorioPostulanteLectura,
@@ -13,7 +13,6 @@ use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
 pub struct InputData {
-    pub id: String,
     pub documento: String,
     pub nombre: String,
     pub primer_apellido: String,
@@ -23,12 +22,12 @@ pub struct InputData {
     pub genero: String,
 }
 
-pub struct ActualizarPostulante<ReadErr, WriteErr> {
+pub struct ActualizarPostulantePorDocumento<ReadErr, WriteErr> {
     repositorio_lectura: Box<dyn RepositorioPostulanteLectura<ReadErr>>,
     repositorio_escritura: Box<dyn RepositorioPostulanteEscritura<WriteErr>>,
 }
 
-impl<ReadErr, WriteErr> ActualizarPostulante<ReadErr, WriteErr> {
+impl<ReadErr, WriteErr> ActualizarPostulantePorDocumento<ReadErr, WriteErr> {
     pub fn new(
         repositorio_lectura: Box<dyn RepositorioPostulanteLectura<ReadErr>>,
         repositorio_escritura: Box<dyn RepositorioPostulanteEscritura<WriteErr>>,
@@ -42,16 +41,16 @@ impl<ReadErr, WriteErr> ActualizarPostulante<ReadErr, WriteErr> {
 
 #[async_trait]
 impl<ReadErr, WriteErr> CasoDeUso<InputData, (), PostulanteError>
-    for ActualizarPostulante<ReadErr, WriteErr>
+    for ActualizarPostulantePorDocumento<ReadErr, WriteErr>
 where
     PostulanteError: From<ReadErr>,
     PostulanteError: From<WriteErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
-        let postulante_id = PostulanteID::new(&in_.id)?;
+        let documento = Documento::new(&in_.documento)?;
         let existente = self
             .repositorio_lectura
-            .obtener_postulante_por_id(postulante_id)
+            .obtener_postulante_por_documento(documento)
             .await?;
 
         let grado_instruccion = GradoInstruccion::from_str(&in_.grado_instruccion)?;
@@ -80,7 +79,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::postulante::domain::value_object::documento::Documento;
+    use crate::postulante::domain::value_object::id::PostulanteID;
     use async_trait::async_trait;
     use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
 
@@ -93,13 +92,6 @@ mod tests {
         async fn obtener_postulante_por_documento(
             &self,
             _documento: Documento,
-        ) -> Result<Postulante, PostulanteError> {
-            unimplemented!()
-        }
-
-        async fn obtener_postulante_por_id(
-            &self,
-            _postulante_id: PostulanteID,
         ) -> Result<Postulante, PostulanteError> {
             Ok(Postulante {
                 id: PostulanteID::new(&self.postulante.id.value().uuid().to_string())?,
@@ -117,6 +109,13 @@ mod tests {
                 password: None,
                 fecha_registro: FechaRegistro::ahora(),
             })
+        }
+
+        async fn obtener_postulante_por_id(
+            &self,
+            _postulante_id: PostulanteID,
+        ) -> Result<Postulante, PostulanteError> {
+            unimplemented!()
         }
 
         async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
@@ -166,17 +165,16 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_actualizar_postulante_success() {
+    async fn test_actualizar_por_documento_success() {
         let postulante = crear_postulante_existente();
 
-        let use_case = ActualizarPostulante::new(
+        let use_case = ActualizarPostulantePorDocumento::new(
             Box::new(MockRepositorioLectura { postulante }),
             Box::new(MockRepositorioEscritura),
         );
 
         let result = use_case
             .ejecutar(InputData {
-                id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
                 documento: "12345678".to_string(),
                 nombre: "Carlos".to_string(),
                 primer_apellido: "García".to_string(),
@@ -191,18 +189,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_actualizar_postulante_invalid_id() {
+    async fn test_actualizar_por_documento_invalid_documento() {
         let postulante = crear_postulante_existente();
 
-        let use_case = ActualizarPostulante::new(
+        let use_case = ActualizarPostulantePorDocumento::new(
             Box::new(MockRepositorioLectura { postulante }),
             Box::new(MockRepositorioEscritura),
         );
 
         let result = use_case
             .ejecutar(InputData {
-                id: "invalid-id".to_string(),
-                documento: "12345678".to_string(),
+                documento: "123".to_string(),
                 nombre: "Carlos".to_string(),
                 primer_apellido: "García".to_string(),
                 segundo_apellido: "López".to_string(),
@@ -216,17 +213,16 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_actualizar_postulante_invalid_genero() {
+    async fn test_actualizar_por_documento_invalid_genero() {
         let postulante = crear_postulante_existente();
 
-        let use_case = ActualizarPostulante::new(
+        let use_case = ActualizarPostulantePorDocumento::new(
             Box::new(MockRepositorioLectura { postulante }),
             Box::new(MockRepositorioEscritura),
         );
 
         let result = use_case
             .ejecutar(InputData {
-                id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
                 documento: "12345678".to_string(),
                 nombre: "Carlos".to_string(),
                 primer_apellido: "García".to_string(),

@@ -5,7 +5,8 @@ use crate::respuesta::domain::entity::pregunta::Pregunta;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaLectura;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
+use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
 use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
@@ -128,8 +129,8 @@ where
         // todo: REVISAR ESTO!!!!
         let fecha_tiempo_transcurrido =
             if let Ok(fecha_inicio) = DateTime::parse_from_rfc3339(&fecha_inicio_str) {
-                let now = Utc::now();
-                let duration = now.signed_duration_since(fecha_inicio.with_timezone(&Utc));
+                let now = ahora_lima();
+                let duration = now.signed_duration_since(fecha_inicio);
                 duration.num_seconds()
             } else {
                 0

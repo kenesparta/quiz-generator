@@ -26,7 +26,7 @@ impl FromStr for Genero {
         match s.to_lowercase().as_str() {
             "masculino" => Ok(Self::Masculino),
             "femenino" => Ok(Self::Femenino),
-            "nobinario" => Ok(Self::NoBinario),
+            "nobinario" | "no_binario" => Ok(Self::NoBinario),
             _ => Err(GeneroError::NoValido),
         }
     }

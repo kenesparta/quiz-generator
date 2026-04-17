@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzU4MjQ3NTEsImlhdCI6MTc3NTc4ODc1MSwicm9sIjoicHNpY29sb2dvIn0.mLIiu9vwH8x8cezUo9qesN9cKd9Emjknd5dcIo7QsMA
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzY0MjYzOTAsImlhdCI6MTc3NjM5MDM5MCwicm9sIjoicHNpY29sb2dvIn0.U0cobrLZU67A-SIdfnmDIb30bc6cWU6joWQjtJKkhNs
 
 ### Health check
 GET {{baseUrl}}/health-check
@@ -51,8 +51,8 @@ Authorization: Bearer {{token}}
   "genero": "masculino"
 }
 
-### Actualizar Postulante
-PUT {{baseUrl}}/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
+### Actualizar Postulante por documento
+PUT {{baseUrl}}/postulantes
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

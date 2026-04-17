@@ -49,7 +49,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "grado_instruccion": postulante.grado_instruccion.to_string(),
             "genero": postulante.genero.to_string(),
             "password": password,
-            "fecha_registro": mongodb::bson::DateTime::from_millis(postulante.fecha_registro.naive_datetime().and_utc().timestamp_millis()),
+            "fecha_registro": postulante.fecha_registro.to_string(),
         };
 
         match self.get_collection().insert_one(documento).await {
@@ -75,6 +75,10 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             "_id": postulante.id.value().uuid().to_string(),
         };
 
+        let fecha_actualizacion = quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339(
+            &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
+        );
+
         let update = doc! {
             "$set": {
                 "nombre": postulante.nombre_completo.nombre(),
@@ -83,6 +87,7 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
                 "fecha_nacimiento": postulante.fecha_nacimiento.to_string(),
                 "grado_instruccion": postulante.grado_instruccion.to_string(),
                 "genero": postulante.genero.to_string(),
+                "fecha_actualizacion": fecha_actualizacion,
             }
         };
 

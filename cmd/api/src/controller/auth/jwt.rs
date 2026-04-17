@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Utc;
+use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use quizz_auth::autorizacion::domain::error::autorizacion::AutorizacionError;
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
@@ -52,7 +52,7 @@ impl JwtProviderGenerateConRol<LoginUniversalError> for JWTProvider {
         sujeto_id: String,
         rol: String,
     ) -> Result<JwtObject, LoginUniversalError> {
-        let now = Utc::now().timestamp();
+        let now = ahora_lima().timestamp();
         let expiration = now + self.expiration_seconds;
 
         let claims = Claims {

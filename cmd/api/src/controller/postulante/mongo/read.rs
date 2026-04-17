@@ -15,7 +15,37 @@ use quizz_core::postulante::domain::value_object::grado_instruccion::GradoInstru
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::domain::value_object::nombre::Nombre;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
+use mongodb::bson::Bson;
 use std::str::FromStr;
+
+fn leer_fecha_bson(bson_fecha: &Bson) -> Result<String, PostulanteError> {
+    use chrono::NaiveDateTime;
+    use quizz_common::domain::value_objects::zona_horaria::{formatear_rfc3339, offset_lima, utc_a_lima};
+
+    if let Some(s) = bson_fecha.as_str() {
+        if chrono::DateTime::parse_from_rfc3339(s).is_ok() {
+            return Ok(s.to_string());
+        }
+        if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
+            let dt = naive.and_local_timezone(offset_lima()).single().ok_or(
+                PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada),
+            )?;
+            return Ok(formatear_rfc3339(&dt));
+        }
+        return Ok(s.to_string());
+    }
+    if let Some(dt) = bson_fecha.as_datetime() {
+        let millis = dt.timestamp_millis();
+        let secs = millis / 1000;
+        let nanos = ((millis % 1000) * 1_000_000) as u32;
+        let utc = chrono::DateTime::from_timestamp(secs, nanos).unwrap_or_default();
+        let lima = utc_a_lima(utc);
+        return Ok(formatear_rfc3339(&lima));
+    }
+    Err(PostulanteError::PostulanteRepositorioError(
+        RepositorioError::LecturaNoFinalizada,
+    ))
+}
 
 pub struct PostulanteReadMongo {
     client: web::Data<mongodb::Client>,
@@ -95,22 +125,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 };
 
                 let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                    Some(bson_fecha) => {
-                        let dt = bson_fecha.as_datetime().ok_or(
-                            PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::LecturaNoFinalizada,
-                            ),
-                        )?;
-                        {
-                            let millis = dt.timestamp_millis();
-                            let secs = millis / 1000;
-                            let nanos = ((millis % 1000) * 1_000_000) as u32;
-                            let naive = chrono::DateTime::from_timestamp(secs, nanos)
-                                .unwrap_or_default()
-                                .naive_utc();
-                            naive.format("%Y-%m-%d %H:%M:%S").to_string()
-                        }
-                    },
+                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
                             RepositorioError::LecturaNoFinalizada,
@@ -137,22 +152,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 };
 
                 let fecha_registro_str = match doc.get("fecha_registro") {
-                    Some(bson_fecha) => {
-                        let dt = bson_fecha.as_datetime().ok_or(
-                            PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::LecturaNoFinalizada,
-                            ),
-                        )?;
-                        {
-                            let millis = dt.timestamp_millis();
-                            let secs = millis / 1000;
-                            let nanos = ((millis % 1000) * 1_000_000) as u32;
-                            let naive = chrono::DateTime::from_timestamp(secs, nanos)
-                                .unwrap_or_default()
-                                .naive_utc();
-                            naive.format("%Y-%m-%d %H:%M:%S").to_string()
-                        }
-                    },
+                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
                             RepositorioError::LecturaNoFinalizada,
@@ -252,22 +252,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 };
 
                 let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                    Some(bson_fecha) => {
-                        let dt = bson_fecha.as_datetime().ok_or(
-                            PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::LecturaNoFinalizada,
-                            ),
-                        )?;
-                        {
-                            let millis = dt.timestamp_millis();
-                            let secs = millis / 1000;
-                            let nanos = ((millis % 1000) * 1_000_000) as u32;
-                            let naive = chrono::DateTime::from_timestamp(secs, nanos)
-                                .unwrap_or_default()
-                                .naive_utc();
-                            naive.format("%Y-%m-%d %H:%M:%S").to_string()
-                        }
-                    },
+                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
                             RepositorioError::LecturaNoFinalizada,
@@ -294,22 +279,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 };
 
                 let fecha_registro_str = match doc.get("fecha_registro") {
-                    Some(bson_fecha) => {
-                        let dt = bson_fecha.as_datetime().ok_or(
-                            PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::LecturaNoFinalizada,
-                            ),
-                        )?;
-                        {
-                            let millis = dt.timestamp_millis();
-                            let secs = millis / 1000;
-                            let nanos = ((millis % 1000) * 1_000_000) as u32;
-                            let naive = chrono::DateTime::from_timestamp(secs, nanos)
-                                .unwrap_or_default()
-                                .naive_utc();
-                            naive.format("%Y-%m-%d %H:%M:%S").to_string()
-                        }
-                    },
+                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                     None => {
                         return Err(PostulanteError::PostulanteRepositorioError(
                             RepositorioError::LecturaNoFinalizada,
@@ -446,12 +416,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             };
 
                             let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                                Some(bson_fecha) => bson_fecha
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
+                                Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
                                         RepositorioError::LecturaNoFinalizada,
@@ -488,12 +453,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             };
 
                             let fecha_registro_str = match doc.get("fecha_registro") {
-                                Some(bson_fecha) => bson_fecha
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
+                                Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
                                         RepositorioError::LecturaNoFinalizada,

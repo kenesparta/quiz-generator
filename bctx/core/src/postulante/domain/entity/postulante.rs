@@ -22,6 +22,7 @@ pub struct Postulante {
 }
 
 impl Postulante {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: String,
         documento: String,

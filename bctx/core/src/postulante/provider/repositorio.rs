@@ -7,7 +7,7 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait RepositorioPostulanteEscritura<Error>: Send + Sync {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), Error>;
-    async fn actualizar_postulante(&self, postulante_id: PostulanteID) -> Result<(), Error>;
+    async fn actualizar_postulante(&self, postulante: Postulante) -> Result<(), Error>;
     async fn eliminar_postulante(&self, postulante_id: PostulanteID) -> Result<(), Error>;
 }
 

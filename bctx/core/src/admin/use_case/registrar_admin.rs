@@ -48,7 +48,7 @@ where
             password,
         )?;
         self.repositorio.registrar_admin(admin).await?;
-        Ok({})
+        Ok(())
     }
 }
 

@@ -116,7 +116,7 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
         {
             Ok(result) => {
                 if result.matched_count == 0 {
-                    error!("No evaluation found with ID: {}", evaluacion_id.to_string());
+                    error!("No evaluation found with ID: {}", evaluacion_id);
                     return Err(EvaluacionError::EvaluacionRepositorioError(
                         EvaluacionNoExiste,
                     ));
@@ -320,7 +320,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
         {
             Ok(result) => {
                 if result.matched_count == 0 {
-                    error!("No evaluation found with ID: {}", evaluacion.id.to_string());
+                    error!("No evaluation found with ID: {}", evaluacion.id);
                     return Err(EvaluacionError::EvaluacionRepositorioError(
                         EvaluacionNoExiste,
                     ));

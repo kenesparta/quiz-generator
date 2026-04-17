@@ -25,31 +25,30 @@ impl PostulanteObtenerPorDocumentoController {
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         // Si el usuario es postulante, solo puede consultar su propia informacion
-        if let Some(claims) = req.extensions().get::<Claims>() {
-            if let Some(ref rol) = claims.rol {
-                if rol == "postulante" {
-                    match &query.id {
-                        Some(id) if *id != claims.sub => {
-                            warn!(
-                                "GET /postulantes - postulante {} intento acceder a datos de {}",
-                                claims.sub, id
-                            );
-                            return HttpResponse::Forbidden().json(
-                                serde_json::json!({"error": "Solo puede consultar su propia informacion"}),
-                            );
-                        }
-                        None => {
-                            warn!(
-                                "GET /postulantes - postulante {} intento listar todos los postulantes",
-                                claims.sub
-                            );
-                            return HttpResponse::Forbidden().json(
-                                serde_json::json!({"error": "No tiene permiso para listar todos los postulantes"}),
-                            );
-                        }
-                        _ => {}
-                    }
+        if let Some(claims) = req.extensions().get::<Claims>()
+            && let Some(ref rol) = claims.rol
+            && rol == "postulante"
+        {
+            match &query.id {
+                Some(id) if *id != claims.sub => {
+                    warn!(
+                        "GET /postulantes - postulante {} intento acceder a datos de {}",
+                        claims.sub, id
+                    );
+                    return HttpResponse::Forbidden().json(
+                        serde_json::json!({"error": "Solo puede consultar su propia informacion"}),
+                    );
                 }
+                None => {
+                    warn!(
+                        "GET /postulantes - postulante {} intento listar todos los postulantes",
+                        claims.sub
+                    );
+                    return HttpResponse::Forbidden().json(
+                        serde_json::json!({"error": "No tiene permiso para listar todos los postulantes"}),
+                    );
+                }
+                _ => {}
             }
         }
 

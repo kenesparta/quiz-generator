@@ -51,7 +51,7 @@ where
             password,
         )?;
         self.repositorio.registrar_psicologo(psicologo).await?;
-        Ok({})
+        Ok(())
     }
 }
 

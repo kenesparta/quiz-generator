@@ -39,7 +39,7 @@ impl Nombre {
             return Err(NombreError::NombreExcedeCaracteres);
         }
 
-        if !nombre_regex().is_match(&*self.nombre.to_string()) {
+        if !nombre_regex().is_match(&self.nombre) {
             return Err(NombreError::NombreNoValido);
         }
 
@@ -55,7 +55,7 @@ impl Nombre {
             return Err(NombreError::ApellidoExcedeCaracteres);
         }
 
-        if !nombre_regex().is_match(&*self.primer_apellido.to_string()) {
+        if !nombre_regex().is_match(&self.primer_apellido) {
             return Err(NombreError::ApellidoNoValido);
         }
 
@@ -71,7 +71,7 @@ impl Nombre {
             return Err(NombreError::ApellidoExcedeCaracteres);
         }
 
-        if !nombre_regex().is_match(&*self.segundo_apellido.to_string()) {
+        if !nombre_regex().is_match(&self.segundo_apellido) {
             return Err(NombreError::ApellidoNoValido);
         }
 

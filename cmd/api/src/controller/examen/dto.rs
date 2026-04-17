@@ -25,7 +25,7 @@ pub struct PreguntaMongoDTO {
 }
 
 impl PreguntaMongoDTO {
-    pub fn to_entity(self) -> Result<PreguntaEntity, Box<dyn std::error::Error>> {
+    pub fn into_entity(self) -> Result<PreguntaEntity, Box<dyn std::error::Error>> {
         let id = PreguntaID::new(&self._id)?;
         let etiqueta = Etiqueta::from_str(&self.etiqueta)?;
         let tipo_de_pregunta = TipoPregunta::from_str(&self.tipo_de_pregunta)?;

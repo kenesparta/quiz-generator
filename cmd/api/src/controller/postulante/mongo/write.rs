@@ -69,9 +69,43 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
 
     async fn actualizar_postulante(
         &self,
-        _postulante_id: PostulanteID,
+        postulante: Postulante,
     ) -> Result<(), PostulanteError> {
-        todo!()
+        let filter = doc! {
+            "_id": postulante.id.value().uuid().to_string(),
+        };
+
+        let update = doc! {
+            "$set": {
+                "nombre": postulante.nombre_completo.nombre(),
+                "primer_apellido": postulante.nombre_completo.primer_apellido(),
+                "segundo_apellido": postulante.nombre_completo.segundo_apellido(),
+                "fecha_nacimiento": postulante.fecha_nacimiento.to_string(),
+                "grado_instruccion": postulante.grado_instruccion.to_string(),
+                "genero": postulante.genero.to_string(),
+            }
+        };
+
+        match self.get_collection().update_one(filter, update).await {
+            Ok(result) => {
+                if result.matched_count == 0 {
+                    return Err(PostulanteError::PostulanteRepositorioError(
+                        RepositorioError::RegistroNoEncontrado,
+                    ));
+                }
+                Ok(())
+            }
+            Err(e) => {
+                error!(
+                    "Database error while updating postulante: id={}, error={}",
+                    postulante.id, e
+                );
+
+                Err(PostulanteError::PostulanteRepositorioError(
+                    RepositorioError::PersistenciaNoFinalizada,
+                ))
+            }
+        }
     }
 
     async fn eliminar_postulante(

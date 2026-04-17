@@ -51,6 +51,21 @@ Authorization: Bearer {{token}}
   "genero": "masculino"
 }
 
+### Actualizar Postulante
+PUT {{baseUrl}}/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "documento": "12345678",
+  "nombre": "Juan Carlos",
+  "primer_apellido": "Perez",
+  "segundo_apellido": "Quispe",
+  "fecha_nacimiento": "1991-06-15",
+  "grado_instruccion": "posgrado",
+  "genero": "masculino"
+}
+
 ### Obtener el postulante por documento
 GET {{baseUrl}}/postulantes?documento=04009988
 Content-Type: application/json

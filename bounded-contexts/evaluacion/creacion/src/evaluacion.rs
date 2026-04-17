@@ -12,17 +12,12 @@ pub enum EvaluacionEstadoError {
     NoValido,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum EvaluacionEstado {
+    #[default]
     Borrador,
     Publicado,
     Inactivo,
-}
-
-impl Default for EvaluacionEstado {
-    fn default() -> Self {
-        EvaluacionEstado::Borrador
-    }
 }
 
 impl fmt::Display for EvaluacionEstado {

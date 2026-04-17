@@ -189,9 +189,7 @@ where
 fn extraer_token(req: &ServiceRequest) -> Option<String> {
     let auth_header = req.headers().get("Authorization")?.to_str().ok()?;
 
-    if auth_header.starts_with("Bearer ") {
-        Some(auth_header[7..].to_string())
-    } else {
-        None
-    }
+    auth_header
+        .strip_prefix("Bearer ")
+        .map(|token| token.to_string())
 }

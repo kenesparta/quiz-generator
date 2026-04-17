@@ -65,7 +65,7 @@ where
             password,
         )?;
         self.repositorio.registrar_postulante(postulante).await?;
-        Ok({})
+        Ok(())
     }
 }
 
@@ -111,7 +111,7 @@ mod tests {
 
         async fn actualizar_postulante(
             &self,
-            _postulante_id: PostulanteID,
+            _postulante: Postulante,
         ) -> Result<(), PostulanteError> {
             todo!()
         }

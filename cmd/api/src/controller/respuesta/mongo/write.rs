@@ -85,7 +85,7 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
             .map_err(|_| RespuestaError::DatabaseError)?;
 
         let evaluacion_document =
-            evaluacion_doc.ok_or_else(|| RespuestaError::EvaluacionRespuestaNotFound)?;
+            evaluacion_doc.ok_or(RespuestaError::EvaluacionRespuestaNotFound)?;
 
         let evaluacion: EvaluacionMongoDTO =
             bson::from_document(evaluacion_document).map_err(|_| RespuestaError::DatabaseError)?;
@@ -281,16 +281,16 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
 
                 if let Ok(preguntas) = examen_doc.get_array("preguntas") {
                     for pregunta_bson in preguntas.iter() {
-                        if let bson::Bson::Document(pregunta_doc) = pregunta_bson {
-                            if let Some(puntos_value) = pregunta_doc.get("puntos") {
-                                let puntos = match puntos_value {
-                                    bson::Bson::Int32(n) => *n as u32,
-                                    bson::Bson::Int64(n) => *n as u32,
-                                    bson::Bson::Double(n) => *n as u32,
-                                    _ => 0,
-                                };
-                                examen_total_puntos += puntos;
-                            }
+                        if let bson::Bson::Document(pregunta_doc) = pregunta_bson
+                            && let Some(puntos_value) = pregunta_doc.get("puntos")
+                        {
+                            let puntos = match puntos_value {
+                                bson::Bson::Int32(n) => *n as u32,
+                                bson::Bson::Int64(n) => *n as u32,
+                                bson::Bson::Double(n) => *n as u32,
+                                _ => 0,
+                            };
+                            examen_total_puntos += puntos;
                         }
                     }
                 }

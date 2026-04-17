@@ -2,7 +2,7 @@ use crate::postulante::domain::error::grado_instruccion::GradoInstruccionError;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum GradoInstruccion {
     Ninguno,
     Primaria,

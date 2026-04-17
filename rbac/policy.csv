@@ -32,6 +32,7 @@ p, psicologo, evaluacion, escribir
 p, psicologo, evaluacion, actualizar
 p, psicologo, postulante, leer
 p, psicologo, postulante, escribir
+p, psicologo, postulante, actualizar
 p, psicologo, respuesta, leer
 p, psicologo, revision, leer
 p, psicologo, revision, escribir

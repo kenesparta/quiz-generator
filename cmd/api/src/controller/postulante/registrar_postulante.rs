@@ -1,10 +1,14 @@
 use crate::controller::postulante::crypto::CifradoPorDefecto;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
+use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;
+use quizz_core::postulante::use_case::actualizar_postulante::{
+    ActualizarPostulante, InputData as ActualizarInputData,
+};
 use quizz_core::postulante::use_case::registrar_postulante::{
     InputData, RegistrarPostulantePasswordTemporal,
 };
@@ -112,11 +116,96 @@ impl PostulanteController {
     }
 
     pub async fn update(
-        _req: HttpRequest,
-        _body: web::Json<RegistrarPostulanteDTO>,
-        _pool: web::Data<mongodb::Client>,
+        req: HttpRequest,
+        body: web::Json<RegistrarPostulanteDTO>,
+        pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
-        HttpResponse::Created().json("")
+        let postulante_id = match req.match_info().get("id") {
+            Some(id) => id.to_string(),
+            None => {
+                warn!("PUT /postulante - id no proporcionado");
+                return HttpResponse::BadRequest().json("no se esta enviando el id del postulante");
+            }
+        };
+
+        info!("PUT /postulante/{}", postulante_id);
+
+        let actualizar_postulante = ActualizarPostulante::new(
+            Box::new(PostulanteReadMongo::new(pool.clone())),
+            Box::new(PostulanteMongo::new(pool)),
+        );
+
+        let dto = body.into_inner();
+        let input = ActualizarInputData {
+            id: postulante_id.clone(),
+            documento: dto.documento,
+            nombre: dto.nombre,
+            primer_apellido: dto.primer_apellido,
+            segundo_apellido: dto.segundo_apellido,
+            fecha_nacimiento: dto.fecha_nacimiento,
+            grado_instruccion: dto.grado_instruccion,
+            genero: dto.genero,
+        };
+
+        match actualizar_postulante.ejecutar(input).await {
+            Ok(_) => {
+                info!("PUT /postulante/{} - actualizado exitosamente", postulante_id);
+                HttpResponse::Ok().finish()
+            }
+            Err(err) => match err {
+                PostulanteError::PostulanteIdError(ref id_err) => {
+                    warn!(
+                        "PUT /postulante/{} - error de ID: {}",
+                        postulante_id, id_err
+                    );
+                    HttpResponse::BadRequest().json(format!("Error de ID: {}", id_err))
+                }
+                PostulanteError::PostulanteDocumentoError(ref doc_err) => {
+                    warn!(
+                        "PUT /postulante/{} - error de documento: {}",
+                        postulante_id, doc_err
+                    );
+                    HttpResponse::BadRequest().json(format!("Error de documento: {}", doc_err))
+                }
+                PostulanteError::PostulanteNombreError(ref name_err) => {
+                    warn!(
+                        "PUT /postulante/{} - error de nombre: {}",
+                        postulante_id, name_err
+                    );
+                    HttpResponse::BadRequest().json(format!("Error de nombre: {}", name_err))
+                }
+                PostulanteError::PostulanteGradoInstruccionError(ref grado_err) => {
+                    warn!(
+                        "PUT /postulante/{} - error de grado de instruccion: {}",
+                        postulante_id, grado_err
+                    );
+                    HttpResponse::BadRequest()
+                        .json(format!("Error de grado de instrucción: {}", grado_err))
+                }
+                PostulanteError::PostulanteGeneroError(ref genero_err) => {
+                    warn!(
+                        "PUT /postulante/{} - error de genero: {}",
+                        postulante_id, genero_err
+                    );
+                    HttpResponse::BadRequest().json(format!("Error de género: {}", genero_err))
+                }
+                PostulanteError::PostulanteRepositorioError(ref repo_err) => {
+                    error!(
+                        "PUT /postulante/{} - error de repositorio: {:?}",
+                        postulante_id, repo_err
+                    );
+                    HttpResponse::InternalServerError()
+                        .json("Error al actualizar el postulante")
+                }
+                _ => {
+                    error!(
+                        "PUT /postulante/{} - error inesperado: {:?}",
+                        postulante_id, err
+                    );
+                    HttpResponse::InternalServerError().json("Error inesperado")
+                }
+            },
+        }
     }
 
     pub async fn remove(

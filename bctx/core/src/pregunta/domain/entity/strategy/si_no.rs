@@ -10,7 +10,7 @@ where
     match parse_map(p)? {
         None => Ok(()),
         Some(alt) => {
-            let valid_keys = vec![Alternativa::Si, Alternativa::No];
+            let valid_keys = [Alternativa::Si, Alternativa::No];
             let filtered: HashMap<_, _> = alt
                 .into_iter()
                 .filter(|(key, _)| valid_keys.contains(key))

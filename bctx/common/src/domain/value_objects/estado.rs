@@ -8,16 +8,11 @@ pub enum EstadoGeneralError {
     NoValido,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum EstadoGeneral {
+    #[default]
     Activo,
     Inactivo,
-}
-
-impl Default for EstadoGeneral {
-    fn default() -> Self {
-        Self::Activo
-    }
 }
 
 impl fmt::Display for EstadoGeneral {

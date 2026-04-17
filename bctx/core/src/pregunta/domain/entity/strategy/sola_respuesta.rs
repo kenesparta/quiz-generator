@@ -21,7 +21,7 @@ impl TipoPreguntaStrategy for PreguntaSolaRespuestaStrategy {
         _alternativas: &HashMap<String, String>,
         puntaje: &HashMap<String, u32>,
     ) -> Result<(), PreguntaError> {
-        if puntaje.len() == 0 {
+        if puntaje.is_empty() {
             return Err(PreguntaError::PuntajeNoExiste);
         }
 

@@ -7,7 +7,7 @@ use quizz_core::pregunta::domain::error::pregunta::PreguntaError;
 use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,
 };
-use std::collections::HashMap;
+
 
 pub struct AgregarPreguntaController;
 
@@ -35,8 +35,8 @@ impl AgregarPreguntaController {
                 etiqueta: dto.etiqueta,
                 tipo_de_pregunta: dto.tipo_de_pregunta,
                 imagen_ref: dto.imagen_ref,
-                alternativas: dto.alternativas.unwrap_or_else(|| HashMap::new()),
-                puntaje: dto.puntaje.unwrap_or_else(|| HashMap::new()),
+                alternativas: dto.alternativas.unwrap_or_default(),
+                puntaje: dto.puntaje.unwrap_or_default(),
             })
             .collect();
 

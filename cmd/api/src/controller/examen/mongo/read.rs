@@ -53,7 +53,7 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
                         let entities_result: Result<Vec<PreguntaEntity>, _> = arr
                             .iter()
                             .filter_map(|item| bson::from_bson(item.clone()).ok())
-                            .map(|dto: PreguntaMongoDTO| dto.to_entity())
+                            .map(|dto: PreguntaMongoDTO| dto.into_entity())
                             .collect();
 
                         match entities_result {

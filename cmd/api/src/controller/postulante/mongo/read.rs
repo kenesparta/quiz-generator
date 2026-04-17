@@ -378,11 +378,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let id = match doc.get("_id") {
                                 Some(doc_bson) => doc_bson
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -394,11 +392,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let documento = match doc.get("documento") {
                                 Some(doc_bson) => doc_bson
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -410,11 +406,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let nombre = match doc.get("nombre") {
                                 Some(bson_nombre) => bson_nombre
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -426,11 +420,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let primer_apellido = match doc.get("primer_apellido") {
                                 Some(bson_apellido) => bson_apellido
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -442,11 +434,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let segundo_apellido = match doc.get("segundo_apellido") {
                                 Some(bson_apellido) => bson_apellido
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -458,11 +448,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let fecha_nacimiento = match doc.get("fecha_nacimiento") {
                                 Some(bson_fecha) => bson_fecha
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -474,11 +462,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let grado_instruccion = match doc.get("grado_instruccion") {
                                 Some(bson_grado) => bson_grado
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -490,11 +476,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let genero = match doc.get("genero") {
                                 Some(bson_genero) => bson_genero
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(
@@ -506,11 +490,9 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                             let fecha_registro_str = match doc.get("fecha_registro") {
                                 Some(bson_fecha) => bson_fecha
                                     .as_str()
-                                    .ok_or_else(|| {
-                                        PostulanteError::PostulanteRepositorioError(
-                                            RepositorioError::LecturaNoFinalizada,
-                                        )
-                                    })?
+                                    .ok_or(PostulanteError::PostulanteRepositorioError(
+                                        RepositorioError::LecturaNoFinalizada,
+                                    ))?
                                     .to_string(),
                                 None => {
                                     return Err(PostulanteError::PostulanteRepositorioError(

@@ -59,7 +59,7 @@ impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
             ));
         }
 
-        let preguntas_bson = preguntas_to_bson(&lista_de_preguntas.preguntas());
+        let preguntas_bson = preguntas_to_bson(lista_de_preguntas.preguntas());
 
         let update = doc! {
             "$push": {
@@ -102,7 +102,7 @@ fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
                 document.insert("imagen_ref", imagen.clone());
             }
 
-            let ref alternativas = pregunta.alternativas;
+            let alternativas = &pregunta.alternativas;
             let alternativas_doc = alternativas
                 .iter()
                 .map(|(key, value)| (key.to_string(), Bson::String(value.clone())))
@@ -110,7 +110,7 @@ fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
 
             document.insert("alternativas", alternativas_doc);
 
-            let ref puntaje = pregunta.puntaje;
+            let puntaje = &pregunta.puntaje;
             let puntaje_doc = puntaje
                 .iter()
                 .map(|(key, value)| (key.to_string(), Bson::Int32(*value as i32)))

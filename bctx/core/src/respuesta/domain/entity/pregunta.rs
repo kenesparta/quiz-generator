@@ -20,7 +20,7 @@ pub struct Pregunta {
     pub puntos: i64,
 }
 
-pub fn corregir_respuesta(respuesta: &Vec<String>, puntaje: Puntaje) -> u32 {
+pub fn corregir_respuesta(respuesta: &[String], puntaje: Puntaje) -> u32 {
     respuesta.iter().filter_map(|key| puntaje.get(key)).sum()
 }
 

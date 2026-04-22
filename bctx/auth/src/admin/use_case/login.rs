@@ -47,7 +47,10 @@ where
     AdminLoginError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<OutputData, AdminLoginError> {
-        let admin = self.repositorio.obtener_admin_por_documento(in_.documento).await?;
+        let admin = self
+            .repositorio
+            .obtener_admin_por_documento(in_.documento)
+            .await?;
 
         self.crypto_comparar
             .comparar(in_.password, admin.password)

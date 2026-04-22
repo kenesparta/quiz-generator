@@ -38,6 +38,7 @@ impl PsicologoController {
             segundo_apellido: dto.segundo_apellido,
             documento: dto.documento,
             especialidad: dto.especialidad,
+            colegiatura: dto.colegiatura,
             password: dto.password,
         };
 
@@ -68,6 +69,10 @@ impl PsicologoController {
                 PsicologoError::EspecialidadVacia => {
                     warn!("POST /psicologo/{} - especialidad vacia", psicologo_id);
                     HttpResponse::BadRequest().json("La especialidad es requerida")
+                }
+                PsicologoError::ColegiaturaVacia => {
+                    warn!("POST /psicologo/{} - colegiatura vacia", psicologo_id);
+                    HttpResponse::BadRequest().json("La colegiatura es requerida")
                 }
                 PsicologoError::PasswordVacio => {
                     error!("POST /psicologo/{} - error de password", psicologo_id);

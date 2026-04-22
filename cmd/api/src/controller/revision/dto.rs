@@ -46,9 +46,17 @@ pub struct RevisionDetalleDTO {
     pub revision: String,
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub psicologo: Option<RevisionPsicologoDTO>,
     pub evaluacion: RevisionEvaluacionDTO,
     #[serde(rename = "_links")]
     pub links: Links,
+}
+
+#[derive(Serialize)]
+pub struct RevisionPsicologoDTO {
+    pub nombre_completo: String,
+    pub colegiatura: String,
 }
 
 #[derive(Serialize)]

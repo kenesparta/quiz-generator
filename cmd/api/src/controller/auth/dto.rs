@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct DocumentoLoginRequestDTO {
+    #[serde(alias = "user_name")]
     pub documento: String,
     pub password: String,
 }

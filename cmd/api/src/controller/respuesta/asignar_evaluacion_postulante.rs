@@ -49,7 +49,12 @@ impl AsignarEvaluacionPostulanteController {
                     "POST /evaluaciones/{}/respuestas - asignacion exitosa",
                     evaluacion_id
                 );
-                let links = build_respuesta_links("", &dto.postulante_id, "Creado", &Rol::Psicologo.to_string());
+                let links = build_respuesta_links(
+                    "",
+                    &dto.postulante_id,
+                    "Creado",
+                    &Rol::Psicologo.to_string(),
+                );
                 HttpResponse::Created().json(RespuestaCreatedDTO {
                     id: String::new(),
                     estado: "Creado".to_string(),
@@ -61,8 +66,7 @@ impl AsignarEvaluacionPostulanteController {
                     "POST /evaluaciones/{}/respuestas - error: {}",
                     evaluacion_id, err
                 );
-                HttpResponse::InternalServerError()
-                    .json(json!({"error": err.to_string()}))
+                HttpResponse::InternalServerError().json(json!({"error": err.to_string()}))
             }
         }
     }

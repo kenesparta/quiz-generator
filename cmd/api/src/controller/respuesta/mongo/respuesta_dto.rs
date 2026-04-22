@@ -35,8 +35,7 @@ pub struct RespuestaDTO {
 
 impl From<RespuestaDTO> for Respuesta {
     fn from(respuesta: RespuestaDTO) -> Self {
-        let revision =
-            Revision::from_str(respuesta.revision.as_str()).unwrap_or(Revision::Default);
+        let revision = Revision::from_str(respuesta.revision.as_str()).unwrap_or(Revision::Default);
         Self {
             id: RespuestaID::new(respuesta.id.as_str()).unwrap(),
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,

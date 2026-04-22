@@ -182,8 +182,7 @@ impl PostulanteController {
                         "PUT /postulantes?documento={} - error de repositorio: {:?}",
                         documento, repo_err
                     );
-                    HttpResponse::InternalServerError()
-                        .json("Error al actualizar el postulante")
+                    HttpResponse::InternalServerError().json("Error al actualizar el postulante")
                 }
                 _ => {
                     error!(

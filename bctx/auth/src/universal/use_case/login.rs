@@ -42,16 +42,12 @@ impl<RepoErr> LoginUniversal<RepoErr> {
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, LoginUniversalError>
-    for LoginUniversal<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, OutputData, LoginUniversalError> for LoginUniversal<RepoErr>
 where
     LoginUniversalError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<OutputData, LoginUniversalError> {
-        let usuario = self
-            .repositorio
-            .buscar_por_documento(in_.documento)
-            .await?;
+        let usuario = self.repositorio.buscar_por_documento(in_.documento).await?;
 
         self.crypto_comparar
             .comparar(in_.password, usuario.password)

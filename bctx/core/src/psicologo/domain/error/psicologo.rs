@@ -15,6 +15,9 @@ pub enum PsicologoError {
     #[error("Especialidad vacia")]
     EspecialidadVacia,
 
+    #[error("Colegiatura vacia")]
+    ColegiaturaVacia,
+
     #[error("Password vacio")]
     PasswordVacio,
 

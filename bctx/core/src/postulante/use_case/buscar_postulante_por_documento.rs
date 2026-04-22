@@ -34,8 +34,7 @@ impl<RepoErr> ObtenerPostulantePorDNI<RepoErr> {
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, PostulanteError>
-    for ObtenerPostulantePorDNI<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, OutputData, PostulanteError> for ObtenerPostulantePorDNI<RepoErr>
 where
     PostulanteError: From<RepoErr>,
 {

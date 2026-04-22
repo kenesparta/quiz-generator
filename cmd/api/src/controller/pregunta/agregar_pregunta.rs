@@ -8,7 +8,6 @@ use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,
 };
 
-
 pub struct AgregarPreguntaController;
 
 impl AgregarPreguntaController {

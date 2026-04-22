@@ -172,9 +172,7 @@ pub fn build_respuesta_links(
                 Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
             );
         }
-        "Finalizado"
-            if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() =>
-        {
+        "Finalizado" if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() => {
             links.insert(
                 "revision".into(),
                 Link::get(format!("/revisiones/{}", respuesta_id)),
@@ -218,9 +216,7 @@ pub fn build_respuesta_list_item_links(respuesta_id: &str, estado: &str, rol: &s
                 Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
             );
         }
-        "Finalizado"
-            if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() =>
-        {
+        "Finalizado" if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() => {
             links.insert(
                 "revisar".into(),
                 Link::post(format!("/revisiones/{}", respuesta_id)),

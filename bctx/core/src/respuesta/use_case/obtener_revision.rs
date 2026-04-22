@@ -109,10 +109,7 @@ where
     RespuestaError: From<RepoErr>,
 {
     async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
-        let respuesta = self
-            .repo
-            .obtener_revision_por_id(input.revision_id)
-            .await?;
+        let respuesta = self.repo.obtener_revision_por_id(input.revision_id).await?;
 
         Ok(OutputData {
             id: respuesta.id.to_string(),

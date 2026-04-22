@@ -67,17 +67,15 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
         }
     }
 
-    async fn actualizar_postulante(
-        &self,
-        postulante: Postulante,
-    ) -> Result<(), PostulanteError> {
+    async fn actualizar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
         let filter = doc! {
             "_id": postulante.id.value().uuid().to_string(),
         };
 
-        let fecha_actualizacion = quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339(
-            &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
-        );
+        let fecha_actualizacion =
+            quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339(
+                &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
+            );
 
         let update = doc! {
             "$set": {

@@ -7,6 +7,7 @@ pub struct RegistrarPsicologoDTO {
     pub segundo_apellido: String,
     pub documento: String,
     pub especialidad: String,
+    pub colegiatura: String,
     pub password: String,
 }
 
@@ -19,4 +20,5 @@ pub struct PsicologoResponseDTO {
     pub segundo_apellido: String,
     pub documento: String,
     pub especialidad: String,
+    pub colegiatura: String,
 }

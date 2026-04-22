@@ -32,8 +32,8 @@ impl Admin {
                 "primer apellido vacio".to_string(),
             ));
         }
-        let documento_vo = Documento::new(&documento)
-            .map_err(|e| AdminError::DocumentoNoValido(e.to_string()))?;
+        let documento_vo =
+            Documento::new(&documento).map_err(|e| AdminError::DocumentoNoValido(e.to_string()))?;
         if password.trim().is_empty() {
             return Err(AdminError::PasswordVacio);
         }

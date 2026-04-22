@@ -7,10 +7,7 @@ use actix_web::web;
 pub fn respuesta(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/respuestas")
-            .service(
-                web::resource("")
-                    .route(web::get().to(ListarRespuestasController::list)),
-            )
+            .service(web::resource("").route(web::get().to(ListarRespuestasController::list)))
             .service(web::resource("/{id}").route(web::get().to(ObtenerRespuestaController::get)))
             .service(
                 web::resource("/{id}/estado")

@@ -4,9 +4,7 @@ use chrono_tz::America::Lima;
 const LIMA_OFFSET_SECONDS: i32 = -5 * 3600;
 
 pub fn ahora_lima() -> DateTime<FixedOffset> {
-    Utc::now()
-        .with_timezone(&Lima)
-        .fixed_offset()
+    Utc::now().with_timezone(&Lima).fixed_offset()
 }
 
 pub fn utc_a_lima(dt: DateTime<Utc>) -> DateTime<FixedOffset> {
@@ -14,8 +12,7 @@ pub fn utc_a_lima(dt: DateTime<Utc>) -> DateTime<FixedOffset> {
 }
 
 pub fn offset_lima() -> FixedOffset {
-    FixedOffset::west_opt(-LIMA_OFFSET_SECONDS)
-        .expect("offset Lima invalido")
+    FixedOffset::west_opt(-LIMA_OFFSET_SECONDS).expect("offset Lima invalido")
 }
 
 pub fn formatear_rfc3339(dt: &DateTime<FixedOffset>) -> String {

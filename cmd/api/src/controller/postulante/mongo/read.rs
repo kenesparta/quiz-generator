@@ -4,6 +4,7 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::StreamExt;
 use log::error;
+use mongodb::bson::Bson;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
@@ -15,12 +16,13 @@ use quizz_core::postulante::domain::value_object::grado_instruccion::GradoInstru
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::domain::value_object::nombre::Nombre;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
-use mongodb::bson::Bson;
 use std::str::FromStr;
 
 fn leer_fecha_bson(bson_fecha: &Bson) -> Result<String, PostulanteError> {
     use chrono::NaiveDateTime;
-    use quizz_common::domain::value_objects::zona_horaria::{formatear_rfc3339, offset_lima, utc_a_lima};
+    use quizz_common::domain::value_objects::zona_horaria::{
+        formatear_rfc3339, offset_lima, utc_a_lima,
+    };
 
     if let Some(s) = bson_fecha.as_str() {
         if chrono::DateTime::parse_from_rfc3339(s).is_ok() {

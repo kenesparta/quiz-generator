@@ -12,6 +12,7 @@ pub struct InputData {
     pub segundo_apellido: String,
     pub documento: String,
     pub especialidad: String,
+    pub colegiatura: String,
     pub password: String,
 }
 
@@ -48,6 +49,7 @@ where
             in_.segundo_apellido,
             in_.documento,
             in_.especialidad,
+            in_.colegiatura,
             password,
         )?;
         self.repositorio.registrar_psicologo(psicologo).await?;
@@ -107,6 +109,7 @@ mod tests {
                 segundo_apellido: "Lopez".to_string(),
                 documento: "44556677".to_string(),
                 especialidad: "Psicologia Clinica".to_string(),
+                colegiatura: "CPP-12345".to_string(),
                 password: "mi_password_seguro".to_string(),
             })
             .await;
@@ -135,6 +138,7 @@ mod tests {
                 segundo_apellido: "Lopez".to_string(),
                 documento: "12".to_string(),
                 especialidad: "Psicologia Clinica".to_string(),
+                colegiatura: "CPP-12345".to_string(),
                 password: "mi_password_seguro".to_string(),
             })
             .await;

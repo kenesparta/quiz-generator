@@ -41,14 +41,10 @@ impl RepositorioObtenerRevisionPorId<RespuestaError> for RevisionReadMongo {
             "estado": Estado::Finalizado.to_string(),
         };
 
-        let doc = self
-            .get_collection()
-            .find_one(filter)
-            .await
-            .map_err(|e| {
-                error!("Error finding revision by id {}: {}", revision_id, e);
-                RespuestaError::RepositorioError
-            })?;
+        let doc = self.get_collection().find_one(filter).await.map_err(|e| {
+            error!("Error finding revision by id {}: {}", revision_id, e);
+            RespuestaError::RepositorioError
+        })?;
 
         match doc {
             Some(doc) => {

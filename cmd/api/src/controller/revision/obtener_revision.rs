@@ -1,11 +1,16 @@
+use crate::controller::auth::jwt::Claims;
 use crate::controller::hateoas::{Link, Links};
+use crate::controller::psicologo::mongo::read::PsicologoReadMongo;
 use crate::controller::revision::dto::{
     RevisionDetalleDTO, RevisionEvaluacionDTO, RevisionExamenDTO, RevisionPreguntaDTO,
+    RevisionPsicologoDTO,
 };
 use crate::controller::revision::mongo::read::RevisionReadMongo;
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
+use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
 use serde_json::json;
 
@@ -24,7 +29,7 @@ impl ObtenerRevisionController {
         info!("GET /revisiones/{}", revision_id);
 
         let obtener_revision =
-            ObtenerRevisionPorId::new(Box::new(RevisionReadMongo::new(pool)));
+            ObtenerRevisionPorId::new(Box::new(RevisionReadMongo::new(pool.clone())));
 
         match obtener_revision
             .ejecutar(InputData {
@@ -34,6 +39,32 @@ impl ObtenerRevisionController {
         {
             Ok(output) => {
                 info!("GET /revisiones/{} - encontrado", revision_id);
+
+                // Obtener datos del psicólogo si el solicitante es psicólogo
+                let claims = req.extensions().get::<Claims>().cloned();
+                let psicologo_dto = if let Some(claims) =
+                    claims.filter(|c| c.rol.as_deref() == Some(&Rol::Psicologo.to_string()))
+                {
+                    let psicologo_read = PsicologoReadMongo::new(pool);
+                    match psicologo_read.obtener_psicologo_por_id(claims.sub).await {
+                        Ok(info) => Some(RevisionPsicologoDTO {
+                            nombre_completo: format!(
+                                "{} {} {}",
+                                info.nombre, info.primer_apellido, info.segundo_apellido
+                            ),
+                            colegiatura: info.colegiatura,
+                        }),
+                        Err(e) => {
+                            warn!(
+                                "GET /revisiones/{} - no se pudo obtener psicologo: {:?}",
+                                revision_id, e
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                };
 
                 let mut links = Links::new();
                 links.insert(
@@ -52,6 +83,7 @@ impl ObtenerRevisionController {
                     revision: output.revision,
                     fecha_tiempo_inicio: output.fecha_tiempo_inicio,
                     fecha_tiempo_fin: output.fecha_tiempo_fin,
+                    psicologo: psicologo_dto,
                     evaluacion: RevisionEvaluacionDTO {
                         id: output.evaluacion.id,
                         nombre: output.evaluacion.nombre,

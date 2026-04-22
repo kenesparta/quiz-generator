@@ -341,8 +341,8 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
         };
 
         let fecha_actual = quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339(
-                &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
-            );
+            &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
+        );
 
         let update = doc! {
             "$set": {
@@ -409,8 +409,8 @@ impl RepositorioEmpezarExamen<RespuestaError> for RepositorioEmpezarExamenMongo 
         };
 
         let fecha_actual = quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339(
-                &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
-            );
+            &quizz_common::domain::value_objects::zona_horaria::ahora_lima(),
+        );
 
         let update = doc! {
             "$set": {

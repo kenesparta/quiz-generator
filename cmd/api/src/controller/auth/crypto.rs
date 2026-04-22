@@ -7,11 +7,7 @@ pub struct CifradoPorDefecto;
 
 #[async_trait]
 impl SeguridadComparar<LoginUniversalError> for CifradoPorDefecto {
-    async fn comparar(
-        &self,
-        password: String,
-        hashed: String,
-    ) -> Result<(), LoginUniversalError> {
+    async fn comparar(&self, password: String, hashed: String) -> Result<(), LoginUniversalError> {
         match verify(password, &hashed) {
             Ok(true) => Ok(()),
             _ => Err(LoginUniversalError::PasswordIncorrecto),

@@ -11,10 +11,12 @@ pub struct Psicologo {
     pub segundo_apellido: String,
     pub documento: String,
     pub especialidad: String,
+    pub colegiatura: String,
     pub password: Option<String>,
 }
 
 impl Psicologo {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: String,
         nombre: String,
@@ -22,6 +24,7 @@ impl Psicologo {
         segundo_apellido: String,
         documento: String,
         especialidad: String,
+        colegiatura: String,
         password: String,
     ) -> Result<Self, PsicologoError> {
         let id = PsicologoID::new(&id)?;
@@ -39,6 +42,9 @@ impl Psicologo {
         if especialidad.trim().is_empty() {
             return Err(PsicologoError::EspecialidadVacia);
         }
+        if colegiatura.trim().is_empty() {
+            return Err(PsicologoError::ColegiaturaVacia);
+        }
         if password.trim().is_empty() {
             return Err(PsicologoError::PasswordVacio);
         }
@@ -50,6 +56,7 @@ impl Psicologo {
             segundo_apellido: segundo_apellido.trim().to_string(),
             documento: documento_vo.value().clone(),
             especialidad: especialidad.trim().to_string(),
+            colegiatura: colegiatura.trim().to_string(),
             password: Some(password),
         })
     }
@@ -72,6 +79,10 @@ mod tests {
         "44556677".to_string()
     }
 
+    fn valid_colegiatura() -> String {
+        "CPP-12345".to_string()
+    }
+
     #[test]
     fn test_new_success() {
         let result = Psicologo::new(
@@ -81,6 +92,7 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(result.is_ok());
@@ -89,6 +101,7 @@ mod tests {
         assert_eq!(psicologo.primer_apellido, "Garcia");
         assert_eq!(psicologo.documento, "44556677");
         assert_eq!(psicologo.especialidad, "Psicologia Clinica");
+        assert_eq!(psicologo.colegiatura, "CPP-12345");
     }
 
     #[test]
@@ -100,6 +113,7 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
@@ -117,6 +131,7 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
@@ -134,6 +149,7 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
@@ -151,6 +167,7 @@ mod tests {
             "Lopez".to_string(),
             "".to_string(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
@@ -168,6 +185,7 @@ mod tests {
             "Lopez".to_string(),
             "12".to_string(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
@@ -185,11 +203,30 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "".to_string(),
+            valid_colegiatura(),
             valid_password(),
         );
         assert!(matches!(
             result.unwrap_err(),
             PsicologoError::EspecialidadVacia
+        ));
+    }
+
+    #[test]
+    fn test_empty_colegiatura() {
+        let result = Psicologo::new(
+            valid_id(),
+            "Maria".to_string(),
+            "Garcia".to_string(),
+            "Lopez".to_string(),
+            valid_documento(),
+            "Psicologia Clinica".to_string(),
+            "".to_string(),
+            valid_password(),
+        );
+        assert!(matches!(
+            result.unwrap_err(),
+            PsicologoError::ColegiaturaVacia
         ));
     }
 
@@ -202,6 +239,7 @@ mod tests {
             "Lopez".to_string(),
             valid_documento(),
             "Psicologia Clinica".to_string(),
+            valid_colegiatura(),
             "".to_string(),
         );
         assert!(matches!(result.unwrap_err(), PsicologoError::PasswordVacio));

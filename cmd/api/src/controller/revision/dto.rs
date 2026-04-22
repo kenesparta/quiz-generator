@@ -44,6 +44,8 @@ pub struct RevisionDetalleDTO {
     pub postulante_id: String,
     pub resultado: String,
     pub revision: String,
+    pub fecha_tiempo_inicio: String,
+    pub fecha_tiempo_fin: String,
     pub evaluacion: RevisionEvaluacionDTO,
     #[serde(rename = "_links")]
     pub links: Links,

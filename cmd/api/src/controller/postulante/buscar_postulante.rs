@@ -5,6 +5,7 @@ use crate::controller::postulante::dto::{
 use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::error::postulante::PostulanteError;
 use quizz_core::postulante::use_case::buscar_postulante::{
@@ -27,7 +28,7 @@ impl PostulanteObtenerPorDocumentoController {
         // Si el usuario es postulante, solo puede consultar su propia informacion
         if let Some(claims) = req.extensions().get::<Claims>()
             && let Some(ref rol) = claims.rol
-            && rol == "postulante"
+            && *rol == Rol::Postulante.to_string()
         {
             match &query.id {
                 Some(id) if *id != claims.sub => {

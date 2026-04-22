@@ -6,6 +6,7 @@ use crate::controller::respuesta::dto::{
 use crate::controller::respuesta::mongo::read::RespuestaPorPostulanteMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use log::{info, warn};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::respuesta_postulante::{InputData, RespuestaPorPostulante};
 use serde_json::json;
@@ -32,7 +33,7 @@ impl ObtenerRespuestaController {
         let rol = claims.rol.as_deref().unwrap_or("");
 
         // Para postulante: usar claims.sub como postulante_id
-        let postulante_id = if rol == "postulante" {
+        let postulante_id = if rol == Rol::Postulante.to_string() {
             claims.sub.clone()
         } else {
             // psicologo/admin: usar el claims.sub (la query ya valida por postulante en el repo)

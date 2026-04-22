@@ -16,6 +16,8 @@ pub struct OutputData {
     pub postulante_id: String,
     pub resultado: String,
     pub revision: String,
+    pub fecha_tiempo_inicio: String,
+    pub fecha_tiempo_fin: String,
     pub evaluacion: OutputEvaluacion,
 }
 
@@ -117,6 +119,8 @@ where
             postulante_id: respuesta.postulante.to_string(),
             resultado: respuesta.resultado,
             revision: respuesta.revision.to_string(),
+            fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
+            fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             evaluacion: respuesta.evaluacion.into(),
         })
     }

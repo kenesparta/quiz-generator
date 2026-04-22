@@ -50,6 +50,8 @@ impl ObtenerRevisionController {
                     postulante_id: output.postulante_id,
                     resultado: output.resultado,
                     revision: output.revision,
+                    fecha_tiempo_inicio: output.fecha_tiempo_inicio,
+                    fecha_tiempo_fin: output.fecha_tiempo_fin,
                     evaluacion: RevisionEvaluacionDTO {
                         id: output.evaluacion.id,
                         nombre: output.evaluacion.nombre,

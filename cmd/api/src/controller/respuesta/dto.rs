@@ -1,4 +1,5 @@
 use crate::controller::hateoas::{Link, Links};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -159,38 +160,34 @@ pub fn build_respuesta_links(
     );
 
     match estado {
-        "Creado" => {
-            if rol == "postulante" {
-                links.insert(
-                    "empezar".into(),
-                    Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
-                );
-            }
+        "Creado" if rol == Rol::Postulante.to_string() => {
+            links.insert(
+                "empezar".into(),
+                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+            );
         }
-        "EnProceso" => {
-            if rol == "postulante" {
-                links.insert(
-                    "finalizar".into(),
-                    Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
-                );
-            }
+        "EnProceso" if rol == Rol::Postulante.to_string() => {
+            links.insert(
+                "finalizar".into(),
+                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+            );
         }
-        "Finalizado" => {
-            if rol == "psicologo" || rol == "admin" {
-                links.insert(
-                    "revision".into(),
-                    Link::get(format!("/revisiones/{}", respuesta_id)),
-                );
-                links.insert(
-                    "revisar".into(),
-                    Link::post(format!("/revisiones/{}", respuesta_id)),
-                );
-            }
+        "Finalizado"
+            if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() =>
+        {
+            links.insert(
+                "revision".into(),
+                Link::get(format!("/revisiones/{}", respuesta_id)),
+            );
+            links.insert(
+                "revisar".into(),
+                Link::post(format!("/revisiones/{}", respuesta_id)),
+            );
         }
         _ => {}
     }
 
-    if rol == "psicologo" || rol == "admin" {
+    if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() {
         links.insert(
             "postulante".into(),
             Link::get(format!("/postulantes?id={}", postulante_id)),
@@ -209,19 +206,21 @@ pub fn build_respuesta_list_item_links(respuesta_id: &str, estado: &str, rol: &s
     );
 
     match estado {
-        "Creado" if rol == "postulante" => {
+        "Creado" if rol == Rol::Postulante.to_string() => {
             links.insert(
                 "empezar".into(),
                 Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
             );
         }
-        "EnProceso" if rol == "postulante" => {
+        "EnProceso" if rol == Rol::Postulante.to_string() => {
             links.insert(
                 "finalizar".into(),
                 Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
             );
         }
-        "Finalizado" if rol == "psicologo" || rol == "admin" => {
+        "Finalizado"
+            if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() =>
+        {
             links.insert(
                 "revisar".into(),
                 Link::post(format!("/revisiones/{}", respuesta_id)),
@@ -242,7 +241,7 @@ pub fn build_pregunta_links(
 ) -> Links {
     let mut links = Links::new();
 
-    if estado == "EnProceso" && rol == "postulante" {
+    if estado == "EnProceso" && rol == Rol::Postulante.to_string() {
         links.insert(
             "contestar".into(),
             Link::post(format!(

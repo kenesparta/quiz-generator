@@ -6,6 +6,7 @@ use crate::controller::respuesta::dto::{
 use crate::controller::respuesta::mongo::read::ListaRespuestaPostulanteMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::lista_respuesta_postulante::{
     InputData, ListaRespuestaPostulante,
@@ -31,7 +32,7 @@ impl ListarRespuestasController {
         let rol = claims.rol.as_deref().unwrap_or("");
 
         // Para postulante: siempre usar claims.sub, ignorar query param
-        let postulante_id = if rol == "postulante" {
+        let postulante_id = if rol == Rol::Postulante.to_string() {
             claims.sub.clone()
         } else {
             match &query.postulante_id {

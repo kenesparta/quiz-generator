@@ -4,6 +4,7 @@ use crate::controller::respuesta::dto::{
 use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::asignar_postulante::{
     AsignarEvaluacionAPostulante, InputData,
@@ -48,7 +49,7 @@ impl AsignarEvaluacionPostulanteController {
                     "POST /evaluaciones/{}/respuestas - asignacion exitosa",
                     evaluacion_id
                 );
-                let links = build_respuesta_links("", &dto.postulante_id, "Creado", "psicologo");
+                let links = build_respuesta_links("", &dto.postulante_id, "Creado", &Rol::Psicologo.to_string());
                 HttpResponse::Created().json(RespuestaCreatedDTO {
                     id: String::new(),
                     estado: "Creado".to_string(),

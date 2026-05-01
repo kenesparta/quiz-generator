@@ -1,4 +1,5 @@
 use crate::evaluacion::domain::entity::evaluacion::Evaluacion;
+use crate::evaluacion::use_case::listar_evaluaciones::OutputData;
 use crate::evaluacion::value_object::examen_id::ExamenIDs;
 use crate::evaluacion::value_object::id::EvaluacionID;
 use async_trait::async_trait;
@@ -24,4 +25,9 @@ pub trait RepositorioPublicarEvaluacion<Error>:
     Send + Sync + RepositorioLeerEvaluacion<Error>
 {
     async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), Error>;
+}
+
+#[async_trait]
+pub trait RepositorioEvaluacionListar<Error>: Send + Sync {
+    async fn listar_evaluaciones(&self) -> Result<Vec<OutputData>, Error>;
 }

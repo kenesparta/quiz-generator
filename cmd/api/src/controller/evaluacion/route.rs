@@ -1,3 +1,4 @@
+use crate::controller::evaluacion::listar_evaluaciones::ListarEvaluacionesController;
 use crate::controller::evaluacion::publicar_evaluacion::PublicarEvaluacionController;
 use crate::controller::evaluacion::registrar_evaluacion::EvaluacionControlller;
 use crate::controller::respuesta::asignar_evaluacion_postulante::AsignarEvaluacionPostulanteController;
@@ -6,6 +7,7 @@ use actix_web::web;
 pub fn evaluacion(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/evaluaciones")
+            .service(web::resource("").route(web::get().to(ListarEvaluacionesController::list)))
             .service(
                 web::resource("/{id}")
                     .route(web::post().to(EvaluacionControlller::create))

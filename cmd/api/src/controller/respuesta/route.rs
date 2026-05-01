@@ -1,4 +1,5 @@
 use crate::controller::respuesta::contestar_pregunta::ContestarPreguntaController;
+use crate::controller::respuesta::listar_asignaciones::ListarAsignacionesController;
 use crate::controller::respuesta::listar_respuestas::ListarRespuestasController;
 use crate::controller::respuesta::obtener_respuesta::ObtenerRespuestaController;
 use crate::controller::respuesta::transicion_estado::TransicionEstadoController;
@@ -8,6 +9,10 @@ pub fn respuesta(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/respuestas")
             .service(web::resource("").route(web::get().to(ListarRespuestasController::list)))
+            .service(
+                web::resource("/asignaciones")
+                    .route(web::get().to(ListarAsignacionesController::list)),
+            )
             .service(web::resource("/{id}").route(web::get().to(ObtenerRespuestaController::get)))
             .service(
                 web::resource("/{id}/estado")

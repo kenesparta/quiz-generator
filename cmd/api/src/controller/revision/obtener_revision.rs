@@ -104,6 +104,11 @@ impl ObtenerRevisionController {
                                         id: p.id,
                                         contenido: p.contenido,
                                         tipo_de_pregunta: p.tipo_de_pregunta,
+                                        imagen_ref: if p.imagen_ref.is_empty() {
+                                            None
+                                        } else {
+                                            Some(p.imagen_ref)
+                                        },
                                         alternativas: p.alternativas,
                                         respuestas: p.respuestas,
                                         puntos: p.puntos,

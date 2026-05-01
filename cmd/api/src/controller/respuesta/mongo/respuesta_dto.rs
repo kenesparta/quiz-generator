@@ -158,7 +158,8 @@ pub struct PreguntaDTO {
     pub contenido: String,
     pub tipo_de_pregunta: String,
     pub etiqueta: String,
-    // pub imagen_ref: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub imagen_ref: Option<String>,
     pub alternativas: HashMap<String, String>,
     #[serde(default)]
     pub respuestas: Option<Vec<String>>,
@@ -173,7 +174,7 @@ impl From<PreguntaDTO> for Pregunta {
             observaciones: "".to_string(),
             etiqueta: Etiqueta::from_str(&pregunta.etiqueta).unwrap(),
             tipo_de_pregunta: TipoPregunta::from_str(&pregunta.tipo_de_pregunta).unwrap(),
-            imagen_ref: "".to_string(),
+            imagen_ref: pregunta.imagen_ref.unwrap_or_default(),
             alternativas: pregunta.alternativas,
             puntaje: Default::default(),
             respuestas: Option::from(pregunta.respuestas.unwrap_or_default()),
@@ -189,7 +190,11 @@ impl From<OutputPregunta> for PreguntaDTO {
             contenido: pregunta.contenido,
             tipo_de_pregunta: pregunta.tipo_de_pregunta,
             etiqueta: "".to_owned(),
-            // imagen_ref: pregunta.imagen_ref.to_string(),
+            imagen_ref: if pregunta.imagen_ref.is_empty() {
+                None
+            } else {
+                Some(pregunta.imagen_ref)
+            },
             alternativas: pregunta.alternativas,
             respuestas: pregunta.respuestas,
             puntos: Option::from(pregunta.puntos),

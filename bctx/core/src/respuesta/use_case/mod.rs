@@ -2,6 +2,7 @@ pub mod asignar_postulante;
 pub mod empezar_examen;
 pub mod finalizar_evaluacion;
 pub mod lista_respuesta_postulante;
+pub mod listar_asignaciones;
 pub mod obtener_revision;
 pub mod realizar_revision;
 pub mod responder_evaluacion;

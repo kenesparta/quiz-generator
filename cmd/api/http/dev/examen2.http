@@ -349,7 +349,7 @@ Content-Type: application/json
     {
       "etiqueta": "no",
       "tipo_de_pregunta": "sola_respuesta",
-      "imagen_ref": "diagrama_figuras_geometricas",
+      "imagen_ref": "",
       "contenido": "¿Qué número está en las mismas figuras geométricas que el número 8?",
       "alternativas": {},
       "puntaje": {

@@ -78,3 +78,12 @@ pub trait RepositorioListaRespuestaPostulante<Error>: Send + Sync {
         postulante_id: crate::postulante::domain::value_object::id::PostulanteID,
     ) -> Result<Vec<crate::respuesta::use_case::lista_respuesta_postulante::OutputData>, Error>;
 }
+
+#[async_trait]
+pub trait RepositorioListarAsignaciones<Error>: Send + Sync {
+    async fn listar(
+        &self,
+        postulante_id: Option<String>,
+        evaluacion_id: Option<String>,
+    ) -> Result<Vec<crate::respuesta::use_case::listar_asignaciones::OutputData>, Error>;
+}

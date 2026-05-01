@@ -27,6 +27,12 @@ pub struct RespuestaQueryParams {
     pub estado: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct AsignacionesQueryParams {
+    pub postulante_id: Option<String>,
+    pub evaluacion_id: Option<String>,
+}
+
 // --- Response DTOs ---
 
 #[derive(Serialize)]
@@ -43,6 +49,25 @@ pub struct RespuestaListItemDTO {
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
     pub estado: String,
+    #[serde(rename = "_links")]
+    pub links: Links,
+}
+
+#[derive(Serialize)]
+pub struct AsignacionListItemDTO {
+    pub id: String,
+    pub estado: String,
+    pub fecha_tiempo_inicio: String,
+    pub fecha_tiempo_fin: String,
+    pub evaluacion_id: String,
+    pub evaluacion_nombre: String,
+    pub evaluacion_descripcion: String,
+    pub postulante_id: String,
+    pub postulante_documento: String,
+    pub postulante_nombre: String,
+    pub postulante_primer_apellido: String,
+    pub postulante_segundo_apellido: String,
+    pub postulante_nombre_completo: String,
     #[serde(rename = "_links")]
     pub links: Links,
 }
@@ -90,6 +115,8 @@ pub struct PreguntaResponseDTO {
     pub contenido: String,
     pub tipo_de_pregunta: String,
     pub etiqueta: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub imagen_ref: Option<String>,
     pub alternativas: HashMap<String, String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub respuestas: Option<Vec<String>>,
@@ -127,6 +154,8 @@ pub struct PreguntaMongoDTO {
     pub contenido: String,
     pub etiqueta: String,
     pub tipo_de_pregunta: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub imagen_ref: Option<String>,
     pub alternativas: HashMap<String, String>,
     pub puntaje: HashMap<String, u32>,
     pub respuestas: Option<Vec<String>>,

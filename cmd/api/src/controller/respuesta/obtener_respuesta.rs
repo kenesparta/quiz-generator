@@ -86,6 +86,11 @@ impl ObtenerRespuestaController {
                                         contenido: p.contenido,
                                         tipo_de_pregunta: p.tipo_de_pregunta,
                                         etiqueta: String::new(),
+                                        imagen_ref: if p.imagen_ref.is_empty() {
+                                            None
+                                        } else {
+                                            Some(p.imagen_ref)
+                                        },
                                         alternativas: p.alternativas,
                                         respuestas: p.respuestas,
                                         puntos: Option::from(p.puntos),

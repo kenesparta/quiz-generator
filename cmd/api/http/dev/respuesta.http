@@ -40,6 +40,21 @@ Content-Type: application/json
   "accion": "empezar"
 }
 
+### Listar todas las asignaciones evaluacion ↔ postulante (solo admin/psicologo)
+GET {{baseUrl}}/respuestas/asignaciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Listar asignaciones filtrando por postulante01
+GET {{baseUrl}}/respuestas/asignaciones?postulante_id={{postulante01}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Listar asignaciones filtrando por evaluacion
+GET {{baseUrl}}/respuestas/asignaciones?evaluacion_id={{evaluacionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
 ### Listar respuestas del postulante01 (excluye finalizadas)
 GET {{baseUrl}}/respuestas?postulante_id={{postulante01}}
 Authorization: Bearer {{token}}

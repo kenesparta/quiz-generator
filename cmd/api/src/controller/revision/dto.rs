@@ -83,6 +83,8 @@ pub struct RevisionPreguntaDTO {
     pub id: String,
     pub contenido: String,
     pub tipo_de_pregunta: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub imagen_ref: Option<String>,
     pub alternativas: HashMap<String, String>,
     pub respuestas: Option<Vec<String>>,
     pub puntos: i64,

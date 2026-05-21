@@ -12,8 +12,8 @@ Quiz Generator is a Rust-based HTTP API for creating exams, composing evaluation
 
 The repository uses a Cargo workspace organized by bounded contexts (bctx):
 
-- `bctx/core` - Core domain logic (examen, pregunta, evaluacion, postulante, respuesta)
-- `bctx/auth` - Authentication domain (postulante and psicologo login/sessions)
+- `bctx/core` - Core domain logic (examen, pregunta, evaluacion, postulante, psicologo, admin, respuesta)
+- `bctx/auth` - Authentication domain (universal login/sessions and authorization)
 - `bctx/usermgm` - User management support domain
 - `bctx/common` - Shared utilities and types
 - `cmd/api` - HTTP API service (binary: `quizz`)
@@ -89,8 +89,9 @@ cargo test test_name -- --nocapture
 - `startup.rs` - Server setup with route configuration
 - `configuration.rs` - Config loading from `configuration.yaml`
 - `mongo.rs` / `redis.rs` - Database client initialization
-- `controller/` - HTTP handlers organized by domain (examen, evaluacion, postulante, respuesta, revision, auth)
+- `controller/` - HTTP handlers organized by domain (examen, evaluacion, postulante, psicologo, admin, respuesta, revision, auth)
 - `controller/mongo_repository.rs` - MongoDB repository implementations (adapters)
+- `controller/hateoas.rs` - HATEOAS link helpers for hypermedia responses
 
 Each controller module typically has:
 - `route.rs` - Actix Web route configuration
@@ -150,21 +151,24 @@ database:
 ### API Routes
 
 - `GET /health-check` - Health check endpoint
-- `/examenes` - Create exams, add questions
+- `/examenes` - Create exams, add questions, list
+  - `GET /examenes` - List exams
   - `POST /examenes/{id}` - Create an exam
   - `PUT /examenes/{id}` - Add a question to an exam
-- `/evaluaciones` - Create evaluations, associate exams, publish, assign to candidates
+- `/evaluaciones` - Create evaluations, associate exams, publish, assign to candidates, list
+  - `GET /evaluaciones` - List evaluations
   - `POST /evaluaciones/{id}` - Create an evaluation
   - `PUT /evaluaciones/{id}` - Associate exams with an evaluation
   - `PATCH /evaluaciones/{id}` - Publish an evaluation
   - `POST /evaluaciones/{evaluacion_id}/respuestas` - Assign evaluation to a candidate (creates respuesta with estado: Creado)
 - `/postulantes` - CRUD operations for candidates
-  - `GET /postulantes` - Search candidate by document
+  - `GET /postulantes` - Search candidate by document (query param)
+  - `PUT /postulantes` - Update candidate by document (query param)
   - `POST /postulantes/{id}` - Create candidate
-  - `PUT /postulantes/{id}` - Update candidate
   - `DELETE /postulantes/{id}` - Remove candidate
 - `/respuestas` - Manage exam lifecycle, submit answers
   - `GET /respuestas` - List respuestas
+  - `GET /respuestas/asignaciones` - List assignments (respuestas with their evaluation context)
   - `GET /respuestas/{id}` - Get specific respuesta details
   - `PATCH /respuestas/{id}/estado` - Transition respuesta state (body: `{"accion":"empezar"}` or `{"accion":"finalizar"}`)
     - `empezar`: Creado → EnProceso (sets fecha_tiempo_inicio)
@@ -172,10 +176,13 @@ database:
   - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` - Submit answer to a question
 - `/revisiones` - Grade and review completed evaluations
   - `GET /revisiones` - List revisiones
-  - `POST /revisiones/{respuesta_id}` - Review evaluation for a candidate
+  - `GET /revisiones/{revision_id}` - Get specific revision details
+  - `POST /revisiones/{revision_id}` - Review evaluation for a candidate (also accepts `PATCH`)
 - `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role)
 
-Example HTTP requests are in `cmd/api/http/*.http` files (use with VS Code/IntelliJ HTTP Client).
+Example HTTP requests are in `cmd/api/http/dev/*.http` files (use with VS Code/IntelliJ HTTP Client).
+
+List endpoints return HATEOAS-style responses (see `cmd/api/src/controller/hateoas.rs`) embedding `_links` for navigation.
 
 ## Key Domain Concepts
 

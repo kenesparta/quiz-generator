@@ -5,7 +5,10 @@ use async_trait::async_trait;
 use log::error;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
-use quizz_core::psicologo::provider::repositorio::{PsicologoInfo, RepositorioPsicologoLectura};
+use quizz_core::psicologo::provider::repositorio::{
+    PsicologoInfo, RepositorioPsicologoLectura, RepositorioPsicologoListar,
+};
+use quizz_core::psicologo::use_case::listar_psicologos::OutputData;
 
 pub struct PsicologoReadMongo {
     client: web::Data<mongodb::Client>,
@@ -61,5 +64,59 @@ impl RepositorioPsicologoLectura<PsicologoError> for PsicologoReadMongo {
                 RepositorioError::RegistroNoEncontrado,
             )),
         }
+    }
+}
+
+#[async_trait]
+impl RepositorioPsicologoListar<PsicologoError> for PsicologoReadMongo {
+    async fn listar_psicologos(&self) -> Result<Vec<OutputData>, PsicologoError> {
+        let mut cursor = self.get_collection().find(doc! {}).await.map_err(|e| {
+            error!("Database error while listing psicologos: {}", e);
+            PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
+        })?;
+
+        let mut psicologos = Vec::new();
+
+        while cursor.advance().await.map_err(|e| {
+            error!("Error advancing cursor while listing psicologos: {}", e);
+            PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
+        })? {
+            let documento = cursor.deserialize_current().map_err(|e| {
+                error!("Error deserializing psicologo document: {}", e);
+                PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
+            })?;
+
+            let id = documento.get_str("_id").unwrap_or_default().to_string();
+            let nombre = documento.get_str("nombre").unwrap_or_default().to_string();
+            let primer_apellido = documento
+                .get_str("primer_apellido")
+                .unwrap_or_default()
+                .to_string();
+            let segundo_apellido = documento
+                .get_str("segundo_apellido")
+                .unwrap_or_default()
+                .to_string();
+            let documento_dni = documento.get_str("documento").unwrap_or_default().to_string();
+            let especialidad = documento
+                .get_str("especialidad")
+                .unwrap_or_default()
+                .to_string();
+            let colegiatura = documento
+                .get_str("colegiatura")
+                .unwrap_or_default()
+                .to_string();
+
+            psicologos.push(OutputData {
+                id,
+                nombre,
+                primer_apellido,
+                segundo_apellido,
+                documento: documento_dni,
+                especialidad,
+                colegiatura,
+            });
+        }
+
+        Ok(psicologos)
     }
 }

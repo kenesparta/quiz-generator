@@ -46,6 +46,7 @@ impl ListarRevisionesController {
                             descripcion_evaluacion: rev.descripcion_evaluacion,
                             estado_revision: rev.estado_revision,
                             postulante_id: rev.postulante_id,
+                            fecha_tiempo_fin: rev.fecha_tiempo_fin,
                             links,
                         }
                     })

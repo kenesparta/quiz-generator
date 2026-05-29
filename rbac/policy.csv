@@ -23,7 +23,6 @@ p, admin, psicologo, escribir
 p, admin, admin, leer
 p, admin, admin, escribir
 
-p, psicologo, psicologo, leer
 p, psicologo, examen, leer
 p, psicologo, examen, escribir
 p, psicologo, examen, actualizar

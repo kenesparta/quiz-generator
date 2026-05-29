@@ -26,6 +26,7 @@ pub struct RevisionListItemDTO {
     pub descripcion_evaluacion: String,
     pub estado_revision: String,
     pub postulante_id: String,
+    pub fecha_tiempo_fin: String,
     #[serde(rename = "_links")]
     pub links: Links,
 }

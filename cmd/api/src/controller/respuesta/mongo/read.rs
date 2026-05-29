@@ -101,10 +101,15 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
             "estado": estado.to_string()
         };
 
-        let mut cursor = self.get_collection().find(filter).await.map_err(|e| {
-            error!("Error finding respuestas by estado {}: {}", estado, e);
-            RespuestaError::RepositorioError
-        })?;
+        let mut cursor = self
+            .get_collection()
+            .find(filter)
+            .sort(doc! { "fecha_tiempo_fin": -1 })
+            .await
+            .map_err(|e| {
+                error!("Error finding respuestas by estado {}: {}", estado, e);
+                RespuestaError::RepositorioError
+            })?;
 
         let mut respuestas = Vec::new();
 

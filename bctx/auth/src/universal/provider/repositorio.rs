@@ -11,3 +11,8 @@ pub trait RepositorioLoginUniversalLectura<Error>: Send + Sync {
 pub trait RepositorioLoginUniversalCacheEscritura<Error>: Send + Sync {
     async fn guardar_token(&self, jwt: JwtObject) -> Result<(), Error>;
 }
+
+#[async_trait]
+pub trait RepositorioLoginUniversalCacheBorrado<Error>: Send + Sync {
+    async fn borrar_token(&self, sujeto_id: String) -> Result<(), Error>;
+}

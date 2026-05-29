@@ -179,6 +179,7 @@ database:
   - `GET /revisiones/{revision_id}` - Get specific revision details
   - `POST /revisiones/{revision_id}` - Review evaluation for a candidate (also accepts `PATCH`)
 - `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role)
+- `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>`, borra el token de Redis (clave `sub`). Devuelve 204 incluso si el token está expirado para que el cliente pueda limpiar su sesión local.
 
 Example HTTP requests are in `cmd/api/http/dev/*.http` files (use with VS Code/IntelliJ HTTP Client).
 

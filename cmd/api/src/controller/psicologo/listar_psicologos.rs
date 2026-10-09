@@ -30,8 +30,8 @@ impl ListarPsicologosController {
         let items: Vec<PsicologoListItemDTO> = psicologos
             .into_iter()
             .map(|p| {
-                let mut links = Links::new();
-                links.insert("self".into(), Link::get(format!("/psicologos/{}", p.id)));
+                // No hay un endpoint para leer un psicólogo, así que no se enlaza ninguno.
+                let links = Links::new();
                 PsicologoListItemDTO {
                     id: p.id,
                     nombre: p.nombre,

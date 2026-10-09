@@ -156,7 +156,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
   - `GET /postulantes` - Search candidate by document (query param)
   - `PUT /postulantes` - Update candidate by document (query param)
   - `POST /postulantes/{id}` - Create candidate
-  - `DELETE /postulantes/{id}` - Remove candidate
+  - `DELETE /postulantes/{id}` - Not implemented yet (`501`): what happens to the candidate's respuestas is undecided
 - `/respuestas` - Manage exam lifecycle, submit answers
   - `GET /respuestas` - List respuestas
   - `GET /respuestas/asignaciones` - List assignments (respuestas with their evaluation context)

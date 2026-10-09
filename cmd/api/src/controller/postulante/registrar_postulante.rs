@@ -3,7 +3,7 @@ use crate::controller::error::ApiError;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::use_case::actualizar_postulante_por_documento::{
     ActualizarPostulantePorDocumento, InputData as ActualizarPorDocumentoInputData,
@@ -61,11 +61,11 @@ impl PostulanteController {
         Ok(HttpResponse::Ok().finish())
     }
 
-    pub async fn remove(
-        _req: HttpRequest,
-        _body: web::Json<RegistrarPostulanteDTO>,
-        _pool: web::Data<mongodb::Database>,
-    ) -> HttpResponse {
-        HttpResponse::Created().json("")
+    /// Borrar postulantes no está implementado: falta decidir qué pasa con sus hojas de
+    /// respuestas. Antes respondía 201 sin borrar nada (COR-03).
+    pub async fn remove() -> HttpResponse {
+        HttpResponse::NotImplemented().json(serde_json::json!({
+            "error": "Eliminar postulantes todavia no esta disponible"
+        }))
     }
 }

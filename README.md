@@ -108,7 +108,7 @@ Routes are grouped by scope. List endpoints return HATEOAS-style responses embed
   - `GET /postulantes` — search candidate by document (query param)
   - `PUT /postulantes` — update candidate by document (query param)
   - `POST /postulantes/{id}` — create candidate
-  - `DELETE /postulantes/{id}` — remove candidate
+  - `DELETE /postulantes/{id}` — not implemented yet (`501`)
 - `/respuestas`
   - `GET /respuestas` — list respuestas
   - `GET /respuestas/asignaciones` — list assignments with their evaluation context

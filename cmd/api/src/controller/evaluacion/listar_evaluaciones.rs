@@ -1,10 +1,12 @@
 use crate::controller::error::ApiError;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
-use crate::controller::hateoas::{Link, Links, ListResponse};
+use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
+use quizz_core::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
 use quizz_core::evaluacion::use_case::listar_evaluaciones::{InputData, ListarEvaluaciones};
 use serde::Serialize;
+use std::str::FromStr;
 
 #[derive(Debug, Serialize)]
 pub struct EvaluacionListItemDTO {
@@ -29,16 +31,9 @@ impl ListarEvaluacionesController {
         let items: Vec<EvaluacionListItemDTO> = evaluaciones
             .into_iter()
             .map(|e| {
-                let mut links = Links::new();
-                links.insert("self".into(), Link::get(format!("/evaluaciones/{}", e.id)));
-                links.insert(
-                    "asociar_examenes".into(),
-                    Link::put(format!("/evaluaciones/{}", e.id)),
-                );
-                links.insert(
-                    "publicar".into(),
-                    Link::patch(format!("/evaluaciones/{}", e.id)),
-                );
+                let publicada = EvaluacionEstado::from_str(&e.estado)
+                    .is_ok_and(|estado| estado == EvaluacionEstado::Publicado);
+                let links = enlaces::evaluacion(&e.id, publicada);
                 EvaluacionListItemDTO {
                     id: e.id,
                     nombre: e.nombre,

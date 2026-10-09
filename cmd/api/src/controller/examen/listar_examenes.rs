@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
 use crate::controller::examen::mongo::write::ExamenMongo;
-use crate::controller::hateoas::{Link, Links, ListResponse};
+use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::examen::use_case::listar_examenes::{InputData, ListarExamenes};
@@ -29,9 +29,7 @@ impl ListarExamenesController {
         let items: Vec<ExamenListItemDTO> = examenes
             .into_iter()
             .map(|e| {
-                let mut links = Links::new();
-                links.insert("self".into(), Link::get(format!("/examenes/{}", e.id)));
-                links.insert("update".into(), Link::put(format!("/examenes/{}", e.id)));
+                let links = enlaces::examen(&e.id);
                 ExamenListItemDTO {
                     id: e.id,
                     titulo: e.titulo,

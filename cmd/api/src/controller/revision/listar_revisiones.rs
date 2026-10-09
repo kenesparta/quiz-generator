@@ -1,5 +1,5 @@
 use crate::controller::error::ApiError;
-use crate::controller::hateoas::{Link, Links, ListResponse};
+use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use crate::controller::respuesta::mongo::read::RespuestaRevisionMongo;
 use crate::controller::revision::dto::RevisionListItemDTO;
 use actix_web::{HttpResponse, web};
@@ -17,23 +17,7 @@ impl ListarRevisionesController {
         let items: Vec<RevisionListItemDTO> = r
             .into_iter()
             .map(|rev| {
-                let mut links = Links::new();
-                links.insert(
-                    "self".into(),
-                    Link::get(format!("/revisiones/{}", rev.revision_id)),
-                );
-                links.insert(
-                    "revisar".into(),
-                    Link::post(format!("/revisiones/{}", rev.revision_id)),
-                );
-                links.insert(
-                    "respuesta".into(),
-                    Link::get(format!("/respuestas/{}", rev.revision_id)),
-                );
-                links.insert(
-                    "postulante".into(),
-                    Link::get(format!("/postulantes?id={}", rev.postulante_id)),
-                );
+                let links = enlaces::revision(&rev.revision_id, &rev.postulante_id);
 
                 RevisionListItemDTO {
                     respuesta_id: rev.revision_id,

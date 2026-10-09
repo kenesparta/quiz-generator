@@ -1,6 +1,6 @@
 use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
-use crate::controller::hateoas::{Link, Links, ListResponse};
+use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use crate::controller::respuesta::dto::{AsignacionListItemDTO, AsignacionesQueryParams};
 use crate::controller::respuesta::mongo::read::ListarAsignacionesMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
@@ -36,19 +36,7 @@ impl ListarAsignacionesController {
         let items: Vec<AsignacionListItemDTO> = asignaciones
             .into_iter()
             .map(|a| {
-                let mut links = Links::new();
-                links.insert(
-                    "self".into(),
-                    Link::get(format!("/respuestas/{}", a.respuesta_id)),
-                );
-                links.insert(
-                    "postulante".into(),
-                    Link::get(format!("/postulantes?id={}", a.postulante_id)),
-                );
-                links.insert(
-                    "evaluacion".into(),
-                    Link::get(format!("/evaluaciones/{}", a.evaluacion_id)),
-                );
+                let links = enlaces::asignacion(&a.respuesta_id, &a.postulante_id);
 
                 let nombre_completo = [
                     a.postulante_nombre.as_str(),

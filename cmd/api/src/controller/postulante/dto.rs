@@ -1,4 +1,4 @@
-use crate::controller::hateoas::{Link, Links};
+use crate::controller::hateoas::{Links, enlaces};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Clone)]
@@ -36,22 +36,5 @@ pub struct PostulanteResponseDTO {
 
 /// El documento (dato personal) no va en los enlaces: terminaría en logs de proxies.
 pub fn build_postulante_links(postulante_id: &str) -> Links {
-    let mut links = Links::new();
-    links.insert(
-        "self".into(),
-        Link::get(format!("/postulantes?id={}", postulante_id)),
-    );
-    links.insert(
-        "update".into(),
-        Link::put(format!("/postulantes/{}", postulante_id)),
-    );
-    links.insert(
-        "delete".into(),
-        Link::delete(format!("/postulantes/{}", postulante_id)),
-    );
-    links.insert(
-        "respuestas".into(),
-        Link::get(format!("/respuestas?postulante_id={}", postulante_id)),
-    );
-    links
+    enlaces::postulante(postulante_id)
 }

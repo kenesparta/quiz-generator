@@ -75,7 +75,7 @@ impl PostulanteObtenerPorDocumentoController {
         {
             Ok(output) => {
                 info!("GET /postulantes?id={} - encontrado", postulante_id);
-                let links = build_postulante_links(&output.id, &output.documento);
+                let links = build_postulante_links(&output.id);
                 HttpResponse::Ok().json(PostulanteResponseDTO {
                     id: output.id.to_string(),
                     documento: output.documento.to_string(),
@@ -124,7 +124,7 @@ impl PostulanteObtenerPorDocumentoController {
 pub struct PostulanteBuscarPorDocumentoController;
 impl PostulanteBuscarPorDocumentoController {
     pub async fn get(documento: String, pool: web::Data<mongodb::Client>) -> HttpResponse {
-        info!("GET /postulantes?documento={}", documento);
+        info!("GET /postulantes por documento");
 
         let obtener_postulante =
             ObtenerPostulantePorDNI::new(Box::new(PostulanteReadMongo::new(pool)));
@@ -136,8 +136,11 @@ impl PostulanteBuscarPorDocumentoController {
             .await
         {
             Ok(output) => {
-                info!("GET /postulantes?documento={} - encontrado", documento);
-                let links = build_postulante_links(&output.id, &output.documento);
+                info!(
+                    "GET /postulantes por documento - encontrado id={}",
+                    output.id
+                );
+                let links = build_postulante_links(&output.id);
                 HttpResponse::Ok().json(PostulanteResponseDTO {
                     id: output.id.to_string(),
                     documento: output.documento.to_string(),
@@ -153,10 +156,7 @@ impl PostulanteBuscarPorDocumentoController {
                 })
             }
             Err(err) => {
-                warn!(
-                    "GET /postulantes?documento={} - error: {:?}",
-                    documento, err
-                );
+                warn!("GET /postulantes por documento - error: {:?}", err);
                 match err {
                     PostulanteError::PostulanteDocumentoError(_) => HttpResponse::BadRequest()
                         .json(serde_json::json!({"error": "Invalid document format"})),
@@ -188,8 +188,7 @@ impl PostulanteListController {
                     .into_iter()
                     .map(|p| {
                         let id = p.id.to_string();
-                        let documento = p.documento.to_string();
-                        let links = build_postulante_links(&id, &documento);
+                        let links = build_postulante_links(&id);
                         PostulanteResponseDTO {
                             id,
                             documento: p.documento.to_string(),

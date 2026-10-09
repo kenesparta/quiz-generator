@@ -182,7 +182,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 })
             }
             Ok(None) => {
-                error!("No postulante found with documento: {}", doc_string);
+                error!("No postulante found for the given documento");
                 Err(PostulanteError::PostulanteRepositorioError(
                     RepositorioError::RegistroNoEncontrado,
                 ))
@@ -309,7 +309,7 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
                 })
             }
             Ok(None) => {
-                error!("No postulante found with documento: {}", postulante_id);
+                error!("No postulante found with id: {}", postulante_id);
                 Err(PostulanteError::PostulanteRepositorioError(
                     RepositorioError::RegistroNoEncontrado,
                 ))

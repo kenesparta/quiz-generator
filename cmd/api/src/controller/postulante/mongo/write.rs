@@ -56,8 +56,8 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
             Ok(_) => Ok(()),
             Err(e) => {
                 error!(
-                    "Database error while registering postulante: id={}, documento={}, error={}",
-                    postulante.id, postulante.documento, e
+                    "Database error while registering postulante: id={}, error={}",
+                    postulante.id, e
                 );
 
                 Err(PostulanteError::PostulanteRepositorioError(

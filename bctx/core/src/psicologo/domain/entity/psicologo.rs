@@ -1,9 +1,9 @@
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::psicologo::domain::error::psicologo::PsicologoError;
 use crate::psicologo::domain::value_object::id::PsicologoID;
+use std::fmt;
 
 /// Representa al psicologo que administra y revisa las evaluaciones.
-#[derive(Debug)]
 pub struct Psicologo {
     pub id: PsicologoID,
     pub nombre: String,
@@ -13,6 +13,15 @@ pub struct Psicologo {
     pub especialidad: String,
     pub colegiatura: String,
     pub password: Option<String>,
+}
+
+/// Omite `documento` (dato personal) y `password` (hash) para no filtrarlos a los logs.
+impl fmt::Debug for Psicologo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Psicologo")
+            .field("id", &self.id)
+            .finish_non_exhaustive()
+    }
 }
 
 impl Psicologo {

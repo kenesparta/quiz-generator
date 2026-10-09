@@ -1,6 +1,7 @@
 use crate::postulante::domain::error::password::PasswordError;
 use regex;
 use regex::Regex;
+use std::fmt;
 use std::sync::OnceLock;
 
 static REGEXP: OnceLock<Regex> = OnceLock::new();
@@ -12,9 +13,15 @@ pub fn password_hash_regexp() -> &'static Regex {
     })
 }
 
-#[derive(Debug)]
+/// Hash bcrypt de la contraseña del postulante. `Debug` no muestra el hash.
 pub struct Password {
     value: String,
+}
+
+impl fmt::Debug for Password {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("Password(***)")
+    }
 }
 
 impl Password {

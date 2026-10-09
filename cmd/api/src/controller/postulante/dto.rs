@@ -34,15 +34,12 @@ pub struct PostulanteResponseDTO {
     pub links: Links,
 }
 
-pub fn build_postulante_links(postulante_id: &str, documento: &str) -> Links {
+/// El documento (dato personal) no va en los enlaces: terminaría en logs de proxies.
+pub fn build_postulante_links(postulante_id: &str) -> Links {
     let mut links = Links::new();
     links.insert(
         "self".into(),
         Link::get(format!("/postulantes?id={}", postulante_id)),
-    );
-    links.insert(
-        "self_by_documento".into(),
-        Link::get(format!("/postulantes?documento={}", documento)),
     );
     links.insert(
         "update".into(),

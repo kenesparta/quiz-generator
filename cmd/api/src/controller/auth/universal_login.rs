@@ -22,7 +22,7 @@ impl UniversalLoginController {
         jwt_settings: web::Data<JwtSettings>,
     ) -> HttpResponse {
         let dto = body.into_inner();
-        info!("POST /login - documento={}", dto.documento);
+        info!("POST /login");
 
         let documento = match Documento::new(&dto.documento) {
             Ok(d) => d,

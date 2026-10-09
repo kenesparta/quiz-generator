@@ -120,9 +120,7 @@ impl PostulanteController {
         pool: web::Data<mongodb::Client>,
     ) -> HttpResponse {
         let dto = body.into_inner();
-        let documento = dto.documento.clone();
-
-        info!("PUT /postulantes?documento={}", documento);
+        info!("PUT /postulantes");
 
         let actualizar_postulante = ActualizarPostulantePorDocumento::new(
             Box::new(PostulanteReadMongo::new(pool.clone())),
@@ -141,54 +139,36 @@ impl PostulanteController {
 
         match actualizar_postulante.ejecutar(input).await {
             Ok(_) => {
-                info!(
-                    "PUT /postulantes?documento={} - actualizado exitosamente",
-                    documento
-                );
+                info!("PUT /postulantes - actualizado exitosamente");
                 HttpResponse::Ok().finish()
             }
             Err(err) => match err {
                 PostulanteError::PostulanteDocumentoError(ref doc_err) => {
-                    warn!(
-                        "PUT /postulantes?documento={} - error de documento: {}",
-                        documento, doc_err
-                    );
+                    warn!("PUT /postulantes - error de documento: {}", doc_err);
                     HttpResponse::BadRequest().json(format!("Error de documento: {}", doc_err))
                 }
                 PostulanteError::PostulanteNombreError(ref name_err) => {
-                    warn!(
-                        "PUT /postulantes?documento={} - error de nombre: {}",
-                        documento, name_err
-                    );
+                    warn!("PUT /postulantes - error de nombre: {}", name_err);
                     HttpResponse::BadRequest().json(format!("Error de nombre: {}", name_err))
                 }
                 PostulanteError::PostulanteGradoInstruccionError(ref grado_err) => {
                     warn!(
-                        "PUT /postulantes?documento={} - error de grado de instruccion: {}",
-                        documento, grado_err
+                        "PUT /postulantes - error de grado de instruccion: {}",
+                        grado_err
                     );
                     HttpResponse::BadRequest()
                         .json(format!("Error de grado de instrucción: {}", grado_err))
                 }
                 PostulanteError::PostulanteGeneroError(ref genero_err) => {
-                    warn!(
-                        "PUT /postulantes?documento={} - error de genero: {}",
-                        documento, genero_err
-                    );
+                    warn!("PUT /postulantes - error de genero: {}", genero_err);
                     HttpResponse::BadRequest().json(format!("Error de género: {}", genero_err))
                 }
                 PostulanteError::PostulanteRepositorioError(ref repo_err) => {
-                    error!(
-                        "PUT /postulantes?documento={} - error de repositorio: {:?}",
-                        documento, repo_err
-                    );
+                    error!("PUT /postulantes - error de repositorio: {:?}", repo_err);
                     HttpResponse::InternalServerError().json("Error al actualizar el postulante")
                 }
                 _ => {
-                    error!(
-                        "PUT /postulantes?documento={} - error inesperado: {:?}",
-                        documento, err
-                    );
+                    error!("PUT /postulantes - error inesperado: {:?}", err);
                     HttpResponse::InternalServerError().json("Error inesperado")
                 }
             },

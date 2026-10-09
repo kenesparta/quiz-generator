@@ -6,8 +6,15 @@ const MIN_DOCUMENT_LENGTH: usize = 4;
 /// El número de documento del postulante (p. ej., identificación nacional, pasaporte). El tipo
 /// y formato específicos de este número dependerán de los requisitos de la aplicación.
 /// Esta propiedad también debe ser único en el contexto de la aplicación.
-#[derive(Debug)]
+///
+/// Es un dato personal: `Debug` no lo muestra, para que un `{:?}` no lo lleve a los logs.
 pub struct Documento(String);
+
+impl fmt::Debug for Documento {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("Documento(***)")
+    }
+}
 
 impl fmt::Display for Documento {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -18,7 +25,6 @@ impl fmt::Display for Documento {
 impl Documento {
     pub fn new(value: &str) -> Result<Self, DocumentoError> {
         let document = Documento(value.trim().to_string());
-        print!("{}", document);
         document.asegurar_documento_es_valido()?;
         Ok(document)
     }

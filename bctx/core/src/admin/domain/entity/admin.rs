@@ -1,9 +1,9 @@
 use crate::admin::domain::error::admin::AdminError;
 use crate::admin::domain::value_object::id::AdminID;
 use crate::postulante::domain::value_object::documento::Documento;
+use std::fmt;
 
 /// Representa al administrador del sistema.
-#[derive(Debug)]
 pub struct Admin {
     pub id: AdminID,
     pub nombre: String,
@@ -11,6 +11,15 @@ pub struct Admin {
     pub segundo_apellido: String,
     pub documento: String,
     pub password: Option<String>,
+}
+
+/// Omite `documento` (dato personal) y `password` (hash) para no filtrarlos a los logs.
+impl fmt::Debug for Admin {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Admin")
+            .field("id", &self.id)
+            .finish_non_exhaustive()
+    }
 }
 
 impl Admin {

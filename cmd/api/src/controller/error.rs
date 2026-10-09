@@ -142,9 +142,12 @@ impl From<EvaluacionError> for ApiError {
     fn from(e: EvaluacionError) -> Self {
         use EvaluacionError::*;
         match e {
-            EvaluacionIdInvalido(_) | NombreNoValido | DescripcionNoValida => {
-                Self::solicitud_invalida(e)
-            }
+            EvaluacionIdInvalido(_)
+            | ExamenIdNoValido(_)
+            | SinExamenes
+            | NombreNoValido
+            | DescripcionNoValida => Self::solicitud_invalida(e),
+            ExamenNoExiste => Self::no_encontrado(e),
             EvaluacionRepositorioError(RepoEvaluacion::EvaluacionNoExiste) => {
                 Self::no_encontrado(e)
             }

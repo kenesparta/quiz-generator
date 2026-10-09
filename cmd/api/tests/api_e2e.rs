@@ -261,6 +261,17 @@ async fn evaluacion_publicada(e: &Entorno, admin: &str) -> String {
         .await;
     assert_eq!(estado, StatusCode::OK, "publicar evaluacion: {cuerpo}");
 
+    // DAT-04: una evaluación publicada ya no admite exámenes (antes corrompía su copia).
+    let (estado, _) = e
+        .pedir(
+            Method::PUT,
+            &format!("/evaluaciones/{evaluacion_id}"),
+            Some(admin),
+            Some(json!({ "examenes": [examen_id] })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
+
     evaluacion_id.to_string()
 }
 
@@ -478,6 +489,33 @@ async fn flujo_completo_y_controles_de_acceso() {
             .await
             .unwrap();
     assert_eq!(hojas_c, 1);
+
+    // R-028: ids mal formados o de exámenes inexistentes se rechazan en lugar de ignorarse.
+    let borrador_ids = "3d4e5f6a-7b8c-4d9e-8f0a-1b2c3d4e5f6a";
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &format!("/evaluaciones/{borrador_ids}"),
+            Some(&admin),
+            Some(json!({ "titulo": "Borrador", "descripcion": "Para ids" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CREATED);
+    for (examenes, esperado) in [
+        (json!(["no-es-un-uuid"]), StatusCode::BAD_REQUEST),
+        (json!([]), StatusCode::BAD_REQUEST),
+        (json!(["9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a"]), StatusCode::NOT_FOUND),
+    ] {
+        let (estado, cuerpo) = e
+            .pedir(
+                Method::PUT,
+                &format!("/evaluaciones/{borrador_ids}"),
+                Some(&admin),
+                Some(json!({ "examenes": examenes })),
+            )
+            .await;
+        assert_eq!(estado, esperado, "{examenes}: {cuerpo}");
+    }
 
     // R-035: un borrador no se puede asignar.
     let borrador = "8e65028c-30e6-47e5-b7dc-121ee2133d49";

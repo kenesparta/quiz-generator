@@ -8,6 +8,9 @@ use async_trait::async_trait;
 pub trait RepositorioEvaluacionEscritura<Error>: Send + Sync {
     async fn guardar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), Error>;
 
+    /// Asocia exámenes existentes a una evaluación en borrador, en una sola operación.
+    /// Falla con `ExamenNoExiste`, `EvaluacionNoExiste` o `EvaluacionYaFuePublicada`: una
+    /// evaluación publicada guarda una copia de sus exámenes y no se modifica.
     async fn agregar_examen(
         &self,
         evaluacion_id: EvaluacionID,

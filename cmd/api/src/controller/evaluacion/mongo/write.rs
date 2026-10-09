@@ -76,62 +76,56 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
         evaluacion_id: EvaluacionID,
         examen_ids: ExamenIDs,
     ) -> Result<(), EvaluacionError> {
-        let evaluacion_exists = self
-            .get_collection()
-            .find_one(doc! {
-                "_id": evaluacion_id.to_string()
-            })
-            .await
-            .map_err(|e| {
-                error!("Error checking if exam exists: {}", e);
+        let error_bd = |contexto: &'static str| {
+            move |e: mongodb::error::Error| {
+                error!("mongo, {contexto}: {e}");
                 EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-            })?;
-
-        if evaluacion_exists.is_none() {
-            return Err(EvaluacionError::EvaluacionRepositorioError(
-                EvaluacionNoExiste,
-            ));
-        }
-
-        let examen_ids_strings: Vec<String> = examen_ids
+            }
+        };
+        let ids: Vec<String> = examen_ids
             .examen_ids
             .iter()
             .map(|id| id.uuid().to_string())
             .collect();
 
-        let update = doc! {
-            "$addToSet": {
-                "examenes": {
-                    "$each": examen_ids_strings
-                }
-            }
-        };
+        let existentes = self
+            .repositorio_examen
+            .get_collection()
+            .count_documents(doc! { "_id": { "$in": &ids } })
+            .await
+            .map_err(error_bd("contar los examenes"))?;
+        if usize::try_from(existentes).ok() != Some(ids.len()) {
+            return Err(EvaluacionError::ExamenNoExiste);
+        }
 
-        match self
+        // Solo un borrador guarda ids: la evaluación publicada guarda copias de los exámenes y
+        // mezclar ids en esa copia rompía todas sus asignaciones posteriores.
+        let resultado = self
             .get_collection()
             .update_one(
                 doc! {
-                    "_id": evaluacion_id.to_string()
+                    "_id": evaluacion_id.to_string(),
+                    "estado": EvaluacionEstado::Borrador.to_string(),
                 },
-                update,
+                doc! { "$addToSet": { "examenes": { "$each": &ids } } },
             )
             .await
-        {
-            Ok(result) => {
-                if result.matched_count == 0 {
-                    error!("No evaluation found with ID: {}", evaluacion_id);
-                    return Err(EvaluacionError::EvaluacionRepositorioError(
-                        EvaluacionNoExiste,
-                    ));
-                }
-                Ok(())
-            }
-            Err(e) => {
-                error!("Error updating evaluation with exam IDs: {}", e);
-                Err(EvaluacionError::EvaluacionRepositorioError(
-                    PersistenciaNoFinalizada,
-                ))
-            }
+            .map_err(error_bd("asociar los examenes"))?;
+        if resultado.matched_count > 0 {
+            return Ok(());
+        }
+
+        let existe = self
+            .get_collection()
+            .count_documents(doc! { "_id": evaluacion_id.to_string() })
+            .await
+            .map_err(error_bd("buscar la evaluacion"))?;
+        if existe == 0 {
+            Err(EvaluacionError::EvaluacionRepositorioError(
+                EvaluacionNoExiste,
+            ))
+        } else {
+            Err(EvaluacionError::EvaluacionYaFuePublicada)
         }
     }
 }

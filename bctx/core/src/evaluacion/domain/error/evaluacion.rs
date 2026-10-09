@@ -5,8 +5,17 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum EvaluacionError {
-    #[error("ID del examen no válido")]
+    #[error("ID de la evaluación no válido")]
     EvaluacionIdInvalido(#[from] IdError),
+
+    #[error("ID de examen no válido: {0}")]
+    ExamenIdNoValido(String),
+
+    #[error("Se debe indicar al menos un examen")]
+    SinExamenes,
+
+    #[error("Algún examen indicado no existe")]
+    ExamenNoExiste,
 
     #[error("Error del estado de la evaluacion")]
     EvaluacionEstadoGeneralError(#[from] EstadoGeneralError),

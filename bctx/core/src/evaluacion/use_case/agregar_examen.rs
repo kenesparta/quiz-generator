@@ -28,7 +28,7 @@ where
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
         let evaluacion_id = EvaluacionID::new(in_.evaluacion_id.as_str())?;
-        let examen_ids = ExamenIDs::new(in_.examen_ids);
+        let examen_ids = ExamenIDs::new(in_.examen_ids)?;
         self.repositorio
             .agregar_examen(evaluacion_id, examen_ids)
             .await?;

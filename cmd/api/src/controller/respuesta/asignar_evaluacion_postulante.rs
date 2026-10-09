@@ -1,69 +1,41 @@
+use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::{
     CrearRespuestaDTO, RespuestaCreatedDTO, build_respuesta_links,
 };
 use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
-use actix_web::{HttpRequest, HttpResponse, web};
-use log::{error, info, warn};
+use actix_web::http::header;
+use actix_web::{HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::domain::entity::respuesta::Estado;
 use quizz_core::respuesta::use_case::asignar_postulante::{
     AsignarEvaluacionAPostulante, InputData,
 };
-use serde_json::json;
 
 pub struct AsignarEvaluacionPostulanteController;
 
 impl AsignarEvaluacionPostulanteController {
+    /// `POST /evaluaciones/{evaluacion_id}/respuestas`: crea la hoja de respuestas y devuelve su
+    /// id (también en `Location`). Asignar dos veces la misma evaluación responde 409.
     pub async fn create(
-        req: HttpRequest,
+        evaluacion_id: web::Path<String>,
         body: web::Json<CrearRespuestaDTO>,
-        pool: web::Data<mongodb::Database>,
-    ) -> HttpResponse {
-        let evaluacion_id = match req.match_info().get("evaluacion_id") {
-            Some(id) => id.to_string(),
-            None => {
-                warn!("POST /evaluaciones/.../respuestas - evaluacion_id no proporcionado");
-                return HttpResponse::BadRequest()
-                    .json(json!({"error": "Se debe enviar el ID de la evaluacion"}));
-            }
-        };
+        db: web::Data<mongodb::Database>,
+    ) -> Result<HttpResponse, ApiError> {
+        let creada = AsignarEvaluacionAPostulante::new(Box::new(RespuestaEvaluacionMongo::new(db)))
+            .ejecutar(InputData {
+                evaluacion_id: evaluacion_id.into_inner(),
+                postulante_id: body.into_inner().postulante_id,
+            })
+            .await?;
 
-        let dto = body.into_inner();
-
-        info!(
-            "POST /evaluaciones/{}/respuestas - postulante={}",
-            evaluacion_id, dto.postulante_id
-        );
-
-        let asociar =
-            AsignarEvaluacionAPostulante::new(Box::new(RespuestaEvaluacionMongo::new(pool)));
-
-        let input = InputData {
-            evaluacion_id: evaluacion_id.clone(),
-            postulante_id: dto.postulante_id.clone(),
-        };
-
-        match asociar.ejecutar(input).await {
-            Ok(()) => {
-                info!(
-                    "POST /evaluaciones/{}/respuestas - asignacion exitosa",
-                    evaluacion_id
-                );
-                let links = build_respuesta_links("", Estado::Creado, Rol::Psicologo);
-                HttpResponse::Created().json(RespuestaCreatedDTO {
-                    id: String::new(),
-                    estado: "Creado".to_string(),
-                    links,
-                })
-            }
-            Err(err) => {
-                error!(
-                    "POST /evaluaciones/{}/respuestas - error: {}",
-                    evaluacion_id, err
-                );
-                HttpResponse::InternalServerError().json(json!({"error": err.to_string()}))
-            }
-        }
+        let id = creada.id.to_string();
+        Ok(HttpResponse::Created()
+            .insert_header((header::LOCATION, format!("/respuestas/{id}")))
+            .json(RespuestaCreatedDTO {
+                links: build_respuesta_links(&id, Estado::Creado, Rol::Psicologo),
+                estado: Estado::Creado.to_string(),
+                id,
+            }))
     }
 }

@@ -109,6 +109,7 @@ mod tests {
     impl RepositorioRespuestaEscritura<RespuestaError> for HojaFalsa {
         async fn asignar_evaluacion(
             &self,
+            _: &RespuestaID,
             _: EvaluacionID,
             _: PostulanteID,
         ) -> Result<(), RespuestaError> {

@@ -118,6 +118,7 @@ impl From<RespuestaError> for ApiError {
             | PreguntaNotFound
             | ExamenNotFound => Self::no_encontrado(e),
             EvaluacionAlreadyAssigned
+            | EvaluacionNoPublicada
             | EvaluacionNoEstaEnProceso
             | EvaluacionYaIniciada
             | EvaluacionFinalizada

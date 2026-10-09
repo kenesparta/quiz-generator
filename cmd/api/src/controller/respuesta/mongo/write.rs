@@ -1,5 +1,5 @@
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::postulante::mongo::write::PostulanteMongo;
 use crate::controller::respuesta::dto::{EvaluacionMongoDTO, RespuestaMongoDTO};
 use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
@@ -10,6 +10,7 @@ use log::error;
 use mongodb::bson;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
+use quizz_core::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
@@ -112,65 +113,67 @@ impl MongoRepository for RespuestaEvaluacionMongo {
 impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo {
     async fn asignar_evaluacion(
         &self,
+        id: &RespuestaID,
         evaluacion_id: EvaluacionID,
         postulante_id: PostulanteID,
     ) -> Result<(), RespuestaError> {
-        let existing_respuesta = self
-            .get_collection()
-            .find_one(doc! {
-                "evaluacion._id": evaluacion_id.to_string(),
-                "postulante_id": postulante_id.to_string(),
-            })
-            .await
-            .map_err(|_| RespuestaError::DatabaseError)?;
+        let (evaluacion_id, postulante_id) = (evaluacion_id.to_string(), postulante_id.to_string());
+        let (respuestas, postulantes, evaluaciones) = (
+            self.get_collection(),
+            self.reposiorio_postulante.get_collection(),
+            self.repositorio_evaluacion.get_collection(),
+        );
 
-        if existing_respuesta.is_some() {
+        // Lecturas independientes, en paralelo. La comprobación de duplicados es solo un
+        // atajo para responder rápido: quien lo garantiza es el índice único.
+        let (existente, postulante, evaluacion) = tokio::try_join!(
+            respuestas
+                .find_one(
+                    doc! { "postulante_id": &postulante_id, "evaluacion._id": &evaluacion_id }
+                )
+                .projection(doc! { "_id": 1 }),
+            postulantes
+                .find_one(doc! { "_id": &postulante_id })
+                .projection(doc! { "_id": 1 }),
+            evaluaciones.find_one(doc! { "_id": &evaluacion_id }),
+        )
+        .map_err(error_bd("leer los datos de la asignacion"))?;
+
+        if existente.is_some() {
             return Err(RespuestaError::EvaluacionAlreadyAssigned);
         }
-
-        let postulante_exists = self
-            .reposiorio_postulante
-            .get_collection()
-            .find_one(doc! { "_id": postulante_id.to_string() })
-            .await
-            .map_err(|_| RespuestaError::DatabaseError)?;
-
-        if postulante_exists.is_none() {
+        if postulante.is_none() {
             return Err(RespuestaError::PostulanteRespuestaNotFound);
         }
+        let evaluacion = evaluacion.ok_or(RespuestaError::EvaluacionRespuestaNotFound)?;
+        // Un borrador guarda solo ids de exámenes: no se puede copiar a una hoja.
+        if evaluacion.get_str("estado").ok() != Some(&EvaluacionEstado::Publicado.to_string()) {
+            return Err(RespuestaError::EvaluacionNoPublicada);
+        }
+        let evaluacion: EvaluacionMongoDTO = bson::from_document(evaluacion).map_err(|e| {
+            error!("evaluacion publicada {evaluacion_id} ilegible: {e}");
+            RespuestaError::DatabaseError
+        })?;
 
-        let evaluacion_doc = self
-            .repositorio_evaluacion
-            .get_collection()
-            .find_one(doc! { "_id": evaluacion_id.to_string() })
-            .await
-            .map_err(|_| RespuestaError::DatabaseError)?;
-
-        let evaluacion_document =
-            evaluacion_doc.ok_or(RespuestaError::EvaluacionRespuestaNotFound)?;
-
-        let evaluacion: EvaluacionMongoDTO =
-            bson::from_document(evaluacion_document).map_err(|_| RespuestaError::DatabaseError)?;
-
-        let respuesta_dto = RespuestaMongoDTO {
-            id: RespuestaID::new_v4().to_string(),
+        let hoja = bson::to_document(&RespuestaMongoDTO {
+            id: id.to_string(),
             evaluacion,
-            postulante_id: postulante_id.to_string(),
+            postulante_id,
             fecha_tiempo_inicio: String::new(),
             fecha_tiempo_fin: String::new(),
             estado: Estado::Creado.to_string(),
             revision: Revision::SinIniciar.to_string(),
-        };
+        })
+        .map_err(|e| {
+            error!("no se pudo serializar la hoja {id}: {e}");
+            RespuestaError::DatabaseError
+        })?;
 
-        let respuesta_doc =
-            bson::to_document(&respuesta_dto).map_err(|_| RespuestaError::DatabaseError)?;
-
-        self.get_collection()
-            .insert_one(respuesta_doc)
-            .await
-            .map_err(|_| RespuestaError::DatabaseError)?;
-
-        Ok(())
+        match respuestas.insert_one(hoja).await {
+            Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(RespuestaError::EvaluacionAlreadyAssigned),
+            Err(e) => Err(error_bd("guardar la asignacion")(e)),
+        }
     }
 
     async fn responder_evaluacion(

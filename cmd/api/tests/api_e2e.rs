@@ -8,6 +8,7 @@ use mongodb::Database;
 use mongodb::bson::{Document, doc};
 use quizz_api::cache::crear_conexion_redis;
 use quizz_api::configuration::{CorsSettings, DatabaseSettings, JwtSettings};
+use quizz_api::indices::crear_indices;
 use quizz_api::mongo::create_mongo_client;
 use quizz_api::startup::{init_casbin_enforcer, run};
 use reqwest::{Method, StatusCode};
@@ -57,6 +58,7 @@ async fn levantar() -> Entorno {
     })
     .await
     .unwrap();
+    crear_indices(&db).await;
     let redis_conexion = crear_conexion_redis(&format!(
         "redis://127.0.0.1:{}",
         redis.get_host_port_ipv4(6379).await.unwrap()
@@ -246,14 +248,9 @@ async fn asignar(e: &Entorno, admin: &str, evaluacion_id: &str, postulante_id: &
         )
         .await;
     assert_eq!(estado, StatusCode::CREATED, "asignar: {cuerpo}");
-
-    let respuesta =
-        e.db.collection::<Document>("respuesta")
-            .find_one(doc! { "postulante_id": postulante_id, "evaluacion._id": evaluacion_id })
-            .await
-            .unwrap()
-            .expect("la asignación no se guardó");
-    respuesta.get_str("_id").unwrap().to_string()
+    let id = cuerpo["id"].as_str().expect("la asignación devuelve el id").to_string();
+    assert_eq!(cuerpo["_links"]["self"]["href"], format!("/respuestas/{id}"));
+    id
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -352,6 +349,72 @@ async fn flujo_completo_y_controles_de_acceso() {
     let hoja_a = asignar(&e, &admin, &evaluacion_id, postulante_a).await;
     let hoja_b = asignar(&e, &admin, &evaluacion_id, postulante_b).await;
 
+    // DAT-01: asignar dos veces la misma evaluación es un conflicto, también en paralelo.
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &format!("/evaluaciones/{evaluacion_id}/respuestas"),
+            Some(&admin),
+            Some(json!({ "postulante_id": postulante_a })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
+    let postulante_c = "0b9fbef0-fc03-4e24-b5d0-dfb42b537324";
+    e.registrar_postulante(&admin, postulante_c, "73333331").await;
+    let ruta = format!("/evaluaciones/{evaluacion_id}/respuestas");
+    let simultaneas = (0..8).map(|_| {
+        e.pedir(
+            Method::POST,
+            &ruta,
+            Some(&admin),
+            Some(json!({ "postulante_id": postulante_c })),
+        )
+    });
+    let estados: Vec<StatusCode> = futures::future::join_all(simultaneas)
+        .await
+        .into_iter()
+        .map(|(estado, _)| estado)
+        .collect();
+    assert_eq!(
+        estados.iter().filter(|e| **e == StatusCode::CREATED).count(),
+        1,
+        "{estados:?}"
+    );
+    assert!(
+        estados
+            .iter()
+            .all(|e| *e == StatusCode::CREATED || *e == StatusCode::CONFLICT),
+        "{estados:?}"
+    );
+    let hojas_c = e
+        .db
+        .collection::<Document>("respuesta")
+        .count_documents(doc! { "postulante_id": postulante_c })
+        .await
+        .unwrap();
+    assert_eq!(hojas_c, 1);
+
+    // R-035: un borrador no se puede asignar.
+    let borrador = "8e65028c-30e6-47e5-b7dc-121ee2133d49";
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &format!("/evaluaciones/{borrador}"),
+            Some(&admin),
+            Some(json!({ "titulo": "Borrador", "descripcion": "Sin publicar" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CREATED);
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &format!("/evaluaciones/{borrador}/respuestas"),
+            Some(&admin),
+            Some(json!({ "postulante_id": postulante_a })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
+
     let (estado, lista) = e
         .pedir(Method::GET, "/respuestas", Some(&token_a), None)
         .await;
@@ -440,18 +503,34 @@ async fn flujo_completo_y_controles_de_acceso() {
 
     // SEC-09: el postulante no ve los puntos de su hoja; el personal sí (R-032).
     let (estado, vista_a) = e
-        .pedir(Method::GET, &format!("/respuestas/{hoja_a}"), Some(&token_a), None)
+        .pedir(
+            Method::GET,
+            &format!("/respuestas/{hoja_a}"),
+            Some(&token_a),
+            None,
+        )
         .await;
     assert_eq!(estado, StatusCode::OK);
     assert_eq!(vista_a["estado"], "finalizado");
     let texto = vista_a.to_string();
     assert!(!texto.contains("puntos"), "{texto}");
     let (estado, vista_admin) = e
-        .pedir(Method::GET, &format!("/respuestas/{hoja_a}"), Some(&admin), None)
+        .pedir(
+            Method::GET,
+            &format!("/respuestas/{hoja_a}"),
+            Some(&admin),
+            None,
+        )
         .await;
     assert_eq!(estado, StatusCode::OK, "{vista_admin}");
-    assert_eq!(vista_admin["evaluacion"]["examenes"][0]["preguntas"][0]["puntos"], 1);
-    assert_eq!(vista_admin["evaluacion"]["examenes"][0]["puntos_obtenidos"], 1);
+    assert_eq!(
+        vista_admin["evaluacion"]["examenes"][0]["preguntas"][0]["puntos"],
+        1
+    );
+    assert_eq!(
+        vista_admin["evaluacion"]["examenes"][0]["puntos_obtenidos"],
+        1
+    );
 
     // Tras finalizar no se aceptan más respuestas.
     let (estado, cuerpo) = e
@@ -500,11 +579,21 @@ async fn flujo_completo_y_controles_de_acceso() {
 
     // Un postulante no lee la hoja de otro, y no ve las preguntas de la suya antes de empezar.
     let (estado, _) = e
-        .pedir(Method::GET, &format!("/respuestas/{hoja_b}"), Some(&token_a), None)
+        .pedir(
+            Method::GET,
+            &format!("/respuestas/{hoja_b}"),
+            Some(&token_a),
+            None,
+        )
         .await;
     assert_eq!(estado, StatusCode::NOT_FOUND);
     let (estado, vista_b) = e
-        .pedir(Method::GET, &format!("/respuestas/{hoja_b}"), Some(&token_b), None)
+        .pedir(
+            Method::GET,
+            &format!("/respuestas/{hoja_b}"),
+            Some(&token_b),
+            None,
+        )
         .await;
     assert_eq!(estado, StatusCode::OK);
     assert_eq!(vista_b["estado"], "creado");

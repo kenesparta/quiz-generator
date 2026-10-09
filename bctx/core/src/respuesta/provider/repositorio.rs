@@ -11,8 +11,15 @@ use chrono::{DateTime, FixedOffset};
 
 #[async_trait]
 pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
+    /// Crea la hoja `id` con una copia de la evaluación publicada para el postulante.
+    ///
+    /// Falla con `EvaluacionRespuestaNotFound`/`PostulanteRespuestaNotFound` si alguno no
+    /// existe, con `EvaluacionNoPublicada` si la evaluación es un borrador y con
+    /// `EvaluacionAlreadyAssigned` si el postulante ya la tiene (lo garantiza un índice único,
+    /// también con peticiones simultáneas).
     async fn asignar_evaluacion(
         &self,
+        id: &RespuestaID,
         evaluacion_id: EvaluacionID,
         postulante_id: PostulanteID,
     ) -> Result<(), Error>;

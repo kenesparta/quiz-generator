@@ -5,7 +5,6 @@ use crate::controller::revision::dto::{CrearRevisionDTO, RevisionCreatedDTO};
 use crate::controller::revision::mongo::write::RevisionEvaluacionMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::domain::entity::respuesta::Revision;
 use quizz_core::respuesta::use_case::realizar_revision::{
     InputData, InputDataExamen, RealizarRevision,
@@ -27,7 +26,7 @@ impl RevisarEvaluacionPostulanteController {
         let respuesta_id = respuesta_id.into_inner();
         let body = body.into_inner();
 
-        RealizarRevision::new(Box::new(RevisionEvaluacionMongo::new(db)))
+        RealizarRevision::new(RevisionEvaluacionMongo::new(db))
             .ejecutar(InputData {
                 respuesta_id: respuesta_id.clone(),
                 evaluacion_id: body.evaluacion_id,

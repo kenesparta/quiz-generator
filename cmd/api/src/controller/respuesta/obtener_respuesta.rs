@@ -5,7 +5,6 @@ use crate::controller::respuesta::mongo::read::RespuestaLecturaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::respuesta_postulante::{InputData, ObtenerRespuesta};
 
 pub struct ObtenerRespuestaController;
@@ -25,7 +24,7 @@ impl ObtenerRespuestaController {
             return Err(ApiError::prohibido("Rol no valido"));
         };
 
-        let respuesta = ObtenerRespuesta::new(Box::new(RespuestaLecturaMongo::new(db)))
+        let respuesta = ObtenerRespuesta::new(RespuestaLecturaMongo::new(db))
             .ejecutar(InputData {
                 respuesta_id: respuesta_id.into_inner(),
                 postulante_id: (rol == Rol::Postulante).then_some(claims.sub),

@@ -23,8 +23,10 @@ Each domain module in `bctx/core/src/` follows a consistent structure:
 - `domain/entity/` - Core business entities
 - `domain/value_object/` - Value objects and IDs
 - `domain/error/` - Domain-specific errors
-- `provider/repositorio.rs` - Repository trait definitions (ports)
-- `use_case/` - Application use cases (business operations)
+- `provider/repositorio.rs` - Repository trait definitions (ports): native async traits that return the module's own error, declared as `fn x(&self, ..) -> impl Future<Output = Result<T, ModuloError>> + Send` and implemented with `async fn`
+- `use_case/` - Application use cases (business operations): generic over their ports (static dispatch, e.g. `CrearExamen<R: RepositorioExamenEscritura>`) with an inherent `async fn ejecutar`
+
+The only `dyn` port is `Sesiones` (`bctx/auth`, still `#[async_trait]`): the API shares it as `web::Data<dyn Sesiones>` and the tests swap in an in-memory one.
 
 Question types are the `TipoPregunta` enum (`alternativa_unica`, `alternativa_peso`, `si_o_no`, `libre`, `sola_respuesta`); the composition rules of each type are one `match` in `pregunta/domain/entity/pregunta.rs` and the scoring rule is `corregir_respuesta` in `respuesta/domain/entity/pregunta.rs` (one answer per question).
 

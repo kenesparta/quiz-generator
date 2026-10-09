@@ -4,8 +4,6 @@ use crate::respuesta::domain::entity::respuesta::{Estado, RespuestaEvaluacion};
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaEscritura;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 
 #[derive(Debug, Clone)]
 pub struct InputData {
@@ -22,22 +20,16 @@ pub struct InputData {
 /// Solo el dueño de la hoja puede contestar, y solo mientras está en proceso: la comprobación y
 /// la escritura usan el mismo filtro (dueño + estado), así que una respuesta que llega tras
 /// finalizar se rechaza aunque compita con la finalización.
-pub struct ResponderEvaluacion<RepoErr> {
-    repositorio: Box<dyn RepositorioRespuestaEscritura<RepoErr>>,
+pub struct ResponderEvaluacion<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> ResponderEvaluacion<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioRespuestaEscritura<RepoErr>>) -> Self {
+impl<R: RepositorioRespuestaEscritura> ResponderEvaluacion<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), RespuestaError> for ResponderEvaluacion<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
         let mut contestacion = RespuestaEvaluacion {
             id: RespuestaID::new(&in_.id)?,
             postulante_id: PostulanteID::new(&in_.postulante_id)?,
@@ -105,8 +97,7 @@ mod tests {
         }
     }
 
-    #[async_trait]
-    impl RepositorioRespuestaEscritura<RespuestaError> for HojaFalsa {
+    impl RepositorioRespuestaEscritura for HojaFalsa {
         async fn asignar_evaluacion(
             &self,
             _: &RespuestaID,
@@ -151,7 +142,7 @@ mod tests {
     }
 
     async fn contestar(hoja: &HojaFalsa, postulante_id: &str) -> Result<(), RespuestaError> {
-        ResponderEvaluacion::new(Box::new(hoja.clone()))
+        ResponderEvaluacion::new(hoja.clone())
             .ejecutar(InputData {
                 id: HOJA.to_string(),
                 postulante_id: postulante_id.to_string(),
@@ -175,7 +166,7 @@ mod tests {
     #[tokio::test]
     async fn una_respuesta_no_valida_no_se_guarda() {
         let hoja = HojaFalsa::en(Estado::EnProceso);
-        let resultado = ResponderEvaluacion::new(Box::new(hoja.clone()))
+        let resultado = ResponderEvaluacion::new(hoja.clone())
             .ejecutar(InputData {
                 id: HOJA.to_string(),
                 postulante_id: DUENO.to_string(),

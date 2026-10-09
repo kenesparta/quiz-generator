@@ -7,7 +7,6 @@ use crate::controller::revision::dto::{
 };
 use crate::controller::revision::mongo::read::RevisionReadMongo;
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
 use tracing::warn;
@@ -21,7 +20,7 @@ impl ObtenerRevisionController {
         respuesta_id: web::Path<String>,
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
-        let output = ObtenerRevisionPorId::new(Box::new(RevisionReadMongo::new(db.clone())))
+        let output = ObtenerRevisionPorId::new(RevisionReadMongo::new(db.clone()))
             .ejecutar(InputData {
                 revision_id: respuesta_id.into_inner(),
             })

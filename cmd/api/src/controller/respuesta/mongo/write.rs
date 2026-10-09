@@ -4,7 +4,6 @@ use crate::controller::postulante::mongo::write::PostulanteMongo;
 use crate::controller::respuesta::dto::{EvaluacionMongoDTO, RespuestaMongoDTO};
 use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
 use mongodb::bson;
 use mongodb::bson::{Bson, Document, doc};
@@ -109,8 +108,7 @@ impl MongoRepository for RespuestaEvaluacionMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo {
+impl RepositorioRespuestaEscritura for RespuestaEvaluacionMongo {
     async fn asignar_evaluacion(
         &self,
         id: &RespuestaID,
@@ -285,8 +283,7 @@ impl MongoRepository for EstadoRespuestaMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioEstadoRespuesta<RespuestaError> for EstadoRespuestaMongo {
+impl RepositorioEstadoRespuesta for EstadoRespuestaMongo {
     async fn obtener_estado(
         &self,
         id: &RespuestaID,

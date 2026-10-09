@@ -3,8 +3,6 @@ use crate::respuesta::domain::entity::examen::Examen;
 use crate::respuesta::domain::entity::pregunta::Pregunta;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioObtenerRevisionPorId;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
 pub struct InputData {
@@ -98,22 +96,16 @@ impl From<Pregunta> for OutputPregunta {
     }
 }
 
-pub struct ObtenerRevisionPorId<RepoErr> {
-    repo: Box<dyn RepositorioObtenerRevisionPorId<RepoErr>>,
+pub struct ObtenerRevisionPorId<R> {
+    repo: R,
 }
 
-impl<RepoErr> ObtenerRevisionPorId<RepoErr> {
-    pub fn new(repo: Box<dyn RepositorioObtenerRevisionPorId<RepoErr>>) -> Self {
+impl<R: RepositorioObtenerRevisionPorId> ObtenerRevisionPorId<R> {
+    pub fn new(repo: R) -> Self {
         Self { repo }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, RespuestaError> for ObtenerRevisionPorId<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
+    pub async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
         let respuesta = self.repo.obtener_revision_por_id(input.revision_id).await?;
 
         Ok(OutputData {

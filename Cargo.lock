@@ -2691,7 +2691,6 @@ dependencies = [
 name = "quizz-common"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "chrono",
  "chrono-tz",
  "regex",
@@ -2703,7 +2702,6 @@ dependencies = [
 name = "quizz-core"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "chrono",
  "quizz-common",
  "regex",

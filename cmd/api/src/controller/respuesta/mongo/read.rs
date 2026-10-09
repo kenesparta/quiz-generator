@@ -2,7 +2,6 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
 use actix_web::web;
-use async_trait::async_trait;
 use futures::{StreamExt, TryStreamExt};
 use mongodb;
 use mongodb::bson;
@@ -40,8 +39,7 @@ impl MongoRepository for RespuestaLecturaMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioRespuestaLectura<RespuestaError> for RespuestaLecturaMongo {
+impl RepositorioRespuestaLectura for RespuestaLecturaMongo {
     async fn obtener(
         &self,
         respuesta_id: &RespuestaID,
@@ -109,8 +107,7 @@ struct EvaluacionDeLaFila {
     descripcion: String,
 }
 
-#[async_trait]
-impl RepositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
+impl RepositorioRespuestaRevision for RespuestaRevisionMongo {
     async fn obtener_respuesta_revision(
         &self,
         estado: Estado,
@@ -174,8 +171,7 @@ impl MongoRepository for ListaRespuestaPostulanteMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostulanteMongo {
+impl RepositorioListaRespuestaPostulante for ListaRespuestaPostulanteMongo {
     async fn obtener_respuestas_por_postulante(
         &self,
         postulante_id: PostulanteID,
@@ -277,8 +273,7 @@ impl MongoRepository for ListarAsignacionesMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioListarAsignaciones<RespuestaError> for ListarAsignacionesMongo {
+impl RepositorioListarAsignaciones for ListarAsignacionesMongo {
     async fn listar(
         &self,
         postulante_id: Option<String>,

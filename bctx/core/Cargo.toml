@@ -12,7 +12,6 @@ workspace = true
 quizz-common = { path = "../common" }
 thiserror.workspace = true
 regex.workspace = true
-async-trait.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]

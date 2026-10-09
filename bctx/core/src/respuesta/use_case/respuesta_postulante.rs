@@ -6,9 +6,7 @@ use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaLectura;
-use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
-use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -109,22 +107,16 @@ impl From<Pregunta> for OutputPregunta {
 }
 
 /// Una hoja de respuestas con su evaluación, para el postulante dueño o para el personal.
-pub struct ObtenerRespuesta<RepoErr> {
-    repositorio: Box<dyn RepositorioRespuestaLectura<RepoErr>>,
+pub struct ObtenerRespuesta<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> ObtenerRespuesta<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioRespuestaLectura<RepoErr>>) -> Self {
+impl<R: RepositorioRespuestaLectura> ObtenerRespuesta<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, RespuestaError> for ObtenerRespuesta<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
+    pub async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
         let respuesta_id = RespuestaID::new(&input.respuesta_id)?;
         let postulante_id = input
             .postulante_id

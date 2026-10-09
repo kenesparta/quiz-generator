@@ -3,9 +3,7 @@ use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioEstadoRespuesta;
-use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
-use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub id: String,
@@ -20,22 +18,16 @@ pub struct InputData {
 /// aceptan más respuestas, así que los puntos que se leen después no cambian. Falla con
 /// `RespuestaNoEncontrada` si la hoja no es del postulante y con `EvaluacionNoEstaEnProceso`
 /// si todavía no empezó.
-pub struct FinalizarEvaluacion<RepoErr> {
-    repositorio: Box<dyn RepositorioEstadoRespuesta<RepoErr>>,
+pub struct FinalizarEvaluacion<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> FinalizarEvaluacion<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioEstadoRespuesta<RepoErr>>) -> Self {
+impl<R: RepositorioEstadoRespuesta> FinalizarEvaluacion<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), RespuestaError> for FinalizarEvaluacion<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), RespuestaError> {
         let id = RespuestaID::new(&in_.id)?;
         let postulante_id = PostulanteID::new(&in_.postulante_id)?;
 
@@ -68,7 +60,7 @@ mod tests {
     use crate::respuesta::use_case::transicion_estado::{DUENO, HOJA, HojaEnMemoria, OTRO, ahora};
 
     async fn finalizar(hoja: &HojaEnMemoria, postulante_id: &str) -> Result<(), RespuestaError> {
-        FinalizarEvaluacion::new(Box::new(hoja.clone()))
+        FinalizarEvaluacion::new(hoja.clone())
             .ejecutar(InputData {
                 id: HOJA.to_string(),
                 postulante_id: postulante_id.to_string(),

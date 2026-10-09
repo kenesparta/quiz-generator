@@ -1,7 +1,5 @@
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioListarAsignaciones;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub postulante_id: Option<String>,
@@ -23,22 +21,16 @@ pub struct OutputData {
     pub postulante_segundo_apellido: String,
 }
 
-pub struct ListarAsignaciones<RepoErr> {
-    repo: Box<dyn RepositorioListarAsignaciones<RepoErr>>,
+pub struct ListarAsignaciones<R> {
+    repo: R,
 }
 
-impl<RepoErr> ListarAsignaciones<RepoErr> {
-    pub fn new(repo: Box<dyn RepositorioListarAsignaciones<RepoErr>>) -> Self {
+impl<R: RepositorioListarAsignaciones> ListarAsignaciones<R> {
+    pub fn new(repo: R) -> Self {
         Self { repo }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, Vec<OutputData>, RespuestaError> for ListarAsignaciones<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, input: InputData) -> Result<Vec<OutputData>, RespuestaError> {
+    pub async fn ejecutar(&self, input: InputData) -> Result<Vec<OutputData>, RespuestaError> {
         let asignaciones = self
             .repo
             .listar(input.postulante_id, input.evaluacion_id)

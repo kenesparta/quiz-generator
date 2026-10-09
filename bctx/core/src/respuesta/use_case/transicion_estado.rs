@@ -6,7 +6,6 @@ use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioEstadoRespuesta;
-use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
 use std::sync::{Arc, Mutex};
 
@@ -46,8 +45,7 @@ impl HojaEnMemoria {
     }
 }
 
-#[async_trait]
-impl RepositorioEstadoRespuesta<RespuestaError> for HojaEnMemoria {
+impl RepositorioEstadoRespuesta for HojaEnMemoria {
     async fn obtener_estado(
         &self,
         id: &RespuestaID,

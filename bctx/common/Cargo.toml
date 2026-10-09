@@ -13,5 +13,4 @@ uuid.workspace = true
 chrono.workspace = true
 regex.workspace = true
 thiserror.workspace = true
-async-trait.workspace = true
 chrono-tz.workspace = true

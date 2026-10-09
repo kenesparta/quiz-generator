@@ -6,7 +6,6 @@ use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
 use actix_web::http::header;
 use actix_web::{HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::domain::entity::respuesta::Estado;
 use quizz_core::respuesta::use_case::asignar_postulante::{
     AsignarEvaluacionAPostulante, InputData,
@@ -22,7 +21,7 @@ impl AsignarEvaluacionPostulanteController {
         body: web::Json<CrearRespuestaDTO>,
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
-        let creada = AsignarEvaluacionAPostulante::new(Box::new(RespuestaEvaluacionMongo::new(db)))
+        let creada = AsignarEvaluacionAPostulante::new(RespuestaEvaluacionMongo::new(db))
             .ejecutar(InputData {
                 evaluacion_id: evaluacion_id.into_inner(),
                 postulante_id: body.into_inner().postulante_id,

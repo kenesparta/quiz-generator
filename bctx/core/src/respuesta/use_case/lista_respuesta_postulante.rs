@@ -2,8 +2,6 @@ use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioListaRespuestaPostulante;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub postulante_id: String,
@@ -16,23 +14,16 @@ pub struct OutputData {
     pub estado: Estado,
 }
 
-pub struct ListaRespuestaPostulante<RepoErr> {
-    repo: Box<dyn RepositorioListaRespuestaPostulante<RepoErr>>,
+pub struct ListaRespuestaPostulante<R> {
+    repo: R,
 }
 
-impl<RepoErr> ListaRespuestaPostulante<RepoErr> {
-    pub fn new(repo: Box<dyn RepositorioListaRespuestaPostulante<RepoErr>>) -> Self {
+impl<R: RepositorioListaRespuestaPostulante> ListaRespuestaPostulante<R> {
+    pub fn new(repo: R) -> Self {
         Self { repo }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, Vec<OutputData>, RespuestaError>
-    for ListaRespuestaPostulante<RepoErr>
-where
-    RespuestaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, input: InputData) -> Result<Vec<OutputData>, RespuestaError> {
+    pub async fn ejecutar(&self, input: InputData) -> Result<Vec<OutputData>, RespuestaError> {
         let postulante_id = PostulanteID::new(&input.postulante_id)?;
 
         let respuestas = self

@@ -2,7 +2,6 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
 use crate::controller::revision::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta};
@@ -30,8 +29,7 @@ impl MongoRepository for RevisionReadMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioObtenerRevisionPorId<RespuestaError> for RevisionReadMongo {
+impl RepositorioObtenerRevisionPorId for RevisionReadMongo {
     async fn obtener_revision_por_id(
         &self,
         revision_id: String,

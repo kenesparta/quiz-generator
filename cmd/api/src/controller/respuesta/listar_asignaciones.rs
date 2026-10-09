@@ -5,7 +5,6 @@ use crate::controller::respuesta::dto::{AsignacionListItemDTO, AsignacionesQuery
 use crate::controller::respuesta::mongo::read::ListarAsignacionesMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::listar_asignaciones::{InputData, ListarAsignaciones};
 
 pub struct ListarAsignacionesController;
@@ -26,7 +25,7 @@ impl ListarAsignacionesController {
         }
 
         let query = query.into_inner();
-        let asignaciones = ListarAsignaciones::new(Box::new(ListarAsignacionesMongo::new(db)))
+        let asignaciones = ListarAsignaciones::new(ListarAsignacionesMongo::new(db))
             .ejecutar(InputData {
                 postulante_id: query.postulante_id,
                 evaluacion_id: query.evaluacion_id,

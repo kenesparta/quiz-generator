@@ -7,7 +7,6 @@ use crate::controller::respuesta::dto::{
 use crate::controller::respuesta::mongo::read::ListaRespuestaPostulanteMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::use_case::lista_respuesta_postulante::{
     InputData, ListaRespuestaPostulante,
 };
@@ -37,12 +36,11 @@ impl ListarRespuestasController {
             })?
         };
 
-        let respuestas =
-            ListaRespuestaPostulante::new(Box::new(ListaRespuestaPostulanteMongo::new(db)))
-                .ejecutar(InputData {
-                    postulante_id: postulante_id.clone(),
-                })
-                .await?;
+        let respuestas = ListaRespuestaPostulante::new(ListaRespuestaPostulanteMongo::new(db))
+            .ejecutar(InputData {
+                postulante_id: postulante_id.clone(),
+            })
+            .await?;
 
         let items: Vec<RespuestaListItemDTO> = respuestas
             .into_iter()

@@ -5,7 +5,6 @@ use crate::controller::respuesta::dto::{AccionTransicion, TransicionEstadoDTO};
 use crate::controller::respuesta::mongo::write::EstadoRespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::respuesta::domain::entity::respuesta::Estado;
 use quizz_core::respuesta::use_case::empezar_examen::{
     EmpezarExamen, InputData as EmpezarInputData,
@@ -30,7 +29,7 @@ impl TransicionEstadoController {
             return Err(ApiError::NoAutenticado("Token no encontrado".to_string()));
         };
         let respuesta_id = respuesta_id.into_inner();
-        let repositorio = Box::new(EstadoRespuestaMongo::new(db));
+        let repositorio = EstadoRespuestaMongo::new(db);
         let mut links = Links::new();
         links.insert(
             "self".into(),

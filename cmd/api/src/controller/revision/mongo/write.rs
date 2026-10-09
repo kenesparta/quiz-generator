@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::revision::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::{Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Revision};
@@ -37,8 +36,7 @@ fn error_bd(contexto: &'static str) -> impl FnOnce(mongodb::error::Error) -> Res
     }
 }
 
-#[async_trait]
-impl RepositorioRealizarRevision<RespuestaError> for RevisionEvaluacionMongo {
+impl RepositorioRealizarRevision for RevisionEvaluacionMongo {
     async fn realizar_revision(&self, revision: &RevisionRealizada) -> Result<(), RespuestaError> {
         let respuesta_id = revision.respuesta_id.to_string();
         let examen_ids: Vec<&str> = revision

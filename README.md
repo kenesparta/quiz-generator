@@ -8,12 +8,12 @@ A Rust workspace that exposes an HTTP API for creating exams, composing evaluati
 - Session store: Redis
 - Auth: JWT + Casbin (RBAC)
 - Runtime: Tokio
-- Workspace crates: core domain, common, auth, usermgm, and API (cmd/api)
+- Workspace crates: core domain, common, auth, and API (cmd/api)
 
 
 ## Repository layout
 
-- `bctx/core`, `bctx/common`, `bctx/auth`, `bctx/usermgm`: core and supporting domain crates organized by bounded context
+- `bctx/core`, `bctx/common`, `bctx/auth`: core and supporting domain crates organized by bounded context
 - `cmd/api`: HTTP API service (binary name: `quizz`)
 - `rbac/`: Casbin RBAC model (`model.conf`) and policies (`policy.csv`)
 - `configuration.yaml(.example)`: application configuration

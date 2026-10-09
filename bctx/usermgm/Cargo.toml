@@ -1,7 +1,0 @@
-[package]
-name = "quizz-usermgm"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-quizz-core = { path = "../core" }

@@ -6,23 +6,8 @@ members = [
     "bctx/core",
 
     # Subdominios de soporte
-    "bctx/usermgm",
     "bctx/auth",
     "bctx/common",
-
-    # ---
-    # New Implementation
-    # Subdominio principal (Core)
-    # Gestión y correccion de respuestas
-    "bounded-contexts/evaluacion/respuesta",
-
-    # Subdominios de soporte
-    "bounded-contexts/evaluacion/creacion", # Gestion de la creacion de los examenes
-    "bounded-contexts/evaluacion/postulante", # Gestión de postulantes que envian la respuesta
-
-    # Subdominio Genérico
-    # Utilidades compartidas
-    "bounded-contexts/evaluacion/common",
 
     # API
     "cmd/api",

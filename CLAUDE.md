@@ -14,7 +14,6 @@ The repository uses a Cargo workspace organized by bounded contexts (bctx):
 
 - `bctx/core` - Core domain logic (examen, pregunta, evaluacion, postulante, psicologo, admin, respuesta)
 - `bctx/auth` - Authentication domain (universal login/sessions and authorization)
-- `bctx/usermgm` - User management support domain
 - `bctx/common` - Shared utilities and types
 - `cmd/api` - HTTP API service (binary: `quizz`)
 
@@ -248,12 +247,15 @@ pregunta/
     etiqueta.rs
 ```
 
-### DDD Structure in bounded-contexts
+### DDD Structure in bctx
 
-The `bounded-contexts/` directory follows Domain-Driven Design principles:
-- **Value Objects**: Immutable objects compared by value (e.g., `AlternativaClave`, `Puntaje`)
-- **Entities**: Objects with identity, compared by ID (e.g., `PreguntaAlternativaUnica`)
-- **Sum Types**: Use Rust enums for type-safe variants instead of dynamic dispatch (e.g., `Pregunta` enum)
+The `bctx/` crates follow Domain-Driven Design principles:
+- **Value Objects**: Immutable objects compared by value (e.g., `Documento`, `Nombre`)
+- **Entities**: Objects with identity, compared by ID (e.g., `PreguntaEntity`, `Postulante`)
+- **Sum Types**: Use Rust enums for type-safe variants instead of dynamic dispatch (e.g., `TipoPregunta`)
+
+`bctx/` is the only domain model. A partial redesign that lived in `bounded-contexts/` was removed
+(it was never wired to the API); its good ideas are ported into `bctx/` one at a time.
 
 Prefer static dispatch (enums with match) over dynamic dispatch (`Box<dyn Trait>`) for domain types.
 

@@ -169,11 +169,10 @@ mod tests {
             puntaje,
         );
 
-        assert!(result.is_err());
-        match result {
-            Err(PreguntaError::PreguntaAlternativaError(_)) => assert!(true),
-            _ => assert!(false, "Expected PreguntaAlternativaError"),
-        }
+        assert!(matches!(
+            result,
+            Err(PreguntaError::PreguntaAlternativaError(_))
+        ));
     }
 
     #[test]
@@ -195,6 +194,9 @@ mod tests {
             puntaje,
         );
 
-        assert!(result.is_err());
+        assert!(matches!(
+            result,
+            Err(PreguntaError::PreguntaTipoPreguntaError(_))
+        ));
     }
 }

@@ -2,8 +2,9 @@ services:
   mongodb:
     container_name: quizz-mongodb
     image: mongo:8.0
+    # Solo en loopback: con credenciales conocidas, no deben quedar expuestas en la red local.
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: quizz
       MONGO_INITDB_ROOT_PASSWORD: quizz
@@ -16,8 +17,9 @@ services:
   redis:
     container_name: quizz-redis
     image: redis:7-alpine
+    # Solo en loopback: Redis no pide contraseña y guarda las sesiones.
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data

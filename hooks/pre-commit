@@ -1,14 +1,7 @@
 #!/bin/sh
-
-# Run cargo fmt on staged Rust files
-echo "Running cargo fmt..."
-cargo fmt -- --check
-RESULT=$?
-
-if [ $RESULT -ne 0 ]; then
-  echo "cargo fmt found formatting issues. Run 'cargo fmt' to fix them."
+# Rechaza el commit si el workspace no está formateado (activar con `make hooks`).
+echo "cargo fmt --all -- --check..."
+if ! cargo fmt --all -- --check; then
+  echo "Hay archivos sin formatear: ejecuta 'cargo fmt --all'."
   exit 1
 fi
-
-echo "Formatting check passed!"
-exit 0

@@ -49,22 +49,23 @@ MongoDB credentials (dev): username `quizz`, password `quizz`, database `quizz`
 ### Testing and Quality
 
 ```bash
+# Everything CI requires (format check, clippy on all targets, tests)
+make check
+
 # Format code
-make fmt
-# or: cargo fmt
+cargo fmt --all
 
-# Check formatting (CI-style)
-cargo fmt -- --check
+# Lint with clippy, including tests (fail on warnings)
+cargo clippy --workspace --all-targets -- -D warnings
 
-# Lint with clippy (fail on warnings)
-cargo clippy -- -D warnings
+# Tests (the e2e test in cmd/api/tests/api_e2e.rs needs Docker)
+cargo test --workspace
 
-# Run tests with coverage (requires llvm-tools-preview and cargo-llvm-cov)
-make test
-# or: cargo llvm-cov --show-missing-lines
+# Coverage (requires llvm-tools-preview and cargo-llvm-cov)
+make cobertura
 
-# Security audit
-cargo audit
+# Dependency advisories, licenses and sources
+cargo deny check
 ```
 
 ### Running Single Tests

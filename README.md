@@ -137,28 +137,24 @@ Set the base URL to `http://localhost:8008` and follow the examples.
 
 ## Development
 
-- Format code:
-  - `cargo fmt`
-  - Check formatting only: `cargo fmt -- --check`
+- Format code: `cargo fmt --all` (check only: `cargo fmt --all -- --check`).
 
-- Lint with clippy (CI-style: fail on warnings):
-  - `cargo clippy -- -D warnings`
+- Lint with clippy, including test code, failing on warnings:
+  - `cargo clippy --workspace --all-targets -- -D warnings`
 
 - Tests:
   - `cargo test --workspace` runs the unit tests and the end-to-end test `cmd/api/tests/api_e2e.rs`, which starts throwaway MongoDB and Redis containers with testcontainers, so **Docker must be running**. Run it alone with `cargo test -p quizz-api --test api_e2e`.
 
-- Tests and code coverage:
-  - Ensure `llvm-tools-preview` and `cargo-llvm-cov` are installed
-  - `cargo llvm-cov` (use `make test` to include the missing-lines report)
+- Code coverage (needs `llvm-tools-preview` and `cargo-llvm-cov`): `make cobertura`.
 
-- Security audit (advisories):
-  - `cargo audit`
+- Dependency advisories and licenses: `cargo deny check` (or `cargo audit`).
 
 Make targets:
-- `make fmt` — format the workspace
-- `make test` — run coverage with missing lines
-- `make dev` — start MongoDB and Redis dev containers
-- `make exec` — open a shell in the compose service defined for API (if present)
+- `make check` — format check, clippy and tests: what CI requires
+- `make fmt`, `make lint`, `make test`, `make cobertura`, `make audit`, `make deny`
+- `make hooks` — enable the repository's pre-commit hook (formatting)
+- `make dev` — start MongoDB and Redis dev containers (bound to 127.0.0.1)
+- `make run` — run the API with `RUST_LOG=info`
 
 
 ## Docker

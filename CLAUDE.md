@@ -111,17 +111,19 @@ Auth is handled in:
 The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RBAC). The authorization layer follows the same DDD/hexagonal architecture as the rest of the project:
 
 **Domain layer** (`bctx/auth/src/autorizacion/`):
-- **Value Objects**: `Rol` (Postulante, Psicologo, Admin), `Recurso` (Examen, Evaluacion, Postulante, Respuesta, Revision, Usuario), `Accion` (Leer, Escribir, Actualizar, Eliminar)
+- **Value Objects**: `Rol` (Postulante, Psicologo, Admin), `Recurso` (Admin, Examen, Evaluacion, Postulante, Psicologo, Respuesta, Revision), `Accion` (Leer, Escribir, Actualizar, Eliminar)
 - **Entity**: `SolicitudAcceso` — represents an access request (sujeto, rol, recurso, accion)
 - **Error**: `AutorizacionError`
-- **Provider (Port)**: `AutorizacionVerificar` trait — defines the authorization contract
-- **Use Case**: `VerificarPermiso` — implements `CasoDeUso` to check permissions
+- **Provider (Port)**: `AutorizacionVerificar` trait — defines the authorization contract (synchronous: the policy is evaluated in memory)
 
 **Infrastructure layer** (`cmd/api/`):
-- **Casbin adapter**: `controller/auth/casbin_enforcer.rs` — implements `AutorizacionVerificar` using `casbin::Enforcer`
-- **Actix middleware**: `controller/auth/middleware.rs` — extracts JWT from `Authorization: Bearer` header, verifies token, maps HTTP method/path to `Accion`/`Recurso`, and enforces RBAC via Casbin
+- **Casbin adapter**: `controller/auth/casbin_enforcer.rs` — implements `AutorizacionVerificar` using `casbin::Enforcer`; the model and policy are embedded in the binary with `include_str!`
+- **Actix middleware**: `controller/auth/middleware.rs`
+  - `AuthMiddleware` wraps the whole protected scope: it requires a valid `Authorization: Bearer` JWT with a known role and stores the `Claims` in the request extensions.
+  - `Autorizacion::para(Recurso::X)` wraps **each route scope** and enforces RBAC for the resource that scope declares; the action comes from the HTTP method. Anything that cannot be classified (unknown method, missing claims) is denied.
+  - **Never derive the resource from the URL**: the router percent-decodes paths (`/%61dmins` reaches `/admins`), so parsing the raw path let any user bypass RBAC. A new route scope must call `.wrap(Autorizacion::para(...))` and be added to the route table in the middleware tests.
 - **RBAC model**: `rbac/model.conf` — standard RBAC model (request, policy, role definitions, matchers)
-- **Policies**: `rbac/policy.csv` — defines permissions per role
+- **Policies**: `rbac/policy.csv` — defines permissions per role; the expected matrix is pinned by a test in `casbin_enforcer.rs`
 
 **Roles and permissions:**
 - `admin` — full access to all resources

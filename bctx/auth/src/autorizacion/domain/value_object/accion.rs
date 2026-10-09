@@ -8,7 +8,7 @@ pub enum AccionError {
     NoValida(String),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Accion {
     Leer,
     Escribir,
@@ -42,6 +42,8 @@ impl FromStr for Accion {
 }
 
 impl Accion {
+    /// Traduce el método HTTP a la acción que se autoriza. Cualquier otro método (`HEAD`,
+    /// `OPTIONS`, ...) es un error, y quien lo llame debe denegar la petición.
     pub fn desde_metodo_http(metodo: &str) -> Result<Self, AccionError> {
         match metodo.to_uppercase().as_str() {
             "GET" => Ok(Accion::Leer),
@@ -86,6 +88,7 @@ mod tests {
     #[test]
     fn test_accion_desde_metodo_http_invalido() {
         assert!(Accion::desde_metodo_http("OPTIONS").is_err());
+        assert!(Accion::desde_metodo_http("HEAD").is_err());
     }
 
     #[test]

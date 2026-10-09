@@ -35,3 +35,7 @@ redis = { version = "1.0.2", features = ["tokio-comp", "connection-manager"] }
 
 mongodb = "3.4.1"
 casbin = "2"
+
+[dev-dependencies]
+# Solo para nombrar el tipo de petición de los servicios de test de actix-web.
+actix-http = "3"

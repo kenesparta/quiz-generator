@@ -12,19 +12,33 @@ use crate::controller::revision::route::revision;
 use crate::cors::set_cors;
 use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
-use casbin::{CoreApi, DefaultModel, FileAdapter};
 use mongodb::Client as MongoClient;
 use redis::Client as RedisClient;
 use std::net::TcpListener;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 
-pub async fn init_casbin_enforcer()
--> Result<Arc<RwLock<casbin::Enforcer>>, Box<dyn std::error::Error>> {
-    let model = DefaultModel::from_file("rbac/model.conf").await?;
-    let adapter = FileAdapter::new("rbac/policy.csv");
-    let enforcer = casbin::Enforcer::new(model, adapter).await?;
-    Ok(Arc::new(RwLock::new(enforcer)))
+/// Construye el enforcer RBAC con el modelo y la política embebidos en el binario.
+pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
+    crate::controller::auth::casbin_enforcer::crear_enforcer().await
+}
+
+/// Registra todas las rutas de la API.
+///
+/// Las rutas públicas (`/health-check`, `/login`, `/logout`) quedan fuera del scope
+/// autenticado; todo lo demás exige un JWT válido y cada scope declara el recurso que la
+/// política RBAC autoriza (ver `controller/auth/middleware.rs`). Requiere como `app_data` el
+/// enforcer (`web::Data<casbin::Enforcer>`) además de los clientes que usan los handlers.
+pub fn configurar_rutas(cfg: &mut web::ServiceConfig, jwt_secret: &str) {
+    cfg.configure(health_check).configure(login_routes).service(
+        web::scope("")
+            .wrap(AuthMiddleware::new(jwt_secret.to_string()))
+            .configure(examen)
+            .configure(evaluacion)
+            .configure(respuesta)
+            .configure(revision)
+            .configure(postulante)
+            .configure(psicologo)
+            .configure(admin),
+    );
 }
 
 pub fn run(
@@ -32,31 +46,20 @@ pub fn run(
     mongo_client: MongoClient,
     redis_client: RedisClient,
     jwt_settings: JwtSettings,
-    enforcer: Arc<RwLock<casbin::Enforcer>>,
+    enforcer: casbin::Enforcer,
 ) -> Result<Server, std::io::Error> {
     let db_connection_pool = web::Data::new(mongo_client);
     let redis_connection_pool = web::Data::new(redis_client);
     let jwt_settings_data = web::Data::new(jwt_settings.clone());
+    let enforcer = web::Data::new(enforcer);
     let server = HttpServer::new(move || {
-        let auth_middleware = AuthMiddleware::new(jwt_settings.secret.clone(), enforcer.clone());
         App::new()
             .wrap(set_cors())
-            .configure(health_check)
-            .configure(login_routes)
-            .service(
-                web::scope("")
-                    .wrap(auth_middleware)
-                    .configure(examen)
-                    .configure(evaluacion)
-                    .configure(respuesta)
-                    .configure(revision)
-                    .configure(postulante)
-                    .configure(psicologo)
-                    .configure(admin),
-            )
+            .configure(|cfg| configurar_rutas(cfg, &jwt_settings.secret))
             .app_data(db_connection_pool.clone())
             .app_data(redis_connection_pool.clone())
             .app_data(jwt_settings_data.clone())
+            .app_data(enforcer.clone())
     })
     .listen(tcp_listener)?
     .run();

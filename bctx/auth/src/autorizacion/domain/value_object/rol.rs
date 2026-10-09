@@ -8,7 +8,7 @@ pub enum RolError {
     NoValido(String),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Rol {
     Postulante,
     Psicologo,

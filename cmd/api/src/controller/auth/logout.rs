@@ -1,5 +1,6 @@
 use crate::configuration::JwtSettings;
 use crate::controller::auth::jwt::JWTProvider;
+use crate::controller::auth::middleware::extraer_token;
 use crate::controller::auth::redis::universal_borrar::LogoutUniversalRedis;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
@@ -14,7 +15,7 @@ impl LogoutController {
         redis_client: web::Data<redis::Client>,
         jwt_settings: web::Data<JwtSettings>,
     ) -> HttpResponse {
-        let token = match extraer_token(&req) {
+        let token = match extraer_token(req.headers()) {
             Some(t) => t,
             None => {
                 warn!("POST /logout - token no encontrado");
@@ -23,7 +24,7 @@ impl LogoutController {
         };
 
         let jwt_provider = JWTProvider::new(jwt_settings.secret.clone(), 0);
-        let claims = match jwt_provider.verificar_token(&token) {
+        let claims = match jwt_provider.verificar_token(token) {
             Ok(c) => c,
             Err(_) => {
                 // Token expirado o invalido: el cliente igual debe limpiar su sesion.
@@ -50,12 +51,4 @@ impl LogoutController {
             }
         }
     }
-}
-
-fn extraer_token(req: &HttpRequest) -> Option<String> {
-    let auth_header = req.headers().get("Authorization")?.to_str().ok()?;
-
-    auth_header
-        .strip_prefix("Bearer ")
-        .map(|token| token.to_string())
 }

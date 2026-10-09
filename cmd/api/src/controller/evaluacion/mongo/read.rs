@@ -1,73 +1,62 @@
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use async_trait::async_trait;
+use futures::TryStreamExt;
 use log::error;
-use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
 use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::LecturaNoFinalizada;
 use quizz_core::evaluacion::provider::repositorio::RepositorioEvaluacionListar;
 use quizz_core::evaluacion::use_case::listar_evaluaciones::OutputData;
+use serde::Deserialize;
+
+/// Una evaluación en el listado: sin los exámenes (una publicada guarda copias completas, con
+/// imágenes), solo cuántos tiene.
+#[derive(Deserialize)]
+struct FilaListaEvaluacion {
+    #[serde(rename = "_id")]
+    id: String,
+    nombre: String,
+    descripcion: String,
+    estado: String,
+    esta_activo: String,
+    cantidad_examenes: i64,
+}
 
 #[async_trait]
 impl RepositorioEvaluacionListar<EvaluacionError> for EvaluacionMongo {
     async fn listar_evaluaciones(&self) -> Result<Vec<OutputData>, EvaluacionError> {
-        let mut cursor = self.get_collection().find(doc! {}).await.map_err(|e| {
-            error!("Database error while listing evaluaciones: {}", e);
+        let error_lectura = |e: mongodb::error::Error| {
+            error!("mongo, listar evaluaciones: {e}");
             EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada)
-        })?;
+        };
+        let filas: Vec<FilaListaEvaluacion> = self
+            .get_collection()
+            .clone_with_type::<FilaListaEvaluacion>()
+            .find(doc! {})
+            .projection(doc! {
+                "nombre": 1,
+                "descripcion": 1,
+                "estado": 1,
+                "esta_activo": 1,
+                "cantidad_examenes": { "$size": { "$ifNull": ["$examenes", []] } },
+            })
+            .await
+            .map_err(error_lectura)?
+            .try_collect()
+            .await
+            .map_err(error_lectura)?;
 
-        let mut evaluaciones = Vec::new();
-
-        while cursor.advance().await.map_err(|e| {
-            error!("Error advancing cursor while listing evaluaciones: {}", e);
-            EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada)
-        })? {
-            let documento = cursor.deserialize_current().map_err(|e| {
-                error!("Error deserializing evaluacion document: {}", e);
-                EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada)
-            })?;
-
-            let id = documento
-                .get_str("_id")
-                .map_err(|_| EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada))?
-                .to_string();
-
-            let nombre = documento
-                .get_str("nombre")
-                .map_err(|_| EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada))?
-                .to_string();
-
-            let descripcion = documento
-                .get_str("descripcion")
-                .map_err(|_| EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada))?
-                .to_string();
-
-            let estado = documento
-                .get_str("estado")
-                .map_err(|_| EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada))?
-                .to_string();
-
-            let esta_activo = documento
-                .get_str("esta_activo")
-                .map_err(|_| EvaluacionError::EvaluacionRepositorioError(LecturaNoFinalizada))?
-                .to_string();
-
-            let cantidad_examenes = match documento.get("examenes") {
-                Some(bson::Bson::Array(arr)) => arr.len(),
-                _ => 0,
-            };
-
-            evaluaciones.push(OutputData {
-                id,
-                nombre,
-                descripcion,
-                estado,
-                esta_activo,
-                cantidad_examenes,
-            });
-        }
-
-        Ok(evaluaciones)
+        Ok(filas
+            .into_iter()
+            .map(|fila| OutputData {
+                id: fila.id,
+                nombre: fila.nombre,
+                descripcion: fila.descripcion,
+                estado: fila.estado,
+                esta_activo: fila.esta_activo,
+                cantidad_examenes: usize::try_from(fila.cantidad_examenes).unwrap_or(0),
+            })
+            .collect())
     }
 }

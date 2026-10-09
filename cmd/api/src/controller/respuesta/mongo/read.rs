@@ -3,7 +3,7 @@ use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
 use actix_web::web;
 use async_trait::async_trait;
-use futures::StreamExt;
+use futures::{StreamExt, TryStreamExt};
 use mongodb;
 use mongodb::bson;
 use mongodb::bson::doc;
@@ -13,8 +13,9 @@ use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::{
     RepositorioListaRespuestaPostulante, RepositorioListarAsignaciones,
-    RepositorioRespuestaLectura, RespositorioRespuestaRevision,
+    RepositorioRespuestaLectura, RepositorioRespuestaRevision,
 };
+use serde::Deserialize;
 use std::str::FromStr;
 use tracing::error;
 
@@ -89,44 +90,67 @@ impl MongoRepository for RespuestaRevisionMongo {
     }
 }
 
+/// Una hoja finalizada en el listado de revisiones.
+#[derive(Deserialize)]
+struct FilaRevision {
+    #[serde(rename = "_id")]
+    id: String,
+    postulante_id: String,
+    #[serde(default)]
+    revision: String,
+    #[serde(default)]
+    fecha_tiempo_fin: String,
+    evaluacion: EvaluacionDeLaFila,
+}
+
+#[derive(Deserialize)]
+struct EvaluacionDeLaFila {
+    nombre: String,
+    descripcion: String,
+}
+
 #[async_trait]
-impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
+impl RepositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
     async fn obtener_respuesta_revision(
         &self,
         estado: Estado,
-    ) -> Result<Vec<Respuesta>, RespuestaError> {
-        let filter = doc! {
-            "estado": estado.to_string()
+    ) -> Result<Vec<quizz_core::respuesta::use_case::respuesta_revision::OutputData>, RespuestaError>
+    {
+        let error_lectura = |e: mongodb::error::Error| {
+            error!("mongo, listar revisiones: {e}");
+            RespuestaError::RepositorioError
         };
-
-        let mut cursor = self
+        let filas: Vec<FilaRevision> = self
             .get_collection()
-            .find(filter)
+            .clone_with_type::<FilaRevision>()
+            .find(doc! { "estado": estado.to_string() })
+            .projection(doc! {
+                "postulante_id": 1,
+                "revision": 1,
+                "fecha_tiempo_fin": 1,
+                "evaluacion.nombre": 1,
+                "evaluacion.descripcion": 1,
+            })
             .sort(doc! { "fecha_tiempo_fin": -1 })
             .await
-            .map_err(|e| {
-                error!("Error finding respuestas by estado {}: {}", estado, e);
-                RespuestaError::RepositorioError
-            })?;
+            .map_err(error_lectura)?
+            .try_collect()
+            .await
+            .map_err(error_lectura)?;
 
-        let mut respuestas = Vec::new();
-
-        while cursor.advance().await.map_err(|e| {
-            error!("Error advancing cursor: {}", e);
-            RespuestaError::RepositorioError
-        })? {
-            let doc = cursor.deserialize_current().map_err(|e| {
-                error!("Error deserializing cursor: {}", e);
-                RespuestaError::RepositorioError
-            })?;
-            let respuesta_dto: RespuestaDTO = bson::from_document(doc).map_err(|e| {
-                error!("Error deserializing respuesta document: {}", e);
-                RespuestaError::RepositorioError
-            })?;
-            respuestas.push(respuesta_dto.a_dominio()?);
-        }
-
-        Ok(respuestas)
+        Ok(filas
+            .into_iter()
+            .map(
+                |fila| quizz_core::respuesta::use_case::respuesta_revision::OutputData {
+                    revision_id: fila.id,
+                    nombre_evaluacion: fila.evaluacion.nombre,
+                    descripcion_evaluacion: fila.evaluacion.descripcion,
+                    estado_revision: fila.revision,
+                    postulante_id: fila.postulante_id,
+                    fecha_tiempo_fin: fila.fecha_tiempo_fin,
+                },
+            )
+            .collect())
     }
 }
 

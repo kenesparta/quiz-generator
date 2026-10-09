@@ -70,10 +70,16 @@ impl RepositorioPsicologoLectura<PsicologoError> for PsicologoReadMongo {
 #[async_trait]
 impl RepositorioPsicologoListar<PsicologoError> for PsicologoReadMongo {
     async fn listar_psicologos(&self) -> Result<Vec<OutputData>, PsicologoError> {
-        let mut cursor = self.get_collection().find(doc! {}).await.map_err(|e| {
-            error!("Database error while listing psicologos: {}", e);
-            PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
-        })?;
+        // Sin el hash de la contraseña: el listado no lo necesita.
+        let mut cursor = self
+            .get_collection()
+            .find(doc! {})
+            .projection(doc! { "password": 0 })
+            .await
+            .map_err(|e| {
+                error!("Database error while listing psicologos: {}", e);
+                PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
+            })?;
 
         let mut psicologos = Vec::new();
 

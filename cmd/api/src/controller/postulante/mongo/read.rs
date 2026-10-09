@@ -2,12 +2,15 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use futures::StreamExt;
+use chrono::NaiveDateTime;
+use futures::TryStreamExt;
 use log::error;
-use mongodb::bson::Bson;
-use mongodb::bson::doc;
+use mongodb::bson::{Bson, Document, doc};
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
+use quizz_common::domain::value_objects::zona_horaria::{
+    formatear_rfc3339, offset_lima, utc_a_lima,
+};
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
 use quizz_core::postulante::domain::value_object::documento::Documento;
@@ -16,37 +19,71 @@ use quizz_core::postulante::domain::value_object::grado_instruccion::GradoInstru
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::domain::value_object::nombre::Nombre;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
+use serde::Deserialize;
 use std::str::FromStr;
 
-fn leer_fecha_bson(bson_fecha: &Bson) -> Result<String, PostulanteError> {
-    use chrono::NaiveDateTime;
-    use quizz_common::domain::value_objects::zona_horaria::{
-        formatear_rfc3339, offset_lima, utc_a_lima,
-    };
+/// Un postulante tal como se guarda. Se lee sin el hash de la contraseña: las lecturas nunca
+/// lo necesitan.
+#[derive(Deserialize)]
+struct FilaPostulante {
+    #[serde(rename = "_id")]
+    id: String,
+    documento: String,
+    nombre: String,
+    primer_apellido: String,
+    segundo_apellido: String,
+    fecha_nacimiento: Bson,
+    grado_instruccion: String,
+    genero: String,
+    fecha_registro: Bson,
+}
 
-    if let Some(s) = bson_fecha.as_str() {
-        if chrono::DateTime::parse_from_rfc3339(s).is_ok() {
-            return Ok(s.to_string());
+fn sin_password() -> Document {
+    doc! { "password": 0 }
+}
+
+fn lectura_fallida() -> PostulanteError {
+    PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada)
+}
+
+/// Las fechas se guardaron en distintos formatos según la época: RFC 3339, "AAAA-MM-DD
+/// HH:MM:SS" en hora de Lima o fecha nativa de BSON. Las tres se devuelven en RFC 3339.
+fn leer_fecha(fecha: &Bson) -> Result<String, PostulanteError> {
+    match fecha {
+        Bson::String(texto) if chrono::DateTime::parse_from_rfc3339(texto).is_ok() => {
+            Ok(texto.clone())
         }
-        if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
-            let dt = naive.and_local_timezone(offset_lima()).single().ok_or(
-                PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada),
-            )?;
-            return Ok(formatear_rfc3339(&dt));
-        }
-        return Ok(s.to_string());
+        Bson::String(texto) => match NaiveDateTime::parse_from_str(texto, "%Y-%m-%d %H:%M:%S") {
+            Ok(local) => local
+                .and_local_timezone(offset_lima())
+                .single()
+                .map(|fecha| formatear_rfc3339(&fecha))
+                .ok_or_else(lectura_fallida),
+            // Una fecha de nacimiento "AAAA-MM-DD" se valida después, en su value object.
+            Err(_) => Ok(texto.clone()),
+        },
+        Bson::DateTime(fecha) => chrono::DateTime::from_timestamp_millis(fecha.timestamp_millis())
+            .map(|utc| formatear_rfc3339(&utc_a_lima(utc)))
+            .ok_or_else(lectura_fallida),
+        _ => Err(lectura_fallida()),
     }
-    if let Some(dt) = bson_fecha.as_datetime() {
-        let millis = dt.timestamp_millis();
-        let secs = millis / 1000;
-        let nanos = ((millis % 1000) * 1_000_000) as u32;
-        let utc = chrono::DateTime::from_timestamp(secs, nanos).unwrap_or_default();
-        let lima = utc_a_lima(utc);
-        return Ok(formatear_rfc3339(&lima));
+}
+
+impl TryFrom<FilaPostulante> for Postulante {
+    type Error = PostulanteError;
+
+    fn try_from(fila: FilaPostulante) -> Result<Self, Self::Error> {
+        Ok(Postulante {
+            id: PostulanteID::new(&fila.id)?,
+            documento: Documento::new(&fila.documento)?,
+            nombre_completo: Nombre::new(fila.nombre, fila.primer_apellido, fila.segundo_apellido)?,
+            fecha_nacimiento: FechaNacimiento::new(&leer_fecha(&fila.fecha_nacimiento)?)?,
+            grado_instruccion: GradoInstruccion::from_str(&fila.grado_instruccion)?,
+            genero: Genero::from_str(&fila.genero)?,
+            password: None,
+            fecha_registro: FechaRegistro::new(&leer_fecha(&fila.fecha_registro)?)?,
+        })
     }
-    Err(PostulanteError::PostulanteRepositorioError(
-        RepositorioError::LecturaNoFinalizada,
-    ))
 }
 
 pub struct PostulanteReadMongo {
@@ -56,6 +93,24 @@ pub struct PostulanteReadMongo {
 impl PostulanteReadMongo {
     pub fn new(client: web::Data<mongodb::Database>) -> Self {
         PostulanteReadMongo { client }
+    }
+
+    async fn buscar_uno(&self, filtro: Document) -> Result<Postulante, PostulanteError> {
+        let fila = self
+            .get_collection()
+            .clone_with_type::<FilaPostulante>()
+            .find_one(filtro)
+            .projection(sin_password())
+            .await
+            .map_err(|e| {
+                error!("mongo, leer postulante: {e}");
+                lectura_fallida()
+            })?
+            .ok_or(PostulanteError::PostulanteRepositorioError(
+                RepositorioError::RegistroNoEncontrado,
+            ))?;
+        let id = fila.id.clone();
+        Postulante::try_from(fila).inspect_err(|e| error!("postulante {id} ilegible: {e}"))
     }
 }
 
@@ -75,433 +130,82 @@ impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
         &self,
         documento: Documento,
     ) -> Result<Postulante, PostulanteError> {
-        let doc_string = documento.to_string();
-        let filter = doc! { "documento": doc_string.clone() };
-        let sort = doc! { "fecha_registro": 1 };
-
-        match self.get_collection().find_one(filter).sort(sort).await {
-            Ok(Some(doc)) => {
-                let id = match doc.get("_id") {
-                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let documento = match doc.get("documento") {
-                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let nombre = match doc.get("nombre") {
-                    Some(bson_nombre) => bson_nombre.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let primer_apellido = match doc.get("primer_apellido") {
-                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let segundo_apellido = match doc.get("segundo_apellido") {
-                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let grado_instruccion = match doc.get("grado_instruccion") {
-                    Some(bson_grado) => bson_grado.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let genero = match doc.get("genero") {
-                    Some(bson_genero) => bson_genero.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let fecha_registro_str = match doc.get("fecha_registro") {
-                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let id = PostulanteID::new(&id)?;
-                let documento = Documento::new(&documento)?;
-                let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
-                let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
-                let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
-                let genero = Genero::from_str(&genero)?;
-                let fecha_registro = FechaRegistro::new(&fecha_registro_str)?;
-
-                Ok(Postulante {
-                    id,
-                    documento,
-                    nombre_completo,
-                    fecha_nacimiento,
-                    grado_instruccion,
-                    genero,
-                    password: None,
-                    fecha_registro,
-                })
-            }
-            Ok(None) => {
-                error!("No postulante found for the given documento");
-                Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::RegistroNoEncontrado,
-                ))
-            }
-            Err(e) => {
-                error!(
-                    "Database error while fetching postulante with documento={}, error={}",
-                    doc_string, e
-                );
-                Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::LecturaNoFinalizada,
-                ))
-            }
-        }
+        self.buscar_uno(doc! { "documento": documento.value() })
+            .await
     }
 
     async fn obtener_postulante_por_id(
         &self,
         postulante_id: PostulanteID,
     ) -> Result<Postulante, PostulanteError> {
-        let postulante_id = postulante_id.to_string();
-        let filter = doc! { "_id": postulante_id.clone() };
-
-        match self.get_collection().find_one(filter).await {
-            Ok(Some(doc)) => {
-                let id = match doc.get("_id") {
-                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let documento = match doc.get("documento") {
-                    Some(doc_bson) => doc_bson.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let nombre = match doc.get("nombre") {
-                    Some(bson_nombre) => bson_nombre.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let primer_apellido = match doc.get("primer_apellido") {
-                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let segundo_apellido = match doc.get("segundo_apellido") {
-                    Some(bson_apellido) => bson_apellido.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let grado_instruccion = match doc.get("grado_instruccion") {
-                    Some(bson_grado) => bson_grado.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let genero = match doc.get("genero") {
-                    Some(bson_genero) => bson_genero.as_str().unwrap_or_default().to_string(),
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let fecha_registro_str = match doc.get("fecha_registro") {
-                    Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                    None => {
-                        return Err(PostulanteError::PostulanteRepositorioError(
-                            RepositorioError::LecturaNoFinalizada,
-                        ));
-                    }
-                };
-
-                let id = PostulanteID::new(&id)?;
-                let documento = Documento::new(&documento)?;
-                let nombre_completo = Nombre::new(nombre, primer_apellido, segundo_apellido)?;
-                let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
-                let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
-                let genero = Genero::from_str(&genero)?;
-                let fecha_registro = FechaRegistro::new(&fecha_registro_str)?;
-
-                Ok(Postulante {
-                    id,
-                    documento,
-                    nombre_completo,
-                    fecha_nacimiento,
-                    grado_instruccion,
-                    genero,
-                    password: None,
-                    fecha_registro,
-                })
-            }
-            Ok(None) => {
-                error!("No postulante found with id: {}", postulante_id);
-                Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::RegistroNoEncontrado,
-                ))
-            }
-            Err(e) => {
-                error!(
-                    "Database error while fetching postulante with documento={}, error={}",
-                    postulante_id, e
-                );
-                Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::LecturaNoFinalizada,
-                ))
-            }
-        }
+        self.buscar_uno(doc! { "_id": postulante_id.to_string() })
+            .await
     }
 
+    /// Del más reciente al más antiguo. Un registro ilegible se omite con un error en el log
+    /// que nombra su id: no se oculta en silencio, pero tampoco deja sin listado al resto.
     async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-        let sort = doc! { "fecha_registro": -1 };
-        match self.get_collection().find(doc! {}).sort(sort).await {
-            Ok(mut cursor) => {
-                let mut docs = Vec::new();
-                while let Some(result) = cursor.next().await {
-                    match result {
-                        Ok(doc) => docs.push(doc),
-                        Err(e) => {
-                            error!("Error fetching document from cursor: {}", e);
-                            return Err(PostulanteError::PostulanteRepositorioError(
-                                RepositorioError::LecturaNoFinalizada,
-                            ));
-                        }
-                    }
-                }
+        let filas: Vec<FilaPostulante> = self
+            .get_collection()
+            .clone_with_type::<FilaPostulante>()
+            .find(doc! {})
+            .projection(sin_password())
+            .sort(doc! { "fecha_registro": -1 })
+            .await
+            .map_err(|e| {
+                error!("mongo, listar postulantes: {e}");
+                lectura_fallida()
+            })?
+            .try_collect()
+            .await
+            .map_err(|e| {
+                error!("mongo, leer la lista de postulantes: {e}");
+                lectura_fallida()
+            })?;
 
-                let postulantes: Vec<Postulante> = docs
-                    .into_iter()
-                    .filter_map(|doc| {
-                        match (|| {
-                            let id = match doc.get("_id") {
-                                Some(doc_bson) => doc_bson
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
+        Ok(filas
+            .into_iter()
+            .filter_map(|fila| {
+                let id = fila.id.clone();
+                Postulante::try_from(fila)
+                    .inspect_err(|e| error!("postulante {id} ilegible, se omite del listado: {e}"))
+                    .ok()
+            })
+            .collect())
+    }
+}
 
-                            let documento = match doc.get("documento") {
-                                Some(doc_bson) => doc_bson
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-                            let nombre = match doc.get("nombre") {
-                                Some(bson_nombre) => bson_nombre
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
+    #[test]
+    fn lee_las_fechas_en_sus_tres_formatos() {
+        let rfc = Bson::String("2026-01-05T10:00:00-05:00".to_string());
+        assert_eq!(leer_fecha(&rfc).unwrap(), "2026-01-05T10:00:00-05:00");
 
-                            let primer_apellido = match doc.get("primer_apellido") {
-                                Some(bson_apellido) => bson_apellido
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
+        let local = Bson::String("2026-01-05 10:00:00".to_string());
+        assert!(
+            leer_fecha(&local)
+                .unwrap()
+                .starts_with("2026-01-05T10:00:00")
+        );
 
-                            let segundo_apellido = match doc.get("segundo_apellido") {
-                                Some(bson_apellido) => bson_apellido
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
+        let nativa = Bson::DateTime(mongodb::bson::DateTime::from_millis(1_767_625_200_000));
+        assert!(
+            leer_fecha(&nativa)
+                .unwrap()
+                .starts_with("2026-01-05T10:00:00")
+        );
+    }
 
-                            let fecha_nacimiento = match doc.get("fecha_nacimiento") {
-                                Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
-
-                            let grado_instruccion = match doc.get("grado_instruccion") {
-                                Some(bson_grado) => bson_grado
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
-
-                            let genero = match doc.get("genero") {
-                                Some(bson_genero) => bson_genero
-                                    .as_str()
-                                    .ok_or(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ))?
-                                    .to_string(),
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
-
-                            let fecha_registro_str = match doc.get("fecha_registro") {
-                                Some(bson_fecha) => leer_fecha_bson(bson_fecha)?,
-                                None => {
-                                    return Err(PostulanteError::PostulanteRepositorioError(
-                                        RepositorioError::LecturaNoFinalizada,
-                                    ));
-                                }
-                            };
-
-                            let id = PostulanteID::new(&id)?;
-                            let documento = Documento::new(&documento)?;
-                            let nombre_completo =
-                                Nombre::new(nombre, primer_apellido, segundo_apellido)?;
-                            let fecha_nacimiento = FechaNacimiento::new(&fecha_nacimiento)?;
-                            let grado_instruccion = GradoInstruccion::from_str(&grado_instruccion)?;
-                            let genero = Genero::from_str(&genero)?;
-                            let fecha_registro = FechaRegistro::new(&fecha_registro_str)?;
-
-                            Ok(Postulante {
-                                id,
-                                documento,
-                                nombre_completo,
-                                fecha_nacimiento,
-                                grado_instruccion,
-                                genero,
-                                password: None,
-                                fecha_registro,
-                            })
-                        })() {
-                            Ok(postulante) => Some(postulante),
-                            Err(e) => {
-                                error!(
-                                    "Error al convertir documento MongoDB a entidad Postulante: {e}",
-                                );
-                                None
-                            }
-                        }
-                    })
-                    .collect();
-
-                Ok(postulantes)
-            }
-            Err(e) => {
-                error!("Error de base de datos al obtener la lista de postulantes: {e}",);
-                Err(PostulanteError::PostulanteRepositorioError(
-                    RepositorioError::LecturaNoFinalizada,
-                ))
-            }
-        }
+    #[test]
+    fn una_fecha_nativa_anterior_a_1970_no_se_convierte_en_1970() {
+        let antigua = Bson::DateTime(mongodb::bson::DateTime::from_millis(-1_500));
+        assert!(
+            leer_fecha(&antigua)
+                .unwrap()
+                .starts_with("1969-12-31T18:59:58")
+        );
     }
 }

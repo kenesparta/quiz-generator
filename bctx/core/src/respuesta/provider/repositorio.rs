@@ -74,8 +74,13 @@ pub trait RepositorioRespuestaLectura<Error>: Send + Sync {
 }
 
 #[async_trait]
-pub trait RespositorioRespuestaRevision<Error>: Send + Sync {
-    async fn obtener_respuesta_revision(&self, estado: Estado) -> Result<Vec<Respuesta>, Error>;
+pub trait RepositorioRespuestaRevision<Error>: Send + Sync {
+    /// Resumen de las hojas en `estado`, de la más reciente a la más antigua. Solo los campos
+    /// del listado: la hoja completa incluye la evaluación con sus imágenes.
+    async fn obtener_respuesta_revision(
+        &self,
+        estado: Estado,
+    ) -> Result<Vec<crate::respuesta::use_case::respuesta_revision::OutputData>, Error>;
 }
 
 #[async_trait]

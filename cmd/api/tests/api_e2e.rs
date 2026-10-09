@@ -835,6 +835,33 @@ async fn flujo_completo_y_controles_de_acceso() {
         .await;
     assert_eq!(estado, StatusCode::OK);
 
+    // R-022: los listados devuelven sus campos (calculados en la base) y nunca un hash.
+    let (estado, examenes) = e.pedir(Method::GET, "/examenes", Some(&admin), None).await;
+    assert_eq!(estado, StatusCode::OK);
+    assert_eq!(examenes["items"][0]["cantidad_preguntas"], 2, "{examenes}");
+    let (estado, evaluaciones) = e.pedir(Method::GET, "/evaluaciones", Some(&admin), None).await;
+    assert_eq!(estado, StatusCode::OK);
+    let publicada = evaluaciones["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|ev| ev["id"] == evaluacion_id.as_str())
+        .unwrap();
+    assert_eq!(publicada["cantidad_examenes"], 1);
+    assert!(publicada["_links"]["asignar"].is_object(), "{publicada}");
+    let (estado, revisiones) = e
+        .pedir(Method::GET, "/revisiones", Some(&token_psicologo), None)
+        .await;
+    assert_eq!(estado, StatusCode::OK);
+    assert_eq!(revisiones["items"][0]["respuesta_id"], hoja_a.as_str(), "{revisiones}");
+    assert_eq!(revisiones["items"][0]["estado_revision"], "finalizada");
+    for ruta in ["/psicologos", "/postulantes"] {
+        let (estado, lista) = e.pedir(Method::GET, ruta, Some(&admin), None).await;
+        assert_eq!(estado, StatusCode::OK, "{ruta}");
+        assert!(!lista.to_string().contains("password"), "{ruta}: {lista}");
+        assert!(!lista.to_string().contains("$2"), "{ruta}: {lista}");
+    }
+
     // SEC-08: tras varios fallos para un documento, ni la contraseña correcta entra (429).
     for _ in 0..MAX_FALLOS_POR_DOCUMENTO {
         let (estado, _) = e.login("72222222", "clave-erronea").await;

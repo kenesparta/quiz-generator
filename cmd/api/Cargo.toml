@@ -45,3 +45,6 @@ casbin = "2"
 [dev-dependencies]
 # Solo para nombrar el tipo de petición de los servicios de test de actix-web.
 actix-http = "3"
+# Tests de extremo a extremo (tests/api_e2e.rs): MongoDB y Redis reales en contenedores.
+testcontainers = "0.27"
+reqwest = { version = "0.13", default-features = false, features = ["json"] }

@@ -143,6 +143,9 @@ Set the base URL to `http://localhost:8008` and follow the examples.
 - Lint with clippy (CI-style: fail on warnings):
   - `cargo clippy -- -D warnings`
 
+- Tests:
+  - `cargo test --workspace` runs the unit tests and the end-to-end test `cmd/api/tests/api_e2e.rs`, which starts throwaway MongoDB and Redis containers with testcontainers, so **Docker must be running**. Run it alone with `cargo test -p quizz-api --test api_e2e`.
+
 - Tests and code coverage:
   - Ensure `llvm-tools-preview` and `cargo-llvm-cov` are installed
   - `cargo llvm-cov` (use `make test` to include the missing-lines report)

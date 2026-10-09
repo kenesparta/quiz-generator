@@ -17,7 +17,10 @@ quizz-core = { path = "../../bctx/core" }
 quizz-common = { path = "../../bctx/common" }
 quizz-auth = { path = "../../bctx/auth" }
 
-actix-web = "4.9.0"
+# Sin http2 (h2 0.3 tiene un aviso sin arreglo y el servidor solo habla HTTP/1.1 sobre TCP
+# plano), ni compresión, cookies o websockets, que no se usan. `macros` hace falta para
+# #[actix_web::test].
+actix-web = { version = "4.15", default-features = false, features = ["macros", "unicode"] }
 tokio.workspace = true
 serde = { version = "1.0.218", features = ["derive"] }
 config = "0.15.19"
@@ -30,7 +33,9 @@ serde_json = "1.0.140"
 actix-cors = "0.7.1"
 futures = "0.3"
 chrono.workspace = true
-jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
+# aws_lc_rs en lugar de rust_crypto: rust_crypto arrastra `rsa` (RUSTSEC-2023-0071, sin
+# arreglo) aunque solo se usa HS256. Los tokens HS256 son idénticos con ambos backends.
+jsonwebtoken = { version = "11.1", default-features = false, features = ["aws_lc_rs"] }
 redis = { version = "1.0.2", features = ["tokio-comp", "connection-manager"] }
 
 mongodb = "3.4.1"

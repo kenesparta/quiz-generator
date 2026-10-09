@@ -1,9 +1,13 @@
+use actix_web::web;
 use async_trait::async_trait;
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::provider::repositorio::Sesiones;
+use quizz_core::psicologo::domain::error::psicologo::PsicologoError;
+use quizz_core::psicologo::domain::value_object::id::PsicologoID;
+use quizz_core::psicologo::provider::sesion::SesionPsicologo;
 use redis::AsyncCommands;
 use redis::aio::ConnectionManager;
-use tracing::error;
+use tracing::{error, warn};
 
 /// Borra la sesión solo si sigue siendo la indicada: comparar y borrar en un único paso evita
 /// que el logout de un token viejo cierre la sesión de un inicio de sesión posterior.
@@ -84,5 +88,18 @@ impl Sesiones for SesionesRedis {
             .await
             .map_err(error_redis("revocar"))?;
         Ok(())
+    }
+}
+
+/// La sesión de un psicólogo (puerto de `quizz-core`) sobre las sesiones de `quizz-auth`: la
+/// clave de la sesión es el id del usuario, el `sub` de sus tokens.
+pub struct SesionDePsicologo(pub web::Data<dyn Sesiones>);
+
+impl SesionPsicologo for SesionDePsicologo {
+    async fn cerrar(&self, id: PsicologoID) -> Result<(), PsicologoError> {
+        self.0.revocar(&id.to_string()).await.map_err(|e| {
+            warn!("psicologo {id} marcado para eliminar, pero su sesion sigue abierta: {e}");
+            PsicologoError::SesionNoCerrada
+        })
     }
 }

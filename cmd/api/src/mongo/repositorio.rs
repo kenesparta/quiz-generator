@@ -3,6 +3,10 @@ use mongodb::bson::Document;
 use mongodb::error::{ErrorKind, WriteFailure};
 use mongodb::{Collection, Database};
 
+/// Campo que marca una cuenta mientras se elimina (ver `EliminarPsicologo`): con él ya no
+/// puede iniciar sesión, aunque el documento sigue ahí hasta que se cierra su sesión.
+pub const CAMPO_ELIMINADO: &str = "eliminado";
+
 /// `true` si la escritura violó un índice único (error E11000 de MongoDB).
 pub fn es_clave_duplicada(error: &mongodb::error::Error) -> bool {
     matches!(

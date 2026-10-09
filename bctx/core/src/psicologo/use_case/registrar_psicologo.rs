@@ -85,6 +85,10 @@ mod tests {
             Ok(())
         }
 
+        async fn marcar_eliminado(&self, _: PsicologoID) -> Result<(), PsicologoError> {
+            Ok(())
+        }
+
         async fn eliminar_psicologo(&self, _: PsicologoID) -> Result<(), PsicologoError> {
             Ok(())
         }

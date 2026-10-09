@@ -30,6 +30,11 @@ pub enum PsicologoError {
     #[error("Error al cifrar el password: {0}")]
     Cifrado(#[from] CifradoError),
 
+    /// La eliminación quedó a medias: el psicólogo está marcado (no puede iniciar sesión),
+    /// pero su sesión sigue abierta. Repetir la eliminación la completa.
+    #[error("No se pudo cerrar la sesion del psicologo; repita la eliminacion")]
+    SesionNoCerrada,
+
     #[error("Error al manipular la base de datos: {0}")]
     PsicologoRepositorioError(#[from] RepositorioError),
 }

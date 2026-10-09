@@ -9,7 +9,14 @@ pub trait RepositorioPsicologoEscritura: Send + Sync {
         psicologo: Psicologo,
     ) -> impl Future<Output = Result<(), PsicologoError>> + Send;
 
-    /// Borra al psicólogo. Si no existe, `RegistroNoEncontrado`.
+    /// Marca al psicólogo para eliminarlo: desde ese momento no puede iniciar sesión, aunque
+    /// el registro sigue ahí. Es idempotente. Si no existe, `RegistroNoEncontrado`.
+    fn marcar_eliminado(
+        &self,
+        id: PsicologoID,
+    ) -> impl Future<Output = Result<(), PsicologoError>> + Send;
+
+    /// Borra al psicólogo si está marcado. Es idempotente: si ya no está, no hace nada.
     fn eliminar_psicologo(
         &self,
         id: PsicologoID,

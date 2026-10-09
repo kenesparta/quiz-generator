@@ -967,6 +967,58 @@ async fn flujo_completo_y_controles_de_acceso() {
     assert!(calificada["psicologo"].is_null(), "{calificada}");
     assert_eq!(calificada["resultado"], "apto");
 
+    // Una eliminación a medias (marcado, pero Redis falló al cerrar su sesión): ya no inicia
+    // sesión, sigue en el listado y repetir el DELETE la completa y cierra su sesión.
+    let carlos = "b2c3d4e5-f6a7-8901-bcde-f12345678901";
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::POST,
+            &format!("/psicologos/{carlos}"),
+            Some(&admin),
+            Some(json!({
+                "nombre": "Carlos", "primer_apellido": "Rodriguez", "segundo_apellido": "Diaz",
+                "documento": "55667788", "especialidad": "Clinica", "colegiatura": "CPsP-456",
+                "password": "clave-de-carlos",
+            })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
+    let token_carlos = e.token("55667788", "clave-de-carlos").await;
+    let psicologos = e.db.collection::<Document>("psicologo");
+    psicologos
+        .update_one(
+            doc! { "_id": carlos },
+            doc! { "$set": { "eliminado": true } },
+        )
+        .await
+        .unwrap();
+    let (estado, _) = e.login("55667788", "clave-de-carlos").await;
+    assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    let (_, lista) = e
+        .pedir(Method::GET, "/psicologos", Some(&admin), None)
+        .await;
+    assert_eq!(lista["items"][0]["id"], carlos, "{lista}");
+    let (estado, _) = e
+        .pedir(
+            Method::DELETE,
+            &format!("/psicologos/{carlos}"),
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::NO_CONTENT);
+    let (estado, _) = e
+        .pedir(Method::GET, "/revisiones", Some(&token_carlos), None)
+        .await;
+    assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    assert!(
+        psicologos
+            .find_one(doc! { "_id": carlos })
+            .await
+            .unwrap()
+            .is_none()
+    );
+
     // SEC-08: tras varios fallos para un documento, ni la contraseña correcta entra (429).
     for _ in 0..MAX_FALLOS_POR_DOCUMENTO {
         let (estado, _) = e.login("72222222", "clave-erronea").await;

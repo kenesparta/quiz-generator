@@ -247,6 +247,8 @@ impl From<PsicologoError> for ApiError {
             PsicologoRepositorioError(RepoPsicologo::RegistroNoEncontrado) => {
                 Self::no_encontrado("Psicologo no encontrado")
             }
+            // La causa ya está en el log; reintentar la eliminación la completa.
+            SesionNoCerrada => Self::NoDisponible,
             HashVacio
             | Cifrado(_)
             | PsicologoRepositorioError(
@@ -355,6 +357,10 @@ mod tests {
         assert_eq!(
             ApiError::from(LoginUniversalError::PasswordIncorrecto).status_code(),
             StatusCode::UNAUTHORIZED
+        );
+        assert_eq!(
+            ApiError::from(PsicologoError::SesionNoCerrada).status_code(),
+            StatusCode::SERVICE_UNAVAILABLE
         );
         assert_eq!(
             ApiError::from(LoginUniversalError::UsuarioNoEncontrado).to_string(),

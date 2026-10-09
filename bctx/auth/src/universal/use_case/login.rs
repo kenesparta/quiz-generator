@@ -22,6 +22,11 @@ pub struct OutputData {
 /// (se hace una verificación ficticia), para que ni la respuesta ni el tiempo revelen qué
 /// documentos existen. Una contraseña de más de 72 bytes se rechaza: bcrypt ignoraría el
 /// resto y la aceptaría con solo coincidir en los primeros 72.
+///
+/// Después de abrir la sesión vuelve a buscar la cuenta, porque pudo eliminarse mientras se
+/// verificaba la contraseña: si ya no está (o está marcada para eliminarse), cierra la sesión
+/// y no entrega el token. Quien elimina una cuenta la marca antes de cerrar su sesión, así que
+/// o esta segunda búsqueda ve la marca, o la sesión se abrió antes y la cierra la eliminación.
 pub struct LoginUniversal<C, R, J> {
     cifrador: C,
     repositorio: R,
@@ -46,7 +51,11 @@ impl<C: Cifrador, R: RepositorioLoginUniversalLectura, J: JwtProviderGenerateCon
             return Err(LoginUniversalError::PasswordIncorrecto);
         }
 
-        let usuario = match self.repositorio.buscar_por_documento(in_.documento).await {
+        let usuario = match self
+            .repositorio
+            .buscar_por_documento(in_.documento.clone())
+            .await
+        {
             Ok(usuario) => usuario,
             Err(LoginUniversalError::UsuarioNoEncontrado) => {
                 self.cifrador.simular_verificacion(in_.password).await;
@@ -65,7 +74,7 @@ impl<C: Cifrador, R: RepositorioLoginUniversalLectura, J: JwtProviderGenerateCon
 
         let jwt_object = self
             .jwt
-            .generar_con_rol(usuario.id, usuario.rol.clone())
+            .generar_con_rol(usuario.id.clone(), usuario.rol.clone())
             .await?;
 
         self.sesiones
@@ -75,6 +84,18 @@ impl<C: Cifrador, R: RepositorioLoginUniversalLectura, J: JwtProviderGenerateCon
                 jwt_object.expiration,
             )
             .await?;
+
+        let sigue_existiendo = match self.repositorio.buscar_por_documento(in_.documento).await {
+            Ok(actual) => actual.id == usuario.id && actual.rol == usuario.rol,
+            Err(LoginUniversalError::UsuarioNoEncontrado) => false,
+            Err(error) => return Err(error),
+        };
+        if !sigue_existiendo {
+            self.sesiones
+                .cerrar(&jwt_object.key, &jwt_object.sesion_id)
+                .await?;
+            return Err(LoginUniversalError::UsuarioNoEncontrado);
+        }
 
         Ok(OutputData {
             jwt_value: jwt_object.value,
@@ -114,6 +135,28 @@ mod tests {
         }
     }
 
+    /// El usuario de [`UnUsuario`], que se elimina justo después de la primera búsqueda
+    /// (mientras se verifica su contraseña).
+    #[derive(Default)]
+    struct SeEliminaDuranteElLogin(Mutex<u32>);
+
+    impl RepositorioLoginUniversalLectura for SeEliminaDuranteElLogin {
+        async fn buscar_por_documento(
+            &self,
+            documento: String,
+        ) -> Result<UsuarioLogin, LoginUniversalError> {
+            let busquedas = {
+                let mut busquedas = self.0.lock().unwrap();
+                *busquedas += 1;
+                *busquedas
+            };
+            if busquedas > 1 {
+                return Err(LoginUniversalError::UsuarioNoEncontrado);
+            }
+            UnUsuario.buscar_por_documento(documento).await
+        }
+    }
+
     /// Anota cada verificación: real (con hash) o ficticia.
     #[derive(Clone, Default)]
     struct CifradorFalso(Arc<Mutex<Vec<&'static str>>>);
@@ -147,7 +190,8 @@ mod tests {
             Ok(true)
         }
 
-        async fn cerrar(&self, _: &str, _: &str) -> Result<(), LoginUniversalError> {
+        async fn cerrar(&self, sub: &str, _: &str) -> Result<(), LoginUniversalError> {
+            self.0.lock().unwrap().retain(|abierta| abierta != sub);
             Ok(())
         }
 
@@ -182,10 +226,22 @@ mod tests {
         CifradorFalso,
         SesionesFalsas,
     ) {
+        login_con(UnUsuario, documento, password).await
+    }
+
+    async fn login_con(
+        repositorio: impl RepositorioLoginUniversalLectura,
+        documento: &str,
+        password: &str,
+    ) -> (
+        Result<OutputData, LoginUniversalError>,
+        CifradorFalso,
+        SesionesFalsas,
+    ) {
         let (cifrador, sesiones) = (CifradorFalso::default(), SesionesFalsas::default());
         let resultado = LoginUniversal::new(
             cifrador.clone(),
-            UnUsuario,
+            repositorio,
             Arc::new(sesiones.clone()),
             JwtFalso,
         )
@@ -202,6 +258,22 @@ mod tests {
         let (resultado, _, sesiones) = login("12345678", "clave-correcta").await;
         assert_eq!(resultado.unwrap().rol, "postulante");
         assert_eq!(*sesiones.0.lock().unwrap(), ["usr-1"]);
+    }
+
+    #[tokio::test]
+    async fn una_cuenta_eliminada_durante_el_login_no_recibe_token_ni_sesion() {
+        let (resultado, cifrador, sesiones) = login_con(
+            SeEliminaDuranteElLogin::default(),
+            "12345678",
+            "clave-correcta",
+        )
+        .await;
+        assert!(matches!(
+            resultado,
+            Err(LoginUniversalError::UsuarioNoEncontrado)
+        ));
+        assert_eq!(*cifrador.0.lock().unwrap(), ["real"]);
+        assert!(sesiones.0.lock().unwrap().is_empty());
     }
 
     #[tokio::test]

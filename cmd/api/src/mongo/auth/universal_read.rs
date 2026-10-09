@@ -1,6 +1,7 @@
 use crate::mongo::auth::constantes::{
     ADMIN_AUTH_COLLECTION_NAME, POSTULANTE_AUTH_COLLECTION_NAME, PSICOLOGO_AUTH_COLLECTION_NAME,
 };
+use crate::mongo::repositorio::CAMPO_ELIMINADO;
 use actix_web::web;
 use mongodb::bson::{Document, doc};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
@@ -25,7 +26,8 @@ impl LoginUniversalMongo {
     ) -> Result<Option<UsuarioLogin>, LoginUniversalError> {
         let collection = self.client.collection::<Document>(collection_name);
 
-        let filter = doc! { "documento": documento };
+        // Una cuenta marcada para eliminarse ya no inicia sesión.
+        let filter = doc! { "documento": documento, CAMPO_ELIMINADO: { "$ne": true } };
 
         match collection.find_one(filter).await {
             Ok(Some(doc)) => {

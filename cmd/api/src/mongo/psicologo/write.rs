@@ -1,5 +1,5 @@
 use crate::mongo::psicologo::constantes::PSICOLOGO_COLLECTION_NAME;
-use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
+use crate::mongo::repositorio::{CAMPO_ELIMINADO, MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::entity::psicologo::Psicologo;
@@ -65,10 +65,33 @@ impl RepositorioPsicologoEscritura for PsicologoMongo {
         }
     }
 
-    async fn eliminar_psicologo(&self, id: PsicologoID) -> Result<(), PsicologoError> {
+    async fn marcar_eliminado(&self, id: PsicologoID) -> Result<(), PsicologoError> {
         let resultado = self
             .get_collection()
-            .delete_one(doc! { "_id": id.to_string() })
+            .update_one(
+                doc! { "_id": id.to_string() },
+                doc! { "$set": { CAMPO_ELIMINADO: true } },
+            )
+            .await
+            .map_err(|e| {
+                error!("Database error while marking psicologo as deleted: id={id}, error={e}");
+                PsicologoError::PsicologoRepositorioError(
+                    RepositorioError::PersistenciaNoFinalizada,
+                )
+            })?;
+
+        // matched_count y no modified_count: si ya estaba marcado (un reintento), existe.
+        if resultado.matched_count == 0 {
+            return Err(PsicologoError::PsicologoRepositorioError(
+                RepositorioError::RegistroNoEncontrado,
+            ));
+        }
+        Ok(())
+    }
+
+    async fn eliminar_psicologo(&self, id: PsicologoID) -> Result<(), PsicologoError> {
+        self.get_collection()
+            .delete_one(doc! { "_id": id.to_string(), CAMPO_ELIMINADO: true })
             .await
             .map_err(|e| {
                 error!("Database error while deleting psicologo: id={id}, error={e}");
@@ -76,12 +99,6 @@ impl RepositorioPsicologoEscritura for PsicologoMongo {
                     RepositorioError::PersistenciaNoFinalizada,
                 )
             })?;
-
-        if resultado.deleted_count == 0 {
-            return Err(PsicologoError::PsicologoRepositorioError(
-                RepositorioError::RegistroNoEncontrado,
-            ));
-        }
         Ok(())
     }
 }

@@ -1,10 +1,15 @@
 [package]
 name = "quizz-auth"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
 
 [dependencies]
 quizz-common = { path = "../common" }
-thiserror = "2.0.11"
-async-trait = "0.1.92"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+thiserror.workspace = true
+async-trait.workspace = true
+
+[dev-dependencies]
+# Solo para #[tokio::test]: el dominio no depende de un runtime.
+tokio.workspace = true

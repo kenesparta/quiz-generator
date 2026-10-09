@@ -91,36 +91,36 @@ Authorization is enforced by an Actix middleware that verifies the JWT and consu
 
 ## API overview
 
-Routes are grouped by scope. List endpoints return HATEOAS-style responses embedding `_links` for navigation.
+Routes are grouped by scope; each `cmd/api/src/controller/*/route.rs` is the source of truth. List endpoints return HATEOAS-style responses embedding `_links`. Errors are always `{"error": "..."}`.
 
 - `GET /health-check`
 - `/examenes`
-  - `GET /examenes` — list exams
-  - `POST /examenes/{id}` — create an exam
-  - `PUT /examenes/{id}` — add a question to an exam
+  - `GET /examenes` — list exams (with question count)
+  - `POST /examenes/{id}` — create an exam (`409` if the id exists)
+  - `PUT /examenes/{id}` — add questions (images: PNG/JPEG/WebP data URIs up to 512 KiB)
 - `/evaluaciones`
   - `GET /evaluaciones` — list evaluations
   - `POST /evaluaciones/{id}` — create an evaluation
-  - `PUT /evaluaciones/{id}` — associate exams with an evaluation
-  - `PATCH /evaluaciones/{id}` — publish an evaluation
-  - `POST /evaluaciones/{evaluacion_id}/respuestas` — assign evaluation to a candidate (creates respuesta with estado `Creado`)
+  - `PUT /evaluaciones/{id}` — associate existing exams with a draft evaluation (`409` once published)
+  - `PATCH /evaluaciones/{id}` — publish (once, and only with questions)
+  - `POST /evaluaciones/{evaluacion_id}/respuestas` — assign a published evaluation to a candidate; returns the new respuesta id (`409` if already assigned)
 - `/postulantes`
-  - `GET /postulantes` — search candidate by document (query param)
-  - `PUT /postulantes` — update candidate by document (query param)
-  - `POST /postulantes/{id}` — create candidate
+  - `GET /postulantes` — staff: by `id` or `documento`, or the whole list; a candidate always gets their own record
+  - `PUT /postulantes` — update a candidate (identified by `documento` in the body)
+  - `POST /postulantes/{id}` — create a candidate (`409` if the id or `documento` exists)
   - `DELETE /postulantes/{id}` — not implemented yet (`501`)
 - `/respuestas`
-  - `GET /respuestas` — list respuestas
-  - `GET /respuestas/asignaciones` — list assignments with their evaluation context
-  - `GET /respuestas/{id}` — get a specific respuesta
-  - `PATCH /respuestas/{id}/estado` — transition state (body: `{"accion":"empezar"}` or `{"accion":"finalizar"}`)
-    - `empezar`: `Creado → EnProceso` (sets `fecha_tiempo_inicio`)
-    - `finalizar`: `EnProceso → Finalizado` (sets `fecha_tiempo_fin`)
-  - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` — submit answer to a question
+  - `GET /respuestas` — unfinished respuestas of a candidate (a candidate gets their own; staff pass `postulante_id`)
+  - `GET /respuestas/asignaciones` — assignments with their evaluation context (staff)
+  - `GET /respuestas/{id}` — a candidate reads only their own, without points (and without questions before starting); staff read any, complete
+  - `PATCH /respuestas/{id}/estado` — owner only; body `{"accion":"empezar"}` or `{"accion":"finalizar"}`
+    - `empezar`: `creado → en_proceso` (sets `fecha_tiempo_inicio`)
+    - `finalizar`: `en_proceso → finalizado` (sets `fecha_tiempo_fin`)
+  - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` — owner only, while `en_proceso`; one answer per question
 - `/revisiones`
-  - `GET /revisiones` — list revisiones
-  - `GET /revisiones/{revision_id}` — get a specific revision
-  - `POST /revisiones/{revision_id}` — review evaluation for a candidate (also accepts `PATCH`)
+  - `GET /revisiones` — finished respuestas to grade
+  - `GET /revisiones/{respuesta_id}` — a graded respuesta, with the psychologist who graded it
+  - `POST /revisiones/{respuesta_id}` — grade a finished respuesta (also accepts `PATCH`)
 - `POST /login` — universal login (returns JWT with role)
 - `POST /logout` — close the session (the token stops working)
 
@@ -132,7 +132,7 @@ Example requests are provided as HTTP files you can use with VS Code/IntelliJ HT
 - `respuesta.http`
 - `auth/`, `revision/`
 
-Set the base URL to `http://localhost:8008` and follow the examples.
+Run `auth/login.http` first: the JetBrains HTTP Client stores the tokens as global variables used by the other files. Never commit tokens.
 
 
 ## Development

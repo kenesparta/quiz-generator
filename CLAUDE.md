@@ -26,7 +26,7 @@ Each domain module in `bctx/core/src/` follows a consistent structure:
 - `provider/repositorio.rs` - Repository trait definitions (ports)
 - `use_case/` - Application use cases (business operations)
 
-The `pregunta` domain uses the Strategy pattern with multiple question types (alternativa_unica, alternativa_peso, si_no, libre, sola_respuesta).
+Question types are the `TipoPregunta` enum (`alternativa_unica`, `alternativa_peso`, `si_o_no`, `libre`, `sola_respuesta`); the composition rules of each type are one `match` in `pregunta/domain/entity/pregunta.rs` and the scoring rule is `corregir_respuesta` in `respuesta/domain/entity/pregunta.rs` (one answer per question).
 
 ## Development Commands
 
@@ -89,14 +89,19 @@ cargo test test_name -- --nocapture
 - `startup.rs` - Server setup with route configuration
 - `configuration.rs` - Config loading from `configuration.yaml`
 - `mongo.rs` / `cache.rs` - MongoDB and Redis connections (one shared Redis `ConnectionManager`)
+- `indices.rs` - MongoDB indexes created at startup (unique: one assignment per candidate and evaluation, one account per `documento`)
 - `controller/` - HTTP handlers organized by domain (examen, evaluacion, postulante, psicologo, admin, respuesta, revision, auth)
-- `controller/mongo_repository.rs` - MongoDB repository implementations (adapters)
-- `controller/hateoas.rs` - HATEOAS link helpers for hypermedia responses
+- `controller/error.rs` - `ApiError`: the single error → HTTP status mapping. Handlers return `Result<HttpResponse, ApiError>` and use `?`; add new domain error variants there (the `match` is exhaustive on purpose)
+- `controller/cifrado.rs` - the only bcrypt adapter (runs on `spawn_blocking`)
+- `controller/mongo_repository.rs` - helper trait giving each adapter its collection, plus `es_clave_duplicada` (E11000)
+- `controller/hateoas.rs` - `Link`/`Links` and `enlaces::*`, the link builders of each resource (a test checks every advertised link exists)
+- `prueba_http.rs` (tests only) - the real app (routes, auth, RBAC) without a database, for in-process HTTP tests
 
-Each controller module typically has:
-- `route.rs` - Actix Web route configuration
-- `request.rs` / `response.rs` - DTOs for API
-- `handler.rs` - HTTP request handlers
+Each controller module has:
+- `route.rs` - Actix Web routes of the module; **the source of truth for the routes** (the list below is a summary)
+- `dto.rs` - request/response DTOs
+- one file per handler (e.g. `registrar_examen.rs`, `obtener_respuesta.rs`)
+- `mongo/` (or `redis/`) - the adapters implementing the domain ports
 
 ### Authentication Flow
 
@@ -146,34 +151,36 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 - `/examenes` - Create exams, add questions, list
   - `GET /examenes` - List exams
   - `POST /examenes/{id}` - Create an exam
-  - `PUT /examenes/{id}` - Add a question to an exam
+  - `PUT /examenes/{id}` - Add questions to an exam (images: PNG/JPEG/WebP data URIs up to 512 KiB)
 - `/evaluaciones` - Create evaluations, associate exams, publish, assign to candidates, list
   - `GET /evaluaciones` - List evaluations
   - `POST /evaluaciones/{id}` - Create an evaluation
-  - `PUT /evaluaciones/{id}` - Associate exams with an evaluation
-  - `PATCH /evaluaciones/{id}` - Publish an evaluation
-  - `POST /evaluaciones/{evaluacion_id}/respuestas` - Assign evaluation to a candidate (creates respuesta with estado: Creado)
+  - `PUT /evaluaciones/{id}` - Associate exams with a draft evaluation (`409` once published)
+  - `PATCH /evaluaciones/{id}` - Publish an evaluation (once, and only if it has questions)
+  - `POST /evaluaciones/{evaluacion_id}/respuestas` - Assign a published evaluation to a candidate (creates a respuesta with estado `creado`, returns its id and `Location`; `409` if already assigned)
 - `/postulantes` - CRUD operations for candidates
-  - `GET /postulantes` - Search candidate by document (query param)
-  - `PUT /postulantes` - Update candidate by document (query param)
+  - `GET /postulantes` - Staff: by `id` or `documento` (query), or the whole list without them. A postulante always gets their own record
+  - `PUT /postulantes` - Update candidate by document (in the body)
   - `POST /postulantes/{id}` - Create candidate
   - `DELETE /postulantes/{id}` - Not implemented yet (`501`): what happens to the candidate's respuestas is undecided
 - `/respuestas` - Manage exam lifecycle, submit answers
-  - `GET /respuestas` - List respuestas
-  - `GET /respuestas/asignaciones` - List assignments (respuestas with their evaluation context)
-  - `GET /respuestas/{id}` - Get specific respuesta details
-  - `PATCH /respuestas/{id}/estado` - Transition respuesta state (body: `{"accion":"empezar"}` or `{"accion":"finalizar"}`)
-    - `empezar`: Creado → EnProceso (sets fecha_tiempo_inicio)
-    - `finalizar`: EnProceso → Finalizado (sets fecha_tiempo_fin)
-  - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` - Submit answer to a question
+  - `GET /respuestas` - Unfinished respuestas of a candidate (a postulante gets their own; staff pass `postulante_id`)
+  - `GET /respuestas/asignaciones` - List assignments (staff only)
+  - `GET /respuestas/{id}` - A respuesta: a postulante only their own and **without points**, and without questions before `empezar`; staff any, complete
+  - `PATCH /respuestas/{id}/estado` - Owner only. Body `{"accion":"empezar"}` or `{"accion":"finalizar"}`; compare-and-set, idempotent
+    - `empezar`: `creado` → `en_proceso` (sets fecha_tiempo_inicio)
+    - `finalizar`: `en_proceso` → `finalizado` (sets fecha_tiempo_fin)
+  - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` - Owner only, while `en_proceso`; one answer per question
 - `/revisiones` - Grade and review completed evaluations
   - `GET /revisiones` - List revisiones
-  - `GET /revisiones/{revision_id}` - Get specific revision details
-  - `POST /revisiones/{revision_id}` - Review evaluation for a candidate (also accepts `PATCH`)
-- `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role)
+  - `GET /revisiones/{respuesta_id}` - A graded respuesta, with the psychologist who graded it
+  - `POST /revisiones/{respuesta_id}` - Grade a `finalizado` respuesta (also accepts `PATCH`); stores `revisado_por` and `fecha_revision`
+- `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role). Same `401` and same timing for unknown documento and wrong password; attempts limited per IP and failures per documento (`429`)
 - `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>` y cierra su sesión en Redis (clave `sesion:{sub}`, valor `jti`): desde ese momento el token responde 401. Devuelve 204 incluso si el token está expirado o la sesión ya estaba cerrada, para que el cliente pueda limpiar su sesión local.
 
-Example HTTP requests are in `cmd/api/http/dev/*.http` files (use with VS Code/IntelliJ HTTP Client).
+Example HTTP requests are in `cmd/api/http/dev/*.http` files; run `auth/login.http` first (JetBrains HTTP Client stores the tokens as global variables). Never commit tokens.
+
+Error bodies are always `{"error": "..."}` (also for malformed JSON, query or path). Estado values are snake_case everywhere: `creado`, `en_proceso`, `finalizado`.
 
 List endpoints return HATEOAS-style responses (see `cmd/api/src/controller/hateoas.rs`) embedding `_links` for navigation.
 
@@ -181,18 +188,20 @@ List endpoints return HATEOAS-style responses (see `cmd/api/src/controller/hateo
 
 **Examen (Exam):** A collection of questions (preguntas) grouped together.
 
-**Pregunta (Question):** Individual questions with different types/strategies for validation and scoring.
+**Pregunta (Question):** Individual questions; each `TipoPregunta` has its own composition and scoring rules.
 
 **Evaluacion (Evaluation):** A composition of one or more exams to be assigned to candidates.
 
 **Postulante (Candidate):** The person taking an evaluation.
 
 **Respuesta (Answer):** Tracks a candidate's assigned evaluation, their submitted answers, and completion status. Contains the full evaluation snapshot at assignment time. Follows a state machine with three estados (states):
-- **Creado** - Initial state when evaluation is assigned to candidate
-- **EnProceso** - Exam in progress (after empezar endpoint is called, fecha_tiempo_inicio is set)
-- **Finalizado** - Exam completed (after finalizar endpoint, fecha_tiempo_fin is set)
+- **Creado** (`creado`) - Initial state when evaluation is assigned to candidate
+- **EnProceso** (`en_proceso`) - Exam in progress (after empezar, fecha_tiempo_inicio is set); only now can the owner answer
+- **Finalizado** (`finalizado`) - Exam completed (after finalizar, fecha_tiempo_fin is set); answers are frozen
 
-**Revision:** The grading/review process for completed evaluations. Only respuestas with estado "Finalizado" are eligible for revision.
+Every write on a respuesta filters by the owner (`postulante_id` from the token) and, for transitions and answers, by the expected estado in the same MongoDB update (compare-and-set). Points per exam (`puntos_obtenidos`) are computed on read from the questions' points, not stored.
+
+**Revision:** The grading/review process for completed evaluations. Only respuestas with estado `finalizado` can be graded (enforced in the update filter).
 
 ## Docker
 

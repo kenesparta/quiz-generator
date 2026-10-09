@@ -1,4 +1,5 @@
 use crate::postulante::domain::value_object::id::PostulanteID;
+use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioListaRespuestaPostulante;
 use async_trait::async_trait;
@@ -12,7 +13,7 @@ pub struct OutputData {
     pub respuesta_id: String,
     pub nombre_evaluacion: String,
     pub descripcion_evaluacion: String,
-    pub estado: String,
+    pub estado: Estado,
 }
 
 pub struct ListaRespuestaPostulante<RepoErr> {

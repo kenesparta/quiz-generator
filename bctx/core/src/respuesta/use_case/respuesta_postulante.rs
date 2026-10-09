@@ -2,26 +2,32 @@ use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::evaluacion::Evaluacion;
 use crate::respuesta::domain::entity::examen::Examen;
 use crate::respuesta::domain::entity::pregunta::Pregunta;
+use crate::respuesta::domain::entity::respuesta::Estado;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
+use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioRespuestaLectura;
 use async_trait::async_trait;
-use chrono::DateTime;
-use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
+use chrono::{DateTime, FixedOffset};
 use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct InputData {
-    pub postulante_id: String,
     pub respuesta_id: String,
+    /// `Some(dueño)` en la lectura de un postulante: solo obtiene su propia hoja. `None` en la
+    /// lectura del personal, que puede ver cualquiera.
+    pub postulante_id: Option<String>,
+    pub ahora: DateTime<FixedOffset>,
 }
 
 pub struct OutputData {
     pub id: String,
+    pub postulante_id: String,
     pub fecha_tiempo_inicio: String,
-    pub fecha_tiempo_transcurrido: i64,
+    /// Segundos dedicados (hasta el fin, o hasta ahora si sigue en proceso).
+    pub fecha_tiempo_transcurrido: Option<i64>,
     pub fecha_tiempo_fin: String,
-    pub estado: String,
+    pub estado: Estado,
     pub evaluacion: OutputEvaluacion,
     pub revision: String,
     pub resultado: String,
@@ -56,7 +62,7 @@ pub struct OutputExamen {
     pub instrucciones: String,
     pub preguntas: Vec<OutputPregunta>,
     pub puntos_obtenidos: i64,
-    pub observacion: Option<String>,
+    pub observacion: String,
 }
 
 impl From<Examen> for OutputExamen {
@@ -73,7 +79,7 @@ impl From<Examen> for OutputExamen {
                 .map(|pregunta| pregunta.into())
                 .collect(),
             puntos_obtenidos,
-            observacion: Option::from(examen.observacion),
+            observacion: examen.observacion,
         }
     }
 }
@@ -102,60 +108,45 @@ impl From<Pregunta> for OutputPregunta {
     }
 }
 
-pub struct RespuestaPorPostulante<RepoErr> {
+/// Una hoja de respuestas con su evaluación, para el postulante dueño o para el personal.
+pub struct ObtenerRespuesta<RepoErr> {
     repositorio: Box<dyn RepositorioRespuestaLectura<RepoErr>>,
 }
 
-impl<RepoErr> RespuestaPorPostulante<RepoErr> {
+impl<RepoErr> ObtenerRespuesta<RepoErr> {
     pub fn new(repositorio: Box<dyn RepositorioRespuestaLectura<RepoErr>>) -> Self {
         Self { repositorio }
     }
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, RespuestaError> for RespuestaPorPostulante<RepoErr>
+impl<RepoErr> CasoDeUso<InputData, OutputData, RespuestaError> for ObtenerRespuesta<RepoErr>
 where
     RespuestaError: From<RepoErr>,
 {
     async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
-        let postulante_id = PostulanteID::new(&input.postulante_id)?;
-        let respuestas = self
+        let respuesta_id = RespuestaID::new(&input.respuesta_id)?;
+        let postulante_id = input
+            .postulante_id
+            .as_deref()
+            .map(PostulanteID::new)
+            .transpose()?;
+
+        let respuesta = self
             .repositorio
-            .obtener_por_postulante(input.respuesta_id, postulante_id)
+            .obtener(&respuesta_id, postulante_id.as_ref())
             .await?;
 
-        let fecha_inicio_str = respuestas.fecha_tiempo_inicio.to_string();
-
-        // todo: pasar esta logica al dominio
-        // todo: REVISAR ESTO!!!!
-        let fecha_tiempo_transcurrido =
-            if let Ok(fecha_inicio) = DateTime::parse_from_rfc3339(&fecha_inicio_str) {
-                let now = ahora_lima();
-                let duration = now.signed_duration_since(fecha_inicio);
-                duration.num_seconds()
-            } else {
-                0
-            };
-
-        let estado = if respuestas.fecha_tiempo_fin.is_empty()
-            && respuestas.fecha_tiempo_inicio.is_empty()
-        {
-            "Creado".to_string()
-        } else if respuestas.fecha_tiempo_fin.is_empty() {
-            "EnProceso".to_string()
-        } else {
-            "Finalizado".to_string()
-        };
-
         Ok(OutputData {
-            id: respuestas.id.to_string(),
-            fecha_tiempo_inicio: fecha_inicio_str,
-            fecha_tiempo_transcurrido,
-            fecha_tiempo_fin: respuestas.fecha_tiempo_fin.to_string(),
-            estado,
-            evaluacion: respuestas.evaluacion.into(),
-            revision: respuestas.revision.to_string(),
-            resultado: respuestas.resultado,
+            fecha_tiempo_transcurrido: respuesta.segundos_transcurridos(input.ahora),
+            id: respuesta.id.to_string(),
+            postulante_id: respuesta.postulante.to_string(),
+            fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
+            fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
+            estado: respuesta.estado,
+            evaluacion: respuesta.evaluacion.into(),
+            revision: respuesta.revision.to_string(),
+            resultado: respuesta.resultado,
         })
     }
 }

@@ -10,23 +10,26 @@ use mongodb::bson::doc;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
+use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::{
     RepositorioListaRespuestaPostulante, RepositorioListarAsignaciones,
     RepositorioRespuestaLectura, RespositorioRespuestaRevision,
 };
+use std::str::FromStr;
 use tracing::error;
 
-pub struct RespuestaPorPostulanteMongo {
+/// Lectura de una hoja de respuestas completa.
+pub struct RespuestaLecturaMongo {
     client: web::Data<mongodb::Database>,
 }
 
-impl RespuestaPorPostulanteMongo {
+impl RespuestaLecturaMongo {
     pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
 
-impl MongoRepository for RespuestaPorPostulanteMongo {
+impl MongoRepository for RespuestaLecturaMongo {
     fn get_collection_name(&self) -> &str {
         RESPUESTA_COLLECTION_NAME
     }
@@ -37,37 +40,32 @@ impl MongoRepository for RespuestaPorPostulanteMongo {
 }
 
 #[async_trait]
-impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo {
-    async fn obtener_por_postulante(
+impl RepositorioRespuestaLectura<RespuestaError> for RespuestaLecturaMongo {
+    async fn obtener(
         &self,
-        respuesta_id: String,
-        postulante_id: PostulanteID,
+        respuesta_id: &RespuestaID,
+        postulante_id: Option<&PostulanteID>,
     ) -> Result<Respuesta, RespuestaError> {
-        let filter = doc! {
-            "postulante_id": postulante_id.to_string(),
-            "_id": respuesta_id,
-        };
+        let mut filtro = doc! { "_id": respuesta_id.to_string() };
+        if let Some(postulante_id) = postulante_id {
+            filtro.insert("postulante_id", postulante_id.to_string());
+        }
 
-        let respuesta_doc = self.get_collection().find_one(filter).await.map_err(|e| {
-            error!(
-                "Error finding respuesta by postulante_id {}: {}",
-                postulante_id, e
-            );
+        let documento = self
+            .get_collection()
+            .find_one(filtro)
+            .await
+            .map_err(|e| {
+                error!("Error finding respuesta {}: {}", respuesta_id, e);
+                RespuestaError::RepositorioError
+            })?
+            .ok_or(RespuestaError::RespuestaNoEncontrada)?;
+
+        let respuesta_dto: RespuestaDTO = bson::from_document(documento).map_err(|e| {
+            error!("Error deserializing respuesta {}: {}", respuesta_id, e);
             RespuestaError::RepositorioError
         })?;
-
-        match respuesta_doc {
-            Some(doc) => {
-                let respuesta_dto: RespuestaDTO = bson::from_document(doc).map_err(|e| {
-                    error!("Error deserializing respuesta document: {}", e);
-                    RespuestaError::RepositorioError
-                })?;
-
-                Ok(respuesta_dto.into())
-            }
-
-            None => Err(RespuestaError::RespuestaNoEncontrada),
-        }
+        respuesta_dto.a_dominio()
     }
 }
 
@@ -125,7 +123,7 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
                 error!("Error deserializing respuesta document: {}", e);
                 RespuestaError::RepositorioError
             })?;
-            respuestas.push(respuesta_dto.into());
+            respuestas.push(respuesta_dto.a_dominio()?);
         }
 
         Ok(respuestas)
@@ -168,13 +166,19 @@ impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostu
             }
         };
 
-        let mut cursor = self.get_collection().find(filter).await.map_err(|e| {
-            error!(
-                "Error finding respuestas by postulante_id {}: {}",
-                postulante_id, e
-            );
-            RespuestaError::RepositorioError
-        })?;
+        // Solo los campos del listado: la hoja completa incluye la evaluación con imágenes.
+        let mut cursor = self
+            .get_collection()
+            .find(filter)
+            .projection(doc! { "estado": 1, "evaluacion.nombre": 1, "evaluacion.descripcion": 1 })
+            .await
+            .map_err(|e| {
+                error!(
+                    "Error finding respuestas by postulante_id {}: {}",
+                    postulante_id, e
+                );
+                RespuestaError::RepositorioError
+            })?;
 
         let mut respuestas = Vec::new();
 
@@ -194,8 +198,12 @@ impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostu
 
             let estado = doc
                 .get_str("estado")
-                .map_err(|_| RespuestaError::RepositorioError)?
-                .to_string();
+                .ok()
+                .and_then(|estado| Estado::from_str(estado).ok())
+                .ok_or_else(|| {
+                    error!("hoja {respuesta_id}: estado no valido");
+                    RespuestaError::RepositorioError
+                })?;
 
             let evaluacion_doc = doc
                 .get_document("evaluacion")

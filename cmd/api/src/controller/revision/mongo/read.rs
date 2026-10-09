@@ -52,7 +52,7 @@ impl RepositorioObtenerRevisionPorId<RespuestaError> for RevisionReadMongo {
                     error!("Error deserializing revision document: {}", e);
                     RespuestaError::RepositorioError
                 })?;
-                Ok(respuesta_dto.into())
+                respuesta_dto.a_dominio()
             }
             None => Err(RespuestaError::RespuestaNoEncontrada),
         }

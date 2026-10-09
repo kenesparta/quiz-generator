@@ -1,7 +1,9 @@
 use crate::controller::hateoas::{Link, Links};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
+use quizz_core::respuesta::domain::entity::respuesta::Estado;
+use quizz_core::respuesta::use_case::respuesta_postulante::OutputData;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 // --- Request DTOs ---
 
@@ -31,8 +33,6 @@ pub struct ContestacionDTO {
 #[derive(Deserialize)]
 pub struct RespuestaQueryParams {
     pub postulante_id: Option<String>,
-    #[allow(dead_code)]
-    pub estado: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -125,7 +125,8 @@ pub struct PreguntaResponseDTO {
     pub etiqueta: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub imagen_ref: Option<String>,
-    pub alternativas: HashMap<String, String>,
+    /// Ordenadas por clave (A, B, C...), no en el orden aleatorio de un HashMap.
+    pub alternativas: BTreeMap<String, String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub respuestas: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -181,82 +182,113 @@ pub struct RespuestaMongoDTO {
     pub revision: String,
 }
 
-// --- Link builders ---
+// --- Vistas ---
 
-pub fn build_respuesta_links(
-    respuesta_id: &str,
-    postulante_id: &str,
-    estado: &str,
-    rol: &str,
-) -> Links {
-    let mut links = Links::new();
+impl RespuestaDetailDTO {
+    /// La hoja tal como la puede ver `rol`.
+    ///
+    /// El postulante no ve puntos, totales, observaciones ni resultado: con los puntos de cada
+    /// intento podía volver a contestar hasta deducir la clave de corrección (SEC-09). Tampoco
+    /// ve las preguntas antes de empezar, para que el tiempo registrado refleje el examen
+    /// (R-092). El personal lo ve todo, más el enlace al postulante dueño de la hoja.
+    pub fn para(rol: Rol, r: OutputData) -> Self {
+        let personal = rol != Rol::Postulante;
+        let ocultar_preguntas = !personal && r.estado == Estado::Creado;
 
-    links.insert(
-        "self".into(),
-        Link::get(format!("/respuestas/{}", respuesta_id)),
-    );
-
-    match estado {
-        "Creado" if rol == Rol::Postulante.to_string() => {
+        let mut links = build_respuesta_links(&r.id, r.estado, rol);
+        if personal {
             links.insert(
-                "empezar".into(),
-                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+                "postulante".into(),
+                Link::get(format!("/postulantes?id={}", r.postulante_id)),
             );
         }
-        "EnProceso" if rol == Rol::Postulante.to_string() => {
-            links.insert(
-                "finalizar".into(),
-                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
-            );
+
+        let examenes = r
+            .evaluacion
+            .examenes
+            .into_iter()
+            .map(|ex| {
+                let preguntas = if ocultar_preguntas {
+                    Vec::new()
+                } else {
+                    ex.preguntas
+                        .into_iter()
+                        .map(|p| PreguntaResponseDTO {
+                            links: build_pregunta_links(&r.id, &ex.id, &p.id, r.estado, rol),
+                            id: p.id,
+                            contenido: p.contenido,
+                            tipo_de_pregunta: p.tipo_de_pregunta,
+                            etiqueta: String::new(),
+                            imagen_ref: Some(p.imagen_ref).filter(|imagen| !imagen.is_empty()),
+                            alternativas: p.alternativas.into_iter().collect(),
+                            respuestas: p.respuestas,
+                            puntos: personal.then_some(p.puntos),
+                        })
+                        .collect()
+                };
+                ExamenResponseDTO {
+                    id: ex.id,
+                    titulo: ex.titulo,
+                    descripcion: ex.descripcion,
+                    instrucciones: ex.instrucciones,
+                    preguntas,
+                    puntos_obtenidos: personal.then_some(ex.puntos_obtenidos),
+                    observacion: personal.then_some(ex.observacion),
+                }
+            })
+            .collect();
+
+        Self {
+            fecha_tiempo_transcurrido: r.fecha_tiempo_transcurrido,
+            fecha_tiempo_inicio: r.fecha_tiempo_inicio,
+            fecha_tiempo_fin: r.fecha_tiempo_fin,
+            estado: r.estado.to_string(),
+            evaluacion: EvaluacionResponseDTO {
+                id: r.evaluacion.id,
+                nombre: r.evaluacion.nombre,
+                descripcion: r.evaluacion.descripcion,
+                examenes,
+            },
+            revision: r.revision,
+            resultado: Some(r.resultado).filter(|resultado| personal && !resultado.is_empty()),
+            id: r.id,
+            links,
         }
-        "Finalizado" if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() => {
-            links.insert(
-                "revision".into(),
-                Link::get(format!("/revisiones/{}", respuesta_id)),
-            );
-            links.insert(
-                "revisar".into(),
-                Link::post(format!("/revisiones/{}", respuesta_id)),
-            );
-        }
-        _ => {}
     }
-
-    if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() {
-        links.insert(
-            "postulante".into(),
-            Link::get(format!("/postulantes?id={}", postulante_id)),
-        );
-    }
-
-    links
 }
 
-pub fn build_respuesta_list_item_links(respuesta_id: &str, estado: &str, rol: &str) -> Links {
-    let mut links = Links::new();
+// --- Link builders ---
 
+/// Enlaces de una hoja de respuestas: solo ofrece las transiciones válidas para su estado y el
+/// rol de quien la mira.
+pub fn build_respuesta_links(respuesta_id: &str, estado: Estado, rol: Rol) -> Links {
+    let mut links = Links::new();
     links.insert(
         "self".into(),
-        Link::get(format!("/respuestas/{}", respuesta_id)),
+        Link::get(format!("/respuestas/{respuesta_id}")),
     );
 
-    match estado {
-        "Creado" if rol == Rol::Postulante.to_string() => {
+    match (estado, rol) {
+        (Estado::Creado, Rol::Postulante) => {
             links.insert(
                 "empezar".into(),
-                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+                Link::patch(format!("/respuestas/{respuesta_id}/estado")),
             );
         }
-        "EnProceso" if rol == Rol::Postulante.to_string() => {
+        (Estado::EnProceso, Rol::Postulante) => {
             links.insert(
                 "finalizar".into(),
-                Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+                Link::patch(format!("/respuestas/{respuesta_id}/estado")),
             );
         }
-        "Finalizado" if rol == Rol::Psicologo.to_string() || rol == Rol::Admin.to_string() => {
+        (Estado::Finalizado, Rol::Psicologo | Rol::Admin) => {
+            links.insert(
+                "revision".into(),
+                Link::get(format!("/revisiones/{respuesta_id}")),
+            );
             links.insert(
                 "revisar".into(),
-                Link::post(format!("/revisiones/{}", respuesta_id)),
+                Link::post(format!("/revisiones/{respuesta_id}")),
             );
         }
         _ => {}
@@ -269,20 +301,113 @@ pub fn build_pregunta_links(
     respuesta_id: &str,
     examen_id: &str,
     pregunta_id: &str,
-    estado: &str,
-    rol: &str,
+    estado: Estado,
+    rol: Rol,
 ) -> Links {
     let mut links = Links::new();
 
-    if estado == "EnProceso" && rol == Rol::Postulante.to_string() {
+    if estado == Estado::EnProceso && rol == Rol::Postulante {
         links.insert(
             "contestar".into(),
             Link::post(format!(
-                "/respuestas/{}/examenes/{}/preguntas/{}/contestaciones",
-                respuesta_id, examen_id, pregunta_id
+                "/respuestas/{respuesta_id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones"
             )),
         );
     }
 
     links
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quizz_core::respuesta::use_case::respuesta_postulante::{
+        OutputEvaluacion, OutputExamen, OutputPregunta,
+    };
+    use std::collections::HashMap;
+
+    fn hoja(estado: Estado) -> OutputData {
+        OutputData {
+            id: "hoja".to_string(),
+            postulante_id: "dueno".to_string(),
+            fecha_tiempo_inicio: String::new(),
+            fecha_tiempo_transcurrido: None,
+            fecha_tiempo_fin: String::new(),
+            estado,
+            revision: "finalizada".to_string(),
+            resultado: "apto".to_string(),
+            evaluacion: OutputEvaluacion {
+                id: "evaluacion".to_string(),
+                nombre: "N".to_string(),
+                descripcion: "D".to_string(),
+                examenes: vec![OutputExamen {
+                    id: "examen".to_string(),
+                    titulo: "T".to_string(),
+                    descripcion: "D".to_string(),
+                    instrucciones: "I".to_string(),
+                    puntos_obtenidos: 4,
+                    observacion: "nota privada".to_string(),
+                    preguntas: vec![OutputPregunta {
+                        id: "pregunta".to_string(),
+                        contenido: "¿?".to_string(),
+                        tipo_de_pregunta: "alternativa_unica".to_string(),
+                        imagen_ref: String::new(),
+                        alternativas: HashMap::from([
+                            ("B".to_string(), "No".to_string()),
+                            ("A".to_string(), "Sí".to_string()),
+                        ]),
+                        respuestas: Some(vec!["A".to_string()]),
+                        puntos: 4,
+                    }],
+                }],
+            },
+        }
+    }
+
+    fn json(rol: Rol, estado: Estado) -> String {
+        serde_json::to_string(&RespuestaDetailDTO::para(rol, hoja(estado))).unwrap()
+    }
+
+    #[test]
+    fn el_postulante_no_ve_puntos_ni_notas_ni_resultado() {
+        let vista = json(Rol::Postulante, Estado::EnProceso);
+        for campo in ["\"puntos\"", "puntos_obtenidos", "observacion", "resultado"] {
+            assert!(!vista.contains(campo), "{campo} en {vista}");
+        }
+        assert!(vista.contains("contestar"), "{vista}");
+    }
+
+    #[test]
+    fn el_personal_ve_puntos_notas_resultado_y_al_postulante() {
+        for rol in [Rol::Psicologo, Rol::Admin] {
+            let vista = json(rol, Estado::Finalizado);
+            for campo in [
+                "\"puntos\":4",
+                "\"puntos_obtenidos\":4",
+                "nota privada",
+                "apto",
+            ] {
+                assert!(vista.contains(campo), "{rol}: {campo} en {vista}");
+            }
+            assert!(vista.contains("/postulantes?id=dueno"), "{vista}");
+        }
+    }
+
+    #[test]
+    fn el_postulante_no_ve_las_preguntas_antes_de_empezar() {
+        let vista = RespuestaDetailDTO::para(Rol::Postulante, hoja(Estado::Creado));
+        assert!(vista.evaluacion.examenes[0].preguntas.is_empty());
+        assert!(vista.links.contains_key("empezar"));
+
+        let personal = RespuestaDetailDTO::para(Rol::Psicologo, hoja(Estado::Creado));
+        assert_eq!(personal.evaluacion.examenes[0].preguntas.len(), 1);
+    }
+
+    #[test]
+    fn las_alternativas_salen_en_orden() {
+        let vista = json(Rol::Postulante, Estado::EnProceso);
+        let a = vista.find("\"A\":").unwrap();
+        let b = vista.find("\"B\":").unwrap();
+        assert!(a < b, "{vista}");
+    }
 }

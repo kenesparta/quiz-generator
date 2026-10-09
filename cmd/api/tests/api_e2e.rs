@@ -438,6 +438,21 @@ async fn flujo_completo_y_controles_de_acceso() {
     assert_eq!(estado, StatusCode::OK, "finalizar: {cuerpo}");
     assert_eq!(cuerpo["estado"], "finalizado");
 
+    // SEC-09: el postulante no ve los puntos de su hoja; el personal sí (R-032).
+    let (estado, vista_a) = e
+        .pedir(Method::GET, &format!("/respuestas/{hoja_a}"), Some(&token_a), None)
+        .await;
+    assert_eq!(estado, StatusCode::OK);
+    assert_eq!(vista_a["estado"], "finalizado");
+    let texto = vista_a.to_string();
+    assert!(!texto.contains("puntos"), "{texto}");
+    let (estado, vista_admin) = e
+        .pedir(Method::GET, &format!("/respuestas/{hoja_a}"), Some(&admin), None)
+        .await;
+    assert_eq!(estado, StatusCode::OK, "{vista_admin}");
+    assert_eq!(vista_admin["evaluacion"]["examenes"][0]["preguntas"][0]["puntos"], 1);
+    assert_eq!(vista_admin["evaluacion"]["examenes"][0]["puntos_obtenidos"], 1);
+
     // Tras finalizar no se aceptan más respuestas.
     let (estado, cuerpo) = e
         .pedir(
@@ -482,6 +497,19 @@ async fn flujo_completo_y_controles_de_acceso() {
             .unwrap()
             .unwrap();
     assert_eq!(hoja_b_guardada.get_str("estado").unwrap(), "creado");
+
+    // Un postulante no lee la hoja de otro, y no ve las preguntas de la suya antes de empezar.
+    let (estado, _) = e
+        .pedir(Method::GET, &format!("/respuestas/{hoja_b}"), Some(&token_a), None)
+        .await;
+    assert_eq!(estado, StatusCode::NOT_FOUND);
+    let (estado, vista_b) = e
+        .pedir(Method::GET, &format!("/respuestas/{hoja_b}"), Some(&token_b), None)
+        .await;
+    assert_eq!(estado, StatusCode::OK);
+    assert_eq!(vista_b["estado"], "creado");
+    assert_eq!(vista_b["evaluacion"]["examenes"][0]["preguntas"], json!([]));
+    assert!(vista_b["_links"]["empezar"].is_object(), "{vista_b}");
 
     // SEC-04: tras /logout el mismo token deja de autenticar.
     let (estado, _) = e

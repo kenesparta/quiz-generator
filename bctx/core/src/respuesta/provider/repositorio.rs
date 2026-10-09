@@ -58,10 +58,13 @@ pub trait RepositorioEstadoRespuesta<Error>: Send + Sync {
 
 #[async_trait]
 pub trait RepositorioRespuestaLectura<Error>: Send + Sync {
-    async fn obtener_por_postulante(
+    /// La hoja `respuesta_id`. Con `postulante_id` solo la devuelve si es suya (lectura del
+    /// postulante); sin él, la de cualquiera (lectura del personal). Falla con
+    /// `RespuestaNoEncontrada` si no hay coincidencia.
+    async fn obtener(
         &self,
-        respuesta_id: String,
-        postulante_id: PostulanteID,
+        respuesta_id: &RespuestaID,
+        postulante_id: Option<&PostulanteID>,
     ) -> Result<Respuesta, Error>;
 }
 

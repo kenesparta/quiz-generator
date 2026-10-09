@@ -109,7 +109,9 @@ impl From<RespuestaError> for ApiError {
     fn from(e: RespuestaError) -> Self {
         use RespuestaError::*;
         match e {
-            AsignarIDRespuestaError(_) => Self::solicitud_invalida(e),
+            AsignarIDRespuestaError(_) | CantidadDeRespuestasNoValida | RespuestaNoValida => {
+                Self::solicitud_invalida(e)
+            }
             EvaluacionRespuestaNotFound
             | PostulanteRespuestaNotFound
             | RespuestaNoEncontrada

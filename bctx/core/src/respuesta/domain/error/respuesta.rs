@@ -41,6 +41,12 @@ pub enum RespuestaError {
 
     #[error("El estado de la evaluacion cambio mientras se procesaba la solicitud")]
     TransicionNoAplicada,
+
+    #[error("Solo se admite una respuesta por pregunta")]
+    CantidadDeRespuestasNoValida,
+
+    #[error("La respuesta no corresponde a una alternativa de la pregunta o es demasiado larga")]
+    RespuestaNoValida,
 }
 
 #[derive(Error, Debug)]

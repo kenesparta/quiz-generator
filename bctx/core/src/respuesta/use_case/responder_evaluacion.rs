@@ -54,7 +54,12 @@ where
             Estado::Creado => return Err(RespuestaError::EvaluacionNoEstaEnProceso),
         }
 
-        contestacion.puntos = corregir_respuesta(&contestacion.respuestas, pregunta.puntaje);
+        contestacion.puntos = corregir_respuesta(
+            &pregunta.tipo_de_pregunta,
+            &contestacion.respuestas,
+            &pregunta.alternativas,
+            &pregunta.puntaje,
+        )?;
 
         if !self.repositorio.responder_evaluacion(&contestacion).await? {
             // La hoja dejó de estar en proceso entre la lectura y la escritura.
@@ -164,6 +169,25 @@ mod tests {
             *hoja.guardadas.lock().unwrap(),
             [(vec!["A".to_string()], 4)]
         );
+    }
+
+    #[tokio::test]
+    async fn una_respuesta_no_valida_no_se_guarda() {
+        let hoja = HojaFalsa::en(Estado::EnProceso);
+        let resultado = ResponderEvaluacion::new(Box::new(hoja.clone()))
+            .ejecutar(InputData {
+                id: HOJA.to_string(),
+                postulante_id: DUENO.to_string(),
+                examen_id: "examen".to_string(),
+                pregunta_id: "pregunta".to_string(),
+                respuestas: vec!["A".to_string(), "A".to_string()],
+            })
+            .await;
+        assert!(matches!(
+            resultado,
+            Err(RespuestaError::CantidadDeRespuestasNoValida)
+        ));
+        assert!(hoja.guardadas.lock().unwrap().is_empty());
     }
 
     #[tokio::test]

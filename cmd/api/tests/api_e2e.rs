@@ -404,6 +404,19 @@ async fn flujo_completo_y_controles_de_acceso() {
     let contestar =
         format!("/respuestas/{hoja_a}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones");
 
+    // COR-02: una sola respuesta por pregunta, y debe ser una de sus alternativas.
+    for respuestas in [json!(["A", "A", "A"]), json!(["A", "B"]), json!(["Z"])] {
+        let (estado, cuerpo) = e
+            .pedir(
+                Method::POST,
+                &contestar,
+                Some(&token_a),
+                Some(json!({ "respuestas": respuestas })),
+            )
+            .await;
+        assert_eq!(estado, StatusCode::BAD_REQUEST, "{respuestas}: {cuerpo}");
+    }
+
     let (estado, cuerpo) = e
         .pedir(
             Method::POST,
@@ -434,7 +447,11 @@ async fn flujo_completo_y_controles_de_acceso() {
             Some(json!({ "respuestas": ["B"] })),
         )
         .await;
-    assert_eq!(estado, StatusCode::CONFLICT, "contestar tras finalizar: {cuerpo}");
+    assert_eq!(
+        estado,
+        StatusCode::CONFLICT,
+        "contestar tras finalizar: {cuerpo}"
+    );
 
     // SEC-02: un postulante no puede escribir en la hoja de otro (404: no revela que existe).
     let contestar_en_b = contestar.replace(&hoja_a, &hoja_b);
@@ -458,13 +475,12 @@ async fn flujo_completo_y_controles_de_acceso() {
             .await;
         assert_eq!(estado, StatusCode::NOT_FOUND, "{accion}");
     }
-    let hoja_b_guardada = e
-        .db
-        .collection::<Document>("respuesta")
-        .find_one(doc! { "_id": &hoja_b })
-        .await
-        .unwrap()
-        .unwrap();
+    let hoja_b_guardada =
+        e.db.collection::<Document>("respuesta")
+            .find_one(doc! { "_id": &hoja_b })
+            .await
+            .unwrap()
+            .unwrap();
     assert_eq!(hoja_b_guardada.get_str("estado").unwrap(), "creado");
 
     // SEC-04: tras /logout el mismo token deja de autenticar.

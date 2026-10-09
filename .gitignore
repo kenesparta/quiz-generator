@@ -6,7 +6,6 @@ qzz-dash/.idea
 # Rust
 debug/
 target/
-Cargo.lock
 **/*.rs.bk
 
 # SO

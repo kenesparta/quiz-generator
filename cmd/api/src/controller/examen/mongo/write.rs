@@ -31,7 +31,7 @@ impl MongoRepository for ExamenMongo {
 impl RepositorioExamenEscritura for ExamenMongo {
     async fn guardar_examen(&self, examen: Examen) -> Result<(), ExamenError> {
         let documento = doc! {
-            "_id": examen.id.value().uuid().to_string(),
+            "_id": examen.id.to_string(),
             "titulo": examen.titulo.to_string(),
             "descripcion": examen.descripcion.to_string(),
             "instrucciones": examen.instrucciones.to_string(),

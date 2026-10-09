@@ -2,6 +2,7 @@ use crate::respuesta::domain::entity::evaluacion::Evaluacion;
 use crate::respuesta::domain::entity::examen::Examen;
 use crate::respuesta::domain::entity::pregunta::Pregunta;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
+use crate::respuesta::domain::value_object::id::RespuestaID;
 use crate::respuesta::provider::repositorio::RepositorioObtenerRevisionPorId;
 use std::collections::HashMap;
 
@@ -106,7 +107,8 @@ impl<R: RepositorioObtenerRevisionPorId> ObtenerRevisionPorId<R> {
     }
 
     pub async fn ejecutar(&self, input: InputData) -> Result<OutputData, RespuestaError> {
-        let respuesta = self.repo.obtener_revision_por_id(input.revision_id).await?;
+        let respuesta_id = RespuestaID::new(&input.revision_id)?;
+        let respuesta = self.repo.obtener_revision_por_id(&respuesta_id).await?;
 
         Ok(OutputData {
             id: respuesta.id.to_string(),

@@ -86,7 +86,7 @@ mod tests {
             _documento: Documento,
         ) -> Result<Postulante, PostulanteError> {
             Ok(Postulante {
-                id: PostulanteID::new(&self.postulante.id.value().uuid().to_string())?,
+                id: self.postulante.id,
                 documento: Documento::new(&self.postulante.documento.to_string())?,
                 nombre_completo: Nombre::new(
                     self.postulante.nombre_completo.nombre().clone(),

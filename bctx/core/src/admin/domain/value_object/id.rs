@@ -1,9 +1,8 @@
 use quizz_common::domain::value_objects::id::{ID, IdError};
-use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;
 
 /// Representa el ID unico del administrador
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct AdminID {
     id: ID,
 }
@@ -16,7 +15,7 @@ impl fmt::Display for AdminID {
 
 impl AdminID {
     pub fn new(id: &str) -> Result<Self, IdError> {
-        ID::new(id, IdType::Custom("Admin".to_string())).map(|id| AdminID { id })
+        ID::new(id).map(|id| AdminID { id })
     }
 
     pub fn value(&self) -> &ID {

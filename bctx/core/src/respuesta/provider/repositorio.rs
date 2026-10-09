@@ -97,9 +97,10 @@ pub trait RepositorioRealizarRevision: Send + Sync {
 }
 
 pub trait RepositorioObtenerRevisionPorId: Send + Sync {
+    /// La hoja `respuesta_id` si está finalizada; si no, `RespuestaNoEncontrada`.
     fn obtener_revision_por_id(
         &self,
-        revision_id: String,
+        respuesta_id: &RespuestaID,
     ) -> impl Future<Output = Result<Respuesta, RespuestaError>> + Send;
 }
 
@@ -118,8 +119,8 @@ pub trait RepositorioListaRespuestaPostulante: Send + Sync {
 pub trait RepositorioListarAsignaciones: Send + Sync {
     fn listar(
         &self,
-        postulante_id: Option<String>,
-        evaluacion_id: Option<String>,
+        postulante_id: Option<PostulanteID>,
+        evaluacion_id: Option<EvaluacionID>,
     ) -> impl Future<
         Output = Result<
             Vec<crate::respuesta::use_case::listar_asignaciones::OutputData>,

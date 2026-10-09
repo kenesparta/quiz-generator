@@ -127,7 +127,7 @@ mod tests {
         );
         assert!(matches!(
             result.unwrap_err(),
-            PsicologoError::PsicologoIdError(IdError::FormatoNoValido(_))
+            PsicologoError::PsicologoIdError(IdError::FormatoNoValido)
         ));
     }
 

@@ -1,8 +1,8 @@
 use quizz_common::domain::value_objects::id::{ID, IdError};
-use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;
 use std::fmt::Formatter;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct EvaluacionID {
     id: ID,
 }
@@ -15,7 +15,7 @@ impl fmt::Display for EvaluacionID {
 
 impl EvaluacionID {
     pub fn new(id: &str) -> Result<Self, IdError> {
-        ID::new(id, IdType::Evaluacion).map(|id| EvaluacionID { id })
+        ID::new(id).map(|id| EvaluacionID { id })
     }
 
     pub fn value(&self) -> &ID {

@@ -1,9 +1,8 @@
 use quizz_common::domain::value_objects::id::{ID, IdError};
-use quizz_common::domain::value_objects::id_type::IdType;
 use std::fmt;
 
 /// Representa el ID unico del postulante
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PostulanteID {
     id: ID,
 }
@@ -16,7 +15,7 @@ impl fmt::Display for PostulanteID {
 
 impl PostulanteID {
     pub fn new(id: &str) -> Result<Self, IdError> {
-        ID::new(id, IdType::Postulante).map(|id| PostulanteID { id })
+        ID::new(id).map(|id| PostulanteID { id })
     }
 
     pub fn value(&self) -> &ID {

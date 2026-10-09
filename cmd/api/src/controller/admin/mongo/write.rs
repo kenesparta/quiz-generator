@@ -34,7 +34,7 @@ impl RepositorioAdminEscritura for AdminMongo {
         ))?;
 
         let documento = doc! {
-            "_id": admin.id.value().uuid().to_string(),
+            "_id": admin.id.to_string(),
             "nombre": admin.nombre,
             "primer_apellido": admin.primer_apellido,
             "segundo_apellido": admin.segundo_apellido,

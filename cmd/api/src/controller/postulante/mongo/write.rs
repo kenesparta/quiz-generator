@@ -38,7 +38,7 @@ impl RepositorioPostulanteEscritura for PostulanteMongo {
             .value();
 
         let documento = doc! {
-            "_id": postulante.id.value().uuid().to_string(),
+            "_id": postulante.id.to_string(),
             "documento": postulante.documento.to_string(),
             "nombre": postulante.nombre_completo.nombre(),
             "primer_apellido": postulante.nombre_completo.primer_apellido(),
@@ -70,7 +70,7 @@ impl RepositorioPostulanteEscritura for PostulanteMongo {
 
     async fn actualizar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
         let filter = doc! {
-            "_id": postulante.id.value().uuid().to_string(),
+            "_id": postulante.id.to_string(),
         };
 
         let fecha_actualizacion =
@@ -117,7 +117,7 @@ impl RepositorioPostulanteEscritura for PostulanteMongo {
         postulante_id: PostulanteID,
     ) -> Result<(), PostulanteError> {
         let filter = doc! {
-            "_id": postulante_id.value().uuid().to_string(),
+            "_id": postulante_id.to_string(),
         };
 
         match self.get_collection().delete_one(filter).await {

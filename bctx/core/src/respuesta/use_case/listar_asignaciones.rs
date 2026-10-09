@@ -1,3 +1,5 @@
+use crate::evaluacion::value_object::id::EvaluacionID;
+use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::provider::repositorio::RepositorioListarAsignaciones;
 
@@ -30,11 +32,19 @@ impl<R: RepositorioListarAsignaciones> ListarAsignaciones<R> {
         Self { repo }
     }
 
+    /// Los filtros se validan como ids: uno mal formado es un error, no un listado vacío, y
+    /// uno en mayúsculas encuentra los registros guardados en minúsculas.
     pub async fn ejecutar(&self, input: InputData) -> Result<Vec<OutputData>, RespuestaError> {
-        let asignaciones = self
-            .repo
-            .listar(input.postulante_id, input.evaluacion_id)
-            .await?;
-        Ok(asignaciones)
+        let postulante_id = input
+            .postulante_id
+            .as_deref()
+            .map(PostulanteID::new)
+            .transpose()?;
+        let evaluacion_id = input
+            .evaluacion_id
+            .as_deref()
+            .map(EvaluacionID::new)
+            .transpose()?;
+        self.repo.listar(postulante_id, evaluacion_id).await
     }
 }

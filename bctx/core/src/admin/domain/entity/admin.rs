@@ -104,7 +104,7 @@ mod tests {
         );
         assert!(matches!(
             result.unwrap_err(),
-            AdminError::AdminIdError(IdError::FormatoNoValido(_))
+            AdminError::AdminIdError(IdError::FormatoNoValido)
         ));
     }
 

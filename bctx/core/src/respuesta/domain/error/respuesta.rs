@@ -3,7 +3,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum RespuestaError {
-    #[error("Error al asignar ID a la respuesta")]
+    #[error("ID no válido: {0}")]
     AsignarIDRespuestaError(#[from] IdError),
 
     #[error("Error al guardar la respuesta en la base de datos")]

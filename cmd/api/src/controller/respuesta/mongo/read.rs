@@ -6,6 +6,7 @@ use futures::{StreamExt, TryStreamExt};
 use mongodb;
 use mongodb::bson;
 use mongodb::bson::doc;
+use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta};
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
@@ -276,16 +277,16 @@ impl MongoRepository for ListarAsignacionesMongo {
 impl RepositorioListarAsignaciones for ListarAsignacionesMongo {
     async fn listar(
         &self,
-        postulante_id: Option<String>,
-        evaluacion_id: Option<String>,
+        postulante_id: Option<PostulanteID>,
+        evaluacion_id: Option<EvaluacionID>,
     ) -> Result<Vec<quizz_core::respuesta::use_case::listar_asignaciones::OutputData>, RespuestaError>
     {
         let mut match_doc = bson::Document::new();
         if let Some(pid) = postulante_id {
-            match_doc.insert("postulante_id", pid);
+            match_doc.insert("postulante_id", pid.to_string());
         }
         if let Some(eid) = evaluacion_id {
-            match_doc.insert("evaluacion._id", eid);
+            match_doc.insert("evaluacion._id", eid.to_string());
         }
 
         let pipeline = vec![

@@ -1,6 +1,5 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use quizz_common::domain::value_objects::id::ID;
-use quizz_common::domain::value_objects::id_type::IdType;
 
 /// Los exámenes a asociar a una evaluación: al menos uno, todos con un id válido y sin
 /// repetidos.
@@ -19,8 +18,8 @@ impl ExamenIDs {
         }
         let mut ids: Vec<ID> = Vec::with_capacity(examen_ids.len());
         for texto in examen_ids {
-            let id = ID::new(&texto, IdType::Examen)
-                .map_err(|_| EvaluacionError::ExamenIdNoValido(texto.clone()))?;
+            let id =
+                ID::new(&texto).map_err(|_| EvaluacionError::ExamenIdNoValido(texto.clone()))?;
             if !ids.contains(&id) {
                 ids.push(id);
             }

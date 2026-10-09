@@ -36,7 +36,7 @@ impl RepositorioPsicologoEscritura for PsicologoMongo {
             ))?;
 
         let documento = doc! {
-            "_id": psicologo.id.value().uuid().to_string(),
+            "_id": psicologo.id.to_string(),
             "nombre": psicologo.nombre,
             "primer_apellido": psicologo.primer_apellido,
             "segundo_apellido": psicologo.segundo_apellido,

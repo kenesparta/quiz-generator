@@ -92,7 +92,7 @@ mod tests {
         );
         assert!(matches!(
             result.unwrap_err(),
-            PostulanteError::PostulanteIdError(IdError::FormatoNoValido(_))
+            PostulanteError::PostulanteIdError(IdError::FormatoNoValido)
         ));
     }
 

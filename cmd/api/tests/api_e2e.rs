@@ -789,6 +789,46 @@ async fn flujo_completo_y_controles_de_acceso() {
         "Bien"
     );
 
+    // R-088: los ids de la ruta y de los filtros se validan y se buscan en su forma canónica:
+    // en mayúsculas encuentran el registro, y uno mal formado es un 400 (no un 404 ni un
+    // listado vacío).
+    let (estado, misma) = e
+        .pedir(
+            Method::GET,
+            &format!("/revisiones/{}", hoja_a.to_uppercase()),
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::OK, "{misma}");
+    assert_eq!(misma["id"], calificada["id"]);
+    let (estado, asignaciones) = e
+        .pedir(
+            Method::GET,
+            &format!(
+                "/respuestas/asignaciones?postulante_id={}",
+                postulante_a.to_uppercase()
+            ),
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::OK, "{asignaciones}");
+    assert!(
+        asignaciones["items"]
+            .as_array()
+            .is_some_and(|items| items.iter().any(|a| a["id"] == hoja_a.as_str())),
+        "{asignaciones}"
+    );
+    for ruta in [
+        "/revisiones/no-es-un-uuid",
+        "/respuestas/asignaciones?postulante_id=no-es-un-uuid",
+        "/respuestas/asignaciones?evaluacion_id=no-es-un-uuid",
+    ] {
+        let (estado, cuerpo) = e.pedir(Method::GET, ruta, Some(&admin), None).await;
+        assert_eq!(estado, StatusCode::BAD_REQUEST, "{ruta}: {cuerpo}");
+    }
+
     // Un postulante no lee la hoja de otro, y no ve las preguntas de la suya antes de empezar.
     let (estado, _) = e
         .pedir(

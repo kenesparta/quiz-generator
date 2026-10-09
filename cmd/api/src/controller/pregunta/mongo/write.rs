@@ -113,7 +113,7 @@ fn preguntas_to_bson(preguntas: &[PreguntaEntity]) -> Vec<Bson> {
             let puntaje = &pregunta.puntaje;
             let puntaje_doc = puntaje
                 .iter()
-                .map(|(key, value)| (key.to_string(), Bson::Int32(*value as i32)))
+                .map(|(key, value)| (key.to_string(), Bson::Int64(i64::from(*value))))
                 .collect::<Document>();
 
             document.insert("puntaje", puntaje_doc);

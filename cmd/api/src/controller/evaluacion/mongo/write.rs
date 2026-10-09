@@ -283,7 +283,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
                             .puntaje
                             .iter()
                             .map(|(key, value)| {
-                                (key.clone(), mongodb::bson::Bson::Int32(*value as i32))
+                                (key.clone(), mongodb::bson::Bson::Int64(i64::from(*value)))
                             })
                             .collect();
                         pregunta_doc.insert("puntaje", puntaje_doc);

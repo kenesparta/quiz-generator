@@ -219,6 +219,13 @@ async fn evaluacion_publicada(e: &Entorno, admin: &str) -> String {
                 "contenido": "¿Usted ha sido entrevistado?",
                 "alternativas": { "A": "Sí", "B": "No" },
                 "puntaje": { "A": 1, "B": 0 },
+            }, {
+                // DAT-03: sin imagen_ref; antes desaparecía al leer el examen.
+                "etiqueta": "no",
+                "tipo_de_pregunta": "alternativa_unica",
+                "contenido": "¿Tiene licencia vigente?",
+                "alternativas": { "A": "Sí", "B": "No" },
+                "puntaje": { "A": 1 },
             }]})),
         )
         .await;
@@ -345,10 +352,14 @@ async fn flujo_completo_y_controles_de_acceso() {
         )
     };
     let (ruta, cuerpo) = registro("5f0c0a3e-1b2c-4d5e-8f90-a1b2c3d4e5f6", "71111111");
-    let (estado, _) = e.pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo)).await;
+    let (estado, _) = e
+        .pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo))
+        .await;
     assert_eq!(estado, StatusCode::CONFLICT, "documento repetido");
     let (ruta, cuerpo) = registro(postulante_a, "79999998");
-    let (estado, _) = e.pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo)).await;
+    let (estado, _) = e
+        .pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo))
+        .await;
     assert_eq!(estado, StatusCode::CONFLICT, "id repetido");
     let (ruta_1, cuerpo_1) = registro("6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "75555555");
     let (ruta_2, cuerpo_2) = registro("7b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "75555555");
@@ -597,6 +608,13 @@ async fn flujo_completo_y_controles_de_acceso() {
         )
         .await;
     assert_eq!(estado, StatusCode::OK, "{vista_admin}");
+    assert_eq!(
+        vista_admin["evaluacion"]["examenes"][0]["preguntas"]
+            .as_array()
+            .map(Vec::len),
+        Some(2),
+        "la pregunta sin imagen llega a la hoja: {vista_admin}"
+    );
     assert_eq!(
         vista_admin["evaluacion"]["examenes"][0]["preguntas"][0]["puntos"],
         1

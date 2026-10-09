@@ -53,24 +53,23 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
                 let estado = EstadoGeneral::from_str(estado_str)?;
                 let examen_id = ExamenID::new(id_str)?;
 
+                // Una pregunta que no se puede leer es un error con nombre, no se descarta: si
+                // no, desaparecía de la evaluación publicada sin que nadie se enterara.
                 let preguntas = match documento.get("preguntas") {
-                    Some(bson::Bson::Array(arr)) => {
-                        let entities_result: Result<Vec<PreguntaEntity>, _> = arr
-                            .iter()
-                            .filter_map(|item| bson::from_bson(item.clone()).ok())
-                            .map(|dto: PreguntaMongoDTO| dto.into_entity())
-                            .collect();
-
-                        match entities_result {
-                            Ok(entities) => ListaDePreguntas::new(entities),
-                            Err(e) => {
-                                error!("Error converting preguntas to entities: {}", e);
-                                return Err(ExamenError::ExamenRepositorioError(
-                                    PersistenciaNoFinalizada,
-                                ));
-                            }
-                        }
-                    }
+                    Some(bson::Bson::Array(arr)) => arr
+                        .iter()
+                        .enumerate()
+                        .map(|(indice, item)| {
+                            bson::from_bson::<PreguntaMongoDTO>(item.clone())
+                                .map_err(|e| e.to_string())
+                                .and_then(|dto| dto.into_entity().map_err(|e| e.to_string()))
+                                .map_err(|e| {
+                                    error!("examen {id}: pregunta #{indice} ilegible: {e}");
+                                    ExamenError::ExamenRepositorioError(LecturaNoFinalizada)
+                                })
+                        })
+                        .collect::<Result<Vec<PreguntaEntity>, _>>()
+                        .map(ListaDePreguntas::new)?,
                     _ => ListaDePreguntas::new(Vec::new()),
                 };
 
@@ -83,12 +82,7 @@ impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
                     preguntas,
                 })
             }
-            Ok(None) => {
-                error!("Examen not found with id: {}", id);
-                Err(ExamenError::ExamenRepositorioError(
-                    PersistenciaNoFinalizada,
-                ))
-            }
+            Ok(None) => Err(ExamenError::NoEncontrado),
             Err(e) => {
                 error!(
                     "Database error while retrieving examen: id={}, error={}",

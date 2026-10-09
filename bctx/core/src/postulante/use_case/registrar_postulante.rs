@@ -4,9 +4,9 @@ use crate::postulante::domain::service::password::obtener_password_del_documento
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
-use crate::postulante::provider::password::SeguridadPassword;
 use crate::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 use async_trait::async_trait;
+use quizz_common::provider::seguridad::Cifrador;
 use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
@@ -21,16 +21,16 @@ pub struct InputData {
     pub genero: String,
 }
 
-pub struct RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
-    password_crypto: Box<dyn SeguridadPassword<PassErr>>,
+pub struct RegistrarPostulantePasswordTemporal<RepoErr> {
+    password_crypto: Box<dyn Cifrador>,
     repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
 }
 
-impl<PassErr, RepoErr> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
+impl<RepoErr> RegistrarPostulantePasswordTemporal<RepoErr> {
     pub fn new(
-        password_crypto: Box<dyn SeguridadPassword<PassErr>>,
+        password_crypto: Box<dyn Cifrador>,
         repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
-    ) -> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
+    ) -> RegistrarPostulantePasswordTemporal<RepoErr> {
         Self {
             password_crypto,
             repositorio,
@@ -39,10 +39,9 @@ impl<PassErr, RepoErr> RegistrarPostulantePasswordTemporal<PassErr, RepoErr> {
 }
 
 #[async_trait]
-impl<PassErr, RepoErr> CasoDeUso<InputData, (), PostulanteError>
-    for RegistrarPostulantePasswordTemporal<PassErr, RepoErr>
+impl<RepoErr> CasoDeUso<InputData, (), PostulanteError>
+    for RegistrarPostulantePasswordTemporal<RepoErr>
 where
-    PostulanteError: From<PassErr>,
     PostulanteError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
@@ -74,6 +73,7 @@ mod tests {
     use super::*;
     use crate::postulante::domain::value_object::id::PostulanteID;
     use async_trait::async_trait;
+    use quizz_common::provider::seguridad::CifradoError;
     use std::sync::Mutex;
 
     struct MockSeguridadPassword {
@@ -81,17 +81,13 @@ mod tests {
     }
 
     #[async_trait]
-    impl SeguridadPassword<PostulanteError> for MockSeguridadPassword {
-        async fn cifrar(&self, _password: String) -> Result<String, PostulanteError> {
+    impl Cifrador for MockSeguridadPassword {
+        async fn cifrar(&self, _password: String) -> Result<String, CifradoError> {
             Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
         }
 
-        async fn comparar(
-            &self,
-            _password: String,
-            _hashed: String,
-        ) -> Result<bool, PostulanteError> {
-            unimplemented!()
+        async fn verificar(&self, _password: String, _hash: String) -> Result<bool, CifradoError> {
+            Ok(false)
         }
     }
 

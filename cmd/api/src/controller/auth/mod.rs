@@ -1,5 +1,4 @@
 pub mod casbin_enforcer;
-mod crypto;
 mod dto;
 pub mod jwt;
 mod logout;

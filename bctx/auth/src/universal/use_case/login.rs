@@ -2,7 +2,7 @@ use crate::universal::domain::error::login_universal::LoginUniversalError;
 use crate::universal::provider::repositorio::{RepositorioLoginUniversalLectura, Sesiones};
 use async_trait::async_trait;
 use quizz_common::provider::jwt::JwtProviderGenerateConRol;
-use quizz_common::provider::seguridad::SeguridadComparar;
+use quizz_common::provider::seguridad::Cifrador;
 use quizz_common::use_case::CasoDeUso;
 use std::sync::Arc;
 
@@ -18,7 +18,7 @@ pub struct OutputData {
 }
 
 pub struct LoginUniversal<RepoErr> {
-    crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
+    cifrador: Box<dyn Cifrador>,
     repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
     sesiones: Arc<dyn Sesiones>,
     jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
@@ -26,13 +26,13 @@ pub struct LoginUniversal<RepoErr> {
 
 impl<RepoErr> LoginUniversal<RepoErr> {
     pub fn new(
-        crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
+        cifrador: Box<dyn Cifrador>,
         repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
         sesiones: Arc<dyn Sesiones>,
         jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
     ) -> LoginUniversal<RepoErr> {
         Self {
-            crypto_comparar,
+            cifrador,
             repositorio,
             sesiones,
             jwt,
@@ -48,9 +48,13 @@ where
     async fn ejecutar(&self, in_: InputData) -> Result<OutputData, LoginUniversalError> {
         let usuario = self.repositorio.buscar_por_documento(in_.documento).await?;
 
-        self.crypto_comparar
-            .comparar(in_.password, usuario.password)
-            .await?;
+        if !self
+            .cifrador
+            .verificar(in_.password, usuario.password)
+            .await?
+        {
+            return Err(LoginUniversalError::PasswordIncorrecto);
+        }
 
         let jwt_object = self
             .jwt

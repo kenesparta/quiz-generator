@@ -29,3 +29,11 @@ regex = "1.11"
 thiserror = "2.0.16"
 tokio = { version = "1.47", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "1.18", features = ["v4"] }
+
+# bcrypt es lento a propósito; sin optimizar, cada login en desarrollo y en los tests tardaba
+# ~0,9 s en lugar de ~0,25 s.
+[profile.dev.package.bcrypt]
+opt-level = 3
+
+[profile.dev.package.blowfish]
+opt-level = 3

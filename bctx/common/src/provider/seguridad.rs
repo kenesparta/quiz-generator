@@ -1,11 +1,26 @@
 use async_trait::async_trait;
+use thiserror::Error;
 
-#[async_trait]
-pub trait SeguridadCifrar<Error>: Send + Sync {
-    async fn cifrar(&self, password: String) -> Result<String, Error>;
+/// Fallo técnico al calcular o verificar un hash. Una contraseña que no coincide no es un
+/// error: [`Cifrador::verificar`] devuelve `Ok(false)`.
+#[derive(Debug, Error)]
+pub enum CifradoError {
+    #[error("no se pudo calcular el hash de la contraseña")]
+    Hash,
+
+    #[error("el hash guardado no es válido")]
+    HashNoValido,
+
+    #[error("la tarea de cifrado no terminó")]
+    Tarea,
 }
 
+/// Hash y verificación de contraseñas. La implementación elige el algoritmo y se ocupa de no
+/// bloquear el ejecutor async (el hash es lento a propósito).
 #[async_trait]
-pub trait SeguridadComparar<Error>: Send + Sync {
-    async fn comparar(&self, password: String, hashed: String) -> Result<(), Error>;
+pub trait Cifrador: Send + Sync {
+    async fn cifrar(&self, password: String) -> Result<String, CifradoError>;
+
+    /// `Ok(true)` si `password` corresponde a `hash`.
+    async fn verificar(&self, password: String, hash: String) -> Result<bool, CifradoError>;
 }

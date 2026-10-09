@@ -1,3 +1,4 @@
+use quizz_common::provider::seguridad::CifradoError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -17,6 +18,6 @@ pub enum LoginUniversalError {
     #[error("Error en el cache")]
     ErrorGenericoCache,
 
-    #[error("Cifrado no valido")]
-    CifradoNoValido,
+    #[error("Error al verificar el password: {0}")]
+    Cifrado(#[from] CifradoError),
 }

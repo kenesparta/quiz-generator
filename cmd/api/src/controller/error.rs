@@ -207,6 +207,7 @@ impl From<PostulanteError> for ApiError {
             | PostulanteGradoInstruccionError(_)
             | PostulanteGeneroError(_) => Self::solicitud_invalida(e),
             PasswordNoCoincide => Self::NoAutenticado(e.to_string()),
+            Cifrado(_) => Self::interno(e),
             PostulanteRepositorioError(RepoPostulante::RegistroNoEncontrado) => {
                 Self::no_encontrado("Postulante no encontrado")
             }
@@ -233,6 +234,7 @@ impl From<PsicologoError> for ApiError {
             }
             // Hoy PasswordVacio también señala un fallo al calcular el hash.
             PasswordVacio
+            | Cifrado(_)
             | PsicologoRepositorioError(
                 RepoPsicologo::PersistenciaNoFinalizada
                 | RepoPsicologo::LecturaNoFinalizada
@@ -254,6 +256,7 @@ impl From<AdminError> for ApiError {
             }
             // Hoy PasswordVacio también señala un fallo al calcular el hash.
             PasswordVacio
+            | Cifrado(_)
             | AdminRepositorioError(
                 RepoAdmin::PersistenciaNoFinalizada
                 | RepoAdmin::LecturaNoFinalizada
@@ -276,7 +279,7 @@ impl From<LoginUniversalError> for ApiError {
                 error!("login: {e}");
                 Self::NoDisponible
             }
-            JWTErrorAlGenerar | RepositorioError | CifradoNoValido => Self::interno(e),
+            JWTErrorAlGenerar | RepositorioError | Cifrado(_) => Self::interno(e),
         }
     }
 }

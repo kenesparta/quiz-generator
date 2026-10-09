@@ -616,7 +616,11 @@ async fn flujo_completo_y_controles_de_acceso() {
     let (estado, _) = e
         .pedir(Method::POST, &ruta, Some(&token_psicologo), Some(cuerpo))
         .await;
-    assert_eq!(estado, StatusCode::CONFLICT, "una hoja sin finalizar no se califica");
+    assert_eq!(
+        estado,
+        StatusCode::CONFLICT,
+        "una hoja sin finalizar no se califica"
+    );
     let (ruta, cuerpo) = revision(&hoja_a);
     let (estado, cuerpo) = e
         .pedir(Method::POST, &ruta, Some(&token_psicologo), Some(cuerpo))
@@ -624,7 +628,10 @@ async fn flujo_completo_y_controles_de_acceso() {
     assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
     let (estado, calificada) = e.pedir(Method::GET, &ruta, Some(&admin), None).await;
     assert_eq!(estado, StatusCode::OK, "{calificada}");
-    assert_eq!(calificada["psicologo"]["nombre_completo"], "Maria Garcia Lopez");
+    assert_eq!(
+        calificada["psicologo"]["nombre_completo"],
+        "Maria Garcia Lopez"
+    );
     assert_eq!(calificada["resultado"], "apto");
     assert!(calificada["fecha_revision"].is_string(), "{calificada}");
     assert_eq!(

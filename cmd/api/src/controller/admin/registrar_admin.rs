@@ -1,6 +1,6 @@
-use crate::controller::admin::crypto::CifradoAdmin;
 use crate::controller::admin::dto::RegistrarAdminDTO;
 use crate::controller::admin::mongo::write::AdminMongo;
+use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
 use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
@@ -15,7 +15,7 @@ impl AdminController {
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
-        RegistrarAdmin::new(Box::new(CifradoAdmin), Box::new(AdminMongo::new(db)))
+        RegistrarAdmin::new(Box::new(Bcrypt::default()), Box::new(AdminMongo::new(db)))
             .ejecutar(InputData {
                 id: id.into_inner(),
                 nombre: dto.nombre,

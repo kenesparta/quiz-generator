@@ -1,4 +1,5 @@
 use quizz_common::domain::value_objects::id::IdError;
+use quizz_common::provider::seguridad::CifradoError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -14,6 +15,9 @@ pub enum AdminError {
 
     #[error("Password vacio")]
     PasswordVacio,
+
+    #[error("Error al cifrar el password: {0}")]
+    Cifrado(#[from] CifradoError),
 
     #[error("Error al manipular la base de datos: {0:?}")]
     AdminRepositorioError(#[from] RepositorioError),

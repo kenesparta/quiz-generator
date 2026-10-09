@@ -1,8 +1,8 @@
 use crate::psicologo::domain::entity::psicologo::Psicologo;
 use crate::psicologo::domain::error::psicologo::PsicologoError;
-use crate::psicologo::provider::password::SeguridadPasswordPsicologo;
 use crate::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
 use async_trait::async_trait;
+use quizz_common::provider::seguridad::Cifrador;
 use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
@@ -16,16 +16,16 @@ pub struct InputData {
     pub password: String,
 }
 
-pub struct RegistrarPsicologo<PassErr, RepoErr> {
-    password_crypto: Box<dyn SeguridadPasswordPsicologo<PassErr>>,
+pub struct RegistrarPsicologo<RepoErr> {
+    password_crypto: Box<dyn Cifrador>,
     repositorio: Box<dyn RepositorioPsicologoEscritura<RepoErr>>,
 }
 
-impl<PassErr, RepoErr> RegistrarPsicologo<PassErr, RepoErr> {
+impl<RepoErr> RegistrarPsicologo<RepoErr> {
     pub fn new(
-        password_crypto: Box<dyn SeguridadPasswordPsicologo<PassErr>>,
+        password_crypto: Box<dyn Cifrador>,
         repositorio: Box<dyn RepositorioPsicologoEscritura<RepoErr>>,
-    ) -> RegistrarPsicologo<PassErr, RepoErr> {
+    ) -> RegistrarPsicologo<RepoErr> {
         Self {
             password_crypto,
             repositorio,
@@ -34,10 +34,8 @@ impl<PassErr, RepoErr> RegistrarPsicologo<PassErr, RepoErr> {
 }
 
 #[async_trait]
-impl<PassErr, RepoErr> CasoDeUso<InputData, (), PsicologoError>
-    for RegistrarPsicologo<PassErr, RepoErr>
+impl<RepoErr> CasoDeUso<InputData, (), PsicologoError> for RegistrarPsicologo<RepoErr>
 where
-    PsicologoError: From<PassErr>,
     PsicologoError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PsicologoError> {
@@ -61,6 +59,7 @@ where
 mod tests {
     use super::*;
     use async_trait::async_trait;
+    use quizz_common::provider::seguridad::CifradoError;
     use std::sync::Mutex;
 
     struct MockSeguridadPasswordPsicologo {
@@ -68,9 +67,13 @@ mod tests {
     }
 
     #[async_trait]
-    impl SeguridadPasswordPsicologo<PsicologoError> for MockSeguridadPasswordPsicologo {
-        async fn cifrar(&self, _password: String) -> Result<String, PsicologoError> {
+    impl Cifrador for MockSeguridadPasswordPsicologo {
+        async fn cifrar(&self, _password: String) -> Result<String, CifradoError> {
             Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
+        }
+
+        async fn verificar(&self, _password: String, _hash: String) -> Result<bool, CifradoError> {
+            Ok(false)
         }
     }
 

@@ -1,5 +1,5 @@
+use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
-use crate::controller::psicologo::crypto::CifradoPsicologo;
 use crate::controller::psicologo::dto::RegistrarPsicologoDTO;
 use crate::controller::psicologo::mongo::write::PsicologoMongo;
 use actix_web::{HttpResponse, web};
@@ -16,7 +16,7 @@ impl PsicologoController {
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
         RegistrarPsicologo::new(
-            Box::new(CifradoPsicologo),
+            Box::new(Bcrypt::default()),
             Box::new(PsicologoMongo::new(db)),
         )
         .ejecutar(InputData {

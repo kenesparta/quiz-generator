@@ -1,5 +1,5 @@
+use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
-use crate::controller::postulante::crypto::CifradoPorDefecto;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
@@ -22,7 +22,7 @@ impl PostulanteController {
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
         RegistrarPostulantePasswordTemporal::new(
-            Box::new(CifradoPorDefecto),
+            Box::new(Bcrypt::default()),
             Box::new(PostulanteMongo::new(db)),
         )
         .ejecutar(InputData {

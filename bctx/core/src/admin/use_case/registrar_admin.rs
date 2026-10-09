@@ -1,8 +1,8 @@
 use crate::admin::domain::entity::admin::Admin;
 use crate::admin::domain::error::admin::AdminError;
-use crate::admin::provider::password::SeguridadPasswordAdmin;
 use crate::admin::provider::repositorio::RepositorioAdminEscritura;
 use async_trait::async_trait;
+use quizz_common::provider::seguridad::Cifrador;
 use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
@@ -14,16 +14,16 @@ pub struct InputData {
     pub password: String,
 }
 
-pub struct RegistrarAdmin<PassErr, RepoErr> {
-    password_crypto: Box<dyn SeguridadPasswordAdmin<PassErr>>,
+pub struct RegistrarAdmin<RepoErr> {
+    password_crypto: Box<dyn Cifrador>,
     repositorio: Box<dyn RepositorioAdminEscritura<RepoErr>>,
 }
 
-impl<PassErr, RepoErr> RegistrarAdmin<PassErr, RepoErr> {
+impl<RepoErr> RegistrarAdmin<RepoErr> {
     pub fn new(
-        password_crypto: Box<dyn SeguridadPasswordAdmin<PassErr>>,
+        password_crypto: Box<dyn Cifrador>,
         repositorio: Box<dyn RepositorioAdminEscritura<RepoErr>>,
-    ) -> RegistrarAdmin<PassErr, RepoErr> {
+    ) -> RegistrarAdmin<RepoErr> {
         Self {
             password_crypto,
             repositorio,
@@ -32,9 +32,8 @@ impl<PassErr, RepoErr> RegistrarAdmin<PassErr, RepoErr> {
 }
 
 #[async_trait]
-impl<PassErr, RepoErr> CasoDeUso<InputData, (), AdminError> for RegistrarAdmin<PassErr, RepoErr>
+impl<RepoErr> CasoDeUso<InputData, (), AdminError> for RegistrarAdmin<RepoErr>
 where
-    AdminError: From<PassErr>,
     AdminError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), AdminError> {
@@ -56,6 +55,7 @@ where
 mod tests {
     use super::*;
     use async_trait::async_trait;
+    use quizz_common::provider::seguridad::CifradoError;
     use std::sync::Mutex;
 
     struct MockSeguridadPasswordAdmin {
@@ -63,9 +63,13 @@ mod tests {
     }
 
     #[async_trait]
-    impl SeguridadPasswordAdmin<AdminError> for MockSeguridadPasswordAdmin {
-        async fn cifrar(&self, _password: String) -> Result<String, AdminError> {
+    impl Cifrador for MockSeguridadPasswordAdmin {
+        async fn cifrar(&self, _password: String) -> Result<String, CifradoError> {
             Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
+        }
+
+        async fn verificar(&self, _password: String, _hash: String) -> Result<bool, CifradoError> {
+            Ok(false)
         }
     }
 

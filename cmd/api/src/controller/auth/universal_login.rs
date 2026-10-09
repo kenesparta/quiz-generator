@@ -1,7 +1,7 @@
-use crate::controller::auth::crypto::CifradoPorDefecto;
 use crate::controller::auth::dto::{DocumentoLoginRequestDTO, LoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::mongo::universal_read::LoginUniversalMongo;
+use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
 use actix_web::{HttpResponse, web};
 use log::info;
@@ -24,7 +24,7 @@ impl UniversalLoginController {
             .map_err(|_| ApiError::solicitud_invalida("Documento no válido"))?;
 
         let sesion = LoginUniversal::new(
-            Box::new(CifradoPorDefecto),
+            Box::new(Bcrypt::default()),
             Box::new(LoginUniversalMongo::new(db)),
             sesiones.into_inner(),
             Box::new(jwt.get_ref().clone()),

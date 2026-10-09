@@ -6,6 +6,7 @@ use crate::postulante::domain::error::password::PasswordError;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimientoError;
 use quizz_common::domain::value_objects::fecha_registro::FechaRegistroError;
 use quizz_common::domain::value_objects::id::IdError;
+use quizz_common::provider::seguridad::CifradoError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -36,6 +37,9 @@ pub enum PostulanteError {
 
     #[error("El password no coincide")]
     PasswordNoCoincide,
+
+    #[error("Error al cifrar el password: {0}")]
+    Cifrado(#[from] CifradoError),
 
     #[error("Error al manipular la base de datos: {0:?}")]
     PostulanteRepositorioError(#[from] RepositorioError),

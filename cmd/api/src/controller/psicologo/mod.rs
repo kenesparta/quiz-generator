@@ -1,4 +1,3 @@
-mod crypto;
 mod dto;
 pub mod listar_psicologos;
 pub mod mongo;

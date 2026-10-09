@@ -1,9 +1,5 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use crate::evaluacion::provider::repositorio::RepositorioEvaluacionListar;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
-
-pub struct InputData;
 
 #[derive(Debug, Clone)]
 pub struct OutputData {
@@ -15,22 +11,16 @@ pub struct OutputData {
     pub cantidad_examenes: usize,
 }
 
-pub struct ListarEvaluaciones<RepoErr> {
-    repositorio: Box<dyn RepositorioEvaluacionListar<RepoErr>>,
+pub struct ListarEvaluaciones<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> ListarEvaluaciones<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioEvaluacionListar<RepoErr>>) -> Self {
+impl<R: RepositorioEvaluacionListar> ListarEvaluaciones<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, Vec<OutputData>, EvaluacionError> for ListarEvaluaciones<RepoErr>
-where
-    EvaluacionError: From<RepoErr>,
-{
-    async fn ejecutar(&self, _input: InputData) -> Result<Vec<OutputData>, EvaluacionError> {
+    pub async fn ejecutar(&self) -> Result<Vec<OutputData>, EvaluacionError> {
         let evaluaciones = self.repositorio.listar_evaluaciones().await?;
         Ok(evaluaciones)
     }

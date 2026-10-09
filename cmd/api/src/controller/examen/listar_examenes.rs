@@ -2,8 +2,7 @@ use crate::controller::error::ApiError;
 use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
-use quizz_core::examen::use_case::listar_examenes::{InputData, ListarExamenes};
+use quizz_core::examen::use_case::listar_examenes::ListarExamenes;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -22,9 +21,7 @@ pub struct ListarExamenesController;
 
 impl ListarExamenesController {
     pub async fn list(db: web::Data<mongodb::Database>) -> Result<HttpResponse, ApiError> {
-        let examenes = ListarExamenes::new(Box::new(ExamenMongo::new(db)))
-            .ejecutar(InputData)
-            .await?;
+        let examenes = ListarExamenes::new(ExamenMongo::new(db)).ejecutar().await?;
 
         let items: Vec<ExamenListItemDTO> = examenes
             .into_iter()

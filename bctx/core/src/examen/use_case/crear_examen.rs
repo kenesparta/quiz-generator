@@ -1,8 +1,6 @@
 use crate::examen::domain::entity::examen::Examen;
 use crate::examen::domain::error::examen::ExamenError;
 use crate::examen::provider::repositorio::RepositorioExamenEscritura;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 
 #[derive(Debug, Clone)]
 pub struct InputData {
@@ -12,22 +10,16 @@ pub struct InputData {
     pub instrucciones: String,
 }
 
-pub struct CrearExamen<RepoErr> {
-    repositorio: Box<dyn RepositorioExamenEscritura<RepoErr>>,
+pub struct CrearExamen<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> CrearExamen<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioExamenEscritura<RepoErr>>) -> CrearExamen<RepoErr> {
+impl<R: RepositorioExamenEscritura> CrearExamen<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), ExamenError> for CrearExamen<RepoErr>
-where
-    ExamenError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), ExamenError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), ExamenError> {
         let examen = Examen::new(
             in_.id.to_string(),
             in_.titulo,

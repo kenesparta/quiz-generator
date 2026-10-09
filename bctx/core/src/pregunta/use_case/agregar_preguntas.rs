@@ -3,8 +3,6 @@ use crate::pregunta::domain::entity::pregunta::PreguntaEntity;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
 use crate::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use crate::pregunta::provider::repositorio::RepositorioAgregarPregunta;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -23,22 +21,16 @@ pub struct PreguntaEntityInput {
     pub puntaje: HashMap<String, u32>,
 }
 
-pub struct AgregarPreguntasParaExamen<RepoErr> {
-    repositorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>,
+pub struct AgregarPreguntasParaExamen<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> AgregarPreguntasParaExamen<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioAgregarPregunta<RepoErr>>) -> Self {
+impl<R: RepositorioAgregarPregunta> AgregarPreguntasParaExamen<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), PreguntaError> for AgregarPreguntasParaExamen<RepoErr>
-where
-    PreguntaError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), PreguntaError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), PreguntaError> {
         let examen_id = ExamenID::new(&in_.examen_id)?;
         let preguntas = in_
             .preguntas

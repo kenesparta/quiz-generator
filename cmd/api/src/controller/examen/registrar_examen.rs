@@ -2,7 +2,6 @@ use crate::controller::error::ApiError;
 use crate::controller::examen::dto::RegistrarExamenDTO;
 use crate::controller::examen::mongo::write::ExamenMongo;
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::examen::use_case::crear_examen::{CrearExamen, InputData};
 
 pub struct ExamenController;
@@ -14,7 +13,7 @@ impl ExamenController {
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
-        CrearExamen::new(Box::new(ExamenMongo::new(db)))
+        CrearExamen::new(ExamenMongo::new(db))
             .ejecutar(InputData {
                 id: id.into_inner(),
                 titulo: dto.titulo,

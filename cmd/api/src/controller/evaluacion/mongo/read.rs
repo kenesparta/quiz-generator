@@ -1,6 +1,5 @@
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::MongoRepository;
-use async_trait::async_trait;
 use futures::TryStreamExt;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
@@ -23,8 +22,7 @@ struct FilaListaEvaluacion {
     cantidad_examenes: i64,
 }
 
-#[async_trait]
-impl RepositorioEvaluacionListar<EvaluacionError> for EvaluacionMongo {
+impl RepositorioEvaluacionListar for EvaluacionMongo {
     async fn listar_evaluaciones(&self) -> Result<Vec<OutputData>, EvaluacionError> {
         let error_lectura = |e: mongodb::error::Error| {
             error!("mongo, listar evaluaciones: {e}");

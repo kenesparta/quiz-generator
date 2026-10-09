@@ -2,7 +2,6 @@ use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME
 use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
@@ -46,8 +45,7 @@ impl MongoRepository for EvaluacionMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
+impl RepositorioEvaluacionEscritura for EvaluacionMongo {
     async fn guardar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
         let documento = doc! {
             "_id": evaluacion.id.to_string(),
@@ -130,8 +128,7 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
+impl RepositorioLeerEvaluacion for EvaluacionMongo {
     async fn obtener_evaluacion(
         &self,
         evaluacion_id: EvaluacionID,
@@ -223,8 +220,7 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
+impl RepositorioPublicarEvaluacion for EvaluacionMongo {
     async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
         let examenes_docs: Vec<mongodb::bson::Document> = evaluacion
             .examenes

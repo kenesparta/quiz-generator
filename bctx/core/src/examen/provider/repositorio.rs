@@ -1,18 +1,22 @@
+//! Puertos de exámenes. Los casos de uso los reciben como genéricos (despacho estático), no
+//! como `dyn`: por eso son `async` nativos y declaran que su futuro es `Send`. El adaptador
+//! los implementa con `async fn`.
+
 use crate::examen::domain::entity::examen::Examen;
+use crate::examen::domain::error::examen::ExamenError;
 use crate::examen::use_case::listar_examenes::OutputData;
-use async_trait::async_trait;
 
-#[async_trait]
-pub trait RepositorioExamenEscritura<Error>: Send + Sync {
-    async fn guardar_examen(&self, examen: Examen) -> Result<(), Error>;
+pub trait RepositorioExamenEscritura: Send + Sync {
+    fn guardar_examen(
+        &self,
+        examen: Examen,
+    ) -> impl Future<Output = Result<(), ExamenError>> + Send;
 }
 
-#[async_trait]
-pub trait RepositorioExamenLectura<Error>: Send + Sync {
-    async fn obtener_examen(&self, id: &str) -> Result<Examen, Error>;
+pub trait RepositorioExamenLectura: Send + Sync {
+    fn obtener_examen(&self, id: &str) -> impl Future<Output = Result<Examen, ExamenError>> + Send;
 }
 
-#[async_trait]
-pub trait RepositorioExamenListar<Error>: Send + Sync {
-    async fn listar_examenes(&self) -> Result<Vec<OutputData>, Error>;
+pub trait RepositorioExamenListar: Send + Sync {
+    fn listar_examenes(&self) -> impl Future<Output = Result<Vec<OutputData>, ExamenError>> + Send;
 }

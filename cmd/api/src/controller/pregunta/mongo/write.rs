@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::pregunta::mongo::constantes::EXAMEN_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
@@ -33,8 +32,7 @@ impl MongoRepository for PreguntaPorExamenMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioAgregarPregunta<PreguntaError> for PreguntaPorExamenMongo {
+impl RepositorioAgregarPregunta for PreguntaPorExamenMongo {
     async fn agregar(
         &self,
         examen_id: ExamenID,

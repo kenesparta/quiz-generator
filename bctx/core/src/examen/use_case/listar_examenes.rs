@@ -1,9 +1,5 @@
 use crate::examen::domain::error::examen::ExamenError;
 use crate::examen::provider::repositorio::RepositorioExamenListar;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
-
-pub struct InputData;
 
 #[derive(Debug, Clone)]
 pub struct OutputData {
@@ -15,23 +11,16 @@ pub struct OutputData {
     pub cantidad_preguntas: usize,
 }
 
-pub struct ListarExamenes<RepoErr> {
-    repositorio: Box<dyn RepositorioExamenListar<RepoErr>>,
+pub struct ListarExamenes<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> ListarExamenes<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioExamenListar<RepoErr>>) -> Self {
+impl<R: RepositorioExamenListar> ListarExamenes<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, Vec<OutputData>, ExamenError> for ListarExamenes<RepoErr>
-where
-    ExamenError: From<RepoErr>,
-{
-    async fn ejecutar(&self, _input: InputData) -> Result<Vec<OutputData>, ExamenError> {
-        let examenes = self.repositorio.listar_examenes().await?;
-        Ok(examenes)
+    pub async fn ejecutar(&self) -> Result<Vec<OutputData>, ExamenError> {
+        self.repositorio.listar_examenes().await
     }
 }

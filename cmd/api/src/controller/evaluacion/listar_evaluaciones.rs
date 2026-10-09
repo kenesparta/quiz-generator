@@ -2,9 +2,8 @@ use crate::controller::error::ApiError;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
-use quizz_core::evaluacion::use_case::listar_evaluaciones::{InputData, ListarEvaluaciones};
+use quizz_core::evaluacion::use_case::listar_evaluaciones::ListarEvaluaciones;
 use serde::Serialize;
 use std::str::FromStr;
 
@@ -24,8 +23,8 @@ pub struct ListarEvaluacionesController;
 
 impl ListarEvaluacionesController {
     pub async fn list(db: web::Data<mongodb::Database>) -> Result<HttpResponse, ApiError> {
-        let evaluaciones = ListarEvaluaciones::new(Box::new(EvaluacionMongo::new(db)))
-            .ejecutar(InputData)
+        let evaluaciones = ListarEvaluaciones::new(EvaluacionMongo::new(db))
+            .ejecutar()
             .await?;
 
         let items: Vec<EvaluacionListItemDTO> = evaluaciones

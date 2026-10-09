@@ -1,7 +1,6 @@
 use crate::controller::examen::mongo::constantes::EXAMEN_COLLECTION_NAME;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::examen::domain::entity::examen::Examen;
 use quizz_core::examen::domain::error::examen::ExamenError;
@@ -29,8 +28,7 @@ impl MongoRepository for ExamenMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioExamenEscritura<ExamenError> for ExamenMongo {
+impl RepositorioExamenEscritura for ExamenMongo {
     async fn guardar_examen(&self, examen: Examen) -> Result<(), ExamenError> {
         let documento = doc! {
             "_id": examen.id.value().uuid().to_string(),

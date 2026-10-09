@@ -1,7 +1,6 @@
 use crate::controller::examen::dto::PreguntaMongoDTO;
 use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::MongoRepository;
-use async_trait::async_trait;
 use futures::TryStreamExt;
 use mongodb::bson;
 use mongodb::bson::doc;
@@ -22,8 +21,7 @@ use serde::Deserialize;
 use std::str::FromStr;
 use tracing::error;
 
-#[async_trait]
-impl RepositorioExamenLectura<ExamenError> for ExamenMongo {
+impl RepositorioExamenLectura for ExamenMongo {
     async fn obtener_examen(&self, id: &str) -> Result<Examen, ExamenError> {
         let filter = doc! { "_id": id };
 
@@ -110,8 +108,7 @@ struct FilaListaExamen {
     cantidad_preguntas: i64,
 }
 
-#[async_trait]
-impl RepositorioExamenListar<ExamenError> for ExamenMongo {
+impl RepositorioExamenListar for ExamenMongo {
     async fn listar_examenes(&self) -> Result<Vec<OutputData>, ExamenError> {
         let error_lectura = |e: mongodb::error::Error| {
             error!("mongo, listar examenes: {e}");

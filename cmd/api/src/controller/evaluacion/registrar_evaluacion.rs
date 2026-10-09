@@ -2,7 +2,6 @@ use crate::controller::error::ApiError;
 use crate::controller::evaluacion::dto::RegistrarEvaluacionDTO;
 use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::evaluacion::use_case::crear_evaluacion::{CrearEvaluacion, InputData};
 
 pub struct EvaluacionController;
@@ -14,7 +13,7 @@ impl EvaluacionController {
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
-        CrearEvaluacion::new(Box::new(EvaluacionMongo::new(db)))
+        CrearEvaluacion::new(EvaluacionMongo::new(db))
             .ejecutar(InputData {
                 id: id.into_inner(),
                 titulo: dto.titulo,

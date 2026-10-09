@@ -1,30 +1,22 @@
 use crate::evaluacion::domain::error::evaluacion::EvaluacionError;
 use crate::evaluacion::provider::repositorio::RepositorioPublicarEvaluacion;
 use crate::evaluacion::value_object::id::EvaluacionID;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 
 #[derive(Debug, Clone)]
 pub struct InputData {
     pub evaluacion_id: String,
 }
 
-pub struct PublicarEvaluacion<RepoErr> {
-    repositorio: Box<dyn RepositorioPublicarEvaluacion<RepoErr>>,
+pub struct PublicarEvaluacion<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> PublicarEvaluacion<RepoErr> {
-    pub fn new(repositorio: Box<dyn RepositorioPublicarEvaluacion<RepoErr>>) -> Self {
+impl<R: RepositorioPublicarEvaluacion> PublicarEvaluacion<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), EvaluacionError> for PublicarEvaluacion<RepoErr>
-where
-    EvaluacionError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
         let mut evaluacion = self
             .repositorio
             .obtener_evaluacion(EvaluacionID::new(in_.evaluacion_id.as_str())?)

@@ -839,7 +839,9 @@ async fn flujo_completo_y_controles_de_acceso() {
     let (estado, examenes) = e.pedir(Method::GET, "/examenes", Some(&admin), None).await;
     assert_eq!(estado, StatusCode::OK);
     assert_eq!(examenes["items"][0]["cantidad_preguntas"], 2, "{examenes}");
-    let (estado, evaluaciones) = e.pedir(Method::GET, "/evaluaciones", Some(&admin), None).await;
+    let (estado, evaluaciones) = e
+        .pedir(Method::GET, "/evaluaciones", Some(&admin), None)
+        .await;
     assert_eq!(estado, StatusCode::OK);
     let publicada = evaluaciones["items"]
         .as_array()
@@ -853,7 +855,11 @@ async fn flujo_completo_y_controles_de_acceso() {
         .pedir(Method::GET, "/revisiones", Some(&token_psicologo), None)
         .await;
     assert_eq!(estado, StatusCode::OK);
-    assert_eq!(revisiones["items"][0]["respuesta_id"], hoja_a.as_str(), "{revisiones}");
+    assert_eq!(
+        revisiones["items"][0]["respuesta_id"],
+        hoja_a.as_str(),
+        "{revisiones}"
+    );
     assert_eq!(revisiones["items"][0]["estado_revision"], "finalizada");
     for ruta in ["/psicologos", "/postulantes"] {
         let (estado, lista) = e.pedir(Method::GET, ruta, Some(&admin), None).await;

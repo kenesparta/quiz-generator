@@ -1,16 +1,16 @@
 use crate::postulante::domain::error::password::PasswordError;
-use regex;
 use regex::Regex;
 use std::fmt;
-use std::sync::OnceLock;
+use std::sync::LazyLock;
 
-static REGEXP: OnceLock<Regex> = OnceLock::new();
+/// Formato de un hash bcrypt: `$2a$`, `$2b$` o `$2y$`, el coste y 53 caracteres.
+static HASH_BCRYPT: LazyLock<Regex> = LazyLock::new(|| {
+    #[allow(clippy::expect_used, reason = "patrón literal, cubierto por los tests")]
+    Regex::new(r"^\$2[aby]?\$\d{2}\$[./A-Za-z0-9]{53}$").expect("patrón de hash bcrypt no válido")
+});
 
 pub fn password_hash_regexp() -> &'static Regex {
-    REGEXP.get_or_init(|| {
-        Regex::new(r"^\$2[aby]?\$\d{2}\$[./A-Za-z0-9]{53}$")
-            .expect("expresion regular para password hash no valida")
-    })
+    &HASH_BCRYPT
 }
 
 /// Hash bcrypt de la contraseña del postulante. `Debug` no muestra el hash.

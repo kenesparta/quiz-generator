@@ -9,7 +9,7 @@ use mongodb::bson::{Bson, Document, doc};
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
 use quizz_common::domain::value_objects::zona_horaria::{
-    formatear_rfc3339, offset_lima, utc_a_lima,
+    formatear_rfc3339, hora_de_lima, utc_a_lima,
 };
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
@@ -54,9 +54,7 @@ fn leer_fecha(fecha: &Bson) -> Result<String, PostulanteError> {
             Ok(texto.clone())
         }
         Bson::String(texto) => match NaiveDateTime::parse_from_str(texto, "%Y-%m-%d %H:%M:%S") {
-            Ok(local) => local
-                .and_local_timezone(offset_lima())
-                .single()
+            Ok(local) => hora_de_lima(local)
                 .map(|fecha| formatear_rfc3339(&fecha))
                 .ok_or_else(lectura_fallida),
             // Una fecha de nacimiento "AAAA-MM-DD" se valida después, en su value object.

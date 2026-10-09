@@ -1,0 +1,6 @@
+# Perfil de CI: no se detiene en el primer fallo y deja un informe JUnit.
+[profile.ci]
+fail-fast = false
+
+[profile.ci.junit]
+path = "junit.xml"

@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # semanal: detecta avisos nuevos de RustSec sin cambios de código
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      # Lee rust-toolchain.toml (canal y componentes); fmt no necesita caché.
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          cache: false
+      - run: cargo fmt --all --check
+
+  clippy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      # v2 fija CARGO_BUILD_WARNINGS=deny (Cargo >= 1.97) y configura Swatinem/rust-cache.
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+      - run: cargo clippy --workspace --all-targets --all-features --locked
+
+  test:
+    runs-on: ubuntu-24.04
+    # El test e2e (cmd/api/tests/api_e2e.rs) levanta MongoDB y Redis con testcontainers:
+    # el runner ya tiene Docker.
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest,cargo-llvm-cov
+      - name: Tests (nextest) y suelo de cobertura de líneas
+        run: >-
+          cargo llvm-cov nextest --workspace --locked --profile ci
+          --fail-under-lines 88 --lcov --output-path lcov.info
+      - name: Doctests (nextest no los ejecuta)
+        run: cargo test --workspace --doc --locked
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            target/nextest/ci/junit.xml
+            lcov.info
+
+  deps:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          cache: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny,cargo-shear
+      # Avisos de RustSec, licencias, crates prohibidos y orígenes, según deny.toml.
+      - run: cargo deny --locked check
+      # Dependencias declaradas que nadie usa.
+      - run: cargo shear

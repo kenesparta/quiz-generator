@@ -5,9 +5,7 @@ use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::genero::Genero;
 use crate::postulante::domain::value_object::grado_instruccion::GradoInstruccion;
 use crate::postulante::provider::repositorio::RepositorioPostulanteEscritura;
-use async_trait::async_trait;
 use quizz_common::provider::seguridad::Cifrador;
-use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
 pub struct InputData {
@@ -21,30 +19,20 @@ pub struct InputData {
     pub genero: String,
 }
 
-pub struct RegistrarPostulantePasswordTemporal<RepoErr> {
-    password_crypto: Box<dyn Cifrador>,
-    repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
+pub struct RegistrarPostulantePasswordTemporal<C, R> {
+    password_crypto: C,
+    repositorio: R,
 }
 
-impl<RepoErr> RegistrarPostulantePasswordTemporal<RepoErr> {
-    pub fn new(
-        password_crypto: Box<dyn Cifrador>,
-        repositorio: Box<dyn RepositorioPostulanteEscritura<RepoErr>>,
-    ) -> RegistrarPostulantePasswordTemporal<RepoErr> {
+impl<C: Cifrador, R: RepositorioPostulanteEscritura> RegistrarPostulantePasswordTemporal<C, R> {
+    pub fn new(password_crypto: C, repositorio: R) -> Self {
         Self {
             password_crypto,
             repositorio,
         }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), PostulanteError>
-    for RegistrarPostulantePasswordTemporal<RepoErr>
-where
-    PostulanteError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
         let grado_instruccion = GradoInstruccion::from_str(&in_.grado_instruccion)?;
         let genero = Genero::from_str(&in_.genero)?;
         let documento = Documento::new(&in_.documento)?;
@@ -77,7 +65,6 @@ mod tests {
         PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada)
     }
     use crate::postulante::domain::value_object::id::PostulanteID;
-    use async_trait::async_trait;
     use quizz_common::provider::seguridad::CifradoError;
     use std::sync::Mutex;
 
@@ -85,7 +72,6 @@ mod tests {
         _cifrar_result: Result<String, PostulanteError>,
     }
 
-    #[async_trait]
     impl Cifrador for MockSeguridadPassword {
         async fn cifrar(&self, _password: String) -> Result<String, CifradoError> {
             Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
@@ -103,8 +89,7 @@ mod tests {
         _result: Result<(), PostulanteError>,
     }
 
-    #[async_trait]
-    impl RepositorioPostulanteEscritura<PostulanteError> for MockRepositorioPostulante {
+    impl RepositorioPostulanteEscritura for MockRepositorioPostulante {
         async fn registrar_postulante(
             &self,
             _postulante: Postulante,
@@ -131,16 +116,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_registrar_postulante_success() {
-        let password_crypto = Box::new(MockSeguridadPassword {
+        let password_crypto = MockSeguridadPassword {
             _cifrar_result: Ok(
                 "$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string(),
             ),
-        });
+        };
 
-        let repositorio = Box::new(MockRepositorioPostulante {
+        let repositorio = MockRepositorioPostulante {
             _postulante: Mutex::new(None),
             _result: Ok(()),
-        });
+        };
 
         let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
 
@@ -162,14 +147,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_registrar_postulante_invalid_documento() {
-        let password_crypto = Box::new(MockSeguridadPassword {
+        let password_crypto = MockSeguridadPassword {
             _cifrar_result: Ok("hashed_password".to_string()),
-        });
+        };
 
-        let repositorio = Box::new(MockRepositorioPostulante {
+        let repositorio = MockRepositorioPostulante {
             _postulante: Mutex::new(None),
             _result: Ok(()),
-        });
+        };
 
         let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
 
@@ -191,14 +176,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_registrar_postulante_invalid_genero() {
-        let password_crypto = Box::new(MockSeguridadPassword {
+        let password_crypto = MockSeguridadPassword {
             _cifrar_result: Ok("hashed_password".to_string()),
-        });
+        };
 
-        let repositorio = Box::new(MockRepositorioPostulante {
+        let repositorio = MockRepositorioPostulante {
             _postulante: Mutex::new(None),
             _result: Ok(()),
-        });
+        };
 
         let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
 
@@ -220,14 +205,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_registrar_postulante_invalid_grado() {
-        let password_crypto = Box::new(MockSeguridadPassword {
+        let password_crypto = MockSeguridadPassword {
             _cifrar_result: Ok("hashed_password".to_string()),
-        });
+        };
 
-        let repositorio = Box::new(MockRepositorioPostulante {
+        let repositorio = MockRepositorioPostulante {
             _postulante: Mutex::new(None),
             _result: Ok(()),
-        });
+        };
 
         let use_case = RegistrarPostulantePasswordTemporal::new(password_crypto, repositorio);
 

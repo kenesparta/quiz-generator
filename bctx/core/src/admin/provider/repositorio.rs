@@ -1,7 +1,6 @@
 use crate::admin::domain::entity::admin::Admin;
-use async_trait::async_trait;
+use crate::admin::domain::error::admin::AdminError;
 
-#[async_trait]
-pub trait RepositorioAdminEscritura<Error>: Send + Sync {
-    async fn registrar_admin(&self, admin: Admin) -> Result<(), Error>;
+pub trait RepositorioAdminEscritura: Send + Sync {
+    fn registrar_admin(&self, admin: Admin) -> impl Future<Output = Result<(), AdminError>> + Send;
 }

@@ -2,9 +2,12 @@ use crate::universal::domain::error::login_universal::LoginUniversalError;
 use crate::universal::domain::usuario_login::UsuarioLogin;
 use async_trait::async_trait;
 
-#[async_trait]
-pub trait RepositorioLoginUniversalLectura<Error>: Send + Sync {
-    async fn buscar_por_documento(&self, documento: String) -> Result<UsuarioLogin, Error>;
+/// Busca la cuenta de un documento en las colecciones de admins, psicólogos y postulantes.
+pub trait RepositorioLoginUniversalLectura: Send + Sync {
+    fn buscar_por_documento(
+        &self,
+        documento: String,
+    ) -> impl Future<Output = Result<UsuarioLogin, LoginUniversalError>> + Send;
 }
 
 /// Sesiones abiertas: como mucho una por usuario, identificada por el `jti` de su token.

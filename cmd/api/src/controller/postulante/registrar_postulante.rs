@@ -4,7 +4,6 @@ use crate::controller::postulante::dto::RegistrarPostulanteDTO;
 use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use crate::controller::postulante::mongo::write::PostulanteMongo;
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::use_case::actualizar_postulante_por_documento::{
     ActualizarPostulantePorDocumento, InputData as ActualizarPorDocumentoInputData,
 };
@@ -21,21 +20,18 @@ impl PostulanteController {
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
-        RegistrarPostulantePasswordTemporal::new(
-            Box::new(Bcrypt::default()),
-            Box::new(PostulanteMongo::new(db)),
-        )
-        .ejecutar(InputData {
-            id: id.into_inner(),
-            documento: dto.documento,
-            nombre: dto.nombre,
-            primer_apellido: dto.primer_apellido,
-            segundo_apellido: dto.segundo_apellido,
-            fecha_nacimiento: dto.fecha_nacimiento,
-            grado_instruccion: dto.grado_instruccion,
-            genero: dto.genero,
-        })
-        .await?;
+        RegistrarPostulantePasswordTemporal::new(Bcrypt::default(), PostulanteMongo::new(db))
+            .ejecutar(InputData {
+                id: id.into_inner(),
+                documento: dto.documento,
+                nombre: dto.nombre,
+                primer_apellido: dto.primer_apellido,
+                segundo_apellido: dto.segundo_apellido,
+                fecha_nacimiento: dto.fecha_nacimiento,
+                grado_instruccion: dto.grado_instruccion,
+                genero: dto.genero,
+            })
+            .await?;
         Ok(HttpResponse::Created().finish())
     }
 
@@ -45,8 +41,8 @@ impl PostulanteController {
     ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
         ActualizarPostulantePorDocumento::new(
-            Box::new(PostulanteReadMongo::new(db.clone())),
-            Box::new(PostulanteMongo::new(db)),
+            PostulanteReadMongo::new(db.clone()),
+            PostulanteMongo::new(db),
         )
         .ejecutar(ActualizarPorDocumentoInputData {
             documento: dto.documento,

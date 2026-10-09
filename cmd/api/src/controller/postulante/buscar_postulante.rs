@@ -6,14 +6,11 @@ use crate::controller::postulante::dto::{
 use crate::controller::postulante::mongo::read::PostulanteReadMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
-use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::use_case::buscar_postulante::{InputData, ObtenerPostulantePorId};
 use quizz_core::postulante::use_case::buscar_postulante_por_documento::{
     InputData as DocumentoInputData, ObtenerPostulantePorDNI,
 };
-use quizz_core::postulante::use_case::lista_postulantes::{
-    InputData as ListInputData, ObtenerListaDePostulantes, OutputData,
-};
+use quizz_core::postulante::use_case::lista_postulantes::{ObtenerListaDePostulantes, OutputData};
 
 pub struct BuscarPostulanteController;
 
@@ -32,7 +29,7 @@ impl BuscarPostulanteController {
         let Some(claims) = req.extensions().get::<Claims>().cloned() else {
             return Err(ApiError::NoAutenticado("Token no encontrado".to_string()));
         };
-        let repositorio = || Box::new(PostulanteReadMongo::new(db.clone()));
+        let repositorio = || PostulanteReadMongo::new(db.clone());
 
         if claims.rol.as_deref().and_then(|r| r.parse::<Rol>().ok()) == Some(Rol::Postulante) {
             let propio = ObtenerPostulantePorId::new(repositorio())
@@ -62,7 +59,7 @@ impl BuscarPostulanteController {
             }
             (None, None) => {
                 let lista = ObtenerListaDePostulantes::new(repositorio())
-                    .ejecutar(ListInputData {})
+                    .ejecutar()
                     .await?;
                 let items: Vec<PostulanteResponseDTO> =
                     lista.postulantes.into_iter().map(respuesta).collect();

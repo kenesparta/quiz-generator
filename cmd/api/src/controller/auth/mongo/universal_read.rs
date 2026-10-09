@@ -2,7 +2,6 @@ use crate::controller::auth::mongo::constantes::{
     ADMIN_AUTH_COLLECTION_NAME, POSTULANTE_AUTH_COLLECTION_NAME, PSICOLOGO_AUTH_COLLECTION_NAME,
 };
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::{Document, doc};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
@@ -54,8 +53,7 @@ impl LoginUniversalMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioLoginUniversalLectura<LoginUniversalError> for LoginUniversalMongo {
+impl RepositorioLoginUniversalLectura for LoginUniversalMongo {
     async fn buscar_por_documento(
         &self,
         documento: String,

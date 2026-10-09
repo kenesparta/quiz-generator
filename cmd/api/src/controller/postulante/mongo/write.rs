@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::postulante::domain::entity::postulante::Postulante;
 use quizz_core::postulante::domain::error::postulante::{PostulanteError, RepositorioError};
@@ -29,8 +28,7 @@ impl MongoRepository for PostulanteMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
+impl RepositorioPostulanteEscritura for PostulanteMongo {
     async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), PostulanteError> {
         let password = postulante
             .password

@@ -2,8 +2,7 @@ use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse};
 use crate::controller::psicologo::mongo::read::PsicologoReadMongo;
 use actix_web::{HttpResponse, web};
-use quizz_common::use_case::CasoDeUso;
-use quizz_core::psicologo::use_case::listar_psicologos::{InputData, ListarPsicologos};
+use quizz_core::psicologo::use_case::listar_psicologos::ListarPsicologos;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -23,8 +22,8 @@ pub struct ListarPsicologosController;
 
 impl ListarPsicologosController {
     pub async fn list(db: web::Data<mongodb::Database>) -> Result<HttpResponse, ApiError> {
-        let psicologos = ListarPsicologos::new(Box::new(PsicologoReadMongo::new(db)))
-            .ejecutar(InputData)
+        let psicologos = ListarPsicologos::new(PsicologoReadMongo::new(db))
+            .ejecutar()
             .await?;
 
         let items: Vec<PsicologoListItemDTO> = psicologos

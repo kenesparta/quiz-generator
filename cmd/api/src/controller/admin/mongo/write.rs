@@ -1,7 +1,6 @@
 use crate::controller::admin::mongo::constantes::ADMIN_COLLECTION_NAME;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::admin::domain::entity::admin::Admin;
 use quizz_core::admin::domain::error::admin::{AdminError, RepositorioError};
@@ -28,8 +27,7 @@ impl MongoRepository for AdminMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioAdminEscritura<AdminError> for AdminMongo {
+impl RepositorioAdminEscritura for AdminMongo {
     async fn registrar_admin(&self, admin: Admin) -> Result<(), AdminError> {
         let password = admin.password.ok_or(AdminError::AdminRepositorioError(
             RepositorioError::PasswordVacio,

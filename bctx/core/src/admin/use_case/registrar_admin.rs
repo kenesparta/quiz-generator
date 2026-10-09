@@ -1,10 +1,8 @@
 use crate::admin::domain::entity::admin::Admin;
 use crate::admin::domain::error::admin::AdminError;
 use crate::admin::provider::repositorio::RepositorioAdminEscritura;
-use async_trait::async_trait;
 use quizz_common::domain::value_objects::password_plano::PasswordPlano;
 use quizz_common::provider::seguridad::Cifrador;
-use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub id: String,
@@ -17,29 +15,20 @@ pub struct InputData {
 
 /// Registra un admin. La contraseña se valida en texto plano antes de calcular el hash, y solo
 /// el hash llega a la entidad y al repositorio.
-pub struct RegistrarAdmin<RepoErr> {
-    password_crypto: Box<dyn Cifrador>,
-    repositorio: Box<dyn RepositorioAdminEscritura<RepoErr>>,
+pub struct RegistrarAdmin<C, R> {
+    password_crypto: C,
+    repositorio: R,
 }
 
-impl<RepoErr> RegistrarAdmin<RepoErr> {
-    pub fn new(
-        password_crypto: Box<dyn Cifrador>,
-        repositorio: Box<dyn RepositorioAdminEscritura<RepoErr>>,
-    ) -> RegistrarAdmin<RepoErr> {
+impl<C: Cifrador, R: RepositorioAdminEscritura> RegistrarAdmin<C, R> {
+    pub fn new(password_crypto: C, repositorio: R) -> Self {
         Self {
             password_crypto,
             repositorio,
         }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), AdminError> for RegistrarAdmin<RepoErr>
-where
-    AdminError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), AdminError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), AdminError> {
         let password = PasswordPlano::new(in_.password)?;
         let hash = self.password_crypto.cifrar(password.into_inner()).await?;
         let admin = Admin::new(
@@ -68,7 +57,6 @@ mod tests {
     #[derive(Clone, Default)]
     struct CifradorFalso(Arc<Mutex<Vec<String>>>);
 
-    #[async_trait]
     impl Cifrador for CifradorFalso {
         async fn cifrar(&self, password: String) -> Result<String, CifradoError> {
             self.0.lock().unwrap().push(password);
@@ -86,8 +74,7 @@ mod tests {
     #[derive(Clone, Default)]
     struct RepositorioFalso(Arc<Mutex<Vec<Admin>>>);
 
-    #[async_trait]
-    impl RepositorioAdminEscritura<AdminError> for RepositorioFalso {
+    impl RepositorioAdminEscritura for RepositorioFalso {
         async fn registrar_admin(&self, admin: Admin) -> Result<(), AdminError> {
             self.0.lock().unwrap().push(admin);
             Ok(())
@@ -108,7 +95,7 @@ mod tests {
     #[tokio::test]
     async fn guarda_el_hash_y_no_la_contraseña() {
         let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
-        RegistrarAdmin::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
+        RegistrarAdmin::new(cifrador.clone(), repositorio.clone())
             .ejecutar(entrada("una-clave-segura"))
             .await
             .unwrap();
@@ -125,10 +112,9 @@ mod tests {
             ("corta", PasswordPlanoError::MuyCorto),
         ] {
             let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
-            let resultado =
-                RegistrarAdmin::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
-                    .ejecutar(entrada(password))
-                    .await;
+            let resultado = RegistrarAdmin::new(cifrador.clone(), repositorio.clone())
+                .ejecutar(entrada(password))
+                .await;
 
             assert!(
                 matches!(&resultado, Err(AdminError::PasswordNoValido(e)) if *e == esperado),
@@ -144,12 +130,9 @@ mod tests {
         let repositorio = RepositorioFalso::default();
         let mut datos = entrada("una-clave-segura");
         datos.documento = "123".to_string();
-        let resultado = RegistrarAdmin::new(
-            Box::new(CifradorFalso::default()),
-            Box::new(repositorio.clone()),
-        )
-        .ejecutar(datos)
-        .await;
+        let resultado = RegistrarAdmin::new(CifradorFalso::default(), repositorio.clone())
+            .ejecutar(datos)
+            .await;
 
         assert!(matches!(resultado, Err(AdminError::DocumentoNoValido(_))));
         assert!(repositorio.0.lock().unwrap().is_empty());

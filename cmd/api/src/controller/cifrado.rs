@@ -5,7 +5,6 @@
 //! peticiones de ese worker (se midieron esperas de 1,85 s y 500 espurios bajo carga).
 //! `spawn_blocking` lo lleva al pool de hilos bloqueantes de Tokio. Este es el único sitio
 //! que llama a bcrypt, así ningún llamador puede olvidarlo.
-use async_trait::async_trait;
 use quizz_common::provider::seguridad::{CifradoError, Cifrador};
 
 /// Hash de coste 12 (el de producción) de una contraseña que no usa nadie: verificar contra él
@@ -33,7 +32,6 @@ impl Bcrypt {
     }
 }
 
-#[async_trait]
 impl Cifrador for Bcrypt {
     async fn cifrar(&self, password: String) -> Result<String, CifradoError> {
         let coste = self.coste;

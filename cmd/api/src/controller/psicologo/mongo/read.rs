@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
 use quizz_core::psicologo::provider::repositorio::{
@@ -30,8 +29,7 @@ impl MongoRepository for PsicologoReadMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPsicologoLectura<PsicologoError> for PsicologoReadMongo {
+impl RepositorioPsicologoLectura for PsicologoReadMongo {
     async fn obtener_psicologo_por_id(&self, id: String) -> Result<PsicologoInfo, PsicologoError> {
         let filter = doc! { "_id": &id };
 
@@ -67,8 +65,7 @@ impl RepositorioPsicologoLectura<PsicologoError> for PsicologoReadMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPsicologoListar<PsicologoError> for PsicologoReadMongo {
+impl RepositorioPsicologoListar for PsicologoReadMongo {
     async fn listar_psicologos(&self) -> Result<Vec<OutputData>, PsicologoError> {
         // Sin el hash de la contraseña: el listado no lo necesita.
         let mut cursor = self

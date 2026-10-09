@@ -1,10 +1,8 @@
 use crate::psicologo::domain::entity::psicologo::Psicologo;
 use crate::psicologo::domain::error::psicologo::PsicologoError;
 use crate::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
-use async_trait::async_trait;
 use quizz_common::domain::value_objects::password_plano::PasswordPlano;
 use quizz_common::provider::seguridad::Cifrador;
-use quizz_common::use_case::CasoDeUso;
 
 pub struct InputData {
     pub id: String,
@@ -19,29 +17,20 @@ pub struct InputData {
 
 /// Registra un psicólogo. La contraseña se valida en texto plano antes de calcular el hash, y
 /// solo el hash llega a la entidad y al repositorio.
-pub struct RegistrarPsicologo<RepoErr> {
-    password_crypto: Box<dyn Cifrador>,
-    repositorio: Box<dyn RepositorioPsicologoEscritura<RepoErr>>,
+pub struct RegistrarPsicologo<C, R> {
+    password_crypto: C,
+    repositorio: R,
 }
 
-impl<RepoErr> RegistrarPsicologo<RepoErr> {
-    pub fn new(
-        password_crypto: Box<dyn Cifrador>,
-        repositorio: Box<dyn RepositorioPsicologoEscritura<RepoErr>>,
-    ) -> RegistrarPsicologo<RepoErr> {
+impl<C: Cifrador, R: RepositorioPsicologoEscritura> RegistrarPsicologo<C, R> {
+    pub fn new(password_crypto: C, repositorio: R) -> Self {
         Self {
             password_crypto,
             repositorio,
         }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), PsicologoError> for RegistrarPsicologo<RepoErr>
-where
-    PsicologoError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), PsicologoError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), PsicologoError> {
         let password = PasswordPlano::new(in_.password)?;
         let hash = self.password_crypto.cifrar(password.into_inner()).await?;
         let psicologo = Psicologo::new(
@@ -72,7 +61,6 @@ mod tests {
     #[derive(Clone, Default)]
     struct CifradorFalso(Arc<Mutex<Vec<String>>>);
 
-    #[async_trait]
     impl Cifrador for CifradorFalso {
         async fn cifrar(&self, password: String) -> Result<String, CifradoError> {
             self.0.lock().unwrap().push(password);
@@ -90,8 +78,7 @@ mod tests {
     #[derive(Clone, Default)]
     struct RepositorioFalso(Arc<Mutex<Vec<Psicologo>>>);
 
-    #[async_trait]
-    impl RepositorioPsicologoEscritura<PsicologoError> for RepositorioFalso {
+    impl RepositorioPsicologoEscritura for RepositorioFalso {
         async fn registrar_psicologo(&self, psicologo: Psicologo) -> Result<(), PsicologoError> {
             self.0.lock().unwrap().push(psicologo);
             Ok(())
@@ -114,7 +101,7 @@ mod tests {
     #[tokio::test]
     async fn guarda_el_hash_y_no_la_contraseña() {
         let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
-        RegistrarPsicologo::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
+        RegistrarPsicologo::new(cifrador.clone(), repositorio.clone())
             .ejecutar(entrada("una-clave-segura"))
             .await
             .unwrap();
@@ -133,10 +120,9 @@ mod tests {
             (&"x".repeat(73), PasswordPlanoError::MuyLargo),
         ] {
             let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
-            let resultado =
-                RegistrarPsicologo::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
-                    .ejecutar(entrada(password))
-                    .await;
+            let resultado = RegistrarPsicologo::new(cifrador.clone(), repositorio.clone())
+                .ejecutar(entrada(password))
+                .await;
 
             assert!(
                 matches!(&resultado, Err(PsicologoError::PasswordNoValido(e)) if *e == esperado),
@@ -152,12 +138,9 @@ mod tests {
         let repositorio = RepositorioFalso::default();
         let mut datos = entrada("una-clave-segura");
         datos.colegiatura = " ".to_string();
-        let resultado = RegistrarPsicologo::new(
-            Box::new(CifradorFalso::default()),
-            Box::new(repositorio.clone()),
-        )
-        .ejecutar(datos)
-        .await;
+        let resultado = RegistrarPsicologo::new(CifradorFalso::default(), repositorio.clone())
+            .ejecutar(datos)
+            .await;
 
         assert!(matches!(resultado, Err(PsicologoError::ColegiaturaVacia)));
         assert!(repositorio.0.lock().unwrap().is_empty());

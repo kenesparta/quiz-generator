@@ -1,10 +1,8 @@
 use crate::universal::domain::error::login_universal::LoginUniversalError;
+use crate::universal::provider::jwt::JwtProviderGenerateConRol;
 use crate::universal::provider::repositorio::{RepositorioLoginUniversalLectura, Sesiones};
-use async_trait::async_trait;
 use quizz_common::domain::value_objects::password_plano::MAX_BYTES_PASSWORD;
-use quizz_common::provider::jwt::JwtProviderGenerateConRol;
 use quizz_common::provider::seguridad::Cifrador;
-use quizz_common::use_case::CasoDeUso;
 use std::sync::Arc;
 
 pub struct InputData {
@@ -24,20 +22,17 @@ pub struct OutputData {
 /// (se hace una verificación ficticia), para que ni la respuesta ni el tiempo revelen qué
 /// documentos existen. Una contraseña de más de 72 bytes se rechaza: bcrypt ignoraría el
 /// resto y la aceptaría con solo coincidir en los primeros 72.
-pub struct LoginUniversal<RepoErr> {
-    cifrador: Box<dyn Cifrador>,
-    repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
+pub struct LoginUniversal<C, R, J> {
+    cifrador: C,
+    repositorio: R,
     sesiones: Arc<dyn Sesiones>,
-    jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
+    jwt: J,
 }
 
-impl<RepoErr> LoginUniversal<RepoErr> {
-    pub fn new(
-        cifrador: Box<dyn Cifrador>,
-        repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
-        sesiones: Arc<dyn Sesiones>,
-        jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
-    ) -> LoginUniversal<RepoErr> {
+impl<C: Cifrador, R: RepositorioLoginUniversalLectura, J: JwtProviderGenerateConRol>
+    LoginUniversal<C, R, J>
+{
+    pub fn new(cifrador: C, repositorio: R, sesiones: Arc<dyn Sesiones>, jwt: J) -> Self {
         Self {
             cifrador,
             repositorio,
@@ -45,24 +40,13 @@ impl<RepoErr> LoginUniversal<RepoErr> {
             jwt,
         }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, OutputData, LoginUniversalError> for LoginUniversal<RepoErr>
-where
-    LoginUniversalError: From<RepoErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<OutputData, LoginUniversalError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<OutputData, LoginUniversalError> {
         if in_.password.len() > MAX_BYTES_PASSWORD {
             return Err(LoginUniversalError::PasswordIncorrecto);
         }
 
-        let busqueda = self
-            .repositorio
-            .buscar_por_documento(in_.documento)
-            .await
-            .map_err(LoginUniversalError::from);
-        let usuario = match busqueda {
+        let usuario = match self.repositorio.buscar_por_documento(in_.documento).await {
             Ok(usuario) => usuario,
             Err(LoginUniversalError::UsuarioNoEncontrado) => {
                 self.cifrador.simular_verificacion(in_.password).await;
@@ -104,6 +88,7 @@ where
 mod tests {
     use super::*;
     use crate::universal::domain::usuario_login::UsuarioLogin;
+    use async_trait::async_trait;
     use quizz_common::domain::entity::jwt::JwtObject;
     use quizz_common::provider::seguridad::CifradoError;
     use std::sync::{Arc, Mutex};
@@ -113,8 +98,7 @@ mod tests {
     /// Un único usuario, documento 12345678 con la contraseña "clave-correcta".
     struct UnUsuario;
 
-    #[async_trait]
-    impl RepositorioLoginUniversalLectura<LoginUniversalError> for UnUsuario {
+    impl RepositorioLoginUniversalLectura for UnUsuario {
         async fn buscar_por_documento(
             &self,
             documento: String,
@@ -134,7 +118,6 @@ mod tests {
     #[derive(Clone, Default)]
     struct CifradorFalso(Arc<Mutex<Vec<&'static str>>>);
 
-    #[async_trait]
     impl Cifrador for CifradorFalso {
         async fn cifrar(&self, _: String) -> Result<String, CifradoError> {
             Ok(HASH.to_string())
@@ -171,8 +154,7 @@ mod tests {
 
     struct JwtFalso;
 
-    #[async_trait]
-    impl JwtProviderGenerateConRol<LoginUniversalError> for JwtFalso {
+    impl JwtProviderGenerateConRol for JwtFalso {
         async fn generar_con_rol(
             &self,
             sujeto_id: String,
@@ -198,10 +180,10 @@ mod tests {
     ) {
         let (cifrador, sesiones) = (CifradorFalso::default(), SesionesFalsas::default());
         let resultado = LoginUniversal::new(
-            Box::new(cifrador.clone()),
-            Box::new(UnUsuario),
+            cifrador.clone(),
+            UnUsuario,
             Arc::new(sesiones.clone()),
-            Box::new(JwtFalso),
+            JwtFalso,
         )
         .ejecutar(InputData {
             documento: documento.to_string(),

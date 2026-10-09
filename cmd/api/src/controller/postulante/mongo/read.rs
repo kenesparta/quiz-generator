@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use futures::TryStreamExt;
 use mongodb::bson::{Bson, Document, doc};
@@ -122,8 +121,7 @@ impl MongoRepository for PostulanteReadMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPostulanteLectura<PostulanteError> for PostulanteReadMongo {
+impl RepositorioPostulanteLectura for PostulanteReadMongo {
     async fn obtener_postulante_por_documento(
         &self,
         documento: Documento,

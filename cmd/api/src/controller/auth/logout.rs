@@ -3,7 +3,6 @@ use crate::controller::auth::middleware::extraer_token;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_auth::universal::provider::repositorio::Sesiones;
 use quizz_auth::universal::use_case::logout::{InputData, Logout};
-use quizz_common::use_case::CasoDeUso;
 use tracing::{error, info, warn};
 
 pub struct LogoutController;

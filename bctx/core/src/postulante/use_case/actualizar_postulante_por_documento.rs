@@ -7,9 +7,7 @@ use crate::postulante::domain::value_object::nombre::Nombre;
 use crate::postulante::provider::repositorio::{
     RepositorioPostulanteEscritura, RepositorioPostulanteLectura,
 };
-use async_trait::async_trait;
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
-use quizz_common::use_case::CasoDeUso;
 use std::str::FromStr;
 
 pub struct InputData {
@@ -22,31 +20,22 @@ pub struct InputData {
     pub genero: String,
 }
 
-pub struct ActualizarPostulantePorDocumento<ReadErr, WriteErr> {
-    repositorio_lectura: Box<dyn RepositorioPostulanteLectura<ReadErr>>,
-    repositorio_escritura: Box<dyn RepositorioPostulanteEscritura<WriteErr>>,
+pub struct ActualizarPostulantePorDocumento<L, E> {
+    repositorio_lectura: L,
+    repositorio_escritura: E,
 }
 
-impl<ReadErr, WriteErr> ActualizarPostulantePorDocumento<ReadErr, WriteErr> {
-    pub fn new(
-        repositorio_lectura: Box<dyn RepositorioPostulanteLectura<ReadErr>>,
-        repositorio_escritura: Box<dyn RepositorioPostulanteEscritura<WriteErr>>,
-    ) -> Self {
+impl<L: RepositorioPostulanteLectura, E: RepositorioPostulanteEscritura>
+    ActualizarPostulantePorDocumento<L, E>
+{
+    pub fn new(repositorio_lectura: L, repositorio_escritura: E) -> Self {
         Self {
             repositorio_lectura,
             repositorio_escritura,
         }
     }
-}
 
-#[async_trait]
-impl<ReadErr, WriteErr> CasoDeUso<InputData, (), PostulanteError>
-    for ActualizarPostulantePorDocumento<ReadErr, WriteErr>
-where
-    PostulanteError: From<ReadErr>,
-    PostulanteError: From<WriteErr>,
-{
-    async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), PostulanteError> {
         let documento = Documento::new(&in_.documento)?;
         let existente = self
             .repositorio_lectura
@@ -85,15 +74,13 @@ mod tests {
         PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada)
     }
     use crate::postulante::domain::value_object::id::PostulanteID;
-    use async_trait::async_trait;
     use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
 
     struct MockRepositorioLectura {
         postulante: Postulante,
     }
 
-    #[async_trait]
-    impl RepositorioPostulanteLectura<PostulanteError> for MockRepositorioLectura {
+    impl RepositorioPostulanteLectura for MockRepositorioLectura {
         async fn obtener_postulante_por_documento(
             &self,
             _documento: Documento,
@@ -132,8 +119,7 @@ mod tests {
 
     struct MockRepositorioEscritura;
 
-    #[async_trait]
-    impl RepositorioPostulanteEscritura<PostulanteError> for MockRepositorioEscritura {
+    impl RepositorioPostulanteEscritura for MockRepositorioEscritura {
         async fn registrar_postulante(
             &self,
             _postulante: Postulante,
@@ -178,8 +164,8 @@ mod tests {
         let postulante = crear_postulante_existente();
 
         let use_case = ActualizarPostulantePorDocumento::new(
-            Box::new(MockRepositorioLectura { postulante }),
-            Box::new(MockRepositorioEscritura),
+            MockRepositorioLectura { postulante },
+            MockRepositorioEscritura,
         );
 
         let result = use_case
@@ -202,8 +188,8 @@ mod tests {
         let postulante = crear_postulante_existente();
 
         let use_case = ActualizarPostulantePorDocumento::new(
-            Box::new(MockRepositorioLectura { postulante }),
-            Box::new(MockRepositorioEscritura),
+            MockRepositorioLectura { postulante },
+            MockRepositorioEscritura,
         );
 
         let result = use_case
@@ -226,8 +212,8 @@ mod tests {
         let postulante = crear_postulante_existente();
 
         let use_case = ActualizarPostulantePorDocumento::new(
-            Box::new(MockRepositorioLectura { postulante }),
-            Box::new(MockRepositorioEscritura),
+            MockRepositorioLectura { postulante },
+            MockRepositorioEscritura,
         );
 
         let result = use_case

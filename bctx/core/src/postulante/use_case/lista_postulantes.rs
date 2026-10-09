@@ -1,10 +1,6 @@
 use crate::postulante::domain::entity::postulante::Postulante;
 use crate::postulante::domain::error::postulante::PostulanteError;
 use crate::postulante::provider::repositorio::RepositorioPostulanteLectura;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
-
-pub struct InputData {}
 
 pub struct OutputData {
     pub id: String,
@@ -40,25 +36,16 @@ impl From<Postulante> for OutputData {
     }
 }
 
-pub struct ObtenerListaDePostulantes<RepoErr> {
-    repositorio: Box<dyn RepositorioPostulanteLectura<RepoErr>>,
+pub struct ObtenerListaDePostulantes<R> {
+    repositorio: R,
 }
 
-impl<RepoErr> ObtenerListaDePostulantes<RepoErr> {
-    pub fn new(
-        repositorio: Box<dyn RepositorioPostulanteLectura<RepoErr>>,
-    ) -> ObtenerListaDePostulantes<RepoErr> {
+impl<R: RepositorioPostulanteLectura> ObtenerListaDePostulantes<R> {
+    pub fn new(repositorio: R) -> Self {
         Self { repositorio }
     }
-}
 
-#[async_trait]
-impl<RepoErr> CasoDeUso<InputData, ListaOutput, PostulanteError>
-    for ObtenerListaDePostulantes<RepoErr>
-where
-    PostulanteError: From<RepoErr>,
-{
-    async fn ejecutar(&self, _in: InputData) -> Result<ListaOutput, PostulanteError> {
+    pub async fn ejecutar(&self) -> Result<ListaOutput, PostulanteError> {
         let lista_de_postulantes = self.repositorio.obtener_lista_de_postulantes().await?;
         Ok(ListaOutput {
             postulantes: lista_de_postulantes.into_iter().map(|p| p.into()).collect(),

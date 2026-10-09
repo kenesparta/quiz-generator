@@ -1,7 +1,5 @@
 use crate::universal::domain::error::login_universal::LoginUniversalError;
 use crate::universal::provider::repositorio::Sesiones;
-use async_trait::async_trait;
-use quizz_common::use_case::CasoDeUso;
 use std::sync::Arc;
 
 pub struct InputData {
@@ -19,11 +17,8 @@ impl Logout {
     pub fn new(sesiones: Arc<dyn Sesiones>) -> Logout {
         Self { sesiones }
     }
-}
 
-#[async_trait]
-impl CasoDeUso<InputData, (), LoginUniversalError> for Logout {
-    async fn ejecutar(&self, in_: InputData) -> Result<(), LoginUniversalError> {
+    pub async fn ejecutar(&self, in_: InputData) -> Result<(), LoginUniversalError> {
         self.sesiones.cerrar(&in_.sujeto_id, &in_.sesion_id).await
     }
 }
@@ -31,6 +26,7 @@ impl CasoDeUso<InputData, (), LoginUniversalError> for Logout {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use async_trait::async_trait;
     use std::sync::Mutex;
 
     #[derive(Default)]

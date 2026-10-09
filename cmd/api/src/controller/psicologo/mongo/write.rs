@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
 use actix_web::web;
-use async_trait::async_trait;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::entity::psicologo::Psicologo;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
@@ -28,8 +27,7 @@ impl MongoRepository for PsicologoMongo {
     }
 }
 
-#[async_trait]
-impl RepositorioPsicologoEscritura<PsicologoError> for PsicologoMongo {
+impl RepositorioPsicologoEscritura for PsicologoMongo {
     async fn registrar_psicologo(&self, psicologo: Psicologo) -> Result<(), PsicologoError> {
         let password = psicologo
             .password

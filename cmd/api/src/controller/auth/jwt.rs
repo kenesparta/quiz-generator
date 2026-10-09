@@ -1,10 +1,9 @@
 use crate::configuration::JwtSettings;
-use async_trait::async_trait;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use quizz_auth::autorizacion::domain::error::autorizacion::AutorizacionError;
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
+use quizz_auth::universal::provider::jwt::JwtProviderGenerateConRol;
 use quizz_common::domain::entity::jwt::JwtObject;
-use quizz_common::provider::jwt::JwtProviderGenerateConRol;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -60,8 +59,7 @@ impl JWTProvider {
     }
 }
 
-#[async_trait]
-impl JwtProviderGenerateConRol<LoginUniversalError> for JWTProvider {
+impl JwtProviderGenerateConRol for JWTProvider {
     async fn generar_con_rol(
         &self,
         sujeto_id: String,

@@ -1,27 +1,37 @@
 use crate::postulante::domain::entity::postulante::Postulante;
+use crate::postulante::domain::error::postulante::PostulanteError;
 use crate::postulante::domain::value_object::documento::Documento;
 use crate::postulante::domain::value_object::id::PostulanteID;
 
-use async_trait::async_trait;
-
-#[async_trait]
-pub trait RepositorioPostulanteEscritura<Error>: Send + Sync {
-    async fn registrar_postulante(&self, postulante: Postulante) -> Result<(), Error>;
-    async fn actualizar_postulante(&self, postulante: Postulante) -> Result<(), Error>;
-    async fn eliminar_postulante(&self, postulante_id: PostulanteID) -> Result<(), Error>;
-}
-
-#[async_trait]
-pub trait RepositorioPostulanteLectura<Error>: Send + Sync {
-    async fn obtener_postulante_por_documento(
+pub trait RepositorioPostulanteEscritura: Send + Sync {
+    fn registrar_postulante(
         &self,
-        documento: Documento,
-    ) -> Result<Postulante, Error>;
+        postulante: Postulante,
+    ) -> impl Future<Output = Result<(), PostulanteError>> + Send;
 
-    async fn obtener_postulante_por_id(
+    fn actualizar_postulante(
+        &self,
+        postulante: Postulante,
+    ) -> impl Future<Output = Result<(), PostulanteError>> + Send;
+
+    fn eliminar_postulante(
         &self,
         postulante_id: PostulanteID,
-    ) -> Result<Postulante, Error>;
+    ) -> impl Future<Output = Result<(), PostulanteError>> + Send;
+}
 
-    async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, Error>;
+pub trait RepositorioPostulanteLectura: Send + Sync {
+    fn obtener_postulante_por_documento(
+        &self,
+        documento: Documento,
+    ) -> impl Future<Output = Result<Postulante, PostulanteError>> + Send;
+
+    fn obtener_postulante_por_id(
+        &self,
+        postulante_id: PostulanteID,
+    ) -> impl Future<Output = Result<Postulante, PostulanteError>> + Send;
+
+    fn obtener_lista_de_postulantes(
+        &self,
+    ) -> impl Future<Output = Result<Vec<Postulante>, PostulanteError>> + Send;
 }

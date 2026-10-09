@@ -1,10 +1,12 @@
 use crate::psicologo::domain::entity::psicologo::Psicologo;
+use crate::psicologo::domain::error::psicologo::PsicologoError;
 use crate::psicologo::use_case::listar_psicologos::OutputData;
-use async_trait::async_trait;
 
-#[async_trait]
-pub trait RepositorioPsicologoEscritura<Error>: Send + Sync {
-    async fn registrar_psicologo(&self, psicologo: Psicologo) -> Result<(), Error>;
+pub trait RepositorioPsicologoEscritura: Send + Sync {
+    fn registrar_psicologo(
+        &self,
+        psicologo: Psicologo,
+    ) -> impl Future<Output = Result<(), PsicologoError>> + Send;
 }
 
 /// Datos públicos del psicólogo (sin password).
@@ -15,12 +17,15 @@ pub struct PsicologoInfo {
     pub colegiatura: String,
 }
 
-#[async_trait]
-pub trait RepositorioPsicologoLectura<Error>: Send + Sync {
-    async fn obtener_psicologo_por_id(&self, id: String) -> Result<PsicologoInfo, Error>;
+pub trait RepositorioPsicologoLectura: Send + Sync {
+    fn obtener_psicologo_por_id(
+        &self,
+        id: String,
+    ) -> impl Future<Output = Result<PsicologoInfo, PsicologoError>> + Send;
 }
 
-#[async_trait]
-pub trait RepositorioPsicologoListar<Error>: Send + Sync {
-    async fn listar_psicologos(&self) -> Result<Vec<OutputData>, Error>;
+pub trait RepositorioPsicologoListar: Send + Sync {
+    fn listar_psicologos(
+        &self,
+    ) -> impl Future<Output = Result<Vec<OutputData>, PsicologoError>> + Send;
 }

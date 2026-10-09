@@ -1,6 +1,6 @@
 use crate::postulante::domain::error::nombre::NombreError;
 use crate::postulante::domain::service::string_convert::convertir_pascal_case;
-use quizz_common::domain::value_objects::nombre::nombre_regex;
+use quizz_common::domain::value_objects::nombre::{nombre_regex, normalizar_espacios};
 
 const MAX_TAMANO_NOMBRE: usize = 80;
 const MAX_TAMANO_APELLIDO: usize = 80;
@@ -19,10 +19,12 @@ impl Nombre {
         primer_apellido: String,
         segundo_apellido: String,
     ) -> Result<Self, NombreError> {
+        // Los espacios se normalizan antes de validar: "De  la Cruz" (con dos espacios, como
+        // a veces se escribe) se guarda como "De La Cruz" en vez de rechazarse.
         let nombre = Nombre {
-            nombre: convertir_pascal_case(nombre.trim()),
-            primer_apellido: convertir_pascal_case(primer_apellido.trim()),
-            segundo_apellido: convertir_pascal_case(segundo_apellido.trim()),
+            nombre: convertir_pascal_case(&normalizar_espacios(&nombre)),
+            primer_apellido: convertir_pascal_case(&normalizar_espacios(&primer_apellido)),
+            segundo_apellido: convertir_pascal_case(&normalizar_espacios(&segundo_apellido)),
         };
         nombre.asegurar_nombre_es_correcto()?;
         nombre.asegurar_primer_apellido_es_correcto()?;
@@ -128,6 +130,19 @@ mod test_nombre_completo {
     fn test_nombre_completo_empty_segundo_apellido() {
         let nombre = Nombre::new("John".to_string(), "Doe".to_string(), "".to_string());
         assert!(matches!(nombre, Err(NombreError::ApellidoVacio)));
+    }
+
+    #[test]
+    fn los_espacios_de_mas_se_normalizan_en_vez_de_rechazarse() {
+        let nombre = Nombre::new(
+            " María  José ".to_string(),
+            "De  la\tCruz".to_string(),
+            "Pérez ".to_string(),
+        )
+        .unwrap();
+        assert_eq!(nombre.nombre(), "María José");
+        assert_eq!(nombre.primer_apellido(), "De La Cruz");
+        assert_eq!(nombre.segundo_apellido(), "Pérez");
     }
 
     #[test]

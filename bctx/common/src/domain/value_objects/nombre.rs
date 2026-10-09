@@ -13,6 +13,13 @@ pub fn nombre_regex() -> &'static Regex {
     &NOMBRE_REGEX
 }
 
+/// Quita los espacios de los extremos y deja uno solo entre palabras (también si eran
+/// tabuladores o saltos de línea). Se aplica antes de validar: un espacio de más al escribir
+/// un nombre no es motivo para rechazarlo.
+pub fn normalizar_espacios(texto: &str) -> String {
+    texto.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -29,6 +36,18 @@ mod tests {
             "María José",
         ] {
             assert!(nombre_regex().is_match(nombre), "{nombre}");
+        }
+    }
+
+    #[test]
+    fn normaliza_los_espacios_antes_de_validar() {
+        for (escrito, normalizado) in [
+            ("  María José ", "María José"),
+            ("De  la   Cruz", "De la Cruz"),
+            ("Juan\tPérez\n", "Juan Pérez"),
+            ("   ", ""),
+        ] {
+            assert_eq!(normalizar_espacios(escrito), normalizado, "{escrito:?}");
         }
     }
 

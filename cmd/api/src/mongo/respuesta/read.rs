@@ -111,6 +111,15 @@ impl RepositorioRespuestaRevision for RespuestaMongo {
     }
 }
 
+/// Una hoja sin finalizar en el listado del postulante.
+#[derive(Deserialize)]
+struct FilaRespuestaPostulante {
+    #[serde(rename = "_id")]
+    id: String,
+    estado: String,
+    evaluacion: EvaluacionDeLaFila,
+}
+
 impl RepositorioListaRespuestaPostulante for RespuestaMongo {
     async fn obtener_respuestas_por_postulante(
         &self,
@@ -119,6 +128,10 @@ impl RepositorioListaRespuestaPostulante for RespuestaMongo {
         Vec<quizz_core::respuesta::use_case::lista_respuesta_postulante::OutputData>,
         RespuestaError,
     > {
+        let error_lectura = |e: mongodb::error::Error| {
+            error!("mongo, listar las hojas del postulante {postulante_id}: {e}");
+            RespuestaError::RepositorioError
+        };
         let filter = doc! {
             "postulante_id": postulante_id.to_string(),
             "estado": {
@@ -127,69 +140,34 @@ impl RepositorioListaRespuestaPostulante for RespuestaMongo {
         };
 
         // Solo los campos del listado: la hoja completa incluye la evaluación con imágenes.
-        let mut cursor = self
+        let filas: Vec<FilaRespuestaPostulante> = self
             .get_collection()
+            .clone_with_type::<FilaRespuestaPostulante>()
             .find(filter)
             .projection(doc! { "estado": 1, "evaluacion.nombre": 1, "evaluacion.descripcion": 1 })
             .await
-            .map_err(|e| {
-                error!(
-                    "Error finding respuestas by postulante_id {}: {}",
-                    postulante_id, e
-                );
-                RespuestaError::RepositorioError
-            })?;
+            .map_err(error_lectura)?
+            .try_collect()
+            .await
+            .map_err(error_lectura)?;
 
-        let mut respuestas = Vec::new();
-
-        while cursor.advance().await.map_err(|e| {
-            error!("Error advancing cursor: {}", e);
-            RespuestaError::RepositorioError
-        })? {
-            let doc = cursor.deserialize_current().map_err(|e| {
-                error!("Error deserializing cursor: {}", e);
-                RespuestaError::RepositorioError
-            })?;
-
-            let respuesta_id = doc
-                .get_str("_id")
-                .map_err(|_| RespuestaError::RepositorioError)?
-                .to_string();
-
-            let estado = doc
-                .get_str("estado")
-                .ok()
-                .and_then(|estado| Estado::from_str(estado).ok())
-                .ok_or_else(|| {
-                    error!("hoja {respuesta_id}: estado no valido");
+        filas
+            .into_iter()
+            .map(|fila| {
+                let estado = Estado::from_str(&fila.estado).map_err(|_| {
+                    error!("hoja {}: estado no valido", fila.id);
                     RespuestaError::RepositorioError
                 })?;
-
-            let evaluacion_doc = doc
-                .get_document("evaluacion")
-                .map_err(|_| RespuestaError::RepositorioError)?;
-
-            let nombre_evaluacion = evaluacion_doc
-                .get_str("nombre")
-                .map_err(|_| RespuestaError::RepositorioError)?
-                .to_string();
-
-            let descripcion_evaluacion = evaluacion_doc
-                .get_str("descripcion")
-                .map_err(|_| RespuestaError::RepositorioError)?
-                .to_string();
-
-            respuestas.push(
-                quizz_core::respuesta::use_case::lista_respuesta_postulante::OutputData {
-                    respuesta_id,
-                    nombre_evaluacion,
-                    descripcion_evaluacion,
-                    estado,
-                },
-            );
-        }
-
-        Ok(respuestas)
+                Ok(
+                    quizz_core::respuesta::use_case::lista_respuesta_postulante::OutputData {
+                        respuesta_id: fila.id,
+                        nombre_evaluacion: fila.evaluacion.nombre,
+                        descripcion_evaluacion: fila.evaluacion.descripcion,
+                        estado,
+                    },
+                )
+            })
+            .collect()
     }
 }
 

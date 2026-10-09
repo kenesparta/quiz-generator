@@ -6,6 +6,7 @@
 //! `spawn_blocking` lo lleva al pool de hilos bloqueantes de Tokio. Este es el único sitio
 //! que llama a bcrypt, así ningún llamador puede olvidarlo.
 use quizz_common::provider::seguridad::{CifradoError, Cifrador};
+use tracing::error;
 
 /// Hash de coste 12 (el de producción) de una contraseña que no usa nadie: verificar contra él
 /// cuesta lo mismo que verificar contra el hash de un usuario real.
@@ -32,20 +33,33 @@ impl Bcrypt {
     }
 }
 
+fn tarea_fallida(e: tokio::task::JoinError) -> CifradoError {
+    error!("bcrypt, la tarea bloqueante no termino: {e}");
+    CifradoError::Tarea
+}
+
 impl Cifrador for Bcrypt {
     async fn cifrar(&self, password: String) -> Result<String, CifradoError> {
         let coste = self.coste;
         tokio::task::spawn_blocking(move || bcrypt::hash(password, coste))
             .await
-            .map_err(|_| CifradoError::Tarea)?
-            .map_err(|_| CifradoError::Hash)
+            .map_err(tarea_fallida)?
+            .map_err(|e| {
+                error!("bcrypt, calcular el hash: {e}");
+                CifradoError::Hash
+            })
     }
 
     async fn verificar(&self, password: String, hash: String) -> Result<bool, CifradoError> {
         tokio::task::spawn_blocking(move || bcrypt::verify(password, &hash))
             .await
-            .map_err(|_| CifradoError::Tarea)?
-            .map_err(|_| CifradoError::HashNoValido)
+            .map_err(tarea_fallida)?
+            // Sin el detalle: el error de un hash ilegible lo incluye, y un registro antiguo
+            // podría guardar ahí la contraseña en claro.
+            .map_err(|_| {
+                error!("bcrypt, el hash guardado no es valido");
+                CifradoError::HashNoValido
+            })
     }
 
     async fn simular_verificacion(&self, password: String) {

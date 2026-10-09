@@ -2,6 +2,7 @@ use casbin::{CoreApi, DefaultModel, Enforcer, StringAdapter};
 use quizz_auth::autorizacion::domain::entity::solicitud_acceso::SolicitudAcceso;
 use quizz_auth::autorizacion::domain::error::autorizacion::AutorizacionError;
 use quizz_auth::autorizacion::provider::autorizacion::AutorizacionVerificar;
+use tracing::error;
 
 // El modelo y la política van embebidos en el binario: se aplica exactamente lo revisado en
 // git y el servidor no depende del directorio desde el que se lance.
@@ -39,7 +40,10 @@ impl AutorizacionVerificar for CasbinAutorizacion<'_> {
                 solicitud.recurso.to_string(),
                 solicitud.accion.to_string(),
             ])
-            .map_err(|_| AutorizacionError::ErrorEnforzador)?;
+            .map_err(|e| {
+                error!("casbin no pudo evaluar la politica: {e}");
+                AutorizacionError::ErrorEnforzador
+            })?;
 
         if permitido {
             Ok(())

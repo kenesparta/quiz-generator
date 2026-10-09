@@ -5,6 +5,7 @@ use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::provider::jwt::JwtProviderGenerateConRol;
 use quizz_common::domain::entity::jwt::JwtObject;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
@@ -76,8 +77,11 @@ impl JwtProviderGenerateConRol for JWTProvider {
             rol: Some(rol.clone()),
         };
 
-        let token = encode(&Header::new(Algorithm::HS256), &claims, &self.clave_firma)
-            .map_err(|_| LoginUniversalError::JWTErrorAlGenerar)?;
+        let token =
+            encode(&Header::new(Algorithm::HS256), &claims, &self.clave_firma).map_err(|e| {
+                error!("no se pudo firmar el JWT: {e}");
+                LoginUniversalError::JWTErrorAlGenerar
+            })?;
 
         Ok(JwtObject {
             key: sujeto_id,

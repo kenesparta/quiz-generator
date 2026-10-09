@@ -21,78 +21,61 @@ use serde::Deserialize;
 use std::str::FromStr;
 use tracing::error;
 
+/// Un examen completo tal como se guarda.
+#[derive(Deserialize)]
+struct FilaExamen {
+    #[serde(rename = "_id")]
+    id: String,
+    titulo: String,
+    descripcion: String,
+    instrucciones: String,
+    activo: String,
+    /// Un examen sin preguntas puede no tener el campo.
+    #[serde(default)]
+    preguntas: Option<bson::Bson>,
+}
+
 impl RepositorioExamenLectura for ExamenMongo {
     async fn obtener_examen(&self, id: &str) -> Result<Examen, ExamenError> {
-        let filter = doc! { "_id": id };
+        let fila = self
+            .get_collection()
+            .clone_with_type::<FilaExamen>()
+            .find_one(doc! { "_id": id })
+            .await
+            .map_err(|e| {
+                error!("mongo, leer el examen {id}: {e}");
+                ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada)
+            })?
+            .ok_or(ExamenError::NoEncontrado)?;
 
-        match self.get_collection().find_one(filter).await {
-            Ok(Some(documento)) => {
-                let id_str = documento
-                    .get_str("_id")
-                    .map_err(|_| ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada))?;
-
-                let titulo = documento
-                    .get_str("titulo")
-                    .map_err(|_| ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada))?
-                    .to_string();
-
-                let descripcion = documento
-                    .get_str("descripcion")
-                    .map_err(|_| ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada))?
-                    .to_string();
-
-                let instrucciones = documento
-                    .get_str("instrucciones")
-                    .map_err(|_| ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada))?
-                    .to_string();
-
-                let estado_str = documento
-                    .get_str("activo")
-                    .map_err(|_| ExamenError::ExamenRepositorioError(PersistenciaNoFinalizada))?;
-
-                let estado = EstadoGeneral::from_str(estado_str)?;
-                let examen_id = ExamenID::new(id_str)?;
-
-                // Una pregunta que no se puede leer es un error con nombre, no se descarta: si
-                // no, desaparecía de la evaluación publicada sin que nadie se enterara.
-                let preguntas = match documento.get("preguntas") {
-                    Some(bson::Bson::Array(arr)) => arr
-                        .iter()
-                        .enumerate()
-                        .map(|(indice, item)| {
-                            bson::from_bson::<PreguntaMongoDTO>(item.clone())
-                                .map_err(|e| e.to_string())
-                                .and_then(|dto| dto.into_entity().map_err(|e| e.to_string()))
-                                .map_err(|e| {
-                                    error!("examen {id}: pregunta #{indice} ilegible: {e}");
-                                    ExamenError::ExamenRepositorioError(LecturaNoFinalizada)
-                                })
+        // Una pregunta que no se puede leer es un error con nombre, no se descarta: si no,
+        // desaparecía de la evaluación publicada sin que nadie se enterara.
+        let preguntas = match fila.preguntas {
+            Some(bson::Bson::Array(arr)) => arr
+                .into_iter()
+                .enumerate()
+                .map(|(indice, item)| {
+                    bson::from_bson::<PreguntaMongoDTO>(item)
+                        .map_err(|e| e.to_string())
+                        .and_then(|dto| dto.into_entity().map_err(|e| e.to_string()))
+                        .map_err(|e| {
+                            error!("examen {id}: pregunta #{indice} ilegible: {e}");
+                            ExamenError::ExamenRepositorioError(LecturaNoFinalizada)
                         })
-                        .collect::<Result<Vec<PreguntaEntity>, _>>()
-                        .map(ListaDePreguntas::new)?,
-                    _ => ListaDePreguntas::new(Vec::new()),
-                };
-
-                Ok(Examen {
-                    id: examen_id,
-                    titulo,
-                    descripcion,
-                    instrucciones,
-                    estado,
-                    preguntas,
                 })
-            }
-            Ok(None) => Err(ExamenError::NoEncontrado),
-            Err(e) => {
-                error!(
-                    "Database error while retrieving examen: id={}, error={}",
-                    id, e
-                );
-                Err(ExamenError::ExamenRepositorioError(
-                    PersistenciaNoFinalizada,
-                ))
-            }
-        }
+                .collect::<Result<Vec<PreguntaEntity>, _>>()
+                .map(ListaDePreguntas::new)?,
+            _ => ListaDePreguntas::new(Vec::new()),
+        };
+
+        Ok(Examen {
+            id: ExamenID::new(&fila.id)?,
+            titulo: fila.titulo,
+            descripcion: fila.descripcion,
+            instrucciones: fila.instrucciones,
+            estado: EstadoGeneral::from_str(&fila.activo)?,
+            preguntas,
+        })
     }
 }
 

@@ -5,4 +5,3 @@ pub mod postulante;
 pub mod pregunta;
 pub mod psicologo;
 pub mod respuesta;
-pub mod utils;

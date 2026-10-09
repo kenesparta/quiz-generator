@@ -67,7 +67,8 @@ pub(crate) fn permitido_esperado(
     match rol {
         Rol::Admin => match recurso {
             Examen | Evaluacion | Postulante | Respuesta | Revision => true,
-            Psicologo | Admin => matches!(accion, Leer | Escribir),
+            Psicologo => matches!(accion, Leer | Escribir | Eliminar),
+            Admin => matches!(accion, Leer | Escribir),
         },
         Rol::Psicologo => match recurso {
             Examen | Evaluacion | Postulante | Revision => {

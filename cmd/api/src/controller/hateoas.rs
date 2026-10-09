@@ -35,6 +35,13 @@ impl Link {
             method: "PUT",
         }
     }
+
+    pub fn delete(href: impl Into<String>) -> Self {
+        Self {
+            href: href.into(),
+            method: "DELETE",
+        }
+    }
 }
 
 /// Enlaces de una respuesta. Ordenados por nombre: el orden no cambia entre procesos.
@@ -97,6 +104,14 @@ pub mod enlaces {
         ])
     }
 
+    /// Un psicólogo: no hay un endpoint para leerlo, solo para eliminarlo.
+    pub fn psicologo(id: &str) -> Links {
+        Links::from([(
+            "eliminar".to_string(),
+            Link::delete(format!("/psicologos/{id}")),
+        )])
+    }
+
     /// Una asignación (hoja de respuestas de un postulante) en el listado del personal.
     pub fn asignacion(respuesta_id: &str, postulante_id: &str) -> Links {
         Links::from([
@@ -150,6 +165,7 @@ mod tests {
             enlaces::evaluacion(ID, false),
             enlaces::evaluacion(ID, true),
             enlaces::postulante(ID),
+            enlaces::psicologo(ID),
             enlaces::asignacion(ID, ID),
             enlaces::revision(ID, ID),
         ];

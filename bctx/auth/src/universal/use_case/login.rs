@@ -150,6 +150,10 @@ mod tests {
         async fn cerrar(&self, _: &str, _: &str) -> Result<(), LoginUniversalError> {
             Ok(())
         }
+
+        async fn revocar(&self, _: &str) -> Result<(), LoginUniversalError> {
+            Ok(())
+        }
     }
 
     struct JwtFalso;

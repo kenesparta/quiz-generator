@@ -28,3 +28,7 @@ Authorization: Bearer {{token_admin}}
   "especialidad": "Psicologia Organizacional",
   "password": "otro_password_seguro"
 }
+
+### Eliminar Psicologo (solo admin): tambien cierra su sesion
+DELETE {{baseUrl}}/psicologos/b2c3d4e5-f6a7-8901-bcde-f12345678901
+Authorization: Bearer {{token_admin}}

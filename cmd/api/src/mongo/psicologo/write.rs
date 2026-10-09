@@ -4,6 +4,7 @@ use actix_web::web;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::entity::psicologo::Psicologo;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
+use quizz_core::psicologo::domain::value_object::id::PsicologoID;
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
 use tracing::error;
 
@@ -62,5 +63,25 @@ impl RepositorioPsicologoEscritura for PsicologoMongo {
                 ))
             }
         }
+    }
+
+    async fn eliminar_psicologo(&self, id: PsicologoID) -> Result<(), PsicologoError> {
+        let resultado = self
+            .get_collection()
+            .delete_one(doc! { "_id": id.to_string() })
+            .await
+            .map_err(|e| {
+                error!("Database error while deleting psicologo: id={id}, error={e}");
+                PsicologoError::PsicologoRepositorioError(
+                    RepositorioError::PersistenciaNoFinalizada,
+                )
+            })?;
+
+        if resultado.deleted_count == 0 {
+            return Err(PsicologoError::PsicologoRepositorioError(
+                RepositorioError::RegistroNoEncontrado,
+            ));
+        }
+        Ok(())
     }
 }

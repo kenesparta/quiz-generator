@@ -1,4 +1,5 @@
 use crate::controller::auth::middleware::Autorizacion;
+use crate::controller::psicologo::eliminar_psicologo::EliminarPsicologoController;
 use crate::controller::psicologo::listar_psicologos::ListarPsicologosController;
 use crate::controller::psicologo::registrar_psicologo::PsicologoController;
 use actix_web::web;
@@ -9,6 +10,10 @@ pub fn psicologo(cfg: &mut web::ServiceConfig) {
         web::scope("/psicologos")
             .wrap(Autorizacion::para(Recurso::Psicologo))
             .service(web::resource("").route(web::get().to(ListarPsicologosController::list)))
-            .service(web::resource("/{id}").route(web::post().to(PsicologoController::create))),
+            .service(
+                web::resource("/{id}")
+                    .route(web::post().to(PsicologoController::create))
+                    .route(web::delete().to(EliminarPsicologoController::delete)),
+            ),
     );
 }

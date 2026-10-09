@@ -1,5 +1,5 @@
 use crate::controller::error::ApiError;
-use crate::controller::hateoas::{Link, Links, ListResponse};
+use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use crate::mongo::psicologo::write::PsicologoMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::psicologo::use_case::listar_psicologos::ListarPsicologos;
@@ -28,19 +28,15 @@ impl ListarPsicologosController {
 
         let items: Vec<PsicologoListItemDTO> = psicologos
             .into_iter()
-            .map(|p| {
-                // No hay un endpoint para leer un psicólogo, así que no se enlaza ninguno.
-                let links = Links::new();
-                PsicologoListItemDTO {
-                    id: p.id,
-                    nombre: p.nombre,
-                    primer_apellido: p.primer_apellido,
-                    segundo_apellido: p.segundo_apellido,
-                    documento: p.documento,
-                    especialidad: p.especialidad,
-                    colegiatura: p.colegiatura,
-                    links,
-                }
+            .map(|p| PsicologoListItemDTO {
+                links: enlaces::psicologo(&p.id),
+                id: p.id,
+                nombre: p.nombre,
+                primer_apellido: p.primer_apellido,
+                segundo_apellido: p.segundo_apellido,
+                documento: p.documento,
+                especialidad: p.especialidad,
+                colegiatura: p.colegiatura,
             })
             .collect();
 

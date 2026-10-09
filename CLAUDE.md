@@ -165,6 +165,10 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
   - `PUT /postulantes` - Update candidate by document (in the body)
   - `POST /postulantes/{id}` - Create candidate
   - `DELETE /postulantes/{id}` - Not implemented yet (`501`): what happens to the candidate's respuestas is undecided
+- `/psicologos` - Admin only
+  - `GET /psicologos` - List psychologists (without password hashes)
+  - `POST /psicologos/{id}` - Create a psychologist
+  - `DELETE /psicologos/{id}` - Delete a psychologist for good and close their session in Redis (their token gets `401` at once); `204`, or `404` if it does not exist. Revisiones they graded keep `revisado_por` but `GET /revisiones/{id}` no longer shows a psicólogo
 - `/respuestas` - Manage exam lifecycle, submit answers
   - `GET /respuestas` - Unfinished respuestas of a candidate (a postulante gets their own; staff pass `postulante_id`)
   - `GET /respuestas/asignaciones` - List assignments (staff only)

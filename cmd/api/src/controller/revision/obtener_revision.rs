@@ -26,7 +26,8 @@ impl ObtenerRevisionController {
             })
             .await?;
 
-        // Hojas calificadas antes de registrar al revisor, o por un admin: sin psicólogo.
+        // Hojas calificadas antes de registrar al revisor, por un admin o por un psicólogo ya
+        // eliminado: sin psicólogo.
         let psicologo = match &output.revisado_por {
             Some(revisor) => PsicologoMongo::new(db)
                 .obtener_psicologo_por_id(revisor.clone())

@@ -76,4 +76,13 @@ impl Sesiones for SesionesRedis {
             .map_err(error_redis("cerrar"))?;
         Ok(())
     }
+
+    async fn revocar(&self, sujeto_id: &str) -> Result<(), LoginUniversalError> {
+        let mut conexion = self.conexion.clone();
+        let _: i64 = conexion
+            .del(clave(sujeto_id))
+            .await
+            .map_err(error_redis("revocar"))?;
+        Ok(())
+    }
 }

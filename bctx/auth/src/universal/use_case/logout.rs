@@ -55,6 +55,10 @@ mod tests {
                 .push((sujeto_id.to_string(), sesion_id.to_string()));
             Ok(())
         }
+
+        async fn revocar(&self, _: &str) -> Result<(), LoginUniversalError> {
+            Ok(())
+        }
     }
 
     #[tokio::test]

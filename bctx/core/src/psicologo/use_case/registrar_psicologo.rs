@@ -51,6 +51,7 @@ impl<C: Cifrador, R: RepositorioPsicologoEscritura> RegistrarPsicologo<C, R> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::psicologo::domain::value_object::id::PsicologoID;
     use quizz_common::domain::value_objects::password_plano::PasswordPlanoError;
     use quizz_common::provider::seguridad::CifradoError;
     use std::sync::{Arc, Mutex};
@@ -81,6 +82,10 @@ mod tests {
     impl RepositorioPsicologoEscritura for RepositorioFalso {
         async fn registrar_psicologo(&self, psicologo: Psicologo) -> Result<(), PsicologoError> {
             self.0.lock().unwrap().push(psicologo);
+            Ok(())
+        }
+
+        async fn eliminar_psicologo(&self, _: PsicologoID) -> Result<(), PsicologoError> {
             Ok(())
         }
     }

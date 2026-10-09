@@ -20,6 +20,7 @@ p, admin, revision, actualizar
 p, admin, revision, eliminar
 p, admin, psicologo, leer
 p, admin, psicologo, escribir
+p, admin, psicologo, eliminar
 p, admin, admin, leer
 p, admin, admin, escribir
 

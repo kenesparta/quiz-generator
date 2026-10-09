@@ -912,6 +912,61 @@ async fn flujo_completo_y_controles_de_acceso() {
         assert!(!lista.to_string().contains("$2"), "{ruta}: {lista}");
     }
 
+    // Solo el admin elimina un psicólogo. Su token deja de valer en el acto, ya no inicia
+    // sesión, y la revisión que calificó se sigue leyendo, sin su nombre.
+    let ruta_psicologo = format!("/psicologos/{psicologo}");
+    let (_, lista) = e
+        .pedir(Method::GET, "/psicologos", Some(&admin), None)
+        .await;
+    assert_eq!(
+        lista["items"][0]["_links"]["eliminar"],
+        json!({ "href": ruta_psicologo, "method": "DELETE" }),
+        "{lista}"
+    );
+    let (estado, _) = e
+        .pedir(
+            Method::DELETE,
+            &ruta_psicologo,
+            Some(&token_psicologo),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::FORBIDDEN);
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::DELETE,
+            &format!("/psicologos/{}", psicologo.to_uppercase()),
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::NO_CONTENT, "{cuerpo}");
+    let (estado, _) = e
+        .pedir(Method::GET, "/revisiones", Some(&token_psicologo), None)
+        .await;
+    assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    let (estado, _) = e.login("44556677", "clave-del-psicologo").await;
+    assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    let (estado, _) = e
+        .pedir(Method::DELETE, &ruta_psicologo, Some(&admin), None)
+        .await;
+    assert_eq!(estado, StatusCode::NOT_FOUND);
+    let (_, lista) = e
+        .pedir(Method::GET, "/psicologos", Some(&admin), None)
+        .await;
+    assert_eq!(lista["items"], json!([]), "{lista}");
+    let (estado, calificada) = e
+        .pedir(
+            Method::GET,
+            &format!("/revisiones/{hoja_a}"),
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::OK, "{calificada}");
+    assert!(calificada["psicologo"].is_null(), "{calificada}");
+    assert_eq!(calificada["resultado"], "apto");
+
     // SEC-08: tras varios fallos para un documento, ni la contraseña correcta entra (429).
     for _ in 0..MAX_FALLOS_POR_DOCUMENTO {
         let (estado, _) = e.login("72222222", "clave-erronea").await;

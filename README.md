@@ -109,6 +109,10 @@ Routes are grouped by scope; each `cmd/api/src/controller/*/route.rs` is the sou
   - `PUT /postulantes` — update a candidate (identified by `documento` in the body)
   - `POST /postulantes/{id}` — create a candidate (`409` if the id or `documento` exists)
   - `DELETE /postulantes/{id}` — not implemented yet (`501`)
+- `/psicologos` (admin only)
+  - `GET /psicologos` — list psychologists (never the password hash)
+  - `POST /psicologos/{id}` — create a psychologist (`409` if the id or `documento` exists)
+  - `DELETE /psicologos/{id}` — delete a psychologist and close their session, so their token is rejected (`401`) at once (`204`; `404` if it does not exist). Reviews they graded no longer show a psychologist
 - `/respuestas`
   - `GET /respuestas` — unfinished respuestas of a candidate (a candidate gets their own; staff pass `postulante_id`)
   - `GET /respuestas/asignaciones` — assignments with their evaluation context (staff)

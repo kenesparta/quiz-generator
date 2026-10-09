@@ -351,6 +351,7 @@ mod tests {
                 Psicologo,
                 Escribir,
             ),
+            (delete, format!("/psicologos/{ID}"), Psicologo, Eliminar),
             (get.clone(), "/respuestas".into(), Respuesta, Leer),
             (
                 get.clone(),

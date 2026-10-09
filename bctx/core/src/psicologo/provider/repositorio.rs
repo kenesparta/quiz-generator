@@ -1,11 +1,18 @@
 use crate::psicologo::domain::entity::psicologo::Psicologo;
 use crate::psicologo::domain::error::psicologo::PsicologoError;
+use crate::psicologo::domain::value_object::id::PsicologoID;
 use crate::psicologo::use_case::listar_psicologos::OutputData;
 
 pub trait RepositorioPsicologoEscritura: Send + Sync {
     fn registrar_psicologo(
         &self,
         psicologo: Psicologo,
+    ) -> impl Future<Output = Result<(), PsicologoError>> + Send;
+
+    /// Borra al psicólogo. Si no existe, `RegistroNoEncontrado`.
+    fn eliminar_psicologo(
+        &self,
+        id: PsicologoID,
     ) -> impl Future<Output = Result<(), PsicologoError>> + Send;
 }
 

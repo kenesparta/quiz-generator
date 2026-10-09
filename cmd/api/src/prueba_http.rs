@@ -44,6 +44,11 @@ impl Sesiones for SesionesEnMemoria {
         self.0.lock().unwrap().remove(sub);
         Ok(())
     }
+
+    async fn revocar(&self, sub: &str) -> Result<(), LoginUniversalError> {
+        self.0.lock().unwrap().remove(sub);
+        Ok(())
+    }
 }
 
 /// Un almacén de sesiones caído.
@@ -60,6 +65,10 @@ impl Sesiones for SesionesCaidas {
     }
 
     async fn cerrar(&self, _: &str, _: &str) -> Result<(), LoginUniversalError> {
+        Err(LoginUniversalError::ErrorGenericoCache)
+    }
+
+    async fn revocar(&self, _: &str) -> Result<(), LoginUniversalError> {
         Err(LoginUniversalError::ErrorGenericoCache)
     }
 }

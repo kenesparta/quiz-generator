@@ -37,4 +37,8 @@ pub trait Sesiones: Send + Sync {
     /// Cierra la sesión si `sesion_id` sigue siendo la abierta. Es idempotente: si ya se cerró
     /// o la reemplazó un inicio de sesión posterior, no hace nada.
     async fn cerrar(&self, sujeto_id: &str, sesion_id: &str) -> Result<(), LoginUniversalError>;
+
+    /// Cierra la sesión abierta de `sujeto_id`, sea cual sea su `sesion_id`: se usa cuando se
+    /// elimina la cuenta. Es idempotente.
+    async fn revocar(&self, sujeto_id: &str) -> Result<(), LoginUniversalError>;
 }

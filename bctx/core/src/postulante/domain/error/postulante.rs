@@ -20,7 +20,7 @@ pub enum PostulanteError {
     #[error("Nombre del postulante no valido: {0}")]
     PostulanteNombreError(#[from] NombreError),
 
-    #[error("FechaNacimiento de nacimiento no valido: {0}")]
+    #[error("Fecha de nacimiento no valida: {0}")]
     PostulanteFechaNacimientoError(#[from] FechaNacimientoError),
 
     #[error("Error en el password: {0}")]
@@ -41,7 +41,7 @@ pub enum PostulanteError {
     #[error("Error al cifrar el password: {0}")]
     Cifrado(#[from] CifradoError),
 
-    #[error("Error al manipular la base de datos: {0:?}")]
+    #[error("Error al manipular la base de datos: {0}")]
     PostulanteRepositorioError(#[from] RepositorioError),
 }
 

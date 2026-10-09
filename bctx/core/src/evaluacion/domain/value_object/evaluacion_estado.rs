@@ -4,7 +4,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum EvaluacionEstadoError {
-    #[error("Etiqueta no valida")]
+    #[error("Estado de la evaluacion no valido")]
     NoValido,
 }
 

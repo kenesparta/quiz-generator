@@ -4,7 +4,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum EstadoGeneralError {
-    #[error("Etiqueta no valida")]
+    #[error("Estado no valido: se espera activo o inactivo")]
     NoValido,
 }
 

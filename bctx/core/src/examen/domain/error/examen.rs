@@ -16,7 +16,7 @@ pub enum ExamenError {
     #[error("Descripción del examen inválida")]
     DescripcionInvalida,
 
-    #[error("El puntaje o debe ser cero")]
+    #[error("El puntaje no puede ser cero")]
     PuntajeIgualQueCero,
 
     #[error("Duración del examen inválida")]
@@ -43,7 +43,7 @@ pub enum ExamenError {
     #[error("Error desconocido: {0}")]
     Desconocido(String),
 
-    #[error("Error al manipular la base de datos: {0:?}")]
+    #[error("Error al manipular la base de datos: {0}")]
     ExamenRepositorioError(#[from] RepositorioError),
 
     #[error("Tipo de examen no valido")]

@@ -24,7 +24,7 @@ pub enum AdminError {
     #[error("Error al cifrar el password: {0}")]
     Cifrado(#[from] CifradoError),
 
-    #[error("Error al manipular la base de datos: {0:?}")]
+    #[error("Error al manipular la base de datos: {0}")]
     AdminRepositorioError(#[from] RepositorioError),
 }
 

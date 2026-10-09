@@ -26,7 +26,7 @@ pub enum EvaluacionError {
     #[error("La descripcion no es valida")]
     DescripcionNoValida,
 
-    #[error("Error al manipular la base de datos: {0:?}")]
+    #[error("Error al manipular la base de datos: {0}")]
     EvaluacionRepositorioError(#[from] RepositorioError),
 
     #[error("Error al en el estado de la evaluacion")]

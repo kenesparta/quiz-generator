@@ -1,5 +1,5 @@
 use crate::controller::auth::jwt::Claims;
-use crate::controller::hateoas::{Link, ListResponse, Links};
+use crate::controller::hateoas::{Link, Links, ListResponse};
 use crate::controller::respuesta::dto::{AsignacionListItemDTO, AsignacionesQueryParams};
 use crate::controller::respuesta::mongo::read::ListarAsignacionesMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
@@ -21,17 +21,13 @@ impl ListarAsignacionesController {
             Some(c) => c,
             None => {
                 warn!("GET /respuestas/asignaciones - claims no encontrados");
-                return HttpResponse::Unauthorized()
-                    .json(json!({"error": "Token no encontrado"}));
+                return HttpResponse::Unauthorized().json(json!({"error": "Token no encontrado"}));
             }
         };
 
         let rol = claims.rol.as_deref().unwrap_or("");
         if rol != Rol::Admin.to_string() && rol != Rol::Psicologo.to_string() {
-            warn!(
-                "GET /respuestas/asignaciones - rol no autorizado: {}",
-                rol
-            );
+            warn!("GET /respuestas/asignaciones - rol no autorizado: {}", rol);
             return HttpResponse::Forbidden().json(json!({"error": "Acceso denegado"}));
         }
 
@@ -101,8 +97,7 @@ impl ListarAsignacionesController {
                     .collect();
 
                 let mut collection_links = Links::new();
-                collection_links
-                    .insert("self".into(), Link::get("/respuestas/asignaciones"));
+                collection_links.insert("self".into(), Link::get("/respuestas/asignaciones"));
 
                 HttpResponse::Ok().json(ListResponse {
                     links: collection_links,

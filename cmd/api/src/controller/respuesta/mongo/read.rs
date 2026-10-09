@@ -314,20 +314,31 @@ impl RepositorioListarAsignaciones<RespuestaError> for ListarAsignacionesMongo {
 
             let respuesta_id = doc.get_str("_id").unwrap_or_default().to_string();
             let estado = doc.get_str("estado").unwrap_or_default().to_string();
-            let fecha_tiempo_inicio =
-                doc.get_str("fecha_tiempo_inicio").unwrap_or_default().to_string();
-            let fecha_tiempo_fin =
-                doc.get_str("fecha_tiempo_fin").unwrap_or_default().to_string();
+            let fecha_tiempo_inicio = doc
+                .get_str("fecha_tiempo_inicio")
+                .unwrap_or_default()
+                .to_string();
+            let fecha_tiempo_fin = doc
+                .get_str("fecha_tiempo_fin")
+                .unwrap_or_default()
+                .to_string();
 
             let evaluacion_doc = doc.get_document("evaluacion").map_err(|_| {
-                error!("Asignacion sin evaluacion para respuesta_id={}", respuesta_id);
+                error!(
+                    "Asignacion sin evaluacion para respuesta_id={}",
+                    respuesta_id
+                );
                 RespuestaError::RepositorioError
             })?;
 
-            let evaluacion_id =
-                evaluacion_doc.get_str("_id").unwrap_or_default().to_string();
-            let evaluacion_nombre =
-                evaluacion_doc.get_str("nombre").unwrap_or_default().to_string();
+            let evaluacion_id = evaluacion_doc
+                .get_str("_id")
+                .unwrap_or_default()
+                .to_string();
+            let evaluacion_nombre = evaluacion_doc
+                .get_str("nombre")
+                .unwrap_or_default()
+                .to_string();
             let evaluacion_descripcion = evaluacion_doc
                 .get_str("descripcion")
                 .unwrap_or_default()
@@ -345,7 +356,9 @@ impl RepositorioListarAsignaciones<RespuestaError> for ListarAsignacionesMongo {
                     p.get_str("documento").unwrap_or_default().to_string(),
                     p.get_str("nombre").unwrap_or_default().to_string(),
                     p.get_str("primer_apellido").unwrap_or_default().to_string(),
-                    p.get_str("segundo_apellido").unwrap_or_default().to_string(),
+                    p.get_str("segundo_apellido")
+                        .unwrap_or_default()
+                        .to_string(),
                 ),
                 Err(_) => (
                     String::new(),

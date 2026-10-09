@@ -96,7 +96,10 @@ impl RepositorioPsicologoListar<PsicologoError> for PsicologoReadMongo {
                 .get_str("segundo_apellido")
                 .unwrap_or_default()
                 .to_string();
-            let documento_dni = documento.get_str("documento").unwrap_or_default().to_string();
+            let documento_dni = documento
+                .get_str("documento")
+                .unwrap_or_default()
+                .to_string();
             let especialidad = documento
                 .get_str("especialidad")
                 .unwrap_or_default()

@@ -5,7 +5,7 @@ use std::sync::LazyLock;
 /// (`À-ú`) rechazaba "ü" (Agüero, Sigüeñas), aceptaba los signos × y ÷, y `\s` dejaba pasar
 /// tabuladores y saltos de línea.
 static NOMBRE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    #[allow(clippy::expect_used, reason = "patrón literal, cubierto por los tests")]
+    #[expect(clippy::expect_used, reason = "patrón literal, cubierto por los tests")]
     Regex::new(r"^[\p{Latin}']+( [\p{Latin}']+)*$").expect("patrón de nombres no válido")
 });
 

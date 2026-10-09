@@ -20,6 +20,21 @@ edition = "2024"
 rust-version = "1.99"
 publish = false
 
+# Las reglas de CLAUDE.md como lints: sin unwrap/expect/panic en producción (en los tests sí,
+# ver clippy.toml), sin unsafe y sin salidas por stdout/stderr (van por tracing).
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
+dbg_macro = "warn"
+print_stdout = "warn"
+print_stderr = "warn"
+
 # Versiones compartidas, declaradas una sola vez.
 [workspace.dependencies]
 async-trait = "0.1.92"

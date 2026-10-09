@@ -5,7 +5,7 @@ use std::sync::LazyLock;
 
 /// Formato de un hash bcrypt: `$2a$`, `$2b$` o `$2y$`, el coste y 53 caracteres.
 static HASH_BCRYPT: LazyLock<Regex> = LazyLock::new(|| {
-    #[allow(clippy::expect_used, reason = "patrón literal, cubierto por los tests")]
+    #[expect(clippy::expect_used, reason = "patrón literal, cubierto por los tests")]
     Regex::new(r"^\$2[aby]?\$\d{2}\$[./A-Za-z0-9]{53}$").expect("patrón de hash bcrypt no válido")
 });
 

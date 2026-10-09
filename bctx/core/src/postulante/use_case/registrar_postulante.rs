@@ -71,6 +71,11 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::postulante::domain::error::postulante::RepositorioError;
+
+    fn no_usada() -> PostulanteError {
+        PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada)
+    }
     use crate::postulante::domain::value_object::id::PostulanteID;
     use async_trait::async_trait;
     use quizz_common::provider::seguridad::CifradoError;
@@ -111,14 +116,16 @@ mod tests {
             &self,
             _postulante: Postulante,
         ) -> Result<(), PostulanteError> {
-            todo!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
 
         async fn eliminar_postulante(
             &self,
             _postulante_id: PostulanteID,
         ) -> Result<(), PostulanteError> {
-            todo!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
     }
 

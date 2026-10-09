@@ -79,6 +79,11 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::postulante::domain::error::postulante::RepositorioError;
+
+    fn no_usada() -> PostulanteError {
+        PostulanteError::PostulanteRepositorioError(RepositorioError::LecturaNoFinalizada)
+    }
     use crate::postulante::domain::value_object::id::PostulanteID;
     use async_trait::async_trait;
     use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
@@ -115,11 +120,13 @@ mod tests {
             &self,
             _postulante_id: PostulanteID,
         ) -> Result<Postulante, PostulanteError> {
-            unimplemented!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
 
         async fn obtener_lista_de_postulantes(&self) -> Result<Vec<Postulante>, PostulanteError> {
-            unimplemented!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
     }
 
@@ -131,7 +138,8 @@ mod tests {
             &self,
             _postulante: Postulante,
         ) -> Result<(), PostulanteError> {
-            unimplemented!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
 
         async fn actualizar_postulante(
@@ -145,7 +153,8 @@ mod tests {
             &self,
             _postulante_id: PostulanteID,
         ) -> Result<(), PostulanteError> {
-            unimplemented!()
+            // Este test no usa esta operación.
+            Err(no_usada())
         }
     }
 

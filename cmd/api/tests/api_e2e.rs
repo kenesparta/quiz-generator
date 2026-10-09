@@ -4,6 +4,10 @@
 //! Necesitan Docker: `cargo test -p quizz-api --test api_e2e`. Todo el recorrido vive en un
 //! único test porque el servidor corre en el runtime de ese test.
 
+// En un test, un unwrap que falla es el informe del fallo. clippy.toml solo lo permite dentro
+// de las funciones #[test], no en los helpers de este archivo.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use mongodb::Database;
 use mongodb::bson::{Document, doc};
 use quizz_api::cache::crear_conexion_redis;

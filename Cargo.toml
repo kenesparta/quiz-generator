@@ -34,6 +34,8 @@ unimplemented = "warn"
 dbg_macro = "warn"
 print_stdout = "warn"
 print_stderr = "warn"
+# Módulos de archivo (foo.rs + foo/), como pide CLAUDE.md: nada de mod.rs.
+mod_module_files = "warn"
 
 # Versiones compartidas, declaradas una sola vez.
 [workspace.dependencies]

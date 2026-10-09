@@ -1,4 +1,5 @@
 use quizz_common::domain::value_objects::id::IdError;
+use quizz_common::domain::value_objects::password_plano::PasswordPlanoError;
 use quizz_common::provider::seguridad::CifradoError;
 use thiserror::Error;
 
@@ -19,8 +20,12 @@ pub enum PsicologoError {
     #[error("Colegiatura vacia")]
     ColegiaturaVacia,
 
-    #[error("Password vacio")]
-    PasswordVacio,
+    #[error("Password no valido: {0}")]
+    PasswordNoValido(#[from] PasswordPlanoError),
+
+    /// Invariante interna: la entidad siempre recibe un hash, nunca vacío.
+    #[error("El hash del password esta vacio")]
+    HashVacio,
 
     #[error("Error al cifrar el password: {0}")]
     Cifrado(#[from] CifradoError),

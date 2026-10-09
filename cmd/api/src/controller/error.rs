@@ -228,12 +228,11 @@ impl From<PsicologoError> for ApiError {
         use PsicologoError::*;
         match e {
             PsicologoIdError(_) | NombreNoValido(_) | DocumentoNoValido(_) | EspecialidadVacia
-            | ColegiaturaVacia => Self::solicitud_invalida(e),
+            | ColegiaturaVacia | PasswordNoValido(_) => Self::solicitud_invalida(e),
             PsicologoRepositorioError(RepoPsicologo::RegistroNoEncontrado) => {
                 Self::no_encontrado("Psicologo no encontrado")
             }
-            // Hoy PasswordVacio también señala un fallo al calcular el hash.
-            PasswordVacio
+            HashVacio
             | Cifrado(_)
             | PsicologoRepositorioError(
                 RepoPsicologo::PersistenciaNoFinalizada
@@ -248,14 +247,13 @@ impl From<AdminError> for ApiError {
     fn from(e: AdminError) -> Self {
         use AdminError::*;
         match e {
-            AdminIdError(_) | NombreNoValido(_) | DocumentoNoValido(_) => {
+            AdminIdError(_) | NombreNoValido(_) | DocumentoNoValido(_) | PasswordNoValido(_) => {
                 Self::solicitud_invalida(e)
             }
             AdminRepositorioError(RepoAdmin::RegistroNoEncontrado) => {
                 Self::no_encontrado("Admin no encontrado")
             }
-            // Hoy PasswordVacio también señala un fallo al calcular el hash.
-            PasswordVacio
+            HashVacio
             | Cifrado(_)
             | AdminRepositorioError(
                 RepoAdmin::PersistenciaNoFinalizada

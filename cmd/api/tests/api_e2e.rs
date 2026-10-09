@@ -278,6 +278,24 @@ async fn flujo_completo_y_controles_de_acceso() {
         .await;
     assert_eq!(estado, StatusCode::BAD_REQUEST, "{cuerpo}");
 
+    // SEC-10: no se puede crear una cuenta de personal con una contraseña vacía o corta.
+    for password in ["", "        ", "corta"] {
+        let (estado, cuerpo) = e
+            .pedir(
+                Method::POST,
+                "/admins/c3d4e5f6-a7b8-9012-cdef-123456789012",
+                Some(&admin),
+                Some(json!({
+                    "nombre": "Ana", "primer_apellido": "Paz", "segundo_apellido": "Rey",
+                    "documento": "70000002", "password": password,
+                })),
+            )
+            .await;
+        assert_eq!(estado, StatusCode::BAD_REQUEST, "{password:?}: {cuerpo}");
+    }
+    let (estado, _) = e.login("70000002", "").await;
+    assert_eq!(estado, StatusCode::UNAUTHORIZED);
+
     // Credenciales incorrectas: misma respuesta para documento inexistente y clave errónea.
     let (estado, _) = e.login(ADMIN_DOCUMENTO, "otra-clave").await;
     assert_eq!(estado, StatusCode::UNAUTHORIZED);

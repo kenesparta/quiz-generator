@@ -44,7 +44,7 @@ impl Admin {
         let documento_vo =
             Documento::new(&documento).map_err(|e| AdminError::DocumentoNoValido(e.to_string()))?;
         if password.trim().is_empty() {
-            return Err(AdminError::PasswordVacio);
+            return Err(AdminError::HashVacio);
         }
 
         Ok(Admin {
@@ -167,7 +167,7 @@ mod tests {
     }
 
     #[test]
-    fn test_empty_password() {
+    fn test_hash_vacio() {
         let result = Admin::new(
             valid_id(),
             "Carlos".to_string(),
@@ -176,6 +176,6 @@ mod tests {
             valid_documento(),
             "".to_string(),
         );
-        assert!(matches!(result.unwrap_err(), AdminError::PasswordVacio));
+        assert!(matches!(result.unwrap_err(), AdminError::HashVacio));
     }
 }

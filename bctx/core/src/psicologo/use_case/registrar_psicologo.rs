@@ -2,6 +2,7 @@ use crate::psicologo::domain::entity::psicologo::Psicologo;
 use crate::psicologo::domain::error::psicologo::PsicologoError;
 use crate::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
 use async_trait::async_trait;
+use quizz_common::domain::value_objects::password_plano::PasswordPlano;
 use quizz_common::provider::seguridad::Cifrador;
 use quizz_common::use_case::CasoDeUso;
 
@@ -16,6 +17,8 @@ pub struct InputData {
     pub password: String,
 }
 
+/// Registra un psicólogo. La contraseña se valida en texto plano antes de calcular el hash, y
+/// solo el hash llega a la entidad y al repositorio.
 pub struct RegistrarPsicologo<RepoErr> {
     password_crypto: Box<dyn Cifrador>,
     repositorio: Box<dyn RepositorioPsicologoEscritura<RepoErr>>,
@@ -39,7 +42,8 @@ where
     PsicologoError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), PsicologoError> {
-        let password = self.password_crypto.cifrar(in_.password.clone()).await?;
+        let password = PasswordPlano::new(in_.password)?;
+        let hash = self.password_crypto.cifrar(password.into_inner()).await?;
         let psicologo = Psicologo::new(
             in_.id,
             in_.nombre,
@@ -48,7 +52,7 @@ where
             in_.documento,
             in_.especialidad,
             in_.colegiatura,
-            password,
+            hash,
         )?;
         self.repositorio.registrar_psicologo(psicologo).await?;
         Ok(())
@@ -58,94 +62,102 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use async_trait::async_trait;
+    use quizz_common::domain::value_objects::password_plano::PasswordPlanoError;
     use quizz_common::provider::seguridad::CifradoError;
-    use std::sync::Mutex;
+    use std::sync::{Arc, Mutex};
 
-    struct MockSeguridadPasswordPsicologo {
-        _cifrar_result: Result<String, PsicologoError>,
-    }
+    const HASH: &str = "$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS";
+
+    /// Registra las contraseñas que recibe y devuelve siempre el mismo hash.
+    #[derive(Clone, Default)]
+    struct CifradorFalso(Arc<Mutex<Vec<String>>>);
 
     #[async_trait]
-    impl Cifrador for MockSeguridadPasswordPsicologo {
-        async fn cifrar(&self, _password: String) -> Result<String, CifradoError> {
-            Ok("$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string())
+    impl Cifrador for CifradorFalso {
+        async fn cifrar(&self, password: String) -> Result<String, CifradoError> {
+            self.0.lock().unwrap().push(password);
+            Ok(HASH.to_string())
         }
 
-        async fn verificar(&self, _password: String, _hash: String) -> Result<bool, CifradoError> {
+        async fn verificar(&self, _: String, _: String) -> Result<bool, CifradoError> {
             Ok(false)
         }
     }
 
-    struct MockRepositorioPsicologo {
-        _psicologo: Mutex<Option<Psicologo>>,
-        _result: Result<(), PsicologoError>,
-    }
+    /// Guarda los psicólogos registrados.
+    #[derive(Clone, Default)]
+    struct RepositorioFalso(Arc<Mutex<Vec<Psicologo>>>);
 
     #[async_trait]
-    impl RepositorioPsicologoEscritura<PsicologoError> for MockRepositorioPsicologo {
-        async fn registrar_psicologo(&self, _psicologo: Psicologo) -> Result<(), PsicologoError> {
+    impl RepositorioPsicologoEscritura<PsicologoError> for RepositorioFalso {
+        async fn registrar_psicologo(&self, psicologo: Psicologo) -> Result<(), PsicologoError> {
+            self.0.lock().unwrap().push(psicologo);
             Ok(())
         }
     }
 
-    #[tokio::test]
-    async fn test_registrar_psicologo_success() {
-        let password_crypto = Box::new(MockSeguridadPasswordPsicologo {
-            _cifrar_result: Ok(
-                "$2a$12$/4Ikr2l8lEXk/1iHtiUN7.p/agp333D1PdZjhSzx22PaH0v6rZcZS".to_string(),
-            ),
-        });
-
-        let repositorio = Box::new(MockRepositorioPsicologo {
-            _psicologo: Mutex::new(None),
-            _result: Ok(()),
-        });
-
-        let use_case = RegistrarPsicologo::new(password_crypto, repositorio);
-
-        let result = use_case
-            .ejecutar(InputData {
-                id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
-                nombre: "Maria".to_string(),
-                primer_apellido: "Garcia".to_string(),
-                segundo_apellido: "Lopez".to_string(),
-                documento: "44556677".to_string(),
-                especialidad: "Psicologia Clinica".to_string(),
-                colegiatura: "CPP-12345".to_string(),
-                password: "mi_password_seguro".to_string(),
-            })
-            .await;
-
-        assert!(result.is_ok());
+    fn entrada(password: &str) -> InputData {
+        InputData {
+            id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
+            nombre: "Maria".to_string(),
+            primer_apellido: "Garcia".to_string(),
+            segundo_apellido: "Lopez".to_string(),
+            documento: "12345678".to_string(),
+            especialidad: "Psicologia Clinica".to_string(),
+            colegiatura: "CPsP-12345".to_string(),
+            password: password.to_string(),
+        }
     }
 
     #[tokio::test]
-    async fn test_registrar_psicologo_invalid_documento() {
-        let password_crypto = Box::new(MockSeguridadPasswordPsicologo {
-            _cifrar_result: Ok("hashed_password".to_string()),
-        });
+    async fn guarda_el_hash_y_no_la_contraseña() {
+        let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
+        RegistrarPsicologo::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
+            .ejecutar(entrada("una-clave-segura"))
+            .await
+            .unwrap();
 
-        let repositorio = Box::new(MockRepositorioPsicologo {
-            _psicologo: Mutex::new(None),
-            _result: Ok(()),
-        });
+        assert_eq!(*cifrador.0.lock().unwrap(), ["una-clave-segura"]);
+        let guardados = repositorio.0.lock().unwrap();
+        assert_eq!(guardados[0].password.as_deref(), Some(HASH));
+        assert_eq!(guardados[0].colegiatura, "CPsP-12345");
+    }
 
-        let use_case = RegistrarPsicologo::new(password_crypto, repositorio);
+    #[tokio::test]
+    async fn una_contraseña_no_valida_se_rechaza_sin_calcular_el_hash() {
+        for (password, esperado) in [
+            ("", PasswordPlanoError::Vacio),
+            ("corta", PasswordPlanoError::MuyCorto),
+            (&"x".repeat(73), PasswordPlanoError::MuyLargo),
+        ] {
+            let (cifrador, repositorio) = (CifradorFalso::default(), RepositorioFalso::default());
+            let resultado =
+                RegistrarPsicologo::new(Box::new(cifrador.clone()), Box::new(repositorio.clone()))
+                    .ejecutar(entrada(password))
+                    .await;
 
-        let result = use_case
-            .ejecutar(InputData {
-                id: "22d1adea-d489-486b-badf-8e0580ddd0c3".to_string(),
-                nombre: "Maria".to_string(),
-                primer_apellido: "Garcia".to_string(),
-                segundo_apellido: "Lopez".to_string(),
-                documento: "12".to_string(),
-                especialidad: "Psicologia Clinica".to_string(),
-                colegiatura: "CPP-12345".to_string(),
-                password: "mi_password_seguro".to_string(),
-            })
-            .await;
+            assert!(
+                matches!(&resultado, Err(PsicologoError::PasswordNoValido(e)) if *e == esperado),
+                "{password:?}"
+            );
+            assert!(cifrador.0.lock().unwrap().is_empty());
+            assert!(repositorio.0.lock().unwrap().is_empty());
+        }
+    }
 
-        assert!(result.is_err());
+    #[tokio::test]
+    async fn sin_colegiatura_no_se_guarda() {
+        let repositorio = RepositorioFalso::default();
+        let mut datos = entrada("una-clave-segura");
+        datos.colegiatura = " ".to_string();
+        let resultado = RegistrarPsicologo::new(
+            Box::new(CifradorFalso::default()),
+            Box::new(repositorio.clone()),
+        )
+        .ejecutar(datos)
+        .await;
+
+        assert!(matches!(resultado, Err(PsicologoError::ColegiaturaVacia)));
+        assert!(repositorio.0.lock().unwrap().is_empty());
     }
 }

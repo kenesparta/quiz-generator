@@ -55,7 +55,7 @@ impl Psicologo {
             return Err(PsicologoError::ColegiaturaVacia);
         }
         if password.trim().is_empty() {
-            return Err(PsicologoError::PasswordVacio);
+            return Err(PsicologoError::HashVacio);
         }
 
         Ok(Psicologo {
@@ -240,7 +240,7 @@ mod tests {
     }
 
     #[test]
-    fn test_empty_password() {
+    fn test_hash_vacio() {
         let result = Psicologo::new(
             valid_id(),
             "Maria".to_string(),
@@ -251,6 +251,6 @@ mod tests {
             valid_colegiatura(),
             "".to_string(),
         );
-        assert!(matches!(result.unwrap_err(), PsicologoError::PasswordVacio));
+        assert!(matches!(result.unwrap_err(), PsicologoError::HashVacio));
     }
 }

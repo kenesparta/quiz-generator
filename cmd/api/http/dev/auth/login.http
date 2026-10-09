@@ -1,6 +1,12 @@
 ### Variables
 @baseUrl = http://localhost:8008
 
+# Ejecuta estos logins primero. El cliente HTTP de JetBrains guarda cada token como variable
+# global (token_postulante, token_psicologo, token_admin) y los demás archivos la usan en
+# `Authorization: Bearer {{token_...}}`. Con REST Client de VS Code, copia el token de la
+# respuesta en una variable `@token_...` del archivo que vayas a usar.
+# No versiones tokens: caducan y son firmas reales del secreto de quien los generó.
+
 ### Login como postulante
 POST {{baseUrl}}/login
 Content-Type: application/json
@@ -9,6 +15,8 @@ Content-Type: application/json
   "documento": "12345678",
   "password": "5678"
 }
+
+> {% client.global.set("token_postulante", response.body.token); %}
 
 ### Login como psicologo
 POST {{baseUrl}}/login
@@ -19,6 +27,8 @@ Content-Type: application/json
   "password": "mi_password_seguro"
 }
 
+> {% client.global.set("token_psicologo", response.body.token); %}
+
 ### Login como admin
 POST {{baseUrl}}/login
 Content-Type: application/json
@@ -27,3 +37,9 @@ Content-Type: application/json
   "documento": "11223344",
   "password": "admin_password_seguro"
 }
+
+> {% client.global.set("token_admin", response.body.token); %}
+
+### Cerrar la sesion del postulante (el token deja de valer)
+POST {{baseUrl}}/logout
+Authorization: Bearer {{token_postulante}}

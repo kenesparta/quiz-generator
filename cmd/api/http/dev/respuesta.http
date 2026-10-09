@@ -3,12 +3,11 @@
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
 @postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
 @postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzY4NjQxMzUsImlhdCI6MTc3NjgyODEzNSwicm9sIjoicHNpY29sb2dvIn0.elM0m4kCJI98YKy2Xvf4N1Ry7zrwwq9QNbdzpJk6KWw
 
 ### Asignar una evaluacion al postulante01
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "postulante_id": "{{postulante01}}"
@@ -17,7 +16,7 @@ Authorization: Bearer {{token}}
 ### Asignar una evaluacion al postulante02
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "postulante_id": "{{postulante02}}"
@@ -26,7 +25,7 @@ Authorization: Bearer {{token}}
 ### Empezar examen del postulante01
 PATCH {{baseUrl}}/respuestas/dff8e230-3c3f-4473-8864-254d9b00b94d/estado
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_postulante}}
 
 {
   "accion": "empezar"
@@ -35,6 +34,7 @@ Authorization: Bearer {{token}}
 ### Empezar examen del postulante02
 PATCH {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/estado
 Content-Type: application/json
+Authorization: Bearer {{token_postulante}}
 
 {
   "accion": "empezar"
@@ -42,41 +42,43 @@ Content-Type: application/json
 
 ### Listar todas las asignaciones evaluacion ↔ postulante (solo admin/psicologo)
 GET {{baseUrl}}/respuestas/asignaciones
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Listar asignaciones filtrando por postulante01
 GET {{baseUrl}}/respuestas/asignaciones?postulante_id={{postulante01}}
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Listar asignaciones filtrando por evaluacion
 GET {{baseUrl}}/respuestas/asignaciones?evaluacion_id={{evaluacionId}}
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Listar respuestas del postulante01 (excluye finalizadas)
 GET {{baseUrl}}/respuestas?postulante_id={{postulante01}}
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Listar respuestas del postulante02 (excluye finalizadas)
 GET {{baseUrl}}/respuestas?postulante_id={{postulante02}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Obtener repuesta del postulante01
 GET {{baseUrl}}/respuestas/dff8e230-3c3f-4473-8864-254d9b00b94d
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Obtener repuesta del postulante02
 GET {{baseUrl}}/respuestas/ab035402-a356-4a89-a5ce-38a50b068a3e
-Authorization: Bearer {{token}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 ### Enviar Respuesta del postulante01
 POST {{baseUrl}}/respuestas/2c687ba9-9120-4d08-8290-233551b81c50/examenes/19573e4f-321d-41ad-a8a9-3807c6fd3d65/preguntas/e06743ff-8090-49b0-98c2-bd59db7d610f/contestaciones
 Content-Type: application/json
+Authorization: Bearer {{token_postulante}}
 
 {
   "respuestas": [
@@ -87,6 +89,7 @@ Content-Type: application/json
 ### Finalizar la evaluacion
 PATCH {{baseUrl}}/respuestas/4bfa78df-3f5b-449b-aebf-dddc9dd1019f/estado
 Content-Type: application/json
+Authorization: Bearer {{token_postulante}}
 
 {
   "accion": "finalizar"
@@ -95,6 +98,7 @@ Content-Type: application/json
 ### Finalizar la evaluacion
 PATCH {{baseUrl}}/respuestas/2c687ba9-9120-4d08-8290-233551b81c50/estado
 Content-Type: application/json
+Authorization: Bearer {{token_postulante}}
 
 {
   "accion": "finalizar"

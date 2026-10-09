@@ -5,6 +5,7 @@
 ### Crear Examen
 POST {{baseUrl}}/examenes/{{examId3}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {
   "titulo": "Entrevista",
@@ -15,6 +16,7 @@ Content-Type: application/json
 ### Agregar preguntas
 PUT {{baseUrl}}/examenes/{{examId3}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {
   "preguntas": [

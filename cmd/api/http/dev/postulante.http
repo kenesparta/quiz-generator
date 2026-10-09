@@ -1,6 +1,5 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzY0MjYzOTAsImlhdCI6MTc3NjM5MDM5MCwicm9sIjoicHNpY29sb2dvIn0.U0cobrLZU67A-SIdfnmDIb30bc6cWU6joWQjtJKkhNs
 
 ### Health check
 GET {{baseUrl}}/health-check
@@ -9,7 +8,7 @@ Content-Type: application/json
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulantes/e17439e0-79e1-47e3-b5f9-5b54367fa290
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "documento": "12345678",
@@ -24,7 +23,7 @@ Authorization: Bearer {{token}}
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulantes/d4e92ac2-882a-4e46-ae56-b2361ac5327e
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "documento": "99449988",
@@ -39,7 +38,7 @@ Authorization: Bearer {{token}}
 ### Registrar nuevo Postulante
 POST {{baseUrl}}/postulantes/0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "documento": "04009988",
@@ -54,7 +53,7 @@ Authorization: Bearer {{token}}
 ### Actualizar Postulante por documento
 PUT {{baseUrl}}/postulantes
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {
   "documento": "12345678",
@@ -69,15 +68,15 @@ Authorization: Bearer {{token}}
 ### Obtener el postulante por documento
 GET {{baseUrl}}/postulantes?documento=04009988
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 
 ### Obtener el postulante por id
 GET {{baseUrl}}/postulantes?id=0b9fbef0-fc03-4e24-b5d0-dfb42b537324
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 ### Obtener lista de postulantes
 GET {{baseUrl}}/postulantes
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}

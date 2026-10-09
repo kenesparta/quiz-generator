@@ -8,6 +8,7 @@
 ### Crear Evaluacion
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {
   "titulo": "Proceso de evaluacion A-I",
@@ -17,6 +18,7 @@ Content-Type: application/json
 ### Agregar examenes a evaluacion
 PUT {{baseUrl}}/evaluaciones/{{evaluacionId}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {
   "examenes": [
@@ -29,5 +31,6 @@ Content-Type: application/json
 ### Publicar la evaluacion
 PATCH {{baseUrl}}/evaluaciones/{{evaluacionId}}
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {}

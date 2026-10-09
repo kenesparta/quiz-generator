@@ -1,13 +1,14 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJleHAiOjE3NzYyNTU5MDgsImlhdCI6MTc3NjIxOTkwOCwicm9sIjoicHNpY29sb2dvIn0.KknRmQvSq3z5Kl6GR9VaHx0w9ma-r3anDhhzpMLs8Fk
 
 ### Revisar la evaluacion
 POST {{baseUrl}}/revisiones/2c687ba9-9120-4d08-8290-233551b81c50
 Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
 
 {
   "evaluacion_id": "2cf52b7a-0ee3-43a9-9b89-4a8baaa22250",
+  "resultado": "apto",
   "examenes": [
     {
         "examen_id": "19573e4f-321d-41ad-a8a9-3807c6fd3d65",
@@ -23,11 +24,11 @@ Content-Type: application/json
 ### Obtener revision por ID (resultado del examen del postulante)
 GET {{baseUrl}}/revisiones/ab035402-a356-4a89-a5ce-38a50b068a3e
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 ### Retorna todas las respuestas listas para ser corregidas
 GET {{baseUrl}}/revisiones
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_psicologo}}
 
 {}

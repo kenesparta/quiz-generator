@@ -1,11 +1,10 @@
 ### Variables
 @baseUrl = http://localhost:8008
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjM2Q0ZTVmNi1hN2I4LTkwMTItY2RlZi0xMjM0NTY3ODkwMTIiLCJleHAiOjE3NzU4MjQzMTksImlhdCI6MTc3NTc4ODMxOSwicm9sIjoiYWRtaW4ifQ.tk4cg47xlUlgN-Whf7JHfkAXlFWfJx1-gqeOy-gW2nI
 
 ### Registrar nuevo Psicologo
 POST {{baseUrl}}/psicologos/a1b2c3d4-e5f6-7890-abcd-ef1234567890
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_admin}}
 
 {
   "nombre": "Maria",
@@ -19,7 +18,7 @@ Authorization: Bearer {{token}}
 ### Registrar segundo Psicologo
 POST {{baseUrl}}/psicologos/b2c3d4e5-f6a7-8901-bcde-f12345678901
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{token_admin}}
 
 {
   "nombre": "Carlos",

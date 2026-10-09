@@ -15,7 +15,7 @@ impl ListarAsignacionesController {
     pub async fn list(
         req: HttpRequest,
         query: web::Query<AsignacionesQueryParams>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let claims = match req.extensions().get::<Claims>().cloned() {
             Some(c) => c,

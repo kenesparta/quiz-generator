@@ -2,6 +2,7 @@
 //!
 //! - [`AuthMiddleware`] envuelve todo el scope protegido: exige un JWT válido con un rol
 //!   conocido y deja los [`Claims`] en las extensiones de la petición. Sin eso responde 401/403.
+//!   Necesita `web::Data<JWTProvider>` registrado como `app_data`.
 //! - [`Autorizacion`] envuelve cada scope de rutas con el [`Recurso`] que ese scope expone y
 //!   consulta la política RBAC (rol × recurso × acción).
 //!
@@ -25,15 +26,7 @@ use quizz_auth::autorizacion::provider::autorizacion::AutorizacionVerificar;
 use std::rc::Rc;
 
 /// Autenticación: exige `Authorization: Bearer <jwt>` válido en todas las rutas que envuelve.
-pub struct AuthMiddleware {
-    jwt_secret: String,
-}
-
-impl AuthMiddleware {
-    pub fn new(jwt_secret: String) -> Self {
-        Self { jwt_secret }
-    }
-}
+pub struct AuthMiddleware;
 
 impl<S, B> Transform<S, ServiceRequest> for AuthMiddleware
 where
@@ -49,14 +42,12 @@ where
     fn new_transform(&self, service: S) -> Self::Future {
         ok(AuthMiddlewareService {
             service: Rc::new(service),
-            jwt_secret: self.jwt_secret.clone(),
         })
     }
 }
 
 pub struct AuthMiddlewareService<S> {
     service: Rc<S>,
-    jwt_secret: String,
 }
 
 impl<S, B> Service<ServiceRequest> for AuthMiddlewareService<S>
@@ -72,12 +63,11 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let service = Rc::clone(&self.service);
-        let jwt_secret = self.jwt_secret.clone();
 
         Box::pin(async move {
             info!("{} {}", req.method(), req.path());
 
-            match autenticar(&req, jwt_secret) {
+            match autenticar(&req) {
                 Ok(claims) => {
                     req.extensions_mut().insert(claims);
                     Ok(service.call(req).await?.map_into_left_body())
@@ -109,18 +99,20 @@ impl Rechazo {
     }
 }
 
-fn autenticar(req: &ServiceRequest, jwt_secret: String) -> Result<Claims, Rechazo> {
+fn autenticar(req: &ServiceRequest) -> Result<Claims, Rechazo> {
     let Some(token) = extraer_token(req.headers()) else {
         warn!("{} {} - token no encontrado", req.method(), req.path());
         return Err(Rechazo::NoAutenticado("Token no encontrado"));
     };
+    let Some(jwt) = req.app_data::<web::Data<JWTProvider>>() else {
+        error!("el proveedor JWT no esta registrado como app_data");
+        return Err(Rechazo::Interno);
+    };
 
-    let claims = JWTProvider::new(jwt_secret, 0)
-        .verificar_token(token)
-        .map_err(|e| {
-            warn!("{} {} - {}", req.method(), req.path(), e);
-            Rechazo::NoAutenticado("Token no valido o expirado")
-        })?;
+    let claims = jwt.verificar_token(token).map_err(|e| {
+        warn!("{} {} - {}", req.method(), req.path(), e);
+        Rechazo::NoAutenticado("Token no valido o expirado")
+    })?;
 
     if rol_de(&claims).is_none() {
         warn!(
@@ -259,8 +251,9 @@ pub fn extraer_token(headers: &actix_web::http::header::HeaderMap) -> Option<&st
 
 #[cfg(test)]
 mod tests {
+    use crate::configuration::JwtSettings;
     use crate::controller::auth::casbin_enforcer::{crear_enforcer, permitido_esperado};
-    use crate::controller::auth::jwt::Claims;
+    use crate::controller::auth::jwt::{Claims, JWTProvider};
     use crate::startup::configurar_rutas;
     use actix_web::dev::{Service, ServiceResponse};
     use actix_web::http::{Method, StatusCode};
@@ -299,10 +292,15 @@ mod tests {
         Error = actix_web::Error,
     > {
         let enforcer = crear_enforcer().await.unwrap();
+        let jwt = JWTProvider::new(&JwtSettings {
+            secret: SECRETO.to_string(),
+            expiration_seconds: 3600,
+        });
         test::init_service(
             App::new()
                 .app_data(web::Data::new(enforcer))
-                .configure(|cfg| configurar_rutas(cfg, SECRETO)),
+                .app_data(web::Data::new(jwt))
+                .configure(configurar_rutas),
         )
         .await
     }

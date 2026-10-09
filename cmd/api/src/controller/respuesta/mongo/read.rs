@@ -17,11 +17,11 @@ use quizz_core::respuesta::provider::repositorio::{
 use tracing::error;
 
 pub struct RespuestaPorPostulanteMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl RespuestaPorPostulanteMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -31,7 +31,7 @@ impl MongoRepository for RespuestaPorPostulanteMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }
@@ -72,11 +72,11 @@ impl RepositorioRespuestaLectura<RespuestaError> for RespuestaPorPostulanteMongo
 }
 
 pub struct RespuestaRevisionMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl RespuestaRevisionMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -86,7 +86,7 @@ impl MongoRepository for RespuestaRevisionMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }
@@ -133,11 +133,11 @@ impl RespositorioRespuestaRevision<RespuestaError> for RespuestaRevisionMongo {
 }
 
 pub struct ListaRespuestaPostulanteMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl ListaRespuestaPostulanteMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -147,7 +147,7 @@ impl MongoRepository for ListaRespuestaPostulanteMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }
@@ -226,11 +226,11 @@ impl RepositorioListaRespuestaPostulante<RespuestaError> for ListaRespuestaPostu
 }
 
 pub struct ListarAsignacionesMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl ListarAsignacionesMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -240,7 +240,7 @@ impl MongoRepository for ListarAsignacionesMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

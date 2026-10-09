@@ -1,18 +1,31 @@
+# Copia este archivo a configuration.yaml. Cualquier clave se puede sobrescribir con una
+# variable de entorno QUIZZ_<SECCION>__<CLAVE>, p. ej. QUIZZ_JWT__SECRET o
+# QUIZZ_DATABASE__PASSWORD. En entornos desplegados, los secretos van por entorno.
 application_port: 8008
 application_host: "0.0.0.0"
+
 database:
   host: "127.0.0.1"
   port: 27017
   username: "quizz"
   password: "quizz"
   database_name: "quizz"
+  # uri: "mongodb+srv://usuario:clave@cluster.example.net/?tls=true"  # reemplaza host/port/username/password
 
 redis:
-  host:
-  port:
-  username:
-  password:
+  host: "127.0.0.1"
+  port: 6379
+  # Vacíos: el Redis de docker-compose.dev.yml no pide credenciales.
+  username: ""
+  password: ""
 
 jwt:
-  secret: "your-secret-key-here"
+  # Obligatorio: al menos 32 bytes aleatorios (openssl rand -base64 48). El servidor no
+  # arranca con un secreto más corto. Mejor por entorno: QUIZZ_JWT__SECRET=...
+  secret: ""
   expiration_seconds: 36000
+
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"

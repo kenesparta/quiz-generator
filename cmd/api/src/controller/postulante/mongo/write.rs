@@ -10,11 +10,11 @@ use quizz_core::postulante::domain::value_object::id::PostulanteID;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteEscritura;
 
 pub struct PostulanteMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl PostulanteMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         PostulanteMongo { client }
     }
 }
@@ -24,7 +24,7 @@ impl MongoRepository for PostulanteMongo {
         POSTULANTE_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

@@ -19,7 +19,7 @@ impl PostulanteController {
     pub async fn create(
         req: HttpRequest,
         body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let postulante_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
@@ -117,7 +117,7 @@ impl PostulanteController {
 
     pub async fn update_by_documento(
         body: web::Json<RegistrarPostulanteDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let dto = body.into_inner();
         info!("PUT /postulantes");
@@ -178,7 +178,7 @@ impl PostulanteController {
     pub async fn remove(
         _req: HttpRequest,
         _body: web::Json<RegistrarPostulanteDTO>,
-        _pool: web::Data<mongodb::Client>,
+        _pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         HttpResponse::Created().json("")
     }

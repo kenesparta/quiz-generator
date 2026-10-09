@@ -50,11 +50,11 @@ fn leer_fecha_bson(bson_fecha: &Bson) -> Result<String, PostulanteError> {
 }
 
 pub struct PostulanteReadMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl PostulanteReadMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         PostulanteReadMongo { client }
     }
 }
@@ -64,7 +64,7 @@ impl MongoRepository for PostulanteReadMongo {
         POSTULANTE_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

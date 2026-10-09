@@ -10,7 +10,7 @@ use serde_json::json;
 pub struct ListarRevisionesController;
 
 impl ListarRevisionesController {
-    pub async fn list(pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn list(pool: web::Data<mongodb::Database>) -> HttpResponse {
         info!("GET /revisiones");
 
         let revision = RespuestaRevision::new(Box::new(RespuestaRevisionMongo::new(pool)));

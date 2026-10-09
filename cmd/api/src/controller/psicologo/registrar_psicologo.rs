@@ -13,7 +13,7 @@ impl PsicologoController {
     pub async fn create(
         req: HttpRequest,
         body: web::Json<RegistrarPsicologoDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let psicologo_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),

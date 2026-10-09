@@ -133,21 +133,11 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 **Public routes** (no auth required): `/health-check`, `/login`
 **Protected routes** (JWT + RBAC): all other endpoints
 
-**Configuration**: JWT settings (`secret`, `expiration_seconds`) are in `configuration.yaml` under the `jwt:` key.
+**Configuration**: JWT settings (`secret`, `expiration_seconds`) are under the `jwt:` key. The JWT keys and validation are built once at startup (`JWTProvider`, shared as `web::Data`).
 
 ### Configuration
 
-Application settings are in `configuration.yaml`:
-```yaml
-application_port: 8008
-application_host: "0.0.0.0"
-database:
-  host: "127.0.0.1"
-  port: 27017
-  username: "quizz"
-  password: "quizz"
-  database_name: "quizz"
-```
+`configuration.yaml.example` is the reference (copy it to `configuration.yaml`; a test checks that it loads). Settings come from `configuration.yaml` (optional) and `QUIZZ_*` environment variables, which win: `QUIZZ_JWT__SECRET`, `QUIZZ_DATABASE__PASSWORD`, `QUIZZ_CORS__ALLOWED_ORIGINS=a,b`... `Settings::validar` rejects at startup a JWT secret shorter than 32 bytes, a token lifetime outside 1 s–7 days and CORS origins with a trailing slash. `database.database_name` selects the MongoDB database (injected as `web::Data<mongodb::Database>`); `database.uri` / `redis.uri` accept full connection URIs (TLS, SRV).
 
 ### API Routes
 

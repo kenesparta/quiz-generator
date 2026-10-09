@@ -1,4 +1,3 @@
-use crate::configuration::JwtSettings;
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::middleware::extraer_token;
 use crate::controller::auth::redis::universal_borrar::LogoutUniversalRedis;
@@ -13,7 +12,7 @@ impl LogoutController {
     pub async fn logout(
         req: HttpRequest,
         redis_client: web::Data<redis::Client>,
-        jwt_settings: web::Data<JwtSettings>,
+        jwt: web::Data<JWTProvider>,
     ) -> HttpResponse {
         let token = match extraer_token(req.headers()) {
             Some(t) => t,
@@ -23,8 +22,7 @@ impl LogoutController {
             }
         };
 
-        let jwt_provider = JWTProvider::new(jwt_settings.secret.clone(), 0);
-        let claims = match jwt_provider.verificar_token(token) {
+        let claims = match jwt.verificar_token(token) {
             Ok(c) => c,
             Err(_) => {
                 // Token expirado o invalido: el cliente igual debe limpiar su sesion.

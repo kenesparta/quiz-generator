@@ -14,11 +14,11 @@ use quizz_core::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use quizz_core::pregunta::provider::repositorio::RepositorioAgregarPregunta;
 
 pub struct PreguntaPorExamenMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl PreguntaPorExamenMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -28,7 +28,7 @@ impl MongoRepository for PreguntaPorExamenMongo {
         EXAMEN_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

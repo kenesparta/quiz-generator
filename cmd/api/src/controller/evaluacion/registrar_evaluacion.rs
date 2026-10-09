@@ -11,7 +11,7 @@ impl EvaluacionControlller {
     pub async fn create(
         req: HttpRequest,
         body: web::Json<RegistrarEvaluacionDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let evaluacion_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),

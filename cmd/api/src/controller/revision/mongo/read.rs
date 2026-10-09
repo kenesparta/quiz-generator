@@ -11,11 +11,11 @@ use quizz_core::respuesta::provider::repositorio::RepositorioObtenerRevisionPorI
 use tracing::error;
 
 pub struct RevisionReadMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl RevisionReadMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -25,7 +25,7 @@ impl MongoRepository for RevisionReadMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

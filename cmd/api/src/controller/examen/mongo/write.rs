@@ -10,11 +10,11 @@ use quizz_core::examen::domain::error::examen::RepositorioError::PersistenciaNoF
 use quizz_core::examen::provider::repositorio::RepositorioExamenEscritura;
 
 pub struct ExamenMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl ExamenMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         ExamenMongo { client }
     }
 }
@@ -24,7 +24,7 @@ impl MongoRepository for ExamenMongo {
         EXAMEN_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

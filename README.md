@@ -46,34 +46,14 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 This starts MongoDB on `localhost:27017` (credentials `quizz`/`quizz`, database `quizz`) and Redis on `localhost:6379`.
 
-2) Create your app configuration from the example:
+2) Create your app configuration from the example and set a JWT secret:
 
 ```bash
 cp configuration.yaml.example configuration.yaml
+export QUIZZ_JWT__SECRET="$(openssl rand -base64 48)"
 ```
 
-Default example values:
-
-```yaml
-application_port: 8008
-application_host: "0.0.0.0"
-database:
-  host: "127.0.0.1"
-  port: 27017
-  username: "quizz"
-  password: "quizz"
-  database_name: "quizz"
-
-redis:
-  host:
-  port:
-  username:
-  password:
-
-jwt:
-  secret: "your-secret-key-here"
-  expiration_seconds: 36000
-```
+`configuration.yaml.example` documents every key. Any key can be overridden with a `QUIZZ_<SECTION>__<KEY>` environment variable (for example `QUIZZ_DATABASE__PASSWORD`); in deployed environments, pass secrets that way. The server refuses to start with a JWT secret shorter than 32 bytes.
 
 3) Run the API:
 

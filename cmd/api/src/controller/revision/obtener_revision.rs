@@ -17,7 +17,7 @@ use serde_json::json;
 pub struct ObtenerRevisionController;
 
 impl ObtenerRevisionController {
-    pub async fn get(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn get(req: HttpRequest, pool: web::Data<mongodb::Database>) -> HttpResponse {
         let revision_id = match req.match_info().get("revision_id") {
             Some(id) => id.to_string(),
             None => {

@@ -1,5 +1,6 @@
-use crate::configuration::JwtSettings;
+use crate::configuration::{CorsSettings, JwtSettings};
 use crate::controller::admin::route::admin;
+use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::middleware::AuthMiddleware;
 use crate::controller::auth::route::login_routes;
 use crate::controller::evaluacion::route::evaluacion;
@@ -12,7 +13,7 @@ use crate::controller::revision::route::revision;
 use crate::cors::set_cors;
 use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
-use mongodb::Client as MongoClient;
+use mongodb::Database;
 use redis::Client as RedisClient;
 use std::net::TcpListener;
 
@@ -26,11 +27,12 @@ pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
 /// Las rutas públicas (`/health-check`, `/login`, `/logout`) quedan fuera del scope
 /// autenticado; todo lo demás exige un JWT válido y cada scope declara el recurso que la
 /// política RBAC autoriza (ver `controller/auth/middleware.rs`). Requiere como `app_data` el
-/// enforcer (`web::Data<casbin::Enforcer>`) además de los clientes que usan los handlers.
-pub fn configurar_rutas(cfg: &mut web::ServiceConfig, jwt_secret: &str) {
+/// enforcer (`web::Data<casbin::Enforcer>`) y el proveedor JWT (`web::Data<JWTProvider>`)
+/// además de los clientes que usan los handlers.
+pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
     cfg.configure(health_check).configure(login_routes).service(
         web::scope("")
-            .wrap(AuthMiddleware::new(jwt_secret.to_string()))
+            .wrap(AuthMiddleware)
             .configure(examen)
             .configure(evaluacion)
             .configure(respuesta)
@@ -41,24 +43,26 @@ pub fn configurar_rutas(cfg: &mut web::ServiceConfig, jwt_secret: &str) {
     );
 }
 
+/// Arranca el servidor HTTP sobre un listener ya abierto (un test puede usar el puerto 0).
 pub fn run(
     tcp_listener: TcpListener,
-    mongo_client: MongoClient,
+    database: Database,
     redis_client: RedisClient,
-    jwt_settings: JwtSettings,
+    jwt_settings: &JwtSettings,
+    cors_settings: CorsSettings,
     enforcer: casbin::Enforcer,
 ) -> Result<Server, std::io::Error> {
-    let db_connection_pool = web::Data::new(mongo_client);
+    let database = web::Data::new(database);
     let redis_connection_pool = web::Data::new(redis_client);
-    let jwt_settings_data = web::Data::new(jwt_settings.clone());
+    let jwt = web::Data::new(JWTProvider::new(jwt_settings));
     let enforcer = web::Data::new(enforcer);
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(set_cors())
-            .configure(|cfg| configurar_rutas(cfg, &jwt_settings.secret))
-            .app_data(db_connection_pool.clone())
+            .wrap(set_cors(&cors_settings.allowed_origins))
+            .configure(configurar_rutas)
+            .app_data(database.clone())
             .app_data(redis_connection_pool.clone())
-            .app_data(jwt_settings_data.clone())
+            .app_data(jwt.clone())
             .app_data(enforcer.clone())
     })
     .listen(tcp_listener)?

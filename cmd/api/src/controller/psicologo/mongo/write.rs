@@ -9,11 +9,11 @@ use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, Repositori
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
 
 pub struct PsicologoMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl PsicologoMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         PsicologoMongo { client }
     }
 }
@@ -23,7 +23,7 @@ impl MongoRepository for PsicologoMongo {
         PSICOLOGO_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

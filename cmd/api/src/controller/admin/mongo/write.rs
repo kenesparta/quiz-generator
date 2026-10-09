@@ -9,11 +9,11 @@ use quizz_core::admin::domain::error::admin::{AdminError, RepositorioError};
 use quizz_core::admin::provider::repositorio::RepositorioAdminEscritura;
 
 pub struct AdminMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl AdminMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         AdminMongo { client }
     }
 }
@@ -23,7 +23,7 @@ impl MongoRepository for AdminMongo {
         ADMIN_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

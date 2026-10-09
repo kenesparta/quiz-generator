@@ -9,14 +9,12 @@ use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::domain::usuario_login::UsuarioLogin;
 use quizz_auth::universal::provider::repositorio::RepositorioLoginUniversalLectura;
 
-const DATABASE_NAME: &str = "quizz";
-
 pub struct LoginUniversalMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl LoginUniversalMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 
@@ -26,10 +24,7 @@ impl LoginUniversalMongo {
         documento: &str,
         rol: Rol,
     ) -> Result<Option<UsuarioLogin>, LoginUniversalError> {
-        let collection = self
-            .client
-            .database(DATABASE_NAME)
-            .collection::<Document>(collection_name);
+        let collection = self.client.collection::<Document>(collection_name);
 
         let filter = doc! { "documento": documento };
 

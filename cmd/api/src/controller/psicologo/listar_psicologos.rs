@@ -23,7 +23,7 @@ pub struct PsicologoListItemDTO {
 pub struct ListarPsicologosController;
 
 impl ListarPsicologosController {
-    pub async fn list(pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn list(pool: web::Data<mongodb::Database>) -> HttpResponse {
         info!("GET /psicologos");
 
         let listar = ListarPsicologos::new(Box::new(PsicologoReadMongo::new(pool)));

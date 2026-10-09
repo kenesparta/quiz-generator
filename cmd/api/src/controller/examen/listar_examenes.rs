@@ -22,7 +22,7 @@ pub struct ExamenListItemDTO {
 pub struct ListarExamenesController;
 
 impl ListarExamenesController {
-    pub async fn list(pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn list(pool: web::Data<mongodb::Database>) -> HttpResponse {
         info!("GET /examenes");
 
         let listar = ListarExamenes::new(Box::new(ExamenMongo::new(pool)));

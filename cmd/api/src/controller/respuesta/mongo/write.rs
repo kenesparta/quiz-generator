@@ -19,13 +19,13 @@ use quizz_core::respuesta::provider::repositorio::{
 use std::str::FromStr;
 
 pub struct RespuestaEvaluacionMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
     repositorio_evaluacion: EvaluacionMongo,
     reposiorio_postulante: PostulanteMongo,
 }
 
 impl RespuestaEvaluacionMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         let repositorio_evaluacion = EvaluacionMongo::new(client.clone());
         let reposiorio_postulante = PostulanteMongo::new(client.clone());
         Self {
@@ -41,7 +41,7 @@ impl MongoRepository for RespuestaEvaluacionMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }
@@ -229,11 +229,11 @@ impl RepositorioRespuestaEscritura<RespuestaError> for RespuestaEvaluacionMongo 
 }
 
 pub struct RespositorioFinalizarEvaluacionMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl RespositorioFinalizarEvaluacionMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -243,7 +243,7 @@ impl MongoRepository for RespositorioFinalizarEvaluacionMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }
@@ -361,11 +361,11 @@ impl RespositorioFinalizarEvaluacion<RespuestaError> for RespositorioFinalizarEv
 }
 
 pub struct RepositorioEmpezarExamenMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl RepositorioEmpezarExamenMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -375,7 +375,7 @@ impl MongoRepository for RepositorioEmpezarExamenMongo {
         RESPUESTA_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

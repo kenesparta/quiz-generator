@@ -14,7 +14,7 @@ impl AgregarPreguntaController {
     pub async fn create(
         req: HttpRequest,
         body: web::Json<PreguntaInputDto>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let examen_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),

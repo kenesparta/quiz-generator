@@ -22,12 +22,12 @@ use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use std::str::FromStr;
 
 pub struct EvaluacionMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
     repositorio_examen: ExamenMongo,
 }
 
 impl EvaluacionMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         let repositorio_examen = ExamenMongo::new(client.clone());
         EvaluacionMongo {
             client,
@@ -41,7 +41,7 @@ impl MongoRepository for EvaluacionMongo {
         EVALUACION_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

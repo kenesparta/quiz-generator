@@ -14,7 +14,7 @@ use serde_json::json;
 pub struct ObtenerRespuestaController;
 
 impl ObtenerRespuestaController {
-    pub async fn get(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn get(req: HttpRequest, pool: web::Data<mongodb::Database>) -> HttpResponse {
         let respuesta_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {

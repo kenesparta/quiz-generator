@@ -23,7 +23,7 @@ impl PostulanteObtenerPorDocumentoController {
     pub async fn get(
         req: HttpRequest,
         query: web::Query<PostulanteDocumentoQuery>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         // Si el usuario es postulante, solo puede consultar su propia informacion
         if let Some(claims) = req.extensions().get::<Claims>()
@@ -123,7 +123,7 @@ impl PostulanteObtenerPorDocumentoController {
 
 pub struct PostulanteBuscarPorDocumentoController;
 impl PostulanteBuscarPorDocumentoController {
-    pub async fn get(documento: String, pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn get(documento: String, pool: web::Data<mongodb::Database>) -> HttpResponse {
         info!("GET /postulantes por documento");
 
         let obtener_postulante =
@@ -172,7 +172,7 @@ impl PostulanteBuscarPorDocumentoController {
 
 pub struct PostulanteListController;
 impl PostulanteListController {
-    pub async fn get(pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn get(pool: web::Data<mongodb::Database>) -> HttpResponse {
         info!("GET /postulantes - listar todos");
 
         let postulante_pool = PostulanteReadMongo::new(pool);

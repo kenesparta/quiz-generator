@@ -15,7 +15,7 @@ impl RevisarEvaluacionPostulanteController {
     pub async fn review(
         req: HttpRequest,
         body: web::Json<CrearRevisionDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let respuesta_id = match req.match_info().get("revision_id") {
             Some(id) => id.to_string(),

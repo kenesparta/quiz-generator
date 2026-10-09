@@ -7,7 +7,7 @@ use quizz_core::evaluacion::use_case::publicar_evaluacion::{InputData, PublicarE
 pub struct PublicarEvaluacionController;
 
 impl PublicarEvaluacionController {
-    pub async fn publicar(req: HttpRequest, pool: web::Data<mongodb::Client>) -> HttpResponse {
+    pub async fn publicar(req: HttpRequest, pool: web::Data<mongodb::Database>) -> HttpResponse {
         let evaluacion_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
             None => {

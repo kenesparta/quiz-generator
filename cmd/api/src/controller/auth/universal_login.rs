@@ -1,4 +1,3 @@
-use crate::configuration::JwtSettings;
 use crate::controller::auth::crypto::CifradoPorDefecto;
 use crate::controller::auth::dto::{DocumentoLoginRequestDTO, LoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
@@ -17,9 +16,9 @@ impl UniversalLoginController {
     pub async fn login(
         _req: HttpRequest,
         body: web::Json<DocumentoLoginRequestDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
         redis_client: web::Data<redis::Client>,
-        jwt_settings: web::Data<JwtSettings>,
+        jwt: web::Data<JWTProvider>,
     ) -> HttpResponse {
         let dto = body.into_inner();
         info!("POST /login");
@@ -44,10 +43,7 @@ impl UniversalLoginController {
             Box::new(CifradoPorDefecto),
             Box::new(LoginUniversalMongo::new(pool)),
             Box::new(redis_impl),
-            Box::new(JWTProvider::new(
-                jwt_settings.secret.clone(),
-                jwt_settings.expiration_seconds,
-            )),
+            Box::new(jwt.get_ref().clone()),
         );
 
         match use_case

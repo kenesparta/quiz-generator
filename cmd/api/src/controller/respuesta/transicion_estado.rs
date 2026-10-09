@@ -21,7 +21,7 @@ impl TransicionEstadoController {
     pub async fn transicionar(
         req: HttpRequest,
         body: web::Json<TransicionEstadoDTO>,
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
     ) -> HttpResponse {
         let respuesta_id = match req.match_info().get("id") {
             Some(id) => id.to_string(),
@@ -61,7 +61,7 @@ impl TransicionEstadoController {
     }
 
     async fn empezar(
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
         respuesta_id: &str,
         _rol: &str,
     ) -> HttpResponse {
@@ -104,7 +104,7 @@ impl TransicionEstadoController {
     }
 
     async fn finalizar(
-        pool: web::Data<mongodb::Client>,
+        pool: web::Data<mongodb::Database>,
         respuesta_id: &str,
         _rol: &str,
     ) -> HttpResponse {

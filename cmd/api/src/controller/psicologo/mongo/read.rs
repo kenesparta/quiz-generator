@@ -11,11 +11,11 @@ use quizz_core::psicologo::provider::repositorio::{
 use quizz_core::psicologo::use_case::listar_psicologos::OutputData;
 
 pub struct PsicologoReadMongo {
-    client: web::Data<mongodb::Client>,
+    client: web::Data<mongodb::Database>,
 }
 
 impl PsicologoReadMongo {
-    pub fn new(client: web::Data<mongodb::Client>) -> Self {
+    pub fn new(client: web::Data<mongodb::Database>) -> Self {
         Self { client }
     }
 }
@@ -25,7 +25,7 @@ impl MongoRepository for PsicologoReadMongo {
         PSICOLOGO_COLLECTION_NAME
     }
 
-    fn get_client(&self) -> &web::Data<mongodb::Client> {
+    fn get_db(&self) -> &web::Data<mongodb::Database> {
         &self.client
     }
 }

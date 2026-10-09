@@ -19,6 +19,8 @@ pub struct Settings {
     pub jwt: JwtSettings,
     #[serde(default)]
     pub cors: CorsSettings,
+    #[serde(default)]
+    pub login: LoginSettings,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -112,6 +114,29 @@ impl Default for CorsSettings {
     }
 }
 
+/// Límites de intentos de `POST /login`, por ventana de tiempo.
+#[derive(serde::Deserialize, Clone)]
+#[serde(default)]
+pub struct LoginSettings {
+    pub max_intentos_por_ip: u64,
+    pub max_fallos_por_documento: u64,
+    pub ventana_segundos: u64,
+    /// `true` solo si la API está detrás de un proxy que fija `X-Forwarded-For`: entonces la
+    /// IP del cliente se lee de esa cabecera. Sin proxy, la cabecera la elige el cliente.
+    pub detras_de_proxy: bool,
+}
+
+impl Default for LoginSettings {
+    fn default() -> Self {
+        Self {
+            max_intentos_por_ip: 20,
+            max_fallos_por_documento: 10,
+            ventana_segundos: 15 * 60,
+            detras_de_proxy: false,
+        }
+    }
+}
+
 /// Lee y valida la configuración (ver la documentación del módulo).
 ///
 /// # Errors
@@ -166,6 +191,12 @@ impl Settings {
         }
         if self.redis.uri.is_none() && self.redis.host.trim().is_empty() {
             return error("redis: indica `uri` o `host`");
+        }
+        if self.login.max_intentos_por_ip == 0
+            || self.login.max_fallos_por_documento == 0
+            || self.login.ventana_segundos == 0
+        {
+            return error("login: los limites y la ventana deben ser mayores que 0");
         }
         if self.cors.allowed_origins.iter().any(|o| o.ends_with('/')) {
             return error("cors.allowed_origins: los orígenes no llevan `/` final");

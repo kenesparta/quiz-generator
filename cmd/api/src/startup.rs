@@ -1,6 +1,7 @@
-use crate::configuration::{CorsSettings, JwtSettings};
+use crate::configuration::{CorsSettings, JwtSettings, LoginSettings};
 use crate::controller::admin::route::admin;
 use crate::controller::auth::jwt::JWTProvider;
+use crate::controller::auth::limite_intentos::LimiteDeIntentos;
 use crate::controller::auth::middleware::AuthMiddleware;
 use crate::controller::auth::redis::sesiones::SesionesRedis;
 use crate::controller::auth::route::login_routes;
@@ -59,26 +60,35 @@ pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
     );
 }
 
+/// La parte de la configuración que usa el servidor HTTP.
+pub struct OpcionesHttp {
+    pub jwt: JwtSettings,
+    pub cors: CorsSettings,
+    pub login: LoginSettings,
+}
+
 /// Arranca el servidor HTTP sobre un listener ya abierto (un test puede usar el puerto 0).
 pub fn run(
     tcp_listener: TcpListener,
     database: Database,
     redis: ConnectionManager,
-    jwt_settings: &JwtSettings,
-    cors_settings: CorsSettings,
     enforcer: casbin::Enforcer,
+    opciones: OpcionesHttp,
 ) -> Result<Server, std::io::Error> {
     let database = web::Data::new(database);
     let sesiones: web::Data<dyn Sesiones> =
-        web::Data::from(Arc::new(SesionesRedis::new(redis)) as Arc<dyn Sesiones>);
-    let jwt = web::Data::new(JWTProvider::new(jwt_settings));
+        web::Data::from(Arc::new(SesionesRedis::new(redis.clone())) as Arc<dyn Sesiones>);
+    let limite_login = web::Data::new(LimiteDeIntentos::new(redis, opciones.login));
+    let jwt = web::Data::new(JWTProvider::new(&opciones.jwt));
     let enforcer = web::Data::new(enforcer);
+    let cors = opciones.cors;
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(set_cors(&cors_settings.allowed_origins))
+            .wrap(set_cors(&cors.allowed_origins))
             .configure(configurar_rutas)
             .app_data(database.clone())
             .app_data(sesiones.clone())
+            .app_data(limite_login.clone())
             .app_data(jwt.clone())
             .app_data(enforcer.clone())
     })

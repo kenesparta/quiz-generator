@@ -75,6 +75,7 @@ curl -i http://localhost:8008/health-check
 The API uses a **single universal login** endpoint and JWT-based sessions tracked in Redis.
 
 - `POST /login` accepts `{ "documento": "...", "password": "..." }` and searches across `admin → psicologo → postulante` collections to find the user. Returns a JWT containing the appropriate role.
+- `POST /login` gives the same `401` (and takes the same time) for an unknown `documento` and for a wrong password. Attempts are limited per client IP and failures per `documento` (defaults: 20 attempts and 10 failures per 15 minutes, see `login:` in `configuration.yaml.example`); over the limit it answers `429` with `Retry-After`. Passwords longer than 72 bytes are rejected (bcrypt would ignore the rest).
 - Every token carries a session id (`jti`). Redis keeps the open session of each user (`sesion:{user id}`), and every protected request checks it: a token is accepted only while its session is open. Logging in again replaces the previous session.
 - `POST /logout` requires `Authorization: Bearer <token>` and closes that session, so the token is rejected (`401`) from then on, even before it expires. It responds with `204` even if the token is already expired or closed (so clients can clean up local state).
 

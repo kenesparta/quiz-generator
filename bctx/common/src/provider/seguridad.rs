@@ -23,4 +23,9 @@ pub trait Cifrador: Send + Sync {
 
     /// `Ok(true)` si `password` corresponde a `hash`.
     async fn verificar(&self, password: String, hash: String) -> Result<bool, CifradoError>;
+
+    /// Hace el mismo trabajo que [`Cifrador::verificar`] sin un hash real. Sirve para que
+    /// rechazar un usuario inexistente tarde lo mismo que rechazar una contraseña incorrecta:
+    /// si no, el tiempo de respuesta revela qué usuarios existen.
+    async fn simular_verificacion(&self, password: String);
 }

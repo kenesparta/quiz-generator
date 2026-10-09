@@ -78,6 +78,8 @@ mod tests {
         async fn verificar(&self, _: String, _: String) -> Result<bool, CifradoError> {
             Ok(false)
         }
+
+        async fn simular_verificacion(&self, _: String) {}
     }
 
     /// Guarda los admins registrados.

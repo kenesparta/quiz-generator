@@ -1,6 +1,7 @@
 pub mod casbin_enforcer;
 mod dto;
 pub mod jwt;
+pub mod limite_intentos;
 mod logout;
 pub mod middleware;
 mod mongo;

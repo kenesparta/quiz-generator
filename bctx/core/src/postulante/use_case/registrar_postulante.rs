@@ -89,6 +89,8 @@ mod tests {
         async fn verificar(&self, _password: String, _hash: String) -> Result<bool, CifradoError> {
             Ok(false)
         }
+
+        async fn simular_verificacion(&self, _: String) {}
     }
 
     struct MockRepositorioPostulante {

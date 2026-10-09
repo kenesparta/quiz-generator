@@ -8,6 +8,10 @@
 use async_trait::async_trait;
 use quizz_common::provider::seguridad::{CifradoError, Cifrador};
 
+/// Hash de coste 12 (el de producción) de una contraseña que no usa nadie: verificar contra él
+/// cuesta lo mismo que verificar contra el hash de un usuario real.
+const HASH_FICTICIO: &str = "$2y$12$nb2ULX2HIe/EQvAag7YZi.5T4Qm1a9gXGz38mJ8J.h4ivAu5IUTj.";
+
 #[derive(Clone, Copy)]
 pub struct Bcrypt {
     coste: u32,
@@ -45,6 +49,11 @@ impl Cifrador for Bcrypt {
             .map_err(|_| CifradoError::Tarea)?
             .map_err(|_| CifradoError::HashNoValido)
     }
+
+    async fn simular_verificacion(&self, password: String) {
+        // El resultado no importa: solo se iguala el tiempo de respuesta.
+        let _ = self.verificar(password, HASH_FICTICIO.to_string()).await;
+    }
 }
 
 #[cfg(test)]
@@ -70,6 +79,16 @@ mod tests {
                 .await
                 .unwrap()
         );
+    }
+
+    #[tokio::test]
+    async fn el_hash_ficticio_es_un_bcrypt_de_coste_de_produccion() {
+        let partes: Vec<&str> = HASH_FICTICIO.split('$').collect();
+        assert_eq!(partes[2], bcrypt::DEFAULT_COST.to_string());
+        let verificado = Bcrypt::default()
+            .verificar("cualquiera".to_string(), HASH_FICTICIO.to_string())
+            .await;
+        assert!(matches!(verificado, Ok(false)));
     }
 
     #[tokio::test]

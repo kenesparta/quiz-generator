@@ -29,3 +29,10 @@ cors:
   allowed_origins:
     - "http://localhost:3000"
     - "http://127.0.0.1:3000"
+
+# Límites de POST /login (estos son los valores por defecto):
+# login:
+#   max_intentos_por_ip: 20
+#   max_fallos_por_documento: 10
+#   ventana_segundos: 900
+#   detras_de_proxy: false  # true solo detrás de un proxy que fija X-Forwarded-For

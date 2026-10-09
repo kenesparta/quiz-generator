@@ -7,10 +7,10 @@
 use mongodb::Database;
 use mongodb::bson::{Document, doc};
 use quizz_api::cache::crear_conexion_redis;
-use quizz_api::configuration::{CorsSettings, DatabaseSettings, JwtSettings};
+use quizz_api::configuration::{CorsSettings, DatabaseSettings, JwtSettings, LoginSettings};
 use quizz_api::indices::crear_indices;
 use quizz_api::mongo::create_mongo_client;
-use quizz_api::startup::{init_casbin_enforcer, run};
+use quizz_api::startup::{OpcionesHttp, init_casbin_enforcer, run};
 use reqwest::{Method, StatusCode};
 use serde_json::{Value, json};
 use std::net::TcpListener;
@@ -21,6 +21,9 @@ use testcontainers::{ContainerAsync, GenericImage, ImageExt};
 const ADMIN_ID: &str = "6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b";
 const ADMIN_DOCUMENTO: &str = "70000001";
 const ADMIN_PASSWORD: &str = "clave-admin-de-pruebas";
+// Holgado para todos los logins del recorrido; el último paso lo agota a propósito.
+const MAX_INTENTOS_POR_IP: u64 = 60;
+const MAX_FALLOS_POR_DOCUMENTO: u64 = 3;
 
 struct Entorno {
     url: String,
@@ -72,12 +75,19 @@ async fn levantar() -> Entorno {
         listener,
         db.clone(),
         redis_conexion,
-        &JwtSettings {
-            secret: "secreto-de-pruebas-e2e-de-mas-de-32-bytes".to_string(),
-            expiration_seconds: 3600,
-        },
-        CorsSettings::default(),
         init_casbin_enforcer().await.unwrap(),
+        OpcionesHttp {
+            jwt: JwtSettings {
+                secret: "secreto-de-pruebas-e2e-de-mas-de-32-bytes".to_string(),
+                expiration_seconds: 3600,
+            },
+            cors: CorsSettings::default(),
+            login: LoginSettings {
+                max_intentos_por_ip: MAX_INTENTOS_POR_IP,
+                max_fallos_por_documento: MAX_FALLOS_POR_DOCUMENTO,
+                ..LoginSettings::default()
+            },
+        },
     )
     .unwrap();
     tokio::spawn(servidor);
@@ -706,4 +716,24 @@ async fn flujo_completo_y_controles_de_acceso() {
         .pedir(Method::GET, "/respuestas", Some(&token_b3), None)
         .await;
     assert_eq!(estado, StatusCode::OK);
+
+    // SEC-08: tras varios fallos para un documento, ni la contraseña correcta entra (429).
+    for _ in 0..MAX_FALLOS_POR_DOCUMENTO {
+        let (estado, _) = e.login("72222222", "clave-erronea").await;
+        assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    }
+    let (estado, _) = e.login("72222222", &clave_b).await;
+    assert_eq!(estado, StatusCode::TOO_MANY_REQUESTS);
+
+    // Y desde una misma IP hay un máximo de intentos por ventana, existan o no los documentos.
+    let mut limitado = false;
+    for i in 0..MAX_INTENTOS_POR_IP {
+        let (estado, _) = e.login(&format!("7{i:07}"), "clave-erronea").await;
+        if estado == StatusCode::TOO_MANY_REQUESTS {
+            limitado = true;
+            break;
+        }
+        assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    }
+    assert!(limitado);
 }

@@ -36,6 +36,8 @@ pub enum ApiError {
     NoEncontrado(String),
     /// 409: la petición choca con el estado actual del recurso.
     Conflicto(String),
+    /// 429: demasiados intentos; se puede reintentar tras `reintentar_en` segundos.
+    DemasiadosIntentos { reintentar_en: u64 },
     /// 500: fallo interno; la causa ya se registró al construirlo con [`ApiError::interno`].
     Interno,
     /// 503: una dependencia (base de datos, caché) no está disponible.
@@ -74,6 +76,9 @@ impl fmt::Display for ApiError {
             | Self::Prohibido(m)
             | Self::NoEncontrado(m)
             | Self::Conflicto(m) => f.write_str(m),
+            Self::DemasiadosIntentos { .. } => {
+                f.write_str("Demasiados intentos, espere antes de volver a intentarlo")
+            }
             Self::Interno => f.write_str("Error interno del servidor"),
             Self::NoDisponible => f.write_str("Servicio no disponible, intente más tarde"),
         }
@@ -88,14 +93,18 @@ impl ResponseError for ApiError {
             Self::Prohibido(_) => StatusCode::FORBIDDEN,
             Self::NoEncontrado(_) => StatusCode::NOT_FOUND,
             Self::Conflicto(_) => StatusCode::CONFLICT,
+            Self::DemasiadosIntentos { .. } => StatusCode::TOO_MANY_REQUESTS,
             Self::Interno => StatusCode::INTERNAL_SERVER_ERROR,
             Self::NoDisponible => StatusCode::SERVICE_UNAVAILABLE,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(self.status_code())
-            .json(serde_json::json!({ "error": self.to_string() }))
+        let mut respuesta = HttpResponse::build(self.status_code());
+        if let Self::DemasiadosIntentos { reintentar_en } = self {
+            respuesta.insert_header((actix_web::http::header::RETRY_AFTER, *reintentar_en));
+        }
+        respuesta.json(serde_json::json!({ "error": self.to_string() }))
     }
 }
 

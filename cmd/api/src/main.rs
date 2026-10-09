@@ -2,7 +2,7 @@ use quizz_api::cache::crear_conexion_redis;
 use quizz_api::configuration::get_configuration;
 use quizz_api::indices::crear_indices;
 use quizz_api::mongo::create_mongo_client;
-use quizz_api::startup::{init_casbin_enforcer, run};
+use quizz_api::startup::{OpcionesHttp, init_casbin_enforcer, run};
 use std::error::Error;
 use std::net::TcpListener;
 use tracing_subscriber::EnvFilter;
@@ -30,9 +30,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         tcp_listener,
         database,
         redis,
-        &configuration.jwt,
-        configuration.cors,
         enforcer,
+        OpcionesHttp {
+            jwt: configuration.jwt,
+            cors: configuration.cors,
+            login: configuration.login,
+        },
     )?
     .await?;
 

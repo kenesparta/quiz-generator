@@ -1,32 +1,30 @@
 use crate::universal::domain::error::login_universal::LoginUniversalError;
-use crate::universal::provider::repositorio::RepositorioLoginUniversalCacheBorrado;
+use crate::universal::provider::repositorio::Sesiones;
 use async_trait::async_trait;
 use quizz_common::use_case::CasoDeUso;
+use std::sync::Arc;
 
 pub struct InputData {
     pub sujeto_id: String,
+    /// `jti` del token con el que se pide cerrar la sesión.
+    pub sesion_id: String,
 }
 
-pub struct Logout<RepoErr> {
-    repositorio_cache: Box<dyn RepositorioLoginUniversalCacheBorrado<RepoErr>>,
+/// Cierra la sesión del token: desde ese momento el token deja de autenticar.
+pub struct Logout {
+    sesiones: Arc<dyn Sesiones>,
 }
 
-impl<RepoErr> Logout<RepoErr> {
-    pub fn new(
-        repositorio_cache: Box<dyn RepositorioLoginUniversalCacheBorrado<RepoErr>>,
-    ) -> Logout<RepoErr> {
-        Self { repositorio_cache }
+impl Logout {
+    pub fn new(sesiones: Arc<dyn Sesiones>) -> Logout {
+        Self { sesiones }
     }
 }
 
 #[async_trait]
-impl<RepoErr> CasoDeUso<InputData, (), LoginUniversalError> for Logout<RepoErr>
-where
-    LoginUniversalError: From<RepoErr>,
-{
+impl CasoDeUso<InputData, (), LoginUniversalError> for Logout {
     async fn ejecutar(&self, in_: InputData) -> Result<(), LoginUniversalError> {
-        self.repositorio_cache.borrar_token(in_.sujeto_id).await?;
-        Ok(())
+        self.sesiones.cerrar(&in_.sujeto_id, &in_.sesion_id).await
     }
 }
 
@@ -35,31 +33,52 @@ mod tests {
     use super::*;
     use std::sync::Mutex;
 
-    struct MockRepo {
-        borrados: Mutex<Vec<String>>,
+    #[derive(Default)]
+    struct SesionesFalsas {
+        cerradas: Arc<Mutex<Vec<(String, String)>>>,
     }
 
     #[async_trait]
-    impl RepositorioLoginUniversalCacheBorrado<LoginUniversalError> for MockRepo {
-        async fn borrar_token(&self, sujeto_id: String) -> Result<(), LoginUniversalError> {
-            self.borrados.lock().unwrap().push(sujeto_id);
+    impl Sesiones for SesionesFalsas {
+        async fn abrir(&self, _: &str, _: &str, _: u64) -> Result<(), LoginUniversalError> {
+            Ok(())
+        }
+
+        async fn es_vigente(&self, _: &str, _: &str) -> Result<bool, LoginUniversalError> {
+            Ok(true)
+        }
+
+        async fn cerrar(
+            &self,
+            sujeto_id: &str,
+            sesion_id: &str,
+        ) -> Result<(), LoginUniversalError> {
+            self.cerradas
+                .lock()
+                .unwrap()
+                .push((sujeto_id.to_string(), sesion_id.to_string()));
             Ok(())
         }
     }
 
     #[tokio::test]
-    async fn test_logout_borra_token_redis() {
-        let repo = Box::new(MockRepo {
-            borrados: Mutex::new(Vec::new()),
-        });
-        let use_case = Logout::new(repo);
+    async fn test_logout_cierra_la_sesion_del_token() {
+        let cerradas = Arc::new(Mutex::new(Vec::new()));
+        let use_case = Logout::new(Arc::new(SesionesFalsas {
+            cerradas: Arc::clone(&cerradas),
+        }));
 
-        let resultado = use_case
+        use_case
             .ejecutar(InputData {
                 sujeto_id: "usr-123".to_string(),
+                sesion_id: "jti-1".to_string(),
             })
-            .await;
+            .await
+            .unwrap();
 
-        assert!(resultado.is_ok());
+        assert_eq!(
+            *cerradas.lock().unwrap(),
+            [("usr-123".to_string(), "jti-1".to_string())]
+        );
     }
 }

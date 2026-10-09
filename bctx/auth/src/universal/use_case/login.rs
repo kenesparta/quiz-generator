@@ -1,11 +1,10 @@
 use crate::universal::domain::error::login_universal::LoginUniversalError;
-use crate::universal::provider::repositorio::{
-    RepositorioLoginUniversalCacheEscritura, RepositorioLoginUniversalLectura,
-};
+use crate::universal::provider::repositorio::{RepositorioLoginUniversalLectura, Sesiones};
 use async_trait::async_trait;
 use quizz_common::provider::jwt::JwtProviderGenerateConRol;
 use quizz_common::provider::seguridad::SeguridadComparar;
 use quizz_common::use_case::CasoDeUso;
+use std::sync::Arc;
 
 pub struct InputData {
     pub documento: String,
@@ -21,7 +20,7 @@ pub struct OutputData {
 pub struct LoginUniversal<RepoErr> {
     crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
     repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
-    repositorio_cache: Box<dyn RepositorioLoginUniversalCacheEscritura<RepoErr>>,
+    sesiones: Arc<dyn Sesiones>,
     jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
 }
 
@@ -29,13 +28,13 @@ impl<RepoErr> LoginUniversal<RepoErr> {
     pub fn new(
         crypto_comparar: Box<dyn SeguridadComparar<RepoErr>>,
         repositorio: Box<dyn RepositorioLoginUniversalLectura<RepoErr>>,
-        repositorio_cache: Box<dyn RepositorioLoginUniversalCacheEscritura<RepoErr>>,
+        sesiones: Arc<dyn Sesiones>,
         jwt: Box<dyn JwtProviderGenerateConRol<RepoErr>>,
     ) -> LoginUniversal<RepoErr> {
         Self {
             crypto_comparar,
             repositorio,
-            repositorio_cache,
+            sesiones,
             jwt,
         }
     }
@@ -58,8 +57,12 @@ where
             .generar_con_rol(usuario.id, usuario.rol.clone())
             .await?;
 
-        self.repositorio_cache
-            .guardar_token(jwt_object.clone())
+        self.sesiones
+            .abrir(
+                &jwt_object.key,
+                &jwt_object.sesion_id,
+                jwt_object.expiration,
+            )
             .await?;
 
         Ok(OutputData {

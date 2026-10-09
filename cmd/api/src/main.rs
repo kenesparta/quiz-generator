@@ -1,6 +1,6 @@
+use quizz_api::cache::crear_conexion_redis;
 use quizz_api::configuration::get_configuration;
 use quizz_api::mongo::create_mongo_client;
-use quizz_api::redis::create_redis_client;
 use quizz_api::startup::{init_casbin_enforcer, run};
 use std::error::Error;
 use std::net::TcpListener;
@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let configuration = get_configuration()?;
     let database = create_mongo_client(&configuration.database).await?;
-    let redis_client = create_redis_client(&configuration.redis.connection_string()).await?;
+    let redis = crear_conexion_redis(&configuration.redis.connection_string()).await?;
     let enforcer = init_casbin_enforcer().await?;
 
     let address = format!(
@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     run(
         tcp_listener,
         database,
-        redis_client,
+        redis,
         &configuration.jwt,
         configuration.cors,
         enforcer,

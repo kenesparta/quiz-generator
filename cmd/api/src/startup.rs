@@ -2,6 +2,7 @@ use crate::configuration::{CorsSettings, JwtSettings};
 use crate::controller::admin::route::admin;
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::middleware::AuthMiddleware;
+use crate::controller::auth::redis::sesiones::SesionesRedis;
 use crate::controller::auth::route::login_routes;
 use crate::controller::evaluacion::route::evaluacion;
 use crate::controller::examen::route::examen;
@@ -14,8 +15,10 @@ use crate::cors::set_cors;
 use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
 use mongodb::Database;
-use redis::Client as RedisClient;
+use quizz_auth::universal::provider::repositorio::Sesiones;
+use redis::aio::ConnectionManager;
 use std::net::TcpListener;
+use std::sync::Arc;
 
 /// Construye el enforcer RBAC con el modelo y la política embebidos en el binario.
 pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
@@ -27,8 +30,8 @@ pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
 /// Las rutas públicas (`/health-check`, `/login`, `/logout`) quedan fuera del scope
 /// autenticado; todo lo demás exige un JWT válido y cada scope declara el recurso que la
 /// política RBAC autoriza (ver `controller/auth/middleware.rs`). Requiere como `app_data` el
-/// enforcer (`web::Data<casbin::Enforcer>`) y el proveedor JWT (`web::Data<JWTProvider>`)
-/// además de los clientes que usan los handlers.
+/// enforcer (`web::Data<casbin::Enforcer>`), el proveedor JWT (`web::Data<JWTProvider>`) y
+/// las sesiones (`web::Data<dyn Sesiones>`), además de los clientes que usan los handlers.
 pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
     cfg.configure(health_check).configure(login_routes).service(
         web::scope("")
@@ -47,13 +50,14 @@ pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
 pub fn run(
     tcp_listener: TcpListener,
     database: Database,
-    redis_client: RedisClient,
+    redis: ConnectionManager,
     jwt_settings: &JwtSettings,
     cors_settings: CorsSettings,
     enforcer: casbin::Enforcer,
 ) -> Result<Server, std::io::Error> {
     let database = web::Data::new(database);
-    let redis_connection_pool = web::Data::new(redis_client);
+    let sesiones: web::Data<dyn Sesiones> =
+        web::Data::from(Arc::new(SesionesRedis::new(redis)) as Arc<dyn Sesiones>);
     let jwt = web::Data::new(JWTProvider::new(jwt_settings));
     let enforcer = web::Data::new(enforcer);
     let server = HttpServer::new(move || {
@@ -61,7 +65,7 @@ pub fn run(
             .wrap(set_cors(&cors_settings.allowed_origins))
             .configure(configurar_rutas)
             .app_data(database.clone())
-            .app_data(redis_connection_pool.clone())
+            .app_data(sesiones.clone())
             .app_data(jwt.clone())
             .app_data(enforcer.clone())
     })

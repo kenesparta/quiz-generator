@@ -1,18 +1,37 @@
+use crate::universal::domain::error::login_universal::LoginUniversalError;
 use crate::universal::domain::usuario_login::UsuarioLogin;
 use async_trait::async_trait;
-use quizz_common::domain::entity::jwt::JwtObject;
 
 #[async_trait]
 pub trait RepositorioLoginUniversalLectura<Error>: Send + Sync {
     async fn buscar_por_documento(&self, documento: String) -> Result<UsuarioLogin, Error>;
 }
 
+/// Sesiones abiertas: como mucho una por usuario, identificada por el `jti` de su token.
+///
+/// El token solo es válido mientras su sesión siga abierta: la autenticación consulta
+/// [`Sesiones::es_vigente`] en cada petición, así que cerrar la sesión revoca el token aunque
+/// su firma y su `exp` sigan siendo válidos. Se usa como `dyn` (Redis en producción, memoria
+/// en los tests).
 #[async_trait]
-pub trait RepositorioLoginUniversalCacheEscritura<Error>: Send + Sync {
-    async fn guardar_token(&self, jwt: JwtObject) -> Result<(), Error>;
-}
+pub trait Sesiones: Send + Sync {
+    /// Abre la sesión `sesion_id` de `sujeto_id` por `duracion_segundos`. Reemplaza la sesión
+    /// anterior: iniciar sesión de nuevo invalida el token previo.
+    async fn abrir(
+        &self,
+        sujeto_id: &str,
+        sesion_id: &str,
+        duracion_segundos: u64,
+    ) -> Result<(), LoginUniversalError>;
 
-#[async_trait]
-pub trait RepositorioLoginUniversalCacheBorrado<Error>: Send + Sync {
-    async fn borrar_token(&self, sujeto_id: String) -> Result<(), Error>;
+    /// `true` si `sesion_id` es la sesión abierta de `sujeto_id`.
+    async fn es_vigente(
+        &self,
+        sujeto_id: &str,
+        sesion_id: &str,
+    ) -> Result<bool, LoginUniversalError>;
+
+    /// Cierra la sesión si `sesion_id` sigue siendo la abierta. Es idempotente: si ya se cerró
+    /// o la reemplazó un inicio de sesión posterior, no hace nada.
+    async fn cerrar(&self, sujeto_id: &str, sesion_id: &str) -> Result<(), LoginUniversalError>;
 }

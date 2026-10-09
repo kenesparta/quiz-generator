@@ -5,6 +5,6 @@ pub mod jwt;
 mod logout;
 pub mod middleware;
 mod mongo;
-mod redis;
+pub mod redis;
 pub mod route;
 mod universal_login;

@@ -2,10 +2,10 @@ use crate::controller::auth::crypto::CifradoPorDefecto;
 use crate::controller::auth::dto::{DocumentoLoginRequestDTO, LoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::mongo::universal_read::LoginUniversalMongo;
-use crate::controller::auth::redis::universal_write::LoginUniversalRedis;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
+use quizz_auth::universal::provider::repositorio::Sesiones;
 use quizz_auth::universal::use_case::login::{InputData, LoginUniversal};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::value_object::documento::Documento;
@@ -17,7 +17,7 @@ impl UniversalLoginController {
         _req: HttpRequest,
         body: web::Json<DocumentoLoginRequestDTO>,
         pool: web::Data<mongodb::Database>,
-        redis_client: web::Data<redis::Client>,
+        sesiones: web::Data<dyn Sesiones>,
         jwt: web::Data<JWTProvider>,
     ) -> HttpResponse {
         let dto = body.into_inner();
@@ -31,18 +31,10 @@ impl UniversalLoginController {
             }
         };
 
-        let redis_impl = match LoginUniversalRedis::new(redis_client) {
-            Ok(r) => r,
-            Err(e) => {
-                error!("POST /login - error al conectar con redis: {:?}", e);
-                return HttpResponse::InternalServerError().finish();
-            }
-        };
-
         let use_case = LoginUniversal::new(
             Box::new(CifradoPorDefecto),
             Box::new(LoginUniversalMongo::new(pool)),
-            Box::new(redis_impl),
+            sesiones.into_inner(),
             Box::new(jwt.get_ref().clone()),
         );
 

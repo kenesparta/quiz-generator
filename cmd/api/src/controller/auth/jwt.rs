@@ -12,6 +12,8 @@ pub struct Claims {
     pub sub: String,
     pub exp: i64,
     pub iat: i64,
+    /// Identificador de la sesión: el token solo vale mientras esta sesión siga abierta.
+    pub jti: String,
     pub rol: Option<String>,
 }
 
@@ -67,10 +69,12 @@ impl JwtProviderGenerateConRol<LoginUniversalError> for JWTProvider {
     ) -> Result<JwtObject, LoginUniversalError> {
         // `iat` y `exp` son segundos desde la época Unix: no tienen zona horaria.
         let ahora = chrono::Utc::now().timestamp();
+        let sesion_id = uuid::Uuid::new_v4().to_string();
         let claims = Claims {
             sub: sujeto_id.clone(),
             exp: ahora + i64::from(self.duracion_segundos),
             iat: ahora,
+            jti: sesion_id.clone(),
             rol: Some(rol.clone()),
         };
 
@@ -80,6 +84,7 @@ impl JwtProviderGenerateConRol<LoginUniversalError> for JWTProvider {
         Ok(JwtObject {
             key: sujeto_id,
             value: token,
+            sesion_id,
             expiration: u64::from(self.duracion_segundos),
             rol: Some(rol),
         })
@@ -109,6 +114,7 @@ mod tests {
         assert_eq!(claims.sub, "usr-1");
         assert_eq!(claims.rol.as_deref(), Some("admin"));
         assert_eq!(claims.exp - claims.iat, 60);
+        assert_eq!(claims.jti, emitido.sesion_id);
         assert_eq!(emitido.expiration, 60);
     }
 

@@ -1,8 +1,8 @@
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::middleware::extraer_token;
-use crate::controller::auth::redis::universal_borrar::LogoutUniversalRedis;
 use actix_web::{HttpRequest, HttpResponse, web};
 use log::{error, info, warn};
+use quizz_auth::universal::provider::repositorio::Sesiones;
 use quizz_auth::universal::use_case::logout::{InputData, Logout};
 use quizz_common::use_case::CasoDeUso;
 
@@ -11,7 +11,7 @@ pub struct LogoutController;
 impl LogoutController {
     pub async fn logout(
         req: HttpRequest,
-        redis_client: web::Data<redis::Client>,
+        sesiones: web::Data<dyn Sesiones>,
         jwt: web::Data<JWTProvider>,
     ) -> HttpResponse {
         let token = match extraer_token(req.headers()) {
@@ -31,11 +31,12 @@ impl LogoutController {
             }
         };
 
-        let use_case = Logout::new(Box::new(LogoutUniversalRedis::new(redis_client)));
+        let use_case = Logout::new(sesiones.into_inner());
 
         match use_case
             .ejecutar(InputData {
                 sujeto_id: claims.sub.clone(),
+                sesion_id: claims.jti,
             })
             .await
         {

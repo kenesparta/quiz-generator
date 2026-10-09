@@ -72,10 +72,11 @@ curl -i http://localhost:8008/health-check
 
 ## Authentication and Authorization
 
-The API uses a **single universal login** endpoint and JWT-based sessions stored in Redis.
+The API uses a **single universal login** endpoint and JWT-based sessions tracked in Redis.
 
 - `POST /login` accepts `{ "documento": "...", "password": "..." }` and searches across `admin → psicologo → postulante` collections to find the user. Returns a JWT containing the appropriate role.
-- `POST /logout` requires `Authorization: Bearer <token>`, removes the session token from Redis, and responds with `204` even if the token is already expired (so clients can clean up local state).
+- Every token carries a session id (`jti`). Redis keeps the open session of each user (`sesion:{user id}`), and every protected request checks it: a token is accepted only while its session is open. Logging in again replaces the previous session.
+- `POST /logout` requires `Authorization: Bearer <token>` and closes that session, so the token is rejected (`401`) from then on, even before it expires. It responds with `204` even if the token is already expired or closed (so clients can clean up local state).
 
 Authorization is enforced by an Actix middleware that verifies the JWT and consults a **Casbin RBAC enforcer** built from `rbac/model.conf` and `rbac/policy.csv`. Roles:
 
@@ -120,7 +121,7 @@ Routes are grouped by scope. List endpoints return HATEOAS-style responses embed
   - `GET /revisiones/{revision_id}` — get a specific revision
   - `POST /revisiones/{revision_id}` — review evaluation for a candidate (also accepts `PATCH`)
 - `POST /login` — universal login (returns JWT with role)
-- `POST /logout` — invalidate session in Redis
+- `POST /logout` — close the session (the token stops working)
 
 Example requests are provided as HTTP files you can use with VS Code/IntelliJ HTTP Client under `cmd/api/http/dev/`:
 

@@ -87,7 +87,7 @@ cargo test test_name -- --nocapture
 - `main.rs` - Entry point, loads configuration and starts server
 - `startup.rs` - Server setup with route configuration
 - `configuration.rs` - Config loading from `configuration.yaml`
-- `mongo.rs` / `redis.rs` - Database client initialization
+- `mongo.rs` / `cache.rs` - MongoDB and Redis connections (one shared Redis `ConnectionManager`)
 - `controller/` - HTTP handlers organized by domain (examen, evaluacion, postulante, psicologo, admin, respuesta, revision, auth)
 - `controller/mongo_repository.rs` - MongoDB repository implementations (adapters)
 - `controller/hateoas.rs` - HATEOAS link helpers for hypermedia responses
@@ -99,7 +99,7 @@ Each controller module typically has:
 
 ### Authentication Flow
 
-Uses JWT tokens stored in Redis for session management. There is a **single universal login endpoint** `POST /login` that accepts `{ "documento": "...", "password": "..." }` and searches across all collections (admin → psicologo → postulante) to find the user and return a JWT with the appropriate role.
+Uses JWT tokens whose session (`jti`) is tracked in Redis: `AuthMiddleware` accepts a token only while its session is open (port `Sesiones` in `bctx/auth`, adapter `controller/auth/redis/sesiones.rs`), so logout revokes it immediately. There is a **single universal login endpoint** `POST /login` that accepts `{ "documento": "...", "password": "..." }` and searches across all collections (admin → psicologo → postulante) to find the user and return a JWT with the appropriate role.
 
 Auth is handled in:
 - `bctx/auth/src/universal/` - Universal login domain (use case, provider traits, entity, error)
@@ -170,7 +170,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
   - `GET /revisiones/{revision_id}` - Get specific revision details
   - `POST /revisiones/{revision_id}` - Review evaluation for a candidate (also accepts `PATCH`)
 - `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role)
-- `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>`, borra el token de Redis (clave `sub`). Devuelve 204 incluso si el token está expirado para que el cliente pueda limpiar su sesión local.
+- `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>` y cierra su sesión en Redis (clave `sesion:{sub}`, valor `jti`): desde ese momento el token responde 401. Devuelve 204 incluso si el token está expirado o la sesión ya estaba cerrada, para que el cliente pueda limpiar su sesión local.
 
 Example HTTP requests are in `cmd/api/http/dev/*.http` files (use with VS Code/IntelliJ HTTP Client).
 

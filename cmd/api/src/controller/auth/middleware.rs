@@ -1,8 +1,9 @@
 //! Autenticación y autorización de las rutas protegidas.
 //!
 //! - [`AuthMiddleware`] envuelve todo el scope protegido: exige un JWT válido con un rol
-//!   conocido y deja los [`Claims`] en las extensiones de la petición. Sin eso responde 401/403.
-//!   Necesita `web::Data<JWTProvider>` registrado como `app_data`.
+//!   conocido cuya sesión siga abierta, y deja los [`Claims`] en las extensiones de la petición.
+//!   Sin eso responde 401/403 (503 si no se puede consultar la sesión). Necesita
+//!   `web::Data<JWTProvider>` y `web::Data<dyn Sesiones>` registrados como `app_data`.
 //! - [`Autorizacion`] envuelve cada scope de rutas con el [`Recurso`] que ese scope expone y
 //!   consulta la política RBAC (rol × recurso × acción).
 //!
@@ -23,6 +24,7 @@ use quizz_auth::autorizacion::domain::value_object::accion::Accion;
 use quizz_auth::autorizacion::domain::value_object::recurso::Recurso;
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_auth::autorizacion::provider::autorizacion::AutorizacionVerificar;
+use quizz_auth::universal::provider::repositorio::Sesiones;
 use std::rc::Rc;
 
 /// Autenticación: exige `Authorization: Bearer <jwt>` válido en todas las rutas que envuelve.
@@ -67,7 +69,7 @@ where
         Box::pin(async move {
             info!("{} {}", req.method(), req.path());
 
-            match autenticar(&req) {
+            match autenticar(&req).await {
                 Ok(claims) => {
                     req.extensions_mut().insert(claims);
                     Ok(service.call(req).await?.map_into_left_body())
@@ -83,6 +85,7 @@ enum Rechazo {
     NoAutenticado(&'static str),
     Denegado(&'static str),
     Interno,
+    NoDisponible,
 }
 
 impl Rechazo {
@@ -95,11 +98,12 @@ impl Rechazo {
                 HttpResponse::Forbidden().json(serde_json::json!({ "error": motivo }))
             }
             Rechazo::Interno => HttpResponse::InternalServerError().finish(),
+            Rechazo::NoDisponible => HttpResponse::ServiceUnavailable().finish(),
         }
     }
 }
 
-fn autenticar(req: &ServiceRequest) -> Result<Claims, Rechazo> {
+async fn autenticar(req: &ServiceRequest) -> Result<Claims, Rechazo> {
     let Some(token) = extraer_token(req.headers()) else {
         warn!("{} {} - token no encontrado", req.method(), req.path());
         return Err(Rechazo::NoAutenticado("Token no encontrado"));
@@ -124,7 +128,28 @@ fn autenticar(req: &ServiceRequest) -> Result<Claims, Rechazo> {
         return Err(Rechazo::Denegado("Rol no valido"));
     }
 
-    Ok(claims)
+    // Un token bien firmado solo autentica mientras su sesión siga abierta: así /logout
+    // revoca el token antes de su `exp`. Si no se puede consultar, se rechaza (falla cerrado).
+    let Some(sesiones) = req.app_data::<web::Data<dyn Sesiones>>() else {
+        error!("las sesiones no estan registradas como app_data");
+        return Err(Rechazo::Interno);
+    };
+    match sesiones.es_vigente(&claims.sub, &claims.jti).await {
+        Ok(true) => Ok(claims),
+        Ok(false) => {
+            warn!(
+                "{} {} - sesion cerrada o reemplazada, sub={}",
+                req.method(),
+                req.path(),
+                claims.sub
+            );
+            Err(Rechazo::NoAutenticado("Sesion cerrada o expirada"))
+        }
+        Err(e) => {
+            error!("no se pudo consultar la sesion: {e}");
+            Err(Rechazo::NoDisponible)
+        }
+    }
 }
 
 /// Autorización por scope: `web::scope("/examenes").wrap(Autorizacion::para(Recurso::Examen))`.
@@ -262,16 +287,73 @@ mod tests {
     use quizz_auth::autorizacion::domain::value_object::accion::Accion;
     use quizz_auth::autorizacion::domain::value_object::recurso::Recurso;
     use quizz_auth::autorizacion::domain::value_object::rol::Rol;
+    use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
+    use quizz_auth::universal::provider::repositorio::Sesiones;
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
 
     const SECRETO: &str = "secreto-de-prueba-con-al-menos-32-bytes";
     const ID: &str = "0b9f1a52-3d4e-4f60-8a7b-9c0d1e2f3a4b";
+    const SESION: &str = "sesion-abierta";
 
-    fn token_con(rol: &str, secreto: &str, algoritmo: Algorithm, vence_en: i64) -> String {
+    /// Sesiones en memoria: `ID` tiene abierta la sesión `SESION`.
+    struct SesionesEnMemoria(Mutex<HashMap<String, String>>);
+
+    impl SesionesEnMemoria {
+        fn con_sesion_abierta() -> Arc<dyn Sesiones> {
+            let abiertas = HashMap::from([(ID.to_string(), SESION.to_string())]);
+            Arc::new(Self(Mutex::new(abiertas)))
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl Sesiones for SesionesEnMemoria {
+        async fn abrir(&self, sub: &str, jti: &str, _: u64) -> Result<(), LoginUniversalError> {
+            self.0.lock().unwrap().insert(sub.into(), jti.into());
+            Ok(())
+        }
+
+        async fn es_vigente(&self, sub: &str, jti: &str) -> Result<bool, LoginUniversalError> {
+            Ok(self.0.lock().unwrap().get(sub).map(String::as_str) == Some(jti))
+        }
+
+        async fn cerrar(&self, sub: &str, _: &str) -> Result<(), LoginUniversalError> {
+            self.0.lock().unwrap().remove(sub);
+            Ok(())
+        }
+    }
+
+    /// Un almacén de sesiones caído.
+    struct SesionesCaidas;
+
+    #[async_trait::async_trait]
+    impl Sesiones for SesionesCaidas {
+        async fn abrir(&self, _: &str, _: &str, _: u64) -> Result<(), LoginUniversalError> {
+            Err(LoginUniversalError::ErrorGenericoCache)
+        }
+
+        async fn es_vigente(&self, _: &str, _: &str) -> Result<bool, LoginUniversalError> {
+            Err(LoginUniversalError::ErrorGenericoCache)
+        }
+
+        async fn cerrar(&self, _: &str, _: &str) -> Result<(), LoginUniversalError> {
+            Err(LoginUniversalError::ErrorGenericoCache)
+        }
+    }
+
+    fn token_de_sesion(
+        rol: &str,
+        secreto: &str,
+        algoritmo: Algorithm,
+        vence_en: i64,
+        jti: &str,
+    ) -> String {
         let ahora = chrono::Utc::now().timestamp();
         let claims = Claims {
             sub: ID.to_string(),
             exp: ahora + vence_en,
             iat: ahora,
+            jti: jti.to_string(),
             rol: Some(rol.to_string()),
         };
         encode(
@@ -282,11 +364,25 @@ mod tests {
         .unwrap()
     }
 
+    fn token_con(rol: &str, secreto: &str, algoritmo: Algorithm, vence_en: i64) -> String {
+        token_de_sesion(rol, secreto, algoritmo, vence_en, SESION)
+    }
+
     fn token(rol: Rol) -> String {
         token_con(&rol.to_string(), SECRETO, Algorithm::HS256, 3600)
     }
 
     async fn app() -> impl Service<
+        actix_http::Request,
+        Response = ServiceResponse<impl actix_web::body::MessageBody>,
+        Error = actix_web::Error,
+    > {
+        app_con(SesionesEnMemoria::con_sesion_abierta()).await
+    }
+
+    async fn app_con(
+        sesiones: Arc<dyn Sesiones>,
+    ) -> impl Service<
         actix_http::Request,
         Response = ServiceResponse<impl actix_web::body::MessageBody>,
         Error = actix_web::Error,
@@ -300,6 +396,7 @@ mod tests {
             App::new()
                 .app_data(web::Data::new(enforcer))
                 .app_data(web::Data::new(jwt))
+                .app_data(web::Data::from(sesiones))
                 .configure(configurar_rutas),
         )
         .await
@@ -496,6 +593,37 @@ mod tests {
             let estado = estado(&app, Method::GET, "/examenes", Some(&token)).await;
             assert_eq!(estado, StatusCode::UNAUTHORIZED, "{token}");
         }
+    }
+
+    #[actix_web::test]
+    async fn un_token_valido_de_una_sesion_cerrada_responde_401() {
+        let sesiones = SesionesEnMemoria::con_sesion_abierta();
+        let app = app_con(Arc::clone(&sesiones)).await;
+        let admin = token(Rol::Admin);
+        assert!(autorizado(
+            estado(&app, Method::GET, "/examenes", Some(&admin)).await
+        ));
+
+        // Equivale a POST /logout, o a un inicio de sesión posterior que la reemplaza.
+        sesiones.cerrar(ID, SESION).await.unwrap();
+
+        let estado = estado(&app, Method::GET, "/examenes", Some(&admin)).await;
+        assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn un_token_de_otra_sesion_responde_401() {
+        let app = app().await;
+        let viejo = token_de_sesion("admin", SECRETO, Algorithm::HS256, 3600, "sesion-anterior");
+        let estado = estado(&app, Method::GET, "/examenes", Some(&viejo)).await;
+        assert_eq!(estado, StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn si_no_se_puede_consultar_la_sesion_responde_503() {
+        let app = app_con(Arc::new(SesionesCaidas)).await;
+        let estado = estado(&app, Method::GET, "/examenes", Some(&token(Rol::Admin))).await;
+        assert_eq!(estado, StatusCode::SERVICE_UNAVAILABLE);
     }
 
     #[actix_web::test]

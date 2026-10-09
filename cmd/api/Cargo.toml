@@ -33,6 +33,7 @@ serde_json = "1.0.140"
 actix-cors = "0.7.1"
 futures = "0.3"
 chrono.workspace = true
+uuid.workspace = true
 # aws_lc_rs en lugar de rust_crypto: rust_crypto arrastra `rsa` (RUSTSEC-2023-0071, sin
 # arreglo) aunque solo se usa HS256. Los tokens HS256 son idénticos con ambos backends.
 jsonwebtoken = { version = "11.1", default-features = false, features = ["aws_lc_rs"] }

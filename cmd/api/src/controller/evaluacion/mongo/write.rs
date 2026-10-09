@@ -225,24 +225,7 @@ impl RepositorioLeerEvaluacion<EvaluacionError> for EvaluacionMongo {
 
 #[async_trait]
 impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
-    async fn publicar_evaluacion(&self, mut evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
-        let evaluation_exists = self
-            .get_collection()
-            .find_one(doc! {
-                "_id": evaluacion.id.to_string()
-            })
-            .await
-            .map_err(|e| {
-                error!("Error checking if evaluation exists: {}", e);
-                EvaluacionError::EvaluacionRepositorioError(PersistenciaNoFinalizada)
-            })?;
-
-        if evaluation_exists.is_none() {
-            return Err(EvaluacionError::EvaluacionRepositorioError(
-                EvaluacionNoExiste,
-            ));
-        }
-
+    async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), EvaluacionError> {
         let examenes_docs: Vec<mongodb::bson::Document> = evaluacion
             .examenes
             .examenes()
@@ -297,7 +280,6 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
             })
             .collect();
 
-        evaluacion.publicar();
         let update_doc = doc! {
             "$set": {
                 "estado": evaluacion.estado.to_string(),
@@ -305,11 +287,14 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
             }
         };
 
+        // El estado esperado va en el filtro: dos publicaciones simultáneas no pueden escribir
+        // dos copias distintas; la segunda no coincide.
         match self
             .get_collection()
             .update_one(
                 doc! {
-                    "_id": evaluacion.id.to_string()
+                    "_id": evaluacion.id.to_string(),
+                    "estado": EvaluacionEstado::Borrador.to_string(),
                 },
                 update_doc,
             )
@@ -317,10 +302,7 @@ impl RepositorioPublicarEvaluacion<EvaluacionError> for EvaluacionMongo {
         {
             Ok(result) => {
                 if result.matched_count == 0 {
-                    error!("No evaluation found with ID: {}", evaluacion.id);
-                    return Err(EvaluacionError::EvaluacionRepositorioError(
-                        EvaluacionNoExiste,
-                    ));
+                    return Err(EvaluacionError::EvaluacionYaFuePublicada);
                 }
                 Ok(())
             }

@@ -34,6 +34,9 @@ pub enum EvaluacionError {
 
     #[error("La evaluacion ya fue publicada")]
     EvaluacionYaFuePublicada,
+
+    #[error("La evaluacion no tiene preguntas para publicar")]
+    EvaluacionSinPreguntas,
 }
 
 #[derive(Error, Debug)]

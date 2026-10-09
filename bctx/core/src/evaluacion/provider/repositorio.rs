@@ -27,6 +27,9 @@ pub trait RepositorioLeerEvaluacion<Error>: Send + Sync {
 pub trait RepositorioPublicarEvaluacion<Error>:
     Send + Sync + RepositorioLeerEvaluacion<Error>
 {
+    /// Guarda la evaluación ya publicada (con la copia de sus exámenes) solo si en la base
+    /// sigue en borrador; si otra petición la publicó antes, falla con
+    /// `EvaluacionYaFuePublicada`.
     async fn publicar_evaluacion(&self, evaluacion: Evaluacion) -> Result<(), Error>;
 }
 

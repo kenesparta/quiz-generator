@@ -152,6 +152,7 @@ impl From<EvaluacionError> for ApiError {
                 Self::no_encontrado(e)
             }
             EvaluacionYaFuePublicada
+            | EvaluacionSinPreguntas
             | EvaluacionRepositorioError(RepoEvaluacion::RegistroDuplicado) => Self::conflicto(e),
             // Estados guardados que no se pueden interpretar: datos corruptos, no culpa del cliente.
             EvaluacionEstadoGeneralError(_)

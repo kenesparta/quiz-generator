@@ -25,15 +25,11 @@ where
     EvaluacionError: From<RepoErr>,
 {
     async fn ejecutar(&self, in_: InputData) -> Result<(), EvaluacionError> {
-        let evaluacion = self
+        let mut evaluacion = self
             .repositorio
             .obtener_evaluacion(EvaluacionID::new(in_.evaluacion_id.as_str())?)
             .await?;
-
-        if evaluacion.esta_publicada() {
-            return Err(EvaluacionError::EvaluacionYaFuePublicada);
-        }
-
+        evaluacion.publicar()?;
         self.repositorio.publicar_evaluacion(evaluacion).await?;
 
         Ok(())

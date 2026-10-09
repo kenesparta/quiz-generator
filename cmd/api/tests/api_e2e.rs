@@ -261,6 +261,17 @@ async fn evaluacion_publicada(e: &Entorno, admin: &str) -> String {
         .await;
     assert_eq!(estado, StatusCode::OK, "publicar evaluacion: {cuerpo}");
 
+    // R-047: se publica una sola vez.
+    let (estado, _) = e
+        .pedir(
+            Method::PATCH,
+            &format!("/evaluaciones/{evaluacion_id}"),
+            Some(admin),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
+
     // DAT-04: una evaluación publicada ya no admite exámenes (antes corrompía su copia).
     let (estado, _) = e
         .pedir(
@@ -504,7 +515,10 @@ async fn flujo_completo_y_controles_de_acceso() {
     for (examenes, esperado) in [
         (json!(["no-es-un-uuid"]), StatusCode::BAD_REQUEST),
         (json!([]), StatusCode::BAD_REQUEST),
-        (json!(["9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a"]), StatusCode::NOT_FOUND),
+        (
+            json!(["9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a"]),
+            StatusCode::NOT_FOUND,
+        ),
     ] {
         let (estado, cuerpo) = e
             .pedir(
@@ -516,6 +530,17 @@ async fn flujo_completo_y_controles_de_acceso() {
             .await;
         assert_eq!(estado, esperado, "{examenes}: {cuerpo}");
     }
+
+    // R-047: una evaluación sin preguntas no se publica.
+    let (estado, _) = e
+        .pedir(
+            Method::PATCH,
+            &format!("/evaluaciones/{borrador_ids}"),
+            Some(&admin),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
 
     // R-035: un borrador no se puede asignar.
     let borrador = "8e65028c-30e6-47e5-b7dc-121ee2133d49";

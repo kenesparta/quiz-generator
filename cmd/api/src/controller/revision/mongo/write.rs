@@ -2,13 +2,13 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::revision::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::{Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Revision};
 use quizz_core::respuesta::domain::entity::revision::RevisionRealizada;
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::provider::repositorio::RepositorioRealizarRevision;
+use tracing::error;
 
 pub struct RevisionEvaluacionMongo {
     client: web::Data<mongodb::Database>,

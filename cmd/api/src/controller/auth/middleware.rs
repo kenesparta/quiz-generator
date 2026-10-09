@@ -17,7 +17,6 @@ use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forwar
 use actix_web::{Error, HttpMessage, HttpResponse, web};
 use casbin::Enforcer;
 use futures::future::{LocalBoxFuture, Ready, ok};
-use log::{debug, error, info, warn};
 use quizz_auth::autorizacion::domain::entity::solicitud_acceso::SolicitudAcceso;
 use quizz_auth::autorizacion::domain::error::autorizacion::AutorizacionError;
 use quizz_auth::autorizacion::domain::value_object::accion::Accion;
@@ -26,6 +25,7 @@ use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_auth::autorizacion::provider::autorizacion::AutorizacionVerificar;
 use quizz_auth::universal::provider::repositorio::Sesiones;
 use std::rc::Rc;
+use tracing::{debug, error, warn};
 
 /// Autenticación: exige `Authorization: Bearer <jwt>` válido en todas las rutas que envuelve.
 pub struct AuthMiddleware;
@@ -67,8 +67,6 @@ where
         let service = Rc::clone(&self.service);
 
         Box::pin(async move {
-            info!("{} {}", req.method(), req.path());
-
             match autenticar(&req).await {
                 Ok(claims) => {
                     req.extensions_mut().insert(claims);

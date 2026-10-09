@@ -2,11 +2,11 @@ use crate::controller::admin::mongo::constantes::ADMIN_COLLECTION_NAME;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::doc;
 use quizz_core::admin::domain::entity::admin::Admin;
 use quizz_core::admin::domain::error::admin::{AdminError, RepositorioError};
 use quizz_core::admin::provider::repositorio::RepositorioAdminEscritura;
+use tracing::error;
 
 pub struct AdminMongo {
     client: web::Data<mongodb::Database>,

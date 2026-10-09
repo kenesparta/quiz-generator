@@ -29,7 +29,7 @@ pub async fn create_mongo_client(settings: &DatabaseSettings) -> Result<Database
         .database("admin")
         .run_command(doc! {"ping": 1})
         .await?;
-    log::info!("Connected to MongoDB successfully");
+    tracing::info!("Connected to MongoDB successfully");
 
     Ok(client.database(&settings.database_name))
 }

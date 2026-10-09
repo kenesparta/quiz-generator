@@ -25,7 +25,6 @@ tokio.workspace = true
 serde = { version = "1.0.218", features = ["derive"] }
 config = "0.15.19"
 bcrypt = "0.19.3"
-log = "0.4"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-trait.workspace = true

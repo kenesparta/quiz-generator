@@ -3,7 +3,6 @@
 //!
 //! Las conversiones son `TryFrom`: un documento con un id, una etiqueta o un estado que no se
 //! puede interpretar es un error de datos (500, con el campo en el log), nunca un `panic`.
-use log::error;
 use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::postulante::domain::value_object::id::PostulanteID;
@@ -19,6 +18,7 @@ use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
+use tracing::error;
 
 #[derive(Deserialize)]
 pub struct RespuestaDTO {

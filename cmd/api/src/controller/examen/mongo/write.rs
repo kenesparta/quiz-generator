@@ -2,12 +2,12 @@ use crate::controller::examen::mongo::constantes::EXAMEN_COLLECTION_NAME;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::doc;
 use quizz_core::examen::domain::entity::examen::Examen;
 use quizz_core::examen::domain::error::examen::ExamenError;
 use quizz_core::examen::domain::error::examen::RepositorioError::PersistenciaNoFinalizada;
 use quizz_core::examen::provider::repositorio::RepositorioExamenEscritura;
+use tracing::error;
 
 pub struct ExamenMongo {
     client: web::Data<mongodb::Database>,

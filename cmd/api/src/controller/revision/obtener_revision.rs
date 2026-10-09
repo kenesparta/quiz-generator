@@ -7,10 +7,10 @@ use crate::controller::revision::dto::{
 };
 use crate::controller::revision::mongo::read::RevisionReadMongo;
 use actix_web::{HttpResponse, web};
-use log::warn;
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
+use tracing::warn;
 
 pub struct ObtenerRevisionController;
 

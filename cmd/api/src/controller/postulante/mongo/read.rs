@@ -4,7 +4,6 @@ use actix_web::web;
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use futures::TryStreamExt;
-use log::error;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_common::domain::value_objects::fecha_nacimiento::FechaNacimiento;
 use quizz_common::domain::value_objects::fecha_registro::FechaRegistro;
@@ -21,6 +20,7 @@ use quizz_core::postulante::domain::value_object::nombre::Nombre;
 use quizz_core::postulante::provider::repositorio::RepositorioPostulanteLectura;
 use serde::Deserialize;
 use std::str::FromStr;
+use tracing::error;
 
 /// Un postulante tal como se guarda. Se lee sin el hash de la contraseña: las lecturas nunca
 /// lo necesitan.

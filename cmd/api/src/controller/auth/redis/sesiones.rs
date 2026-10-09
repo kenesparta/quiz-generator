@@ -1,9 +1,9 @@
 use async_trait::async_trait;
-use log::error;
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::provider::repositorio::Sesiones;
 use redis::AsyncCommands;
 use redis::aio::ConnectionManager;
+use tracing::error;
 
 /// Borra la sesión solo si sigue siendo la indicada: comparar y borrar en un único paso evita
 /// que el logout de un token viejo cierre la sesión de un inicio de sesión posterior.

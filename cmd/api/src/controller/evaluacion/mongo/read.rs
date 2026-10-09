@@ -2,13 +2,13 @@ use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::MongoRepository;
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use log::error;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;
 use quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::LecturaNoFinalizada;
 use quizz_core::evaluacion::provider::repositorio::RepositorioEvaluacionListar;
 use quizz_core::evaluacion::use_case::listar_evaluaciones::OutputData;
 use serde::Deserialize;
+use tracing::error;
 
 /// Una evaluación en el listado: sin los exámenes (una publicada guarda copias completas, con
 /// imágenes), solo cuántos tiene.

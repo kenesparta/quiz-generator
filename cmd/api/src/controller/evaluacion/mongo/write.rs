@@ -3,7 +3,6 @@ use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;
 use quizz_core::evaluacion::domain::entity::evaluacion::Evaluacion;
@@ -20,6 +19,7 @@ use quizz_core::evaluacion::value_object::id::EvaluacionID;
 use quizz_core::examen::domain::service::lista_examenes::ListaDeExamenes;
 use quizz_core::examen::provider::repositorio::RepositorioExamenLectura;
 use std::str::FromStr;
+use tracing::error;
 
 pub struct EvaluacionMongo {
     client: web::Data<mongodb::Database>,

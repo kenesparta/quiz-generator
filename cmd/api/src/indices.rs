@@ -4,10 +4,10 @@
 //! "comprobar y luego escribir" cuando llegan peticiones simultáneas. Si un índice único no se
 //! puede crear porque ya hay duplicados, se registra el error y la API arranca igual: hay que
 //! limpiar los duplicados (el log indica la colección) y reiniciar.
-use log::{error, info};
 use mongodb::bson::{Document, doc};
 use mongodb::options::IndexOptions;
 use mongodb::{Database, IndexModel};
+use tracing::{error, info};
 
 struct Indice {
     coleccion: &'static str,

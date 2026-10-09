@@ -5,12 +5,12 @@ use crate::controller::auth::mongo::universal_read::LoginUniversalMongo;
 use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
 use actix_web::{HttpRequest, HttpResponse, web};
-use log::{error, info, warn};
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::provider::repositorio::Sesiones;
 use quizz_auth::universal::use_case::login::{InputData, LoginUniversal};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::postulante::domain::value_object::documento::Documento;
+use tracing::{error, info, warn};
 
 pub struct UniversalLoginController;
 

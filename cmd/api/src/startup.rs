@@ -15,6 +15,7 @@ use crate::controller::respuesta::route::respuesta;
 use crate::controller::revision::route::revision;
 use crate::cors::set_cors;
 use actix_web::dev::Server;
+use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
 use mongodb::Database;
 use quizz_auth::universal::provider::repositorio::Sesiones;
@@ -60,6 +61,13 @@ pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
     );
 }
 
+/// Una línea por petición: IP, método, ruta sin query string (puede llevar datos personales,
+/// como `?documento=`), estado y milisegundos.
+fn registro_de_accesos() -> Logger {
+    Logger::new(r#"%a "%{metodo}xi %U" %s %D ms"#)
+        .custom_request_replace("metodo", |req| req.method().to_string())
+}
+
 /// La parte de la configuración que usa el servidor HTTP.
 pub struct OpcionesHttp {
     pub jwt: JwtSettings,
@@ -85,6 +93,7 @@ pub fn run(
     let server = HttpServer::new(move || {
         App::new()
             .wrap(set_cors(&cors.allowed_origins))
+            .wrap(registro_de_accesos())
             .configure(configurar_rutas)
             .app_data(database.clone())
             .app_data(sesiones.clone())

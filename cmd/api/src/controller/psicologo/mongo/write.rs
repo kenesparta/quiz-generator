@@ -2,11 +2,11 @@ use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::entity::psicologo::Psicologo;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoEscritura;
+use tracing::error;
 
 pub struct PsicologoMongo {
     client: web::Data<mongodb::Database>,

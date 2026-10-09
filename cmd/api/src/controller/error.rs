@@ -6,7 +6,6 @@
 //! 5xx el mensaje es genérico y la causa solo va al log.
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
-use log::{error, warn};
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_common::domain::value_objects::id::IdError;
 use quizz_core::admin::domain::error::admin::{AdminError, RepositorioError as RepoAdmin};
@@ -23,6 +22,7 @@ use quizz_core::psicologo::domain::error::psicologo::{
 };
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use std::fmt;
+use tracing::{error, warn};
 
 #[derive(Debug)]
 pub enum ApiError {

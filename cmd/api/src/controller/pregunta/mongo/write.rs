@@ -2,7 +2,6 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::pregunta::mongo::constantes::EXAMEN_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use log::{error, info};
 use mongodb::bson::{Bson, Document, doc};
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;
@@ -12,6 +11,7 @@ use quizz_core::pregunta::domain::error::pregunta::RepositorioError::{
 };
 use quizz_core::pregunta::domain::service::lista_preguntas::ListaDePreguntas;
 use quizz_core::pregunta::provider::repositorio::RepositorioAgregarPregunta;
+use tracing::{error, info};
 
 pub struct PreguntaPorExamenMongo {
     client: web::Data<mongodb::Database>,

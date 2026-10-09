@@ -2662,7 +2662,6 @@ dependencies = [
  "config",
  "futures",
  "jsonwebtoken",
- "log",
  "mongodb",
  "quizz-auth",
  "quizz-common",

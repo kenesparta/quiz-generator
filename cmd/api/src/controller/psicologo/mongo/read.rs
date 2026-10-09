@@ -2,13 +2,13 @@ use crate::controller::mongo_repository::MongoRepository;
 use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
-use log::error;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
 use quizz_core::psicologo::provider::repositorio::{
     PsicologoInfo, RepositorioPsicologoLectura, RepositorioPsicologoListar,
 };
 use quizz_core::psicologo::use_case::listar_psicologos::OutputData;
+use tracing::error;
 
 pub struct PsicologoReadMongo {
     client: web::Data<mongodb::Database>,

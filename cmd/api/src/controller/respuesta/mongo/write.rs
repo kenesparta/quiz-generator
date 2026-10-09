@@ -6,7 +6,6 @@ use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
-use log::error;
 use mongodb::bson;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
@@ -24,6 +23,7 @@ use quizz_core::respuesta::provider::repositorio::{
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
+use tracing::error;
 
 /// Registra el error del driver (que de otro modo se perdería) y lo traduce a un error del
 /// dominio sin detalles.

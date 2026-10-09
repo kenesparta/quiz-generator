@@ -21,6 +21,9 @@ pub enum PreguntaError {
     #[error("El puntaje solo puede usar claves de las alternativas")]
     PuntajeNoCoincideConAlternativa,
 
+    #[error("La imagen debe ser un data URI PNG, JPEG o WebP de hasta 512 KiB")]
+    ImagenNoValida,
+
     #[error("ID del examen no valido")]
     PreguntaErrorExamenID(#[from] IdError),
 

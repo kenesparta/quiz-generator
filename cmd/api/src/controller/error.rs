@@ -199,6 +199,7 @@ impl From<PreguntaError> for ApiError {
             | PuntajeNoExiste
             | DebeTenerUnaSolaRespuesta
             | PuntajeNoCoincideConAlternativa
+            | ImagenNoValida
             | PreguntaErrorExamenID(_)
             | PreguntaAlternativaError(_)
             | PreguntaEtiquetaError(_)

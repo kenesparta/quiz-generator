@@ -32,6 +32,7 @@ impl PreguntaEntity {
         let tipo_de_pregunta = TipoPregunta::from_str(&tipo_de_pregunta)?;
 
         validar_composicion(&tipo_de_pregunta, &alternativas, &puntaje)?;
+        let imagen_ref = validar_imagen(imagen_ref)?;
 
         Ok(Self {
             id,
@@ -42,6 +43,32 @@ impl PreguntaEntity {
             puntaje,
             imagen_ref,
         })
+    }
+}
+
+/// Tamaño máximo de la imagen de una pregunta (el data URI completo). La imagen se copia en
+/// cada evaluación publicada y en cada hoja de respuestas, y MongoDB limita un documento a
+/// 16 MB.
+pub const MAX_BYTES_IMAGEN: usize = 512 * 1024;
+const PREFIJOS_IMAGEN: [&str; 3] = [
+    "data:image/png;base64,",
+    "data:image/jpeg;base64,",
+    "data:image/webp;base64,",
+];
+
+/// La imagen es opcional ("" equivale a no tener) y, si está, debe ser un data URI PNG, JPEG o
+/// WebP de hasta [`MAX_BYTES_IMAGEN`]: se entrega tal cual a postulantes y psicólogos, así que
+/// no se aceptan `javascript:`, HTML ni SVG.
+fn validar_imagen(imagen: Option<String>) -> Result<Option<String>, PreguntaError> {
+    match imagen.filter(|imagen| !imagen.is_empty()) {
+        None => Ok(None),
+        Some(imagen)
+            if imagen.len() <= MAX_BYTES_IMAGEN
+                && PREFIJOS_IMAGEN.iter().any(|p| imagen.starts_with(p)) =>
+        {
+            Ok(Some(imagen))
+        }
+        Some(_) => Err(PreguntaError::ImagenNoValida),
     }
 }
 
@@ -347,5 +374,43 @@ mod tests {
     #[test]
     fn libre_no_tiene_reglas() {
         assert!(validar("libre", &[("cualquier", "cosa")], &[("x", 3)]).is_ok());
+    }
+
+    #[test]
+    fn la_imagen_es_opcional_y_vacia_equivale_a_ninguna() {
+        assert_eq!(validar_imagen(None).unwrap(), None);
+        assert_eq!(validar_imagen(Some(String::new())).unwrap(), None);
+    }
+
+    #[test]
+    fn solo_se_aceptan_imagenes_png_jpeg_o_webp_de_tamano_acotado() {
+        for valida in [
+            "data:image/png;base64,iVBORw0KGgo=",
+            "data:image/jpeg;base64,/9j/4AAQ",
+            "data:image/webp;base64,UklGRg==",
+        ] {
+            assert!(validar_imagen(Some(valida.to_string())).is_ok(), "{valida}");
+        }
+        for no_valida in [
+            "javascript:alert(1)",
+            "data:text/html;base64,PHNjcmlwdD4=",
+            "data:image/svg+xml;base64,PHN2Zz4=",
+            "https://ejemplo.pe/imagen.png",
+        ] {
+            assert!(
+                matches!(
+                    validar_imagen(Some(no_valida.to_string())),
+                    Err(PreguntaError::ImagenNoValida)
+                ),
+                "{no_valida}"
+            );
+        }
+        let prefijo = "data:image/png;base64,";
+        let justa = format!("{prefijo}{}", "A".repeat(MAX_BYTES_IMAGEN - prefijo.len()));
+        assert!(validar_imagen(Some(justa.clone())).is_ok());
+        assert!(matches!(
+            validar_imagen(Some(format!("{justa}A"))),
+            Err(PreguntaError::ImagenNoValida)
+        ));
     }
 }

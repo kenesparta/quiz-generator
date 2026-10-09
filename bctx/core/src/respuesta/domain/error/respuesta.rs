@@ -42,6 +42,9 @@ pub enum RespuestaError {
     #[error("La evaluacion ya fue finalizada")]
     EvaluacionFinalizada,
 
+    #[error("La evaluacion todavia no fue finalizada")]
+    EvaluacionNoFinalizada,
+
     #[error("El estado de la evaluacion cambio mientras se procesaba la solicitud")]
     TransicionNoAplicada,
 

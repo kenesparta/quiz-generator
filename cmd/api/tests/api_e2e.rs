@@ -248,8 +248,14 @@ async fn asignar(e: &Entorno, admin: &str, evaluacion_id: &str, postulante_id: &
         )
         .await;
     assert_eq!(estado, StatusCode::CREATED, "asignar: {cuerpo}");
-    let id = cuerpo["id"].as_str().expect("la asignación devuelve el id").to_string();
-    assert_eq!(cuerpo["_links"]["self"]["href"], format!("/respuestas/{id}"));
+    let id = cuerpo["id"]
+        .as_str()
+        .expect("la asignación devuelve el id")
+        .to_string();
+    assert_eq!(
+        cuerpo["_links"]["self"]["href"],
+        format!("/respuestas/{id}")
+    );
     id
 }
 
@@ -360,7 +366,8 @@ async fn flujo_completo_y_controles_de_acceso() {
         .await;
     assert_eq!(estado, StatusCode::CONFLICT);
     let postulante_c = "0b9fbef0-fc03-4e24-b5d0-dfb42b537324";
-    e.registrar_postulante(&admin, postulante_c, "73333331").await;
+    e.registrar_postulante(&admin, postulante_c, "73333331")
+        .await;
     let ruta = format!("/evaluaciones/{evaluacion_id}/respuestas");
     let simultaneas = (0..8).map(|_| {
         e.pedir(
@@ -376,7 +383,10 @@ async fn flujo_completo_y_controles_de_acceso() {
         .map(|(estado, _)| estado)
         .collect();
     assert_eq!(
-        estados.iter().filter(|e| **e == StatusCode::CREATED).count(),
+        estados
+            .iter()
+            .filter(|e| **e == StatusCode::CREATED)
+            .count(),
         1,
         "{estados:?}"
     );
@@ -386,12 +396,11 @@ async fn flujo_completo_y_controles_de_acceso() {
             .all(|e| *e == StatusCode::CREATED || *e == StatusCode::CONFLICT),
         "{estados:?}"
     );
-    let hojas_c = e
-        .db
-        .collection::<Document>("respuesta")
-        .count_documents(doc! { "postulante_id": postulante_c })
-        .await
-        .unwrap();
+    let hojas_c =
+        e.db.collection::<Document>("respuesta")
+            .count_documents(doc! { "postulante_id": postulante_c })
+            .await
+            .unwrap();
     assert_eq!(hojas_c, 1);
 
     // R-035: un borrador no se puede asignar.
@@ -576,6 +585,52 @@ async fn flujo_completo_y_controles_de_acceso() {
             .unwrap()
             .unwrap();
     assert_eq!(hoja_b_guardada.get_str("estado").unwrap(), "creado");
+
+    // DAT-05 y R-046: solo se califica una hoja finalizada, y queda registrado quién lo hizo.
+    let psicologo = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::POST,
+            &format!("/psicologos/{psicologo}"),
+            Some(&admin),
+            Some(json!({
+                "nombre": "Maria", "primer_apellido": "Garcia", "segundo_apellido": "Lopez",
+                "documento": "44556677", "especialidad": "Clinica", "colegiatura": "CPsP-123",
+                "password": "clave-del-psicologo",
+            })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
+    let token_psicologo = e.token("44556677", "clave-del-psicologo").await;
+    let revision = |respuesta_id: &str| {
+        (
+            format!("/revisiones/{respuesta_id}"),
+            json!({
+                "evaluacion_id": evaluacion_id,
+                "resultado": "apto",
+                "examenes": [{ "examen_id": examen_id, "observacion": "Bien" }],
+            }),
+        )
+    };
+    let (ruta, cuerpo) = revision(&hoja_b);
+    let (estado, _) = e
+        .pedir(Method::POST, &ruta, Some(&token_psicologo), Some(cuerpo))
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT, "una hoja sin finalizar no se califica");
+    let (ruta, cuerpo) = revision(&hoja_a);
+    let (estado, cuerpo) = e
+        .pedir(Method::POST, &ruta, Some(&token_psicologo), Some(cuerpo))
+        .await;
+    assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
+    let (estado, calificada) = e.pedir(Method::GET, &ruta, Some(&admin), None).await;
+    assert_eq!(estado, StatusCode::OK, "{calificada}");
+    assert_eq!(calificada["psicologo"]["nombre_completo"], "Maria Garcia Lopez");
+    assert_eq!(calificada["resultado"], "apto");
+    assert!(calificada["fecha_revision"].is_string(), "{calificada}");
+    assert_eq!(
+        calificada["evaluacion"]["examenes"][0]["observacion"],
+        "Bien"
+    );
 
     // Un postulante no lee la hoja de otro, y no ve las preguntas de la suya antes de empezar.
     let (estado, _) = e

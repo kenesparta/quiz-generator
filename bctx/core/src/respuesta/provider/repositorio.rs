@@ -1,10 +1,8 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::pregunta::PreguntaACorregir;
-use crate::respuesta::domain::entity::respuesta::{
-    Estado, Respuesta, RespuestaEvaluacion, Revision,
-};
-use crate::respuesta::domain::entity::revision::ExamenRevision;
+use crate::respuesta::domain::entity::respuesta::{Estado, Respuesta, RespuestaEvaluacion};
+use crate::respuesta::domain::entity::revision::RevisionRealizada;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
@@ -81,15 +79,13 @@ pub trait RespositorioRespuestaRevision<Error>: Send + Sync {
 }
 
 #[async_trait]
-pub trait RespositorioRealizarRevision<Error>: Send + Sync {
-    async fn realizar_revision(
-        &self,
-        revision_id: String,
-        evaluacion_id: String,
-        examenes: Vec<ExamenRevision>,
-        estado: Revision,
-        resultado: String, // Deberia ser enum
-    ) -> Result<(), Error>;
+pub trait RepositorioRealizarRevision<Error>: Send + Sync {
+    /// Guarda la revisión en una sola operación atómica, solo si la hoja está finalizada.
+    ///
+    /// Falla con `RespuestaNoEncontrada` si la hoja no existe o es de otra evaluación, con
+    /// `EvaluacionNoFinalizada` si todavía se puede contestar y con `ExamenNotFound` si algún
+    /// examen no está en la hoja.
+    async fn realizar_revision(&self, revision: &RevisionRealizada) -> Result<(), Error>;
 }
 
 #[async_trait]

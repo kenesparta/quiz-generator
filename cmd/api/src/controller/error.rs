@@ -122,6 +122,7 @@ impl From<RespuestaError> for ApiError {
             | EvaluacionNoEstaEnProceso
             | EvaluacionYaIniciada
             | EvaluacionFinalizada
+            | EvaluacionNoFinalizada
             | TransicionNoAplicada => Self::conflicto(e),
             DatabaseError | RepositorioError => Self::interno(e),
         }

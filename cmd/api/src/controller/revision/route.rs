@@ -11,7 +11,7 @@ pub fn revision(cfg: &mut web::ServiceConfig) {
             .wrap(Autorizacion::para(Recurso::Revision))
             .service(web::resource("").route(web::get().to(ListarRevisionesController::list)))
             .service(
-                web::resource("/{revision_id}")
+                web::resource("/{respuesta_id}")
                     .route(web::get().to(ObtenerRevisionController::get))
                     .route(web::post().to(RevisarEvaluacionPostulanteController::review))
                     .route(web::patch().to(RevisarEvaluacionPostulanteController::review)),

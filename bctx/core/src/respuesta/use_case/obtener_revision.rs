@@ -18,6 +18,8 @@ pub struct OutputData {
     pub revision: String,
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
+    pub revisado_por: Option<String>,
+    pub fecha_revision: Option<String>,
     pub evaluacion: OutputEvaluacion,
 }
 
@@ -121,6 +123,8 @@ where
             revision: respuesta.revision.to_string(),
             fecha_tiempo_inicio: respuesta.fecha_tiempo_inicio,
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
+            revisado_por: respuesta.revisado_por,
+            fecha_revision: respuesta.fecha_revision,
             evaluacion: respuesta.evaluacion.into(),
         })
     }

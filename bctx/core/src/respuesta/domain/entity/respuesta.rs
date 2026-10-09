@@ -17,9 +17,11 @@ pub struct Respuesta {
     pub postulante: PostulanteID,
     pub revision: Revision,
     pub resultado: String,
+    /// Quién calificó la hoja; `None` si no se calificó o se calificó antes de registrarlo.
+    pub revisado_por: Option<String>,
+    pub fecha_revision: Option<String>,
 }
 
-/// La contestación de una pregunta por el dueño de la hoja de respuestas.
 impl Respuesta {
     /// Segundos dedicados al examen: desde el inicio hasta el fin o, si sigue en proceso, hasta
     /// `ahora`. `None` si no empezó o si las fechas guardadas no se pueden leer.
@@ -33,6 +35,7 @@ impl Respuesta {
     }
 }
 
+/// La contestación de una pregunta por el dueño de la hoja de respuestas.
 pub struct RespuestaEvaluacion {
     pub id: RespuestaID,
     /// Dueño de la hoja, tomado del token: el repositorio solo escribe si la hoja es suya.
@@ -128,6 +131,8 @@ mod tests {
             postulante: PostulanteID::new("e17439e0-79e1-47e3-b5f9-5b54367fa290").unwrap(),
             revision: Revision::SinIniciar,
             resultado: String::new(),
+            revisado_por: None,
+            fecha_revision: None,
         }
     }
 

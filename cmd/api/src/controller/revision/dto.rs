@@ -1,6 +1,6 @@
 use crate::controller::hateoas::Links;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 // --- Request DTOs ---
 
@@ -48,6 +48,9 @@ pub struct RevisionDetalleDTO {
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub fecha_revision: Option<String>,
+    /// El psicólogo que calificó la hoja.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub psicologo: Option<RevisionPsicologoDTO>,
     pub evaluacion: RevisionEvaluacionDTO,
     #[serde(rename = "_links")]
@@ -86,7 +89,8 @@ pub struct RevisionPreguntaDTO {
     pub tipo_de_pregunta: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub imagen_ref: Option<String>,
-    pub alternativas: HashMap<String, String>,
+    /// Ordenadas por clave (A, B, C...).
+    pub alternativas: BTreeMap<String, String>,
     pub respuestas: Option<Vec<String>>,
     pub puntos: i64,
 }

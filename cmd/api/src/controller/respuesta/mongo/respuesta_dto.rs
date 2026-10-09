@@ -35,6 +35,10 @@ pub struct RespuestaDTO {
     pub revision: String,
     #[serde(default)]
     pub resultado: Option<String>,
+    #[serde(default)]
+    pub revisado_por: Option<String>,
+    #[serde(default)]
+    pub fecha_revision: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -116,6 +120,8 @@ impl TryFrom<RespuestaDTO> for Respuesta {
             fecha_tiempo_fin: respuesta.fecha_tiempo_fin,
             evaluacion: respuesta.evaluacion.try_into()?,
             resultado: respuesta.resultado.unwrap_or_default(),
+            revisado_por: respuesta.revisado_por,
+            fecha_revision: respuesta.fecha_revision,
         })
     }
 }

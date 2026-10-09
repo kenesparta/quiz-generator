@@ -15,17 +15,19 @@ pub struct Respuesta {
     pub resultado: String,
 }
 
+/// La contestación de una pregunta por el dueño de la hoja de respuestas.
 pub struct RespuestaEvaluacion {
     pub id: RespuestaID,
-    pub postulante_id: String,
-    pub evaluacion_id: String,
+    /// Dueño de la hoja, tomado del token: el repositorio solo escribe si la hoja es suya.
+    pub postulante_id: PostulanteID,
     pub examen_id: String,
     pub pregunta_id: String,
     pub respuestas: Vec<String>,
     pub puntos: u32,
 }
 
-#[derive(Clone, Debug)]
+/// Ciclo de vida de una hoja de respuestas: `Creado` -> `EnProceso` -> `Finalizado`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Estado {
     Creado,
     EnProceso,
@@ -52,12 +54,6 @@ impl FromStr for Estado {
             "finalizado" => Ok(Estado::Finalizado),
             _ => Err(EstadoErr::NoValido),
         }
-    }
-}
-
-impl Estado {
-    pub fn can_finalize(&self) -> bool {
-        matches!(self, Self::EnProceso)
     }
 }
 

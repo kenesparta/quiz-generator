@@ -350,7 +350,7 @@ async fn flujo_completo_y_controles_de_acceso() {
     // Flujo del postulante: empezar, contestar, finalizar.
     let evaluacion_id = evaluacion_publicada(&e, &admin).await;
     let hoja_a = asignar(&e, &admin, &evaluacion_id, postulante_a).await;
-    let _hoja_b = asignar(&e, &admin, &evaluacion_id, postulante_b).await;
+    let hoja_b = asignar(&e, &admin, &evaluacion_id, postulante_b).await;
 
     let (estado, lista) = e
         .pedir(Method::GET, "/respuestas", Some(&token_a), None)
@@ -367,6 +367,27 @@ async fn flujo_completo_y_controles_de_acceso() {
         )
         .await;
     assert_eq!(estado, StatusCode::OK, "empezar: {cuerpo}");
+    assert_eq!(cuerpo["estado"], "en_proceso");
+    // Empezar de nuevo es idempotente.
+    let (estado, _) = e
+        .pedir(
+            Method::PATCH,
+            &format!("/respuestas/{hoja_a}/estado"),
+            Some(&token_a),
+            Some(json!({ "accion": "empezar" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::OK);
+    // Una acción desconocida es una petición inválida.
+    let (estado, _) = e
+        .pedir(
+            Method::PATCH,
+            &format!("/respuestas/{hoja_a}/estado"),
+            Some(&token_a),
+            Some(json!({ "accion": "reiniciar" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::BAD_REQUEST);
 
     let (estado, hoja) = e
         .pedir(
@@ -402,6 +423,49 @@ async fn flujo_completo_y_controles_de_acceso() {
         )
         .await;
     assert_eq!(estado, StatusCode::OK, "finalizar: {cuerpo}");
+    assert_eq!(cuerpo["estado"], "finalizado");
+
+    // Tras finalizar no se aceptan más respuestas.
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::POST,
+            &contestar,
+            Some(&token_a),
+            Some(json!({ "respuestas": ["B"] })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT, "contestar tras finalizar: {cuerpo}");
+
+    // SEC-02: un postulante no puede escribir en la hoja de otro (404: no revela que existe).
+    let contestar_en_b = contestar.replace(&hoja_a, &hoja_b);
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &contestar_en_b,
+            Some(&token_a),
+            Some(json!({ "respuestas": ["A"] })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::NOT_FOUND);
+    for accion in ["empezar", "finalizar"] {
+        let (estado, _) = e
+            .pedir(
+                Method::PATCH,
+                &format!("/respuestas/{hoja_b}/estado"),
+                Some(&token_a),
+                Some(json!({ "accion": accion })),
+            )
+            .await;
+        assert_eq!(estado, StatusCode::NOT_FOUND, "{accion}");
+    }
+    let hoja_b_guardada = e
+        .db
+        .collection::<Document>("respuesta")
+        .find_one(doc! { "_id": &hoja_b })
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(hoja_b_guardada.get_str("estado").unwrap(), "creado");
 
     // SEC-04: tras /logout el mismo token deja de autenticar.
     let (estado, _) = e

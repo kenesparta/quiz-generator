@@ -55,6 +55,7 @@ pub struct OutputExamen {
 
 impl From<Examen> for OutputExamen {
     fn from(examen: Examen) -> Self {
+        let puntos_obtenidos = examen.puntos_obtenidos();
         Self {
             id: examen.id.to_string(),
             titulo: examen.titulo,
@@ -65,7 +66,7 @@ impl From<Examen> for OutputExamen {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
-            puntos_obtenidos: examen.puntos_obtenidos,
+            puntos_obtenidos,
             observacion: examen.observacion,
         }
     }

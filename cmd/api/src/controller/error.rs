@@ -115,9 +115,11 @@ impl From<RespuestaError> for ApiError {
             | RespuestaNoEncontrada
             | PreguntaNotFound
             | ExamenNotFound => Self::no_encontrado(e),
-            EvaluacionAlreadyAssigned | EvaluacionNoEstaEnProceso | EvaluacionYaIniciada => {
-                Self::conflicto(e)
-            }
+            EvaluacionAlreadyAssigned
+            | EvaluacionNoEstaEnProceso
+            | EvaluacionYaIniciada
+            | EvaluacionFinalizada
+            | TransicionNoAplicada => Self::conflicto(e),
             DatabaseError | RepositorioError => Self::interno(e),
         }
     }

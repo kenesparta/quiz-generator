@@ -1,9 +1,19 @@
 use crate::pregunta::domain::value_object::etiqueta::Etiqueta;
 use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
+use crate::respuesta::domain::entity::respuesta::Estado;
 use std::collections::HashMap;
 
 pub type Puntaje = HashMap<String, u32>;
+
+/// Lo necesario para corregir una contestación: el estado de la hoja de respuestas y la
+/// pregunta tal como quedó en su copia de la evaluación (incluida la clave de corrección).
+pub struct PreguntaACorregir {
+    pub estado: Estado,
+    pub tipo_de_pregunta: TipoPregunta,
+    pub alternativas: HashMap<String, String>,
+    pub puntaje: Puntaje,
+}
 
 pub struct Pregunta {
     pub id: PreguntaID,

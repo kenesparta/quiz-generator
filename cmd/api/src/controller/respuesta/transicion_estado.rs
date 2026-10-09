@@ -1,12 +1,12 @@
 use crate::controller::auth::jwt::Claims;
-use crate::controller::hateoas::Link;
-use crate::controller::respuesta::dto::TransicionEstadoDTO;
-use crate::controller::respuesta::mongo::write::{
-    RepositorioEmpezarExamenMongo, RespositorioFinalizarEvaluacionMongo,
-};
+use crate::controller::error::ApiError;
+use crate::controller::hateoas::{Link, Links};
+use crate::controller::respuesta::dto::{AccionTransicion, TransicionEstadoDTO};
+use crate::controller::respuesta::mongo::write::EstadoRespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
-use log::{error, info, warn};
+use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
 use quizz_common::use_case::CasoDeUso;
+use quizz_core::respuesta::domain::entity::respuesta::Estado;
 use quizz_core::respuesta::use_case::empezar_examen::{
     EmpezarExamen, InputData as EmpezarInputData,
 };
@@ -18,125 +18,56 @@ use serde_json::json;
 pub struct TransicionEstadoController;
 
 impl TransicionEstadoController {
+    /// `PATCH /respuestas/{id}/estado` con `{"accion": "empezar" | "finalizar"}`. Solo el
+    /// postulante dueño de la hoja (el del token) puede cambiar su estado.
     pub async fn transicionar(
         req: HttpRequest,
+        respuesta_id: web::Path<String>,
         body: web::Json<TransicionEstadoDTO>,
-        pool: web::Data<mongodb::Database>,
-    ) -> HttpResponse {
-        let respuesta_id = match req.match_info().get("id") {
-            Some(id) => id.to_string(),
-            None => {
-                return HttpResponse::BadRequest()
-                    .json(json!({"error": "Se debe enviar el ID de la respuesta"}));
-            }
+        db: web::Data<mongodb::Database>,
+    ) -> Result<HttpResponse, ApiError> {
+        let Some(claims) = req.extensions().get::<Claims>().cloned() else {
+            return Err(ApiError::NoAutenticado("Token no encontrado".to_string()));
         };
-
-        let claims = match req.extensions().get::<Claims>().cloned() {
-            Some(c) => c,
-            None => {
-                return HttpResponse::Unauthorized().json(json!({"error": "Token no encontrado"}));
-            }
-        };
-
-        let rol = claims.rol.as_deref().unwrap_or("");
-        let dto = body.into_inner();
-
-        info!(
-            "PATCH /respuestas/{}/estado - accion={}",
-            respuesta_id, dto.accion
+        let respuesta_id = respuesta_id.into_inner();
+        let repositorio = Box::new(EstadoRespuestaMongo::new(db));
+        let mut links = Links::new();
+        links.insert(
+            "self".into(),
+            Link::get(format!("/respuestas/{respuesta_id}")),
         );
 
-        match dto.accion.as_str() {
-            "empezar" => Self::empezar(pool, &respuesta_id, rol).await,
-            "finalizar" => Self::finalizar(pool, &respuesta_id, rol).await,
-            _ => {
-                warn!(
-                    "PATCH /respuestas/{}/estado - accion no valida: {}",
-                    respuesta_id, dto.accion
-                );
-                HttpResponse::BadRequest()
-                    .json(json!({"error": "Accion no valida. Use 'empezar' o 'finalizar'"}))
-            }
-        }
-    }
-
-    async fn empezar(
-        pool: web::Data<mongodb::Database>,
-        respuesta_id: &str,
-        _rol: &str,
-    ) -> HttpResponse {
-        let empezar_examen = EmpezarExamen::new(Box::new(RepositorioEmpezarExamenMongo::new(pool)));
-        let input = EmpezarInputData {
-            id: respuesta_id.to_string(),
-        };
-
-        match empezar_examen.ejecutar(input).await {
-            Ok(_) => {
-                info!(
-                    "PATCH /respuestas/{}/estado - examen iniciado",
-                    respuesta_id
-                );
-                let mut links = crate::controller::hateoas::Links::new();
-                links.insert(
-                    "self".into(),
-                    Link::get(format!("/respuestas/{}", respuesta_id)),
-                );
+        let (estado, mensaje) = match body.into_inner().accion {
+            AccionTransicion::Empezar => {
+                EmpezarExamen::new(repositorio)
+                    .ejecutar(EmpezarInputData {
+                        id: respuesta_id.clone(),
+                        postulante_id: claims.sub,
+                        ahora: ahora_lima(),
+                    })
+                    .await?;
                 links.insert(
                     "finalizar".into(),
-                    Link::patch(format!("/respuestas/{}/estado", respuesta_id)),
+                    Link::patch(format!("/respuestas/{respuesta_id}/estado")),
                 );
-
-                HttpResponse::Ok().json(json!({
-                    "estado": "EnProceso",
-                    "mensaje": "Examen iniciado correctamente",
-                    "_links": links
-                }))
+                (Estado::EnProceso, "Examen iniciado correctamente")
             }
-            Err(e) => {
-                error!(
-                    "PATCH /respuestas/{}/estado empezar - error: {}",
-                    respuesta_id, e
-                );
-                HttpResponse::Conflict()
-                    .json(json!({"error": "No se puede iniciar el examen en el estado actual"}))
+            AccionTransicion::Finalizar => {
+                FinalizarEvaluacion::new(repositorio)
+                    .ejecutar(FinalizarInputData {
+                        id: respuesta_id,
+                        postulante_id: claims.sub,
+                        ahora: ahora_lima(),
+                    })
+                    .await?;
+                (Estado::Finalizado, "Examen finalizado correctamente")
             }
-        }
-    }
-
-    async fn finalizar(
-        pool: web::Data<mongodb::Database>,
-        respuesta_id: &str,
-        _rol: &str,
-    ) -> HttpResponse {
-        let input = FinalizarInputData {
-            id: respuesta_id.to_string(),
         };
-        let finalizar =
-            FinalizarEvaluacion::new(Box::new(RespositorioFinalizarEvaluacionMongo::new(pool)));
 
-        match finalizar.ejecutar(input).await {
-            Ok(_) => {
-                info!("PATCH /respuestas/{}/estado - finalizado", respuesta_id);
-                let mut links = crate::controller::hateoas::Links::new();
-                links.insert(
-                    "self".into(),
-                    Link::get(format!("/respuestas/{}", respuesta_id)),
-                );
-
-                HttpResponse::Ok().json(json!({
-                    "estado": "Finalizado",
-                    "mensaje": "Examen finalizado correctamente",
-                    "_links": links
-                }))
-            }
-            Err(e) => {
-                error!(
-                    "PATCH /respuestas/{}/estado finalizar - error: {}",
-                    respuesta_id, e
-                );
-                HttpResponse::Conflict()
-                    .json(json!({"error": "No se puede finalizar el examen en el estado actual"}))
-            }
-        }
+        Ok(HttpResponse::Ok().json(json!({
+            "estado": estado.to_string(),
+            "mensaje": mensaje,
+            "_links": links
+        })))
     }
 }

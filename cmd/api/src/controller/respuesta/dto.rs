@@ -12,7 +12,15 @@ pub struct CrearRespuestaDTO {
 
 #[derive(Deserialize)]
 pub struct TransicionEstadoDTO {
-    pub accion: String,
+    pub accion: AccionTransicion,
+}
+
+/// Una acción desconocida la rechaza el extractor JSON con 400.
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AccionTransicion {
+    Empezar,
+    Finalizar,
 }
 
 #[derive(Deserialize)]

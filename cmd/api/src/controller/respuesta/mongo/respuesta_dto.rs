@@ -110,7 +110,6 @@ pub struct ExamenDTO {
     pub descripcion: String,
     pub instrucciones: String,
     pub preguntas: Vec<PreguntaDTO>,
-    pub puntos_obtenidos: Option<i64>,
     pub observacion: Option<String>,
 }
 
@@ -127,7 +126,6 @@ impl From<ExamenDTO> for Examen {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
-            puntos_obtenidos: examen.puntos_obtenidos.unwrap_or_default(),
             observacion: examen.observacion.unwrap_or_default(),
         }
     }
@@ -145,7 +143,6 @@ impl From<OutputExamen> for ExamenDTO {
                 .into_iter()
                 .map(|pregunta| pregunta.into())
                 .collect(),
-            puntos_obtenidos: Option::from(examen.puntos_obtenidos),
             observacion: examen.observacion,
         }
     }

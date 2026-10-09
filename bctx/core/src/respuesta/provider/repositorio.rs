@@ -1,11 +1,13 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
-use crate::respuesta::domain::entity::pregunta::Puntaje;
+use crate::respuesta::domain::entity::pregunta::PreguntaACorregir;
 use crate::respuesta::domain::entity::respuesta::{
     Estado, Respuesta, RespuestaEvaluacion, Revision,
 };
 use crate::respuesta::domain::entity::revision::ExamenRevision;
+use crate::respuesta::domain::value_object::id::RespuestaID;
 use async_trait::async_trait;
+use chrono::{DateTime, FixedOffset};
 
 #[async_trait]
 pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
@@ -15,16 +17,43 @@ pub trait RepositorioRespuestaEscritura<Error>: Send + Sync {
         postulante_id: PostulanteID,
     ) -> Result<(), Error>;
 
+    /// Guarda la contestación (respuestas y puntos) solo si la hoja es del postulante y sigue
+    /// en proceso, en una única operación atómica. Devuelve `false` si no se escribió.
     async fn responder_evaluacion(
         &self,
         respuesta_evaluacion: &RespuestaEvaluacion,
-    ) -> Result<(), Error>;
+    ) -> Result<bool, Error>;
 
-    // Se usa para obtener el puntaje correcto de una pregunta especifica para poder realizar la correccion
-    async fn obtener_puntaje(
+    /// Estado de la hoja y pregunta a corregir. Falla con `RespuestaNoEncontrada` si la hoja no
+    /// existe o es de otro postulante, y con `ExamenNotFound`/`PreguntaNotFound` si la
+    /// pregunta no está en la hoja.
+    async fn obtener_pregunta(
         &self,
         respuesta_evaluacion: &RespuestaEvaluacion,
-    ) -> Result<Puntaje, Error>;
+    ) -> Result<PreguntaACorregir, Error>;
+}
+
+/// Estado de una hoja de respuestas y sus transiciones.
+#[async_trait]
+pub trait RepositorioEstadoRespuesta<Error>: Send + Sync {
+    /// Estado de la hoja si pertenece a `postulante_id`; `None` si no existe o es de otro.
+    async fn obtener_estado(
+        &self,
+        id: &RespuestaID,
+        postulante_id: &PostulanteID,
+    ) -> Result<Option<Estado>, Error>;
+
+    /// Pasa la hoja de `desde` a `hacia` en una única operación atómica (compare-and-set) y
+    /// registra `fecha` como inicio (al pasar a `EnProceso`) o fin (al pasar a `Finalizado`).
+    /// Devuelve `false` si no existe, es de otro postulante o ya no estaba en `desde`.
+    async fn transicionar(
+        &self,
+        id: &RespuestaID,
+        postulante_id: &PostulanteID,
+        desde: Estado,
+        hacia: Estado,
+        fecha: DateTime<FixedOffset>,
+    ) -> Result<bool, Error>;
 }
 
 #[async_trait]
@@ -34,13 +63,6 @@ pub trait RepositorioRespuestaLectura<Error>: Send + Sync {
         respuesta_id: String,
         postulante_id: PostulanteID,
     ) -> Result<Respuesta, Error>;
-}
-
-#[async_trait]
-pub trait RespositorioFinalizarEvaluacion<Error>: Send + Sync {
-    async fn sumar_puntos(&self, evaluacion_id: String) -> Result<(), Error>;
-    async fn obtener_estado(&self, evaluacion_id: String) -> Result<Estado, Error>;
-    async fn alterar_estado(&self, evaluacion_id: String) -> Result<(), Error>;
 }
 
 #[async_trait]
@@ -63,12 +85,6 @@ pub trait RespositorioRealizarRevision<Error>: Send + Sync {
 #[async_trait]
 pub trait RepositorioObtenerRevisionPorId<Error>: Send + Sync {
     async fn obtener_revision_por_id(&self, revision_id: String) -> Result<Respuesta, Error>;
-}
-
-#[async_trait]
-pub trait RepositorioEmpezarExamen<Error>: Send + Sync {
-    async fn obtener_estado(&self, respuesta_id: String) -> Result<Estado, Error>;
-    async fn empezar_examen(&self, respuesta_id: String) -> Result<(), Error>;
 }
 
 #[async_trait]

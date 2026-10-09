@@ -51,7 +51,7 @@ impl Nombre {
             return Err(NombreError::ApellidoVacio);
         }
 
-        if self.nombre.chars().count() > MAX_TAMANO_APELLIDO {
+        if self.primer_apellido.chars().count() > MAX_TAMANO_APELLIDO {
             return Err(NombreError::ApellidoExcedeCaracteres);
         }
 
@@ -67,7 +67,7 @@ impl Nombre {
             return Err(NombreError::ApellidoVacio);
         }
 
-        if self.nombre.chars().count() > MAX_TAMANO_APELLIDO {
+        if self.segundo_apellido.chars().count() > MAX_TAMANO_APELLIDO {
             return Err(NombreError::ApellidoExcedeCaracteres);
         }
 
@@ -214,5 +214,32 @@ mod test_nombre_completo {
 
         let resultado = nombre.nombre_completo();
         assert_eq!(resultado, "Carlos De La Cruz Martínez");
+    }
+
+    #[test]
+    fn los_apellidos_tienen_su_propio_limite() {
+        let largo = "a".repeat(MAX_TAMANO_APELLIDO + 1);
+        let justo = "a".repeat(MAX_TAMANO_APELLIDO);
+        let primero = Nombre::new("Ana".to_string(), largo.clone(), "Paz".to_string());
+        assert!(matches!(
+            primero,
+            Err(NombreError::ApellidoExcedeCaracteres)
+        ));
+        let segundo = Nombre::new("Ana".to_string(), "Paz".to_string(), largo);
+        assert!(matches!(
+            segundo,
+            Err(NombreError::ApellidoExcedeCaracteres)
+        ));
+        assert!(Nombre::new("Ana".to_string(), justo.clone(), justo).is_ok());
+    }
+
+    #[test]
+    fn acepta_apellidos_con_dieresis() {
+        let nombre = Nombre::new(
+            "Luis".to_string(),
+            "AGÜERO".to_string(),
+            "Sigüeñas".to_string(),
+        );
+        assert_eq!(nombre.unwrap().primer_apellido(), "Agüero");
     }
 }

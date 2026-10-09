@@ -1,7 +1,9 @@
+use crate::domain::value_objects::zona_horaria::ahora_lima;
 use chrono::{NaiveDate, ParseError};
 use std::fmt::{Display, Formatter};
 use thiserror::Error;
 
+/// La regla es "mayor a 10 años": se exigen 11 años cumplidos.
 const EDAD_MINIMA: u32 = 10;
 const DATE_FORMAT: &str = "%Y-%m-%d";
 
@@ -26,24 +28,23 @@ impl Display for FechaNacimiento {
 }
 
 impl FechaNacimiento {
+    /// Fecha de nacimiento de alguien que ya cumplió más de [`EDAD_MINIMA`] años hoy (hora de
+    /// Lima).
     pub fn new(fecha: &str) -> Result<Self, FechaNacimientoError> {
-        let value = NaiveDate::parse_from_str(fecha, DATE_FORMAT)?;
-        let fecha_nacimiento = FechaNacimiento { value };
-
-        if !fecha_nacimiento.tiene_edad_minima() {
-            return Err(FechaNacimientoError::EdadMinima);
-        }
-
-        Ok(fecha_nacimiento)
+        Self::new_al(fecha, ahora_lima().date_naive())
     }
 
-    fn tiene_edad_minima(&self) -> bool {
-        let hoy = chrono::Local::now().date_naive();
-
-        match hoy.years_since(self.value) {
-            Some(edad) => edad > EDAD_MINIMA,
-            None => false,
+    /// Como [`FechaNacimiento::new`], con la fecha de referencia explícita (los tests no
+    /// dependen del reloj).
+    pub fn new_al(fecha: &str, hoy: NaiveDate) -> Result<Self, FechaNacimientoError> {
+        let value = NaiveDate::parse_from_str(fecha, DATE_FORMAT)?;
+        let edad_suficiente = hoy
+            .years_since(value)
+            .is_some_and(|edad| edad > EDAD_MINIMA);
+        if !edad_suficiente {
+            return Err(FechaNacimientoError::EdadMinima);
         }
+        Ok(FechaNacimiento { value })
     }
 }
 
@@ -51,15 +52,18 @@ impl FechaNacimiento {
 mod tests {
     use super::*;
 
+    fn hoy() -> NaiveDate {
+        NaiveDate::from_ymd_opt(2026, 2, 15).unwrap()
+    }
+
     #[test]
     fn test_fecha_valida() {
-        let fecha = FechaNacimiento::new("2000-02-15");
-        assert!(fecha.is_ok());
+        assert!(FechaNacimiento::new_al("2000-02-15", hoy()).is_ok());
     }
 
     #[test]
     fn test_fecha_invalida() {
-        let fecha = FechaNacimiento::new("fecha-invalida");
+        let fecha = FechaNacimiento::new_al("fecha-invalida", hoy());
         assert!(matches!(
             fecha.unwrap_err(),
             FechaNacimientoError::FormatoNoValido(_)
@@ -67,27 +71,31 @@ mod tests {
     }
 
     #[test]
-    fn test_edad_menor_10_anios() {
-        let fecha = FechaNacimiento::new("2020-02-15");
+    fn con_exactamente_10_anios_todavia_no_alcanza() {
+        // Cumplió 10 años ayer y la regla es "mayor a 10".
+        let fecha = FechaNacimiento::new_al("2015-02-16", hoy());
         assert!(matches!(
             fecha.unwrap_err(),
             FechaNacimientoError::EdadMinima
         ));
-    }
-
-    fn set_fixed_time() {
-        unsafe {
-            std::env::set_var("CHRONO_OVERRIDE", "2024-02-15T00:00:00Z");
-        }
     }
 
     #[test]
-    fn test_edad_exactamente_10_anios() {
-        set_fixed_time();
-        let fecha = FechaNacimiento::new("2020-02-15");
+    fn con_11_anios_cumplidos_alcanza() {
+        assert!(FechaNacimiento::new_al("2015-02-15", hoy()).is_ok());
+    }
+
+    #[test]
+    fn una_fecha_futura_no_alcanza() {
+        let fecha = FechaNacimiento::new_al("2030-01-01", hoy());
         assert!(matches!(
             fecha.unwrap_err(),
             FechaNacimientoError::EdadMinima
         ));
+    }
+
+    #[test]
+    fn new_usa_la_fecha_de_hoy() {
+        assert!(FechaNacimiento::new("1990-01-01").is_ok());
     }
 }

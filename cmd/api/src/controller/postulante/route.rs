@@ -1,5 +1,5 @@
 use crate::controller::auth::middleware::Autorizacion;
-use crate::controller::postulante::buscar_postulante::PostulanteObtenerPorDocumentoController;
+use crate::controller::postulante::buscar_postulante::BuscarPostulanteController;
 use crate::controller::postulante::registrar_postulante::PostulanteController;
 use actix_web::web;
 use quizz_auth::autorizacion::domain::value_object::recurso::Recurso;
@@ -10,7 +10,7 @@ pub fn postulante(cfg: &mut web::ServiceConfig) {
             .wrap(Autorizacion::para(Recurso::Postulante))
             .service(
                 web::resource("")
-                    .route(web::get().to(PostulanteObtenerPorDocumentoController::get))
+                    .route(web::get().to(BuscarPostulanteController::get))
                     .route(web::put().to(PostulanteController::update_by_documento)),
             )
             .service(

@@ -262,9 +262,7 @@ async fn flujo_completo_y_controles_de_acceso() {
     let admin = e.token(ADMIN_DOCUMENTO, ADMIN_PASSWORD).await;
 
     // Errores de entrada: 400 con el formato {"error": ...}, no 500.
-    let (estado, cuerpo) = e
-        .pedir(Method::POST, "/login", None, Some(json!({})))
-        .await;
+    let (estado, cuerpo) = e.pedir(Method::POST, "/login", None, Some(json!({}))).await;
     assert_eq!(estado, StatusCode::BAD_REQUEST);
     assert!(cuerpo["error"].is_string(), "{cuerpo}");
     let (estado, cuerpo) = e
@@ -293,6 +291,35 @@ async fn flujo_completo_y_controles_de_acceso() {
         .await;
     let token_a = e.token("71111111", &clave_a).await;
     let token_b = e.token("72222222", &clave_b).await;
+
+    // SEC-03: un postulante solo lee su propio registro, pida lo que pida en la query.
+    for query in [
+        format!("?id={postulante_a}&documento=72222222"),
+        "?documento=72222222".to_string(),
+        format!("?id={postulante_b}"),
+        String::new(),
+    ] {
+        let (estado, cuerpo) = e
+            .pedir(
+                Method::GET,
+                &format!("/postulantes{query}"),
+                Some(&token_a),
+                None,
+            )
+            .await;
+        assert_eq!(estado, StatusCode::OK, "{query}: {cuerpo}");
+        assert_eq!(cuerpo["documento"], "71111111", "{query}: {cuerpo}");
+    }
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::GET,
+            "/postulantes?documento=72222222",
+            Some(&admin),
+            None,
+        )
+        .await;
+    assert_eq!(estado, StatusCode::OK);
+    assert_eq!(cuerpo["documento"], "72222222");
 
     // SEC-01: una ruta codificada no salta la autorización.
     let cuerpo_admin = json!({

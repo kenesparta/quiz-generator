@@ -2,8 +2,7 @@ use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::postulante::mongo::write::PostulanteMongo;
 use crate::controller::respuesta::dto::{EvaluacionMongoDTO, RespuestaMongoDTO};
-use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
-use actix_web::web;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use chrono::{DateTime, FixedOffset};
 use mongodb::bson;
 use mongodb::bson::{Bson, Document, doc};
@@ -80,35 +79,7 @@ fn leer_puntos(valor: &Bson) -> Option<u32> {
     }
 }
 
-pub struct RespuestaEvaluacionMongo {
-    client: web::Data<mongodb::Database>,
-    repositorio_evaluacion: EvaluacionMongo,
-    reposiorio_postulante: PostulanteMongo,
-}
-
-impl RespuestaEvaluacionMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        let repositorio_evaluacion = EvaluacionMongo::new(client.clone());
-        let reposiorio_postulante = PostulanteMongo::new(client.clone());
-        Self {
-            client,
-            repositorio_evaluacion,
-            reposiorio_postulante,
-        }
-    }
-}
-
-impl MongoRepository for RespuestaEvaluacionMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioRespuestaEscritura for RespuestaEvaluacionMongo {
+impl RepositorioRespuestaEscritura for RespuestaMongo {
     async fn asignar_evaluacion(
         &self,
         id: &RespuestaID,
@@ -118,8 +89,8 @@ impl RepositorioRespuestaEscritura for RespuestaEvaluacionMongo {
         let (evaluacion_id, postulante_id) = (evaluacion_id.to_string(), postulante_id.to_string());
         let (respuestas, postulantes, evaluaciones) = (
             self.get_collection(),
-            self.reposiorio_postulante.get_collection(),
-            self.repositorio_evaluacion.get_collection(),
+            PostulanteMongo::new(self.get_db().clone()).get_collection(),
+            EvaluacionMongo::new(self.get_db().clone()).get_collection(),
         );
 
         // Lecturas independientes, en paralelo. La comprobación de duplicados es solo un
@@ -263,27 +234,7 @@ impl RepositorioRespuestaEscritura for RespuestaEvaluacionMongo {
 }
 
 /// Estado de las hojas de respuestas: lecturas y transiciones siempre filtradas por el dueño.
-pub struct EstadoRespuestaMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl EstadoRespuestaMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for EstadoRespuestaMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioEstadoRespuesta for EstadoRespuestaMongo {
+impl RepositorioEstadoRespuesta for RespuestaMongo {
     async fn obtener_estado(
         &self,
         id: &RespuestaID,

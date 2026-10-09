@@ -2,7 +2,7 @@ use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::{
     CrearRespuestaDTO, RespuestaCreatedDTO, build_respuesta_links,
 };
-use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use actix_web::http::header;
 use actix_web::{HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
@@ -21,7 +21,7 @@ impl AsignarEvaluacionPostulanteController {
         body: web::Json<CrearRespuestaDTO>,
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
-        let creada = AsignarEvaluacionAPostulante::new(RespuestaEvaluacionMongo::new(db))
+        let creada = AsignarEvaluacionAPostulante::new(RespuestaMongo::new(db))
             .ejecutar(InputData {
                 evaluacion_id: evaluacion_id.into_inner(),
                 postulante_id: body.into_inner().postulante_id,

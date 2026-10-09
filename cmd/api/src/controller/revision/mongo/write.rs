@@ -1,6 +1,5 @@
 use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::revision::mongo::constantes::RESPUESTA_COLLECTION_NAME;
-use actix_web::web;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use mongodb::bson::{Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Revision};
@@ -9,26 +8,6 @@ use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::provider::repositorio::RepositorioRealizarRevision;
 use tracing::error;
 
-pub struct RevisionEvaluacionMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl RevisionEvaluacionMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for RevisionEvaluacionMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
 fn error_bd(contexto: &'static str) -> impl FnOnce(mongodb::error::Error) -> RespuestaError {
     move |e| {
         error!("mongo, {contexto}: {e}");
@@ -36,7 +15,7 @@ fn error_bd(contexto: &'static str) -> impl FnOnce(mongodb::error::Error) -> Res
     }
 }
 
-impl RepositorioRealizarRevision for RevisionEvaluacionMongo {
+impl RepositorioRealizarRevision for RespuestaMongo {
     async fn realizar_revision(&self, revision: &RevisionRealizada) -> Result<(), RespuestaError> {
         let respuesta_id = revision.respuesta_id.to_string();
         let examen_ids: Vec<&str> = revision

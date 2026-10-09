@@ -1,7 +1,7 @@
 use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::RespuestaDetailDTO;
-use crate::controller::respuesta::mongo::read::RespuestaLecturaMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
@@ -24,7 +24,7 @@ impl ObtenerRespuestaController {
             return Err(ApiError::prohibido("Rol no valido"));
         };
 
-        let respuesta = ObtenerRespuesta::new(RespuestaLecturaMongo::new(db))
+        let respuesta = ObtenerRespuesta::new(RespuestaMongo::new(db))
             .ejecutar(InputData {
                 respuesta_id: respuesta_id.into_inner(),
                 postulante_id: (rol == Rol::Postulante).then_some(claims.sub),

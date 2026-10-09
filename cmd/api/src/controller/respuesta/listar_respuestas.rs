@@ -4,7 +4,7 @@ use crate::controller::hateoas::{Link, Links, ListResponse};
 use crate::controller::respuesta::dto::{
     RespuestaListItemDTO, RespuestaQueryParams, build_respuesta_links,
 };
-use crate::controller::respuesta::mongo::read::ListaRespuestaPostulanteMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_core::respuesta::use_case::lista_respuesta_postulante::{
@@ -36,7 +36,7 @@ impl ListarRespuestasController {
             })?
         };
 
-        let respuestas = ListaRespuestaPostulante::new(ListaRespuestaPostulanteMongo::new(db))
+        let respuestas = ListaRespuestaPostulante::new(RespuestaMongo::new(db))
             .ejecutar(InputData {
                 postulante_id: postulante_id.clone(),
             })

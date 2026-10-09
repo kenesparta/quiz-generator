@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
-use crate::controller::revision::mongo::constantes::RESPUESTA_COLLECTION_NAME;
-use actix_web::web;
 use mongodb::bson;
 use mongodb::bson::doc;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta};
@@ -10,27 +9,7 @@ use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use quizz_core::respuesta::provider::repositorio::RepositorioObtenerRevisionPorId;
 use tracing::error;
 
-pub struct RevisionReadMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl RevisionReadMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for RevisionReadMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioObtenerRevisionPorId for RevisionReadMongo {
+impl RepositorioObtenerRevisionPorId for RespuestaMongo {
     async fn obtener_revision_por_id(
         &self,
         respuesta_id: &RespuestaID,

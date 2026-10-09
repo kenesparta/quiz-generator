@@ -3,7 +3,7 @@ use crate::controller::error::ApiError;
 use crate::controller::postulante::dto::{
     PostulanteDocumentoQuery, PostulanteResponseDTO, build_postulante_links,
 };
-use crate::controller::postulante::mongo::read::PostulanteReadMongo;
+use crate::controller::postulante::mongo::write::PostulanteMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_core::postulante::use_case::buscar_postulante::{InputData, ObtenerPostulantePorId};
@@ -29,7 +29,7 @@ impl BuscarPostulanteController {
         let Some(claims) = req.extensions().get::<Claims>().cloned() else {
             return Err(ApiError::NoAutenticado("Token no encontrado".to_string()));
         };
-        let repositorio = || PostulanteReadMongo::new(db.clone());
+        let repositorio = || PostulanteMongo::new(db.clone());
 
         if claims.rol.as_deref().and_then(|r| r.parse::<Rol>().ok()) == Some(Rol::Postulante) {
             let propio = ObtenerPostulantePorId::new(repositorio())

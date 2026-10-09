@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
-use crate::controller::respuesta::mongo::read::RespuestaRevisionMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::revision::dto::RevisionListItemDTO;
 use actix_web::{HttpResponse, web};
 use quizz_core::respuesta::use_case::respuesta_revision::RespuestaRevision;
@@ -9,7 +9,7 @@ pub struct ListarRevisionesController;
 
 impl ListarRevisionesController {
     pub async fn list(db: web::Data<mongodb::Database>) -> Result<HttpResponse, ApiError> {
-        let r = RespuestaRevision::new(RespuestaRevisionMongo::new(db))
+        let r = RespuestaRevision::new(RespuestaMongo::new(db))
             .ejecutar()
             .await?;
 

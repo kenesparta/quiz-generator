@@ -1,7 +1,7 @@
 use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::ContestacionDTO;
-use crate::controller::respuesta::mongo::write::RespuestaEvaluacionMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_core::respuesta::use_case::responder_evaluacion::{InputData, ResponderEvaluacion};
 use serde_json::json;
@@ -22,7 +22,7 @@ impl ContestarPreguntaController {
         };
         let (respuesta_id, examen_id, pregunta_id) = ruta.into_inner();
 
-        ResponderEvaluacion::new(RespuestaEvaluacionMongo::new(db))
+        ResponderEvaluacion::new(RespuestaMongo::new(db))
             .ejecutar(InputData {
                 id: respuesta_id.clone(),
                 postulante_id: claims.sub,

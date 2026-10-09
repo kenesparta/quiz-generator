@@ -1,6 +1,5 @@
 use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
-use actix_web::web;
+use crate::controller::postulante::mongo::write::PostulanteMongo;
 use chrono::NaiveDateTime;
 use futures::TryStreamExt;
 use mongodb::bson::{Bson, Document, doc};
@@ -83,15 +82,7 @@ impl TryFrom<FilaPostulante> for Postulante {
     }
 }
 
-pub struct PostulanteReadMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl PostulanteReadMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        PostulanteReadMongo { client }
-    }
-
+impl PostulanteMongo {
     async fn buscar_uno(&self, filtro: Document) -> Result<Postulante, PostulanteError> {
         let fila = self
             .get_collection()
@@ -111,17 +102,7 @@ impl PostulanteReadMongo {
     }
 }
 
-impl MongoRepository for PostulanteReadMongo {
-    fn get_collection_name(&self) -> &str {
-        POSTULANTE_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioPostulanteLectura for PostulanteReadMongo {
+impl RepositorioPostulanteLectura for PostulanteMongo {
     async fn obtener_postulante_por_documento(
         &self,
         documento: Documento,

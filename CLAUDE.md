@@ -103,7 +103,7 @@ Each controller module has:
 - `route.rs` - Actix Web routes of the module; **the source of truth for the routes** (the list below is a summary)
 - `dto.rs` - request/response DTOs
 - one file per handler (e.g. `registrar_examen.rs`, `obtener_respuesta.rs`)
-- `mongo/` (or `redis/`) - the adapters implementing the domain ports
+- `mongo/` (or `redis/`) - the adapters implementing the domain ports: one struct per MongoDB collection (`ExamenMongo`, `PostulanteMongo`, `RespuestaMongo`...) implements every port backed by that collection
 
 ### Authentication Flow
 

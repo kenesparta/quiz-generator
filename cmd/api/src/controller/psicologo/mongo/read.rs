@@ -1,6 +1,5 @@
 use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
-use actix_web::web;
+use crate::controller::psicologo::mongo::write::PsicologoMongo;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
 use quizz_core::psicologo::provider::repositorio::{
@@ -9,27 +8,7 @@ use quizz_core::psicologo::provider::repositorio::{
 use quizz_core::psicologo::use_case::listar_psicologos::OutputData;
 use tracing::error;
 
-pub struct PsicologoReadMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl PsicologoReadMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for PsicologoReadMongo {
-    fn get_collection_name(&self) -> &str {
-        PSICOLOGO_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioPsicologoLectura for PsicologoReadMongo {
+impl RepositorioPsicologoLectura for PsicologoMongo {
     async fn obtener_psicologo_por_id(&self, id: String) -> Result<PsicologoInfo, PsicologoError> {
         let filter = doc! { "_id": &id };
 
@@ -65,7 +44,7 @@ impl RepositorioPsicologoLectura for PsicologoReadMongo {
     }
 }
 
-impl RepositorioPsicologoListar for PsicologoReadMongo {
+impl RepositorioPsicologoListar for PsicologoMongo {
     async fn listar_psicologos(&self) -> Result<Vec<OutputData>, PsicologoError> {
         // Sin el hash de la contraseña: el listado no lo necesita.
         let mut cursor = self

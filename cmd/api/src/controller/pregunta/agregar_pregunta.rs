@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
+use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::pregunta::dto::PreguntaInputDto;
-use crate::controller::pregunta::mongo::write::PreguntaPorExamenMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,
@@ -28,7 +28,7 @@ impl AgregarPreguntaController {
             })
             .collect();
 
-        AgregarPreguntasParaExamen::new(PreguntaPorExamenMongo::new(db))
+        AgregarPreguntasParaExamen::new(ExamenMongo::new(db))
             .ejecutar(InputData {
                 examen_id: examen_id.into_inner(),
                 preguntas,

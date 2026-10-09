@@ -2,7 +2,7 @@ use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links};
 use crate::controller::respuesta::dto::{AccionTransicion, TransicionEstadoDTO};
-use crate::controller::respuesta::mongo::write::EstadoRespuestaMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
 use quizz_core::respuesta::domain::entity::respuesta::Estado;
@@ -29,7 +29,7 @@ impl TransicionEstadoController {
             return Err(ApiError::NoAutenticado("Token no encontrado".to_string()));
         };
         let respuesta_id = respuesta_id.into_inner();
-        let repositorio = EstadoRespuestaMongo::new(db);
+        let repositorio = RespuestaMongo::new(db);
         let mut links = Links::new();
         links.insert(
             "self".into(),

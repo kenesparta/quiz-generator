@@ -1,7 +1,6 @@
 use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::respuesta::mongo::constantes::RESPUESTA_COLLECTION_NAME;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
-use actix_web::web;
 use futures::{StreamExt, TryStreamExt};
 use mongodb;
 use mongodb::bson;
@@ -20,27 +19,7 @@ use std::str::FromStr;
 use tracing::error;
 
 /// Lectura de una hoja de respuestas completa.
-pub struct RespuestaLecturaMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl RespuestaLecturaMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for RespuestaLecturaMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioRespuestaLectura for RespuestaLecturaMongo {
+impl RepositorioRespuestaLectura for RespuestaMongo {
     async fn obtener(
         &self,
         respuesta_id: &RespuestaID,
@@ -69,26 +48,6 @@ impl RepositorioRespuestaLectura for RespuestaLecturaMongo {
     }
 }
 
-pub struct RespuestaRevisionMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl RespuestaRevisionMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for RespuestaRevisionMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
 /// Una hoja finalizada en el listado de revisiones.
 #[derive(Deserialize)]
 struct FilaRevision {
@@ -108,7 +67,7 @@ struct EvaluacionDeLaFila {
     descripcion: String,
 }
 
-impl RepositorioRespuestaRevision for RespuestaRevisionMongo {
+impl RepositorioRespuestaRevision for RespuestaMongo {
     async fn obtener_respuesta_revision(
         &self,
         estado: Estado,
@@ -152,27 +111,7 @@ impl RepositorioRespuestaRevision for RespuestaRevisionMongo {
     }
 }
 
-pub struct ListaRespuestaPostulanteMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl ListaRespuestaPostulanteMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for ListaRespuestaPostulanteMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioListaRespuestaPostulante for ListaRespuestaPostulanteMongo {
+impl RepositorioListaRespuestaPostulante for RespuestaMongo {
     async fn obtener_respuestas_por_postulante(
         &self,
         postulante_id: PostulanteID,
@@ -254,27 +193,7 @@ impl RepositorioListaRespuestaPostulante for ListaRespuestaPostulanteMongo {
     }
 }
 
-pub struct ListarAsignacionesMongo {
-    client: web::Data<mongodb::Database>,
-}
-
-impl ListarAsignacionesMongo {
-    pub fn new(client: web::Data<mongodb::Database>) -> Self {
-        Self { client }
-    }
-}
-
-impl MongoRepository for ListarAsignacionesMongo {
-    fn get_collection_name(&self) -> &str {
-        RESPUESTA_COLLECTION_NAME
-    }
-
-    fn get_db(&self) -> &web::Data<mongodb::Database> {
-        &self.client
-    }
-}
-
-impl RepositorioListarAsignaciones for ListarAsignacionesMongo {
+impl RepositorioListarAsignaciones for RespuestaMongo {
     async fn listar(
         &self,
         postulante_id: Option<PostulanteID>,

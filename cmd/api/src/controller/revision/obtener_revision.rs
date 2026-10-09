@@ -1,11 +1,11 @@
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links};
-use crate::controller::psicologo::mongo::read::PsicologoReadMongo;
+use crate::controller::psicologo::mongo::write::PsicologoMongo;
+use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::revision::dto::{
     RevisionDetalleDTO, RevisionEvaluacionDTO, RevisionExamenDTO, RevisionPreguntaDTO,
     RevisionPsicologoDTO,
 };
-use crate::controller::revision::mongo::read::RevisionReadMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
@@ -20,7 +20,7 @@ impl ObtenerRevisionController {
         respuesta_id: web::Path<String>,
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
-        let output = ObtenerRevisionPorId::new(RevisionReadMongo::new(db.clone()))
+        let output = ObtenerRevisionPorId::new(RespuestaMongo::new(db.clone()))
             .ejecutar(InputData {
                 revision_id: respuesta_id.into_inner(),
             })
@@ -28,7 +28,7 @@ impl ObtenerRevisionController {
 
         // Hojas calificadas antes de registrar al revisor, o por un admin: sin psicólogo.
         let psicologo = match &output.revisado_por {
-            Some(revisor) => PsicologoReadMongo::new(db)
+            Some(revisor) => PsicologoMongo::new(db)
                 .obtener_psicologo_por_id(revisor.clone())
                 .await
                 .map_err(|e| warn!("revisor {revisor} no es un psicologo legible: {e:?}"))

@@ -1,5 +1,5 @@
 use crate::controller::examen::mongo::constantes::EXAMEN_COLLECTION_NAME;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
 use log::error;
@@ -42,6 +42,9 @@ impl RepositorioExamenEscritura<ExamenError> for ExamenMongo {
 
         match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(ExamenError::ExamenRepositorioError(
+                quizz_core::examen::domain::error::examen::RepositorioError::RegistroDuplicado,
+            )),
             Err(e) => {
                 error!(
                     "Database error while registering examen: id={}, titulo={}, error={}",

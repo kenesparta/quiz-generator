@@ -19,6 +19,24 @@ struct Indice {
 fn indices() -> Vec<Indice> {
     vec![
         Indice {
+            coleccion: "admin",
+            claves: doc! { "documento": 1 },
+            unico: true,
+            motivo: "un documento identifica a una sola cuenta (y se busca en cada login)",
+        },
+        Indice {
+            coleccion: "psicologo",
+            claves: doc! { "documento": 1 },
+            unico: true,
+            motivo: "un documento identifica a una sola cuenta (y se busca en cada login)",
+        },
+        Indice {
+            coleccion: "postulante",
+            claves: doc! { "documento": 1 },
+            unico: true,
+            motivo: "un documento identifica a una sola cuenta (y se busca en cada login)",
+        },
+        Indice {
             coleccion: "respuesta",
             claves: doc! { "postulante_id": 1, "evaluacion._id": 1 },
             unico: true,

@@ -13,7 +13,7 @@ use quizz_core::admin::domain::error::admin::{AdminError, RepositorioError as Re
 use quizz_core::evaluacion::domain::error::evaluacion::{
     EvaluacionError, RepositorioError as RepoEvaluacion,
 };
-use quizz_core::examen::domain::error::examen::ExamenError;
+use quizz_core::examen::domain::error::examen::{ExamenError, RepositorioError as RepoExamen};
 use quizz_core::postulante::domain::error::postulante::{
     PostulanteError, RepositorioError as RepoPostulante,
 };
@@ -148,7 +148,8 @@ impl From<EvaluacionError> for ApiError {
             EvaluacionRepositorioError(RepoEvaluacion::EvaluacionNoExiste) => {
                 Self::no_encontrado(e)
             }
-            EvaluacionYaFuePublicada => Self::conflicto(e),
+            EvaluacionYaFuePublicada
+            | EvaluacionRepositorioError(RepoEvaluacion::RegistroDuplicado) => Self::conflicto(e),
             // Estados guardados que no se pueden interpretar: datos corruptos, no culpa del cliente.
             EvaluacionEstadoGeneralError(_)
             | EvaluacionEstadoError(_)
@@ -174,10 +175,13 @@ impl From<ExamenError> for ApiError {
             | SinPreguntas
             | TipoExamenNoValido => Self::solicitud_invalida(e),
             NoEncontrado => Self::no_encontrado(e),
+            ExamenRepositorioError(RepoExamen::RegistroDuplicado) => Self::conflicto(e),
             ExamenEstadoGeneralError(_)
             | RepositorioError(_)
             | Desconocido(_)
-            | ExamenRepositorioError(_) => Self::interno(e),
+            | ExamenRepositorioError(
+                RepoExamen::PersistenciaNoFinalizada | RepoExamen::LecturaNoFinalizada,
+            ) => Self::interno(e),
         }
     }
 }
@@ -217,6 +221,7 @@ impl From<PostulanteError> for ApiError {
             | PostulanteGeneroError(_) => Self::solicitud_invalida(e),
             PasswordNoCoincide => Self::NoAutenticado(e.to_string()),
             Cifrado(_) => Self::interno(e),
+            PostulanteRepositorioError(RepoPostulante::RegistroDuplicado) => Self::conflicto(e),
             PostulanteRepositorioError(RepoPostulante::RegistroNoEncontrado) => {
                 Self::no_encontrado("Postulante no encontrado")
             }
@@ -238,6 +243,7 @@ impl From<PsicologoError> for ApiError {
         match e {
             PsicologoIdError(_) | NombreNoValido(_) | DocumentoNoValido(_) | EspecialidadVacia
             | ColegiaturaVacia | PasswordNoValido(_) => Self::solicitud_invalida(e),
+            PsicologoRepositorioError(RepoPsicologo::RegistroDuplicado) => Self::conflicto(e),
             PsicologoRepositorioError(RepoPsicologo::RegistroNoEncontrado) => {
                 Self::no_encontrado("Psicologo no encontrado")
             }
@@ -259,6 +265,7 @@ impl From<AdminError> for ApiError {
             AdminIdError(_) | NombreNoValido(_) | DocumentoNoValido(_) | PasswordNoValido(_) => {
                 Self::solicitud_invalida(e)
             }
+            AdminRepositorioError(RepoAdmin::RegistroDuplicado) => Self::conflicto(e),
             AdminRepositorioError(RepoAdmin::RegistroNoEncontrado) => {
                 Self::no_encontrado("Admin no encontrado")
             }

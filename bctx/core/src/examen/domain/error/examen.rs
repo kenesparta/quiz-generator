@@ -57,4 +57,7 @@ pub enum RepositorioError {
 
     #[error("Lectura no finalizada")]
     LecturaNoFinalizada,
+
+    #[error("Ya existe un examen con ese id")]
+    RegistroDuplicado,
 }

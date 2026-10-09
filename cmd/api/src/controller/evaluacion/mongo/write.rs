@@ -1,6 +1,6 @@
 use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME;
 use crate::controller::examen::mongo::write::ExamenMongo;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
 use log::error;
@@ -59,6 +59,9 @@ impl RepositorioEvaluacionEscritura<EvaluacionError> for EvaluacionMongo {
 
         match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(EvaluacionError::EvaluacionRepositorioError(
+                quizz_core::evaluacion::domain::error::evaluacion::RepositorioError::RegistroDuplicado,
+            )),
             Err(e) => {
                 error!("Error al guardar evaluacion: {e}");
                 Err(EvaluacionError::EvaluacionRepositorioError(

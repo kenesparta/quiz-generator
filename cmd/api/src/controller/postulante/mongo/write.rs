@@ -1,4 +1,4 @@
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::postulante::mongo::constantes::POSTULANTE_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
@@ -54,6 +54,9 @@ impl RepositorioPostulanteEscritura<PostulanteError> for PostulanteMongo {
 
         match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(PostulanteError::PostulanteRepositorioError(
+                RepositorioError::RegistroDuplicado,
+            )),
             Err(e) => {
                 error!(
                     "Database error while registering postulante: id={}, error={}",

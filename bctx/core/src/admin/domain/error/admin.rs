@@ -41,4 +41,7 @@ pub enum RepositorioError {
 
     #[error("registro no encontrado")]
     RegistroNoEncontrado,
+
+    #[error("Ya existe un registro con ese id o documento")]
+    RegistroDuplicado,
 }

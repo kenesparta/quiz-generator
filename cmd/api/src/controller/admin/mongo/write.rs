@@ -1,5 +1,5 @@
 use crate::controller::admin::mongo::constantes::ADMIN_COLLECTION_NAME;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use async_trait::async_trait;
 use log::error;
@@ -46,6 +46,9 @@ impl RepositorioAdminEscritura<AdminError> for AdminMongo {
 
         match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(AdminError::AdminRepositorioError(
+                RepositorioError::RegistroDuplicado,
+            )),
             Err(e) => {
                 error!(
                     "Database error while registering admin: id={}, error={}",

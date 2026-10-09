@@ -1,4 +1,4 @@
-use crate::controller::mongo_repository::MongoRepository;
+use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
 use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
 use actix_web::web;
 use async_trait::async_trait;
@@ -50,6 +50,9 @@ impl RepositorioPsicologoEscritura<PsicologoError> for PsicologoMongo {
 
         match self.get_collection().insert_one(documento).await {
             Ok(_) => Ok(()),
+            Err(e) if es_clave_duplicada(&e) => Err(PsicologoError::PsicologoRepositorioError(
+                RepositorioError::RegistroDuplicado,
+            )),
             Err(e) => {
                 error!(
                     "Database error while registering psicologo: id={}, error={}",

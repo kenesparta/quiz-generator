@@ -196,6 +196,16 @@ async fn evaluacion_publicada(e: &Entorno, admin: &str) -> String {
         )
         .await;
     assert_eq!(estado, StatusCode::CREATED, "crear examen: {cuerpo}");
+    // Crear dos veces el mismo examen es un conflicto, no un error del servidor.
+    let (estado, _) = e
+        .pedir(
+            Method::POST,
+            &format!("/examenes/{examen_id}"),
+            Some(admin),
+            Some(json!({ "titulo": "Otro", "descripcion": "Otro", "instrucciones": "Otro" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::CONFLICT);
 
     let (estado, cuerpo) = e
         .pedir(
@@ -322,6 +332,33 @@ async fn flujo_completo_y_controles_de_acceso() {
         .await;
     let token_a = e.token("71111111", &clave_a).await;
     let token_b = e.token("72222222", &clave_b).await;
+
+    // DAT-06: un documento no puede tener dos cuentas, ni registrándolas a la vez.
+    let registro = |id: &str, documento: &str| {
+        (
+            format!("/postulantes/{id}"),
+            json!({
+                "documento": documento, "nombre": "Juan", "primer_apellido": "Perez",
+                "segundo_apellido": "Quispe", "fecha_nacimiento": "1990-01-01",
+                "grado_instruccion": "superior", "genero": "masculino",
+            }),
+        )
+    };
+    let (ruta, cuerpo) = registro("5f0c0a3e-1b2c-4d5e-8f90-a1b2c3d4e5f6", "71111111");
+    let (estado, _) = e.pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo)).await;
+    assert_eq!(estado, StatusCode::CONFLICT, "documento repetido");
+    let (ruta, cuerpo) = registro(postulante_a, "79999998");
+    let (estado, _) = e.pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo)).await;
+    assert_eq!(estado, StatusCode::CONFLICT, "id repetido");
+    let (ruta_1, cuerpo_1) = registro("6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d", "75555555");
+    let (ruta_2, cuerpo_2) = registro("7b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e", "75555555");
+    let (primero, segundo) = tokio::join!(
+        e.pedir(Method::POST, &ruta_1, Some(&admin), Some(cuerpo_1)),
+        e.pedir(Method::POST, &ruta_2, Some(&admin), Some(cuerpo_2)),
+    );
+    let mut estados = [primero.0, segundo.0];
+    estados.sort();
+    assert_eq!(estados, [StatusCode::CREATED, StatusCode::CONFLICT]);
 
     // SEC-03: un postulante solo lee su propio registro, pida lo que pida en la query.
     for query in [

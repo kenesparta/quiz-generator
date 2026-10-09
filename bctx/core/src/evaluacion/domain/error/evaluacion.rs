@@ -37,4 +37,7 @@ pub enum RepositorioError {
 
     #[error("La evaluacion no existe")]
     EvaluacionNoExiste,
+
+    #[error("Ya existe una evaluacion con ese id")]
+    RegistroDuplicado,
 }

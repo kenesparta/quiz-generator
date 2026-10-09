@@ -12,3 +12,7 @@ target/
 
 # Env files
 configuration.yaml
+
+.agents
+.claude
+.gemini

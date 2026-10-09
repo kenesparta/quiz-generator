@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
-use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::pregunta::dto::PreguntaInputDto;
+use crate::mongo::examen::write::ExamenMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::pregunta::use_case::agregar_preguntas::{
     AgregarPreguntasParaExamen, InputData, PreguntaEntityInput,

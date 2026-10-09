@@ -1,5 +1,5 @@
-use crate::controller::examen::mongo::write::ExamenMongo;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::mongo::examen::write::ExamenMongo;
+use crate::mongo::repositorio::MongoRepository;
 use mongodb::bson::{Bson, Document, doc};
 use quizz_core::examen::domain::value_object::id::ExamenID;
 use quizz_core::pregunta::domain::entity::pregunta::PreguntaEntity;

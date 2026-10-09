@@ -1,8 +1,8 @@
-use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
-use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
-use crate::controller::postulante::mongo::write::PostulanteMongo;
-use crate::controller::respuesta::dto::{EvaluacionMongoDTO, RespuestaMongoDTO};
-use crate::controller::respuesta::mongo::RespuestaMongo;
+use crate::mongo::evaluacion::write::EvaluacionMongo;
+use crate::mongo::postulante::write::PostulanteMongo;
+use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
+use crate::mongo::respuesta::RespuestaMongo;
+use crate::mongo::respuesta::documento::{EvaluacionMongoDTO, RespuestaMongoDTO};
 use chrono::{DateTime, FixedOffset};
 use mongodb::bson;
 use mongodb::bson::{Bson, Document, doc};

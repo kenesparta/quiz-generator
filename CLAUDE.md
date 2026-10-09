@@ -91,11 +91,12 @@ cargo test test_name -- --nocapture
 - `startup.rs` - Server setup with route configuration
 - `configuration.rs` - Config loading from `configuration.yaml`
 - `mongo.rs` / `cache.rs` - MongoDB and Redis connections (one shared Redis `ConnectionManager`)
+- `mongo/<module>/` - the MongoDB adapters implementing the domain ports: one struct per collection (`ExamenMongo`, `PostulanteMongo`, `RespuestaMongo`...) implements every port backed by that collection, with the documents it reads and writes; `mongo/repositorio.rs` gives each adapter its collection, plus `es_clave_duplicada` (E11000)
+- `cache/sesiones.rs` - the Redis adapter of the `Sesiones` port
 - `indices.rs` - MongoDB indexes created at startup (unique: one assignment per candidate and evaluation, one account per `documento`)
 - `controller/` - HTTP handlers organized by domain (examen, evaluacion, postulante, psicologo, admin, respuesta, revision, auth)
 - `controller/error.rs` - `ApiError`: the single error → HTTP status mapping. Handlers return `Result<HttpResponse, ApiError>` and use `?`; add new domain error variants there (the `match` is exhaustive on purpose)
 - `controller/cifrado.rs` - the only bcrypt adapter (runs on `spawn_blocking`)
-- `controller/mongo_repository.rs` - helper trait giving each adapter its collection, plus `es_clave_duplicada` (E11000)
 - `controller/hateoas.rs` - `Link`/`Links` and `enlaces::*`, the link builders of each resource (a test checks every advertised link exists)
 - `prueba_http.rs` (tests only) - the real app (routes, auth, RBAC) without a database, for in-process HTTP tests
 
@@ -103,11 +104,10 @@ Each controller module has:
 - `route.rs` - Actix Web routes of the module; **the source of truth for the routes** (the list below is a summary)
 - `dto.rs` - request/response DTOs
 - one file per handler (e.g. `registrar_examen.rs`, `obtener_respuesta.rs`)
-- `mongo/` (or `redis/`) - the adapters implementing the domain ports: one struct per MongoDB collection (`ExamenMongo`, `PostulanteMongo`, `RespuestaMongo`...) implements every port backed by that collection
 
 ### Authentication Flow
 
-Uses JWT tokens whose session (`jti`) is tracked in Redis: `AuthMiddleware` accepts a token only while its session is open (port `Sesiones` in `bctx/auth`, adapter `controller/auth/redis/sesiones.rs`), so logout revokes it immediately. There is a **single universal login endpoint** `POST /login` that accepts `{ "documento": "...", "password": "..." }` and searches across all collections (admin → psicologo → postulante) to find the user and return a JWT with the appropriate role.
+Uses JWT tokens whose session (`jti`) is tracked in Redis: `AuthMiddleware` accepts a token only while its session is open (port `Sesiones` in `bctx/auth`, adapter `cache/sesiones.rs`), so logout revokes it immediately. There is a **single universal login endpoint** `POST /login` that accepts `{ "documento": "...", "password": "..." }` and searches across all collections (admin → psicologo → postulante) to find the user and return a JWT with the appropriate role.
 
 Auth is handled in:
 - `bctx/auth/src/universal/` - Universal login domain (use case, provider traits, entity, error)

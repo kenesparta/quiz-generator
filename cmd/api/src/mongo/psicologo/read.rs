@@ -1,5 +1,5 @@
-use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::psicologo::mongo::write::PsicologoMongo;
+use crate::mongo::psicologo::write::PsicologoMongo;
+use crate::mongo::repositorio::MongoRepository;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
 use quizz_core::psicologo::provider::repositorio::{

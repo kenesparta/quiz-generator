@@ -1,11 +1,11 @@
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links};
-use crate::controller::psicologo::mongo::write::PsicologoMongo;
-use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::revision::dto::{
     RevisionDetalleDTO, RevisionEvaluacionDTO, RevisionExamenDTO, RevisionPreguntaDTO,
     RevisionPsicologoDTO,
 };
+use crate::mongo::psicologo::write::PsicologoMongo;
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};

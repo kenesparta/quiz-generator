@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
 use crate::controller::examen::dto::RegistrarExamenDTO;
-use crate::controller::examen::mongo::write::ExamenMongo;
+use crate::mongo::examen::write::ExamenMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::examen::use_case::crear_examen::{CrearExamen, InputData};
 

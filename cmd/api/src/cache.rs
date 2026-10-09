@@ -1,3 +1,7 @@
+//! Conexión con Redis y el almacén de sesiones (`cache::sesiones`).
+
+pub(crate) mod sesiones;
+
 use redis::RedisResult;
 use redis::aio::{ConnectionManager, ConnectionManagerConfig};
 use std::time::Duration;

@@ -1,4 +1,4 @@
-use crate::controller::auth::mongo::constantes::{
+use crate::mongo::auth::constantes::{
     ADMIN_AUTH_COLLECTION_NAME, POSTULANTE_AUTH_COLLECTION_NAME, PSICOLOGO_AUTH_COLLECTION_NAME,
 };
 use actix_web::web;

@@ -1,5 +1,5 @@
-use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::respuesta::mongo::RespuestaMongo;
+use crate::mongo::repositorio::MongoRepository;
+use crate::mongo::respuesta::RespuestaMongo;
 use mongodb::bson::{Document, doc};
 use quizz_common::domain::value_objects::zona_horaria::formatear_rfc3339;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Revision};

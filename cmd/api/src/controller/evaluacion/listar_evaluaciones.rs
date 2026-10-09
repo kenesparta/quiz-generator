@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
-use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
+use crate::mongo::evaluacion::write::EvaluacionMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::evaluacion::domain::value_object::evaluacion_estado::EvaluacionEstado;
 use quizz_core::evaluacion::use_case::listar_evaluaciones::ListarEvaluaciones;

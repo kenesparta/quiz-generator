@@ -2,7 +2,7 @@ use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use crate::controller::respuesta::dto::{AsignacionListItemDTO, AsignacionesQueryParams};
-use crate::controller::respuesta::mongo::RespuestaMongo;
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_core::respuesta::use_case::listar_asignaciones::{InputData, ListarAsignaciones};

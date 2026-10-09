@@ -2,7 +2,7 @@ use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::{
     CrearRespuestaDTO, RespuestaCreatedDTO, build_respuesta_links,
 };
-use crate::controller::respuesta::mongo::RespuestaMongo;
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::http::header;
 use actix_web::{HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;

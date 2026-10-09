@@ -1,5 +1,5 @@
-use crate::controller::examen::mongo::constantes::EXAMEN_COLLECTION_NAME;
-use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
+use crate::mongo::examen::constantes::EXAMEN_COLLECTION_NAME;
+use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use mongodb::bson::doc;
 use quizz_core::examen::domain::entity::examen::Examen;

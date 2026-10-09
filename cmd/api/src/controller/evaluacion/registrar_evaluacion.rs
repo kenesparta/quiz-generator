@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
 use crate::controller::evaluacion::dto::RegistrarEvaluacionDTO;
-use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
+use crate::mongo::evaluacion::write::EvaluacionMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::evaluacion::use_case::crear_evaluacion::{CrearEvaluacion, InputData};
 

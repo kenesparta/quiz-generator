@@ -1,9 +1,10 @@
 mod constantes;
+pub mod documento;
 pub mod read;
 pub mod respuesta_dto;
 pub mod write;
 
-use crate::controller::mongo_repository::MongoRepository;
+use crate::mongo::repositorio::MongoRepository;
 use actix_web::web;
 use constantes::RESPUESTA_COLLECTION_NAME;
 

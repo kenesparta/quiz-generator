@@ -6,7 +6,6 @@ pub mod evaluacion;
 pub mod examen;
 pub mod hateoas;
 pub mod healthcheck;
-mod mongo_repository;
 pub mod postulante;
 pub mod pregunta;
 pub mod psicologo;

@@ -1,6 +1,6 @@
-use crate::controller::examen::dto::PreguntaMongoDTO;
-use crate::controller::examen::mongo::write::ExamenMongo;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::mongo::examen::pregunta_dto::PreguntaMongoDTO;
+use crate::mongo::examen::write::ExamenMongo;
+use crate::mongo::repositorio::MongoRepository;
 use futures::TryStreamExt;
 use mongodb::bson;
 use mongodb::bson::doc;

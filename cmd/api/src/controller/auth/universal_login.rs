@@ -1,9 +1,9 @@
 use crate::controller::auth::dto::{DocumentoLoginRequestDTO, LoginResponseDTO};
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::limite_intentos::LimiteDeIntentos;
-use crate::controller::auth::mongo::universal_read::LoginUniversalMongo;
 use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
+use crate::mongo::auth::universal_read::LoginUniversalMongo;
 use actix_web::{HttpRequest, HttpResponse, web};
 use quizz_auth::universal::domain::error::login_universal::LoginUniversalError;
 use quizz_auth::universal::provider::repositorio::Sesiones;

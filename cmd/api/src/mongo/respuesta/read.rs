@@ -1,6 +1,6 @@
-use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::respuesta::mongo::RespuestaMongo;
-use crate::controller::respuesta::mongo::respuesta_dto::RespuestaDTO;
+use crate::mongo::repositorio::MongoRepository;
+use crate::mongo::respuesta::RespuestaMongo;
+use crate::mongo::respuesta::respuesta_dto::RespuestaDTO;
 use futures::{StreamExt, TryStreamExt};
 use mongodb;
 use mongodb::bson;

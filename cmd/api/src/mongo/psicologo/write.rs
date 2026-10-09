@@ -1,5 +1,5 @@
-use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
-use crate::controller::psicologo::mongo::constantes::PSICOLOGO_COLLECTION_NAME;
+use crate::mongo::psicologo::constantes::PSICOLOGO_COLLECTION_NAME;
+use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use mongodb::bson::doc;
 use quizz_core::psicologo::domain::entity::psicologo::Psicologo;

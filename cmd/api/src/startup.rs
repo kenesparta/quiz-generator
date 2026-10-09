@@ -1,9 +1,9 @@
+use crate::cache::sesiones::SesionesRedis;
 use crate::configuration::{CorsSettings, JwtSettings, LoginSettings};
 use crate::controller::admin::route::admin;
 use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::limite_intentos::LimiteDeIntentos;
 use crate::controller::auth::middleware::AuthMiddleware;
-use crate::controller::auth::redis::sesiones::SesionesRedis;
 use crate::controller::auth::route::login_routes;
 use crate::controller::error::error_de_extraccion;
 use crate::controller::evaluacion::route::evaluacion;

@@ -1,7 +1,7 @@
 use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
 use crate::controller::psicologo::dto::RegistrarPsicologoDTO;
-use crate::controller::psicologo::mongo::write::PsicologoMongo;
+use crate::mongo::psicologo::write::PsicologoMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::psicologo::use_case::registrar_psicologo::{InputData, RegistrarPsicologo};
 

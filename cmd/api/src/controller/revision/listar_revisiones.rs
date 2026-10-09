@@ -1,7 +1,7 @@
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
-use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::revision::dto::RevisionListItemDTO;
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::respuesta::use_case::respuesta_revision::RespuestaRevision;
 

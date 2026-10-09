@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
-use crate::controller::examen::mongo::write::ExamenMongo;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
+use crate::mongo::examen::write::ExamenMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::examen::use_case::listar_examenes::ListarExamenes;
 use serde::Serialize;

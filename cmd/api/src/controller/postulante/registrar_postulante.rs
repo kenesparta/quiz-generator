@@ -1,7 +1,7 @@
 use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
 use crate::controller::postulante::dto::RegistrarPostulanteDTO;
-use crate::controller::postulante::mongo::write::PostulanteMongo;
+use crate::mongo::postulante::write::PostulanteMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::postulante::use_case::actualizar_postulante_por_documento::{
     ActualizarPostulantePorDocumento, InputData as ActualizarPorDocumentoInputData,

@@ -1,7 +1,7 @@
 use crate::controller::admin::dto::RegistrarAdminDTO;
-use crate::controller::admin::mongo::write::AdminMongo;
 use crate::controller::cifrado::Bcrypt;
 use crate::controller::error::ApiError;
+use crate::mongo::admin::write::AdminMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::admin::use_case::registrar_admin::{InputData, RegistrarAdmin};
 

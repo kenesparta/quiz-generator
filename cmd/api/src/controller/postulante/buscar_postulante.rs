@@ -3,7 +3,7 @@ use crate::controller::error::ApiError;
 use crate::controller::postulante::dto::{
     PostulanteDocumentoQuery, PostulanteResponseDTO, build_postulante_links,
 };
-use crate::controller::postulante::mongo::write::PostulanteMongo;
+use crate::mongo::postulante::write::PostulanteMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_core::postulante::use_case::buscar_postulante::{InputData, ObtenerPostulantePorId};

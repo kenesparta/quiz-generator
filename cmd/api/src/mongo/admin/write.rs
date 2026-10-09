@@ -1,5 +1,5 @@
-use crate::controller::admin::mongo::constantes::ADMIN_COLLECTION_NAME;
-use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
+use crate::mongo::admin::constantes::ADMIN_COLLECTION_NAME;
+use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use mongodb::bson::doc;
 use quizz_core::admin::domain::entity::admin::Admin;

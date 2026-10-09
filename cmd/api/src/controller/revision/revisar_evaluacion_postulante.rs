@@ -1,8 +1,8 @@
 use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links};
-use crate::controller::respuesta::mongo::RespuestaMongo;
 use crate::controller::revision::dto::{CrearRevisionDTO, RevisionCreatedDTO};
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_common::domain::value_objects::zona_horaria::ahora_lima;
 use quizz_core::respuesta::domain::entity::respuesta::Revision;

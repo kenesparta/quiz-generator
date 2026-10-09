@@ -1,6 +1,6 @@
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse};
-use crate::controller::psicologo::mongo::write::PsicologoMongo;
+use crate::mongo::psicologo::write::PsicologoMongo;
 use actix_web::{HttpResponse, web};
 use quizz_core::psicologo::use_case::listar_psicologos::ListarPsicologos;
 use serde::Serialize;

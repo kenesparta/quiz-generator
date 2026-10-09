@@ -1,6 +1,6 @@
-use crate::controller::evaluacion::mongo::constantes::EVALUACION_COLLECTION_NAME;
-use crate::controller::examen::mongo::write::ExamenMongo;
-use crate::controller::mongo_repository::{MongoRepository, es_clave_duplicada};
+use crate::mongo::evaluacion::constantes::EVALUACION_COLLECTION_NAME;
+use crate::mongo::examen::write::ExamenMongo;
+use crate::mongo::repositorio::{MongoRepository, es_clave_duplicada};
 use actix_web::web;
 use mongodb::bson::doc;
 use quizz_common::domain::value_objects::estado::EstadoGeneral;

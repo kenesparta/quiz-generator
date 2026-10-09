@@ -1,3 +1,17 @@
+//! Conexión con MongoDB y los adaptadores de cada colección (`mongo::<módulo>`), que
+//! implementan los puertos del dominio.
+
+pub(crate) mod admin;
+pub(crate) mod auth;
+pub(crate) mod evaluacion;
+pub(crate) mod examen;
+pub(crate) mod postulante;
+pub(crate) mod pregunta;
+pub(crate) mod psicologo;
+pub(crate) mod repositorio;
+pub(crate) mod respuesta;
+pub(crate) mod revision;
+
 use crate::configuration::DatabaseSettings;
 use mongodb::bson::doc;
 use mongodb::{Client, Database, options::ClientOptions};

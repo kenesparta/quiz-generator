@@ -1,7 +1,7 @@
 use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::respuesta::dto::ContestacionDTO;
-use crate::controller::respuesta::mongo::RespuestaMongo;
+use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use quizz_core::respuesta::use_case::responder_evaluacion::{InputData, ResponderEvaluacion};
 use serde_json::json;

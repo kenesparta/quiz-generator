@@ -1,5 +1,5 @@
-use crate::controller::evaluacion::mongo::write::EvaluacionMongo;
-use crate::controller::mongo_repository::MongoRepository;
+use crate::mongo::evaluacion::write::EvaluacionMongo;
+use crate::mongo::repositorio::MongoRepository;
 use futures::TryStreamExt;
 use mongodb::bson::doc;
 use quizz_core::evaluacion::domain::error::evaluacion::EvaluacionError;

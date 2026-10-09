@@ -1,5 +1,5 @@
-use crate::controller::mongo_repository::MongoRepository;
-use crate::controller::postulante::mongo::write::PostulanteMongo;
+use crate::mongo::postulante::write::PostulanteMongo;
+use crate::mongo::repositorio::MongoRepository;
 use chrono::NaiveDateTime;
 use futures::TryStreamExt;
 use mongodb::bson::{Bson, Document, doc};

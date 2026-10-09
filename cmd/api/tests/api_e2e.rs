@@ -261,6 +261,22 @@ async fn flujo_completo_y_controles_de_acceso() {
     let e = levantar().await;
     let admin = e.token(ADMIN_DOCUMENTO, ADMIN_PASSWORD).await;
 
+    // Errores de entrada: 400 con el formato {"error": ...}, no 500.
+    let (estado, cuerpo) = e
+        .pedir(Method::POST, "/login", None, Some(json!({})))
+        .await;
+    assert_eq!(estado, StatusCode::BAD_REQUEST);
+    assert!(cuerpo["error"].is_string(), "{cuerpo}");
+    let (estado, cuerpo) = e
+        .pedir(
+            Method::POST,
+            "/examenes/no-es-un-uuid",
+            Some(&admin),
+            Some(json!({ "titulo": "T", "descripcion": "D", "instrucciones": "I" })),
+        )
+        .await;
+    assert_eq!(estado, StatusCode::BAD_REQUEST, "{cuerpo}");
+
     // Credenciales incorrectas: misma respuesta para documento inexistente y clave errónea.
     let (estado, _) = e.login(ADMIN_DOCUMENTO, "otra-clave").await;
     assert_eq!(estado, StatusCode::UNAUTHORIZED);

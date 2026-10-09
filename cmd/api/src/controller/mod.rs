@@ -1,5 +1,6 @@
 pub mod admin;
 pub mod auth;
+pub mod error;
 pub mod evaluacion;
 pub mod examen;
 pub mod hateoas;

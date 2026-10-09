@@ -1,46 +1,27 @@
+use crate::controller::error::ApiError;
 use crate::controller::examen::dto::RegistrarExamenDTO;
 use crate::controller::examen::mongo::write::ExamenMongo;
-use actix_web::{HttpRequest, HttpResponse, web};
-use log::{error, info, warn};
+use actix_web::{HttpResponse, web};
 use quizz_common::use_case::CasoDeUso;
 use quizz_core::examen::use_case::crear_examen::{CrearExamen, InputData};
 
-pub struct ExamenControlller;
+pub struct ExamenController;
 
-impl ExamenControlller {
+impl ExamenController {
     pub async fn create(
-        req: HttpRequest,
+        id: web::Path<String>,
         body: web::Json<RegistrarExamenDTO>,
-        pool: web::Data<mongodb::Database>,
-    ) -> HttpResponse {
-        let examen_id = match req.match_info().get("id") {
-            Some(id) => id.to_string(),
-            None => {
-                warn!("POST /examen - id no proporcionado");
-                return HttpResponse::BadRequest().json("no se esta enviando el id del examen");
-            }
-        };
-
-        info!("POST /examen/{}", examen_id);
-
-        let registrar_examen = CrearExamen::new(Box::new(ExamenMongo::new(pool)));
+        db: web::Data<mongodb::Database>,
+    ) -> Result<HttpResponse, ApiError> {
         let dto = body.into_inner();
-        let input = InputData {
-            id: examen_id.clone(),
-            titulo: dto.titulo,
-            descripcion: dto.descripcion,
-            instrucciones: dto.instrucciones,
-        };
-
-        match registrar_examen.ejecutar(input).await {
-            Ok(_) => {
-                info!("POST /examen/{} - creado exitosamente", examen_id);
-                HttpResponse::Created().finish()
-            }
-            Err(e) => {
-                error!("POST /examen/{} - error al registrar: {}", examen_id, e);
-                HttpResponse::InternalServerError().json("error al registrar el examen")
-            }
-        }
+        CrearExamen::new(Box::new(ExamenMongo::new(db)))
+            .ejecutar(InputData {
+                id: id.into_inner(),
+                titulo: dto.titulo,
+                descripcion: dto.descripcion,
+                instrucciones: dto.instrucciones,
+            })
+            .await?;
+        Ok(HttpResponse::Created().finish())
     }
 }

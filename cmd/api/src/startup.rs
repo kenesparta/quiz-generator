@@ -4,6 +4,7 @@ use crate::controller::auth::jwt::JWTProvider;
 use crate::controller::auth::middleware::AuthMiddleware;
 use crate::controller::auth::redis::sesiones::SesionesRedis;
 use crate::controller::auth::route::login_routes;
+use crate::controller::error::error_de_extraccion;
 use crate::controller::evaluacion::route::evaluacion;
 use crate::controller::examen::route::examen;
 use crate::controller::healthcheck::route::health_check;
@@ -20,6 +21,10 @@ use redis::aio::ConnectionManager;
 use std::net::TcpListener;
 use std::sync::Arc;
 
+/// Tamaño máximo de un cuerpo JSON. Las preguntas con imágenes tienen su propio límite en
+/// `PUT /examenes/{id}`.
+const LIMITE_JSON_BYTES: usize = 2 * 1024 * 1024;
+
 /// Construye el enforcer RBAC con el modelo y la política embebidos en el binario.
 pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
     crate::controller::auth::casbin_enforcer::crear_enforcer().await
@@ -33,6 +38,14 @@ pub async fn init_casbin_enforcer() -> casbin::Result<casbin::Enforcer> {
 /// enforcer (`web::Data<casbin::Enforcer>`), el proveedor JWT (`web::Data<JWTProvider>`) y
 /// las sesiones (`web::Data<dyn Sesiones>`), además de los clientes que usan los handlers.
 pub fn configurar_rutas(cfg: &mut web::ServiceConfig) {
+    cfg.app_data(
+        web::JsonConfig::default()
+            .limit(LIMITE_JSON_BYTES)
+            .error_handler(error_de_extraccion),
+    )
+    .app_data(web::QueryConfig::default().error_handler(error_de_extraccion))
+    .app_data(web::PathConfig::default().error_handler(error_de_extraccion));
+
     cfg.configure(health_check).configure(login_routes).service(
         web::scope("")
             .wrap(AuthMiddleware)

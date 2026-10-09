@@ -194,15 +194,10 @@ impl From<PreguntaError> for ApiError {
     fn from(e: PreguntaError) -> Self {
         use PreguntaError::*;
         match e {
-            RespuestaNoExiste
-            | RespuestaIncorrecta
-            | AlternativasNoExisten
-            | AlternativasVacias
+            AlternativasNoExisten
             | AlternativaNoAjustada
             | PuntajeNoExiste
             | DebeTenerUnaSolaRespuesta
-            | PuntajeVacio
-            | PuntajeNoAjustado
             | PuntajeNoCoincideConAlternativa
             | PreguntaErrorExamenID(_)
             | PreguntaAlternativaError(_)

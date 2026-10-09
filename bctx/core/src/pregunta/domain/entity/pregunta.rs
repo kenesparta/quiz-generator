@@ -1,5 +1,5 @@
-use crate::pregunta::domain::entity::strategy::strategy::strategy_selection;
 use crate::pregunta::domain::error::pregunta::PreguntaError;
+use crate::pregunta::domain::value_object::alternativa::Alternativa;
 use crate::pregunta::domain::value_object::etiqueta::Etiqueta;
 use crate::pregunta::domain::value_object::id::PreguntaID;
 use crate::pregunta::domain::value_object::tipo_pregunta::TipoPregunta;
@@ -31,8 +31,7 @@ impl PreguntaEntity {
         let etiqueta = Etiqueta::from_str(&etiqueta)?;
         let tipo_de_pregunta = TipoPregunta::from_str(&tipo_de_pregunta)?;
 
-        let strategy = strategy_selection(&tipo_de_pregunta);
-        strategy.verify(&alternativas, &puntaje)?;
+        validar_composicion(&tipo_de_pregunta, &alternativas, &puntaje)?;
 
         Ok(Self {
             id,
@@ -43,6 +42,71 @@ impl PreguntaEntity {
             puntaje,
             imagen_ref,
         })
+    }
+}
+
+/// Las reglas de alternativas y puntaje de cada tipo de pregunta, en un solo `match`.
+///
+/// - `alternativa_unica` y `alternativa_peso`: alternativas y puntaje no vacíos, con claves
+///   A..G (o SI/NO), y cada clave del puntaje debe ser una alternativa.
+/// - `sola_respuesta`: exactamente una clave en el puntaje (la respuesta correcta).
+/// - `si_o_no`: si lista alternativas o puntaje, deben tener las claves SI y NO; el puntaje
+///   solo puede usar claves que estén entre las alternativas.
+/// - `libre`: sin reglas.
+fn validar_composicion(
+    tipo: &TipoPregunta,
+    alternativas: &HashMap<String, String>,
+    puntaje: &HashMap<String, u32>,
+) -> Result<(), PreguntaError> {
+    match tipo {
+        TipoPregunta::AlternativaUnica | TipoPregunta::AlternativaConPeso => {
+            if claves(alternativas)?.is_empty() {
+                return Err(PreguntaError::AlternativasNoExisten);
+            }
+            if claves(puntaje)?.is_empty() {
+                return Err(PreguntaError::PuntajeNoExiste);
+            }
+            puntaje_dentro_de_alternativas(alternativas, puntaje)
+        }
+        TipoPregunta::SolaRespuesta => match puntaje.len() {
+            0 => Err(PreguntaError::PuntajeNoExiste),
+            1 => Ok(()),
+            _ => Err(PreguntaError::DebeTenerUnaSolaRespuesta),
+        },
+        TipoPregunta::SioNo => {
+            exige_si_y_no(&claves(alternativas)?)?;
+            exige_si_y_no(&claves(puntaje)?)?;
+            puntaje_dentro_de_alternativas(alternativas, puntaje)
+        }
+        TipoPregunta::Libre => Ok(()),
+    }
+}
+
+/// Las claves como alternativas; una clave que no es A..G, SI o NO es un error.
+fn claves<V>(mapa: &HashMap<String, V>) -> Result<Vec<Alternativa>, PreguntaError> {
+    mapa.keys()
+        .map(|clave| clave.parse::<Alternativa>().map_err(PreguntaError::from))
+        .collect()
+}
+
+/// Vacío o con SI y NO (otras claves se ignoran).
+fn exige_si_y_no(claves: &[Alternativa]) -> Result<(), PreguntaError> {
+    if claves.is_empty() || (claves.contains(&Alternativa::Si) && claves.contains(&Alternativa::No))
+    {
+        Ok(())
+    } else {
+        Err(PreguntaError::AlternativaNoAjustada)
+    }
+}
+
+fn puntaje_dentro_de_alternativas(
+    alternativas: &HashMap<String, String>,
+    puntaje: &HashMap<String, u32>,
+) -> Result<(), PreguntaError> {
+    if puntaje.keys().all(|clave| alternativas.contains_key(clave)) {
+        Ok(())
+    } else {
+        Err(PreguntaError::PuntajeNoCoincideConAlternativa)
     }
 }
 
@@ -198,5 +262,90 @@ mod tests {
             result,
             Err(PreguntaError::PreguntaTipoPreguntaError(_))
         ));
+    }
+
+    fn mapa<V: Clone>(pares: &[(&str, V)]) -> HashMap<String, V> {
+        pares
+            .iter()
+            .map(|(k, v)| ((*k).to_string(), v.clone()))
+            .collect()
+    }
+
+    fn validar(
+        tipo: &str,
+        alternativas: &[(&str, &str)],
+        puntaje: &[(&str, u32)],
+    ) -> Result<(), PreguntaError> {
+        let alternativas: HashMap<String, String> = alternativas
+            .iter()
+            .map(|(k, v)| ((*k).to_string(), (*v).to_string()))
+            .collect();
+        validar_composicion(&tipo.parse().unwrap(), &alternativas, &mapa(puntaje))
+    }
+
+    #[test]
+    fn alternativas_exigen_alternativas_y_puntaje_coherentes() {
+        for tipo in ["alternativa_unica", "alternativa_peso"] {
+            assert!(validar(tipo, &[("A", "x"), ("B", "y")], &[("A", 1)]).is_ok());
+            assert!(matches!(
+                validar(tipo, &[], &[("A", 1)]),
+                Err(PreguntaError::AlternativasNoExisten)
+            ));
+            assert!(matches!(
+                validar(tipo, &[("A", "x")], &[]),
+                Err(PreguntaError::PuntajeNoExiste)
+            ));
+            assert!(matches!(
+                validar(tipo, &[("A", "x")], &[("B", 1)]),
+                Err(PreguntaError::PuntajeNoCoincideConAlternativa)
+            ));
+            assert!(matches!(
+                validar(tipo, &[("Z", "x")], &[("Z", 1)]),
+                Err(PreguntaError::PreguntaAlternativaError(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn sola_respuesta_exige_una_clave_en_el_puntaje() {
+        assert!(validar("sola_respuesta", &[], &[("Lima", 1)]).is_ok());
+        assert!(matches!(
+            validar("sola_respuesta", &[], &[]),
+            Err(PreguntaError::PuntajeNoExiste)
+        ));
+        assert!(matches!(
+            validar("sola_respuesta", &[], &[("Lima", 1), ("Cusco", 1)]),
+            Err(PreguntaError::DebeTenerUnaSolaRespuesta)
+        ));
+    }
+
+    #[test]
+    fn si_o_no_exige_si_y_no_cuando_las_lista() {
+        assert!(validar("si_o_no", &[], &[]).is_ok());
+        assert!(
+            validar(
+                "si_o_no",
+                &[("SI", "Sí"), ("NO", "No")],
+                &[("SI", 1), ("NO", 0)]
+            )
+            .is_ok()
+        );
+        assert!(matches!(
+            validar("si_o_no", &[("SI", "Sí")], &[]),
+            Err(PreguntaError::AlternativaNoAjustada)
+        ));
+        assert!(matches!(
+            validar("si_o_no", &[("SI", "Sí"), ("NO", "No")], &[("SI", 1)]),
+            Err(PreguntaError::AlternativaNoAjustada)
+        ));
+        assert!(matches!(
+            validar("si_o_no", &[], &[("SI", 1), ("NO", 0)]),
+            Err(PreguntaError::PuntajeNoCoincideConAlternativa)
+        ));
+    }
+
+    #[test]
+    fn libre_no_tiene_reglas() {
+        assert!(validar("libre", &[("cualquier", "cosa")], &[("x", 3)]).is_ok());
     }
 }

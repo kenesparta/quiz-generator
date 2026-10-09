@@ -6,46 +6,31 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum PreguntaError {
-    #[error("Respuesta no existe")]
-    RespuestaNoExiste,
-
-    #[error("Respuesta incorrecta")]
-    RespuestaIncorrecta,
-
-    #[error("AlternativaUnica no existen")]
+    #[error("La pregunta debe tener alternativas")]
     AlternativasNoExisten,
 
-    #[error("AlternativaUnica vacias")]
-    AlternativasVacias,
-
-    #[error("alternativa o puntaje no ajustado correctamente")]
+    #[error("Una pregunta de si o no debe tener las alternativas SI y NO")]
     AlternativaNoAjustada,
 
-    #[error("Puntos no existen")]
+    #[error("La pregunta debe tener puntaje")]
     PuntajeNoExiste,
 
-    #[error("Puntos no existen")]
+    #[error("La pregunta debe tener una sola respuesta correcta")]
     DebeTenerUnaSolaRespuesta,
 
-    #[error("puntaje vacio")]
-    PuntajeVacio,
-
-    #[error("puntaje no ajustado correctamente")]
-    PuntajeNoAjustado,
-
-    #[error("puntaje no coincide con alternativa")]
+    #[error("El puntaje solo puede usar claves de las alternativas")]
     PuntajeNoCoincideConAlternativa,
 
-    #[error("Validacion de examenID fallida")]
+    #[error("ID del examen no valido")]
     PreguntaErrorExamenID(#[from] IdError),
 
-    #[error("Error en la alternativa")]
+    #[error("Alternativa no valida")]
     PreguntaAlternativaError(#[from] AlternativaError),
 
-    #[error("Error en la alternativa")]
+    #[error("Etiqueta no valida")]
     PreguntaEtiquetaError(#[from] EtiquetaError),
 
-    #[error("Error en el tipo de pregunta")]
+    #[error("Tipo de pregunta no valido")]
     PreguntaTipoPreguntaError(#[from] TipoPreguntaError),
 
     #[error("Error en el repositorio")]
@@ -60,6 +45,6 @@ pub enum RepositorioError {
     #[error("Lectura no finalizada")]
     LecturaNoFinalizada,
 
-    #[error("Persistencia no finalizada")]
+    #[error("Actualizacion no finalizada")]
     ActualizacionNoFinalizada,
 }

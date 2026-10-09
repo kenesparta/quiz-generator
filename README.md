@@ -159,19 +159,28 @@ Make targets:
 
 ## Docker
 
-A `Dockerfile` is provided for building the API image:
+The `Dockerfile` builds a release binary with cargo-chef (dependency layers are cached) and copies it into a distroless, non-root runtime image (~90 MB). The RBAC policy is embedded in the binary; the configuration is not baked into the image.
 
 ```bash
-# Build from the workspace root
 docker build -t quizz-api:local .
 
-# Run (ensure MongoDB and Redis are reachable per configuration.yaml)
+# Configuration from a mounted file...
 docker run --rm -p 8008:8008 \
-  -v "$PWD/configuration.yaml":/app/configuration.yaml \
+  -v "$PWD/configuration.yaml":/app/configuration.yaml:ro \
+  quizz-api:local
+
+# ...or from QUIZZ_* environment variables (preferred for secrets)
+docker run --rm -p 8008:8008 \
+  -e QUIZZ_DATABASE__URI=mongodb://user:pass@mongo:27017 \
+  -e QUIZZ_DATABASE__DATABASE_NAME=quizz \
+  -e QUIZZ_REDIS__URI=redis://redis:6379 \
+  -e QUIZZ_JWT__SECRET="$(openssl rand -base64 48)" \
+  -e QUIZZ_JWT__EXPIRATION_SECONDS=36000 \
+  -e QUIZZ_APPLICATION_HOST=0.0.0.0 -e QUIZZ_APPLICATION_PORT=8008 \
   quizz-api:local
 ```
 
-Note: `docker-compose.dev.yml` only includes MongoDB and Redis. The API is intended to run locally via Cargo during development.
+The runtime image has no shell; use the `gcr.io/distroless/cc-debian13:debug-nonroot` base to debug. `docker-compose.dev.yml` only includes MongoDB and Redis.
 
 
 ## Troubleshooting

@@ -1,6 +1,19 @@
-.git
-node_modules
-target
-build
+# Salida de compilación y ruido de VCS/IDE
+target/
+.git/
+.github/
+.idea/
+.vscode/
 .DS_Store
-.idea
+# La imagen ya fija Rust 1.99; con el archivo de toolchain rustup intentaría descargar
+# componentes (o un toolchain "1.99" distinto del 1.99.0 de la imagen) durante el build.
+rust-toolchain.toml
+# Secretos y configuración local: se montan al ejecutar, nunca se hornean en la imagen.
+configuration.yaml
+.env
+# No hacen falta para compilar el binario
+docs/
+*.md
+cmd/api/http/
+Dockerfile
+.dockerignore

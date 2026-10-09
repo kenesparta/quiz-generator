@@ -196,19 +196,12 @@ List endpoints return HATEOAS-style responses (see `cmd/api/src/controller/hateo
 
 ## Docker
 
-Build the API image:
 ```bash
 docker build -t quizz-api:local .
+docker run --rm -p 8008:8008 -v "$PWD/configuration.yaml":/app/configuration.yaml:ro quizz-api:local
 ```
 
-Run (ensure MongoDB/Redis are accessible per configuration.yaml):
-```bash
-docker run --rm -p 8008:8008 \
-  -v "$PWD/configuration.yaml":/app/configuration.yaml \
-  quizz-api:local
-```
-
-Note: `docker-compose.dev.yml` only includes MongoDB and Redis, not the API service.
+The image is distroless and non-root; the RBAC policy is embedded in the binary; configuration comes from a mounted `configuration.yaml` or `QUIZZ_*` variables. `docker-compose.dev.yml` only includes MongoDB and Redis, not the API.
 
 ## Code Conventions
 

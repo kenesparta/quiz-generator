@@ -8,8 +8,8 @@ pub struct InputData {
 }
 
 /// Elimina definitivamente a un psicólogo y cierra su sesión, para que su token deje de
-/// autenticar en ese momento y no cuando expire. Las revisiones que calificó conservan su id
-/// en `revisado_por`, pero su nombre y su colegiatura ya no se pueden leer.
+/// autenticar en ese momento y no cuando expire. Las revisiones que calificó conservan su
+/// firma (nombre y colegiatura), que se guardó en la hoja al calificar.
 ///
 /// Va en tres pasos: marcarlo (ya no puede iniciar sesión), cerrar su sesión y borrarlo.
 /// - Cerrar la sesión después de marcarlo deja fuera a un inicio de sesión simultáneo: el

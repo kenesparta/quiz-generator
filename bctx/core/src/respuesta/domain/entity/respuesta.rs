@@ -1,5 +1,6 @@
 use crate::postulante::domain::value_object::id::PostulanteID;
 use crate::respuesta::domain::entity::evaluacion::Evaluacion;
+use crate::respuesta::domain::entity::revision::Firma;
 use crate::respuesta::domain::error::respuesta::{EstadoErr, RevisionErr};
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use chrono::{DateTime, FixedOffset};
@@ -19,6 +20,9 @@ pub struct Respuesta {
     pub resultado: String,
     /// Quién calificó la hoja; `None` si no se calificó o se calificó antes de registrarlo.
     pub revisado_por: Option<String>,
+    /// La firma guardada al calificar; `None` si calificó un admin o se calificó antes de
+    /// guardar las firmas.
+    pub firma: Option<Firma>,
     pub fecha_revision: Option<String>,
 }
 
@@ -132,6 +136,7 @@ mod tests {
             revision: Revision::SinIniciar,
             resultado: String::new(),
             revisado_por: None,
+            firma: None,
             fecha_revision: None,
         }
     }

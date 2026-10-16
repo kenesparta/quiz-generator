@@ -1,4 +1,5 @@
 use crate::controller::hateoas::Links;
+use quizz_core::respuesta::domain::entity::revision::Firma;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -35,6 +36,9 @@ pub struct RevisionListItemDTO {
 pub struct RevisionCreatedDTO {
     pub respuesta_id: String,
     pub estado_revision: String,
+    /// La firma de la revisión: el psicólogo que califica. Sin ella si califica un admin.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub psicologo: Option<RevisionPsicologoDTO>,
     #[serde(rename = "_links")]
     pub links: Links,
 }
@@ -61,6 +65,15 @@ pub struct RevisionDetalleDTO {
 pub struct RevisionPsicologoDTO {
     pub nombre_completo: String,
     pub colegiatura: String,
+}
+
+impl From<Firma> for RevisionPsicologoDTO {
+    fn from(firma: Firma) -> Self {
+        Self {
+            nombre_completo: firma.nombre_completo,
+            colegiatura: firma.colegiatura,
+        }
+    }
 }
 
 #[derive(Serialize)]

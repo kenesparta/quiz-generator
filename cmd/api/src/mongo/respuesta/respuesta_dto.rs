@@ -13,6 +13,7 @@ use quizz_core::respuesta::domain::entity::evaluacion::Evaluacion;
 use quizz_core::respuesta::domain::entity::examen::Examen;
 use quizz_core::respuesta::domain::entity::pregunta::Pregunta;
 use quizz_core::respuesta::domain::entity::respuesta::{Estado, Respuesta, Revision};
+use quizz_core::respuesta::domain::entity::revision::Firma;
 use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
 use quizz_core::respuesta::domain::value_object::id::RespuestaID;
 use serde::Deserialize;
@@ -37,8 +38,18 @@ pub struct RespuestaDTO {
     pub resultado: Option<String>,
     #[serde(default)]
     pub revisado_por: Option<String>,
+    /// Ausente en las hojas calificadas antes de guardar las firmas; `null` si calificó un
+    /// admin.
+    #[serde(default)]
+    pub firma: Option<FirmaDTO>,
     #[serde(default)]
     pub fecha_revision: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct FirmaDTO {
+    pub nombre_completo: String,
+    pub colegiatura: String,
 }
 
 #[derive(Deserialize)]
@@ -121,6 +132,10 @@ impl TryFrom<RespuestaDTO> for Respuesta {
             evaluacion: respuesta.evaluacion.try_into()?,
             resultado: respuesta.resultado.unwrap_or_default(),
             revisado_por: respuesta.revisado_por,
+            firma: respuesta.firma.map(|firma| Firma {
+                nombre_completo: firma.nombre_completo,
+                colegiatura: firma.colegiatura,
+            }),
             fecha_revision: respuesta.fecha_revision,
         })
     }
@@ -228,6 +243,31 @@ mod tests {
         let respuesta = dto.a_dominio().unwrap();
         assert_eq!(respuesta.estado, Estado::EnProceso);
         assert_eq!(respuesta.evaluacion.examenes[0].puntos_obtenidos(), 1);
+    }
+
+    #[test]
+    fn la_firma_guardada_se_lee_y_sin_ella_no_hay_firma() {
+        let mut calificada = documento("no");
+        calificada.insert(
+            "firma",
+            doc! { "nombre_completo": "Maria Garcia Lopez", "colegiatura": "CPsP-123" },
+        );
+        let firma = bson::from_document::<RespuestaDTO>(calificada)
+            .unwrap()
+            .a_dominio()
+            .unwrap()
+            .firma;
+        assert_eq!(
+            firma,
+            Some(Firma::new("Maria", "Garcia", "Lopez", "CPsP-123"))
+        );
+
+        let mut de_admin = documento("no");
+        de_admin.insert("firma", bson::Bson::Null);
+        for hoja in [de_admin, documento("no")] {
+            let dto: RespuestaDTO = bson::from_document(hoja).unwrap();
+            assert_eq!(dto.a_dominio().unwrap().firma, None);
+        }
     }
 
     #[test]

@@ -168,7 +168,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 - `/psicologos` - Admin only
   - `GET /psicologos` - List psychologists (without password hashes)
   - `POST /psicologos/{id}` - Create a psychologist
-  - `DELETE /psicologos/{id}` - Delete a psychologist for good and close their session in Redis (their token gets `401` at once); `204`, or `404` if it does not exist. Revisiones they graded keep `revisado_por` but `GET /revisiones/{id}` no longer shows a psicólogo. Three steps (`EliminarPsicologo`): mark (`eliminado: true`, login ignores it) → close the session → delete; if Redis fails it answers `503` and leaves the psychologist marked, and repeating the request completes it. Login looks the account up again after opening the session, so a login racing the deletion gets no token
+  - `DELETE /psicologos/{id}` - Delete a psychologist for good and close their session in Redis (their token gets `401` at once); `204`, or `404` if it does not exist. Revisiones they graded keep their signature (`firma`, stored when grading). Three steps (`EliminarPsicologo`): mark (`eliminado: true`, login ignores it) → close the session → delete; if Redis fails it answers `503` and leaves the psychologist marked, and repeating the request completes it. Login looks the account up again after opening the session, so a login racing the deletion gets no token
 - `/respuestas` - Manage exam lifecycle, submit answers
   - `GET /respuestas` - Unfinished respuestas of a candidate (a postulante gets their own; staff pass `postulante_id`)
   - `GET /respuestas/asignaciones` - List assignments (staff only)
@@ -179,8 +179,8 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
   - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` - Owner only, while `en_proceso`; one answer per question
 - `/revisiones` - Grade and review completed evaluations
   - `GET /revisiones` - List revisiones
-  - `GET /revisiones/{respuesta_id}` - A graded respuesta, with the psychologist who graded it
-  - `POST /revisiones/{respuesta_id}` - Grade a `finalizado` respuesta (also accepts `PATCH`); stores `revisado_por` and `fecha_revision`
+  - `GET /revisiones/{respuesta_id}` - A graded respuesta, with the signature of the psychologist who graded it (stored in the respuesta; respuestas graded before signatures were stored fall back to the psicólogo's current record)
+  - `POST /revisiones/{respuesta_id}` - Grade a `finalizado` respuesta (also accepts `PATCH`); stores `revisado_por`, `fecha_revision` and, when a psicólogo grades, their signature (`firma`: name and colegiatura at that moment), returned as `psicologo` in this response and in `GET /revisiones/{id}`. An admin grades without a signature (and clears a previous one); a psicólogo no longer registered or being deleted gets `401`
 - `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role). Same `401` and same timing for unknown documento and wrong password; attempts limited per IP and failures per documento (`429`)
 - `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>` y cierra su sesión en Redis (clave `sesion:{sub}`, valor `jti`): desde ese momento el token responde 401. Devuelve 204 incluso si el token está expirado o la sesión ya estaba cerrada, para que el cliente pueda limpiar su sesión local.
 

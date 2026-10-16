@@ -771,17 +771,17 @@ async fn flujo_completo_y_controles_de_acceso() {
         StatusCode::CONFLICT,
         "una hoja sin finalizar no se califica"
     );
+    // La revisión queda firmada por el psicólogo que califica, y la respuesta ya lo dice.
+    let firma = json!({ "nombre_completo": "Maria Garcia Lopez", "colegiatura": "CPsP-123" });
     let (ruta, cuerpo) = revision(&hoja_a);
     let (estado, cuerpo) = e
         .pedir(Method::POST, &ruta, Some(&token_psicologo), Some(cuerpo))
         .await;
     assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
+    assert_eq!(cuerpo["psicologo"], firma, "{cuerpo}");
     let (estado, calificada) = e.pedir(Method::GET, &ruta, Some(&admin), None).await;
     assert_eq!(estado, StatusCode::OK, "{calificada}");
-    assert_eq!(
-        calificada["psicologo"]["nombre_completo"],
-        "Maria Garcia Lopez"
-    );
+    assert_eq!(calificada["psicologo"], firma, "{calificada}");
     assert_eq!(calificada["resultado"], "apto");
     assert!(calificada["fecha_revision"].is_string(), "{calificada}");
     assert_eq!(
@@ -913,7 +913,7 @@ async fn flujo_completo_y_controles_de_acceso() {
     }
 
     // Solo el admin elimina un psicólogo. Su token deja de valer en el acto, ya no inicia
-    // sesión, y la revisión que calificó se sigue leyendo, sin su nombre.
+    // sesión, y la revisión que calificó conserva su firma.
     let ruta_psicologo = format!("/psicologos/{psicologo}");
     let (_, lista) = e
         .pedir(Method::GET, "/psicologos", Some(&admin), None)
@@ -964,8 +964,18 @@ async fn flujo_completo_y_controles_de_acceso() {
         )
         .await;
     assert_eq!(estado, StatusCode::OK, "{calificada}");
-    assert!(calificada["psicologo"].is_null(), "{calificada}");
+    assert_eq!(calificada["psicologo"], firma, "{calificada}");
     assert_eq!(calificada["resultado"], "apto");
+
+    // Un admin califica sin firma: la nueva calificación ya no muestra la del psicólogo.
+    let (ruta, cuerpo) = revision(&hoja_a);
+    let (estado, cuerpo) = e
+        .pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo))
+        .await;
+    assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
+    assert!(cuerpo["psicologo"].is_null(), "{cuerpo}");
+    let (_, calificada) = e.pedir(Method::GET, &ruta, Some(&admin), None).await;
+    assert!(calificada["psicologo"].is_null(), "{calificada}");
 
     // Una eliminación a medias (marcado, pero Redis falló al cerrar su sesión): ya no inicia
     // sesión, sigue en el listado y repetir el DELETE la completa y cierra su sesión.

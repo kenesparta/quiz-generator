@@ -112,7 +112,7 @@ Routes are grouped by scope; each `cmd/api/src/controller/*/route.rs` is the sou
 - `/psicologos` (admin only)
   - `GET /psicologos` — list psychologists (never the password hash)
   - `POST /psicologos/{id}` — create a psychologist (`409` if the id or `documento` exists)
-  - `DELETE /psicologos/{id}` — delete a psychologist and close their session, so their token is rejected (`401`) at once (`204`; `404` if it does not exist). Reviews they graded no longer show a psychologist. If the session cannot be closed it answers `503` and the psychologist stays marked (they cannot log in, they still appear in the list): repeat the request to finish
+  - `DELETE /psicologos/{id}` — delete a psychologist and close their session, so their token is rejected (`401`) at once (`204`; `404` if it does not exist). Reviews they graded keep their signature. If the session cannot be closed it answers `503` and the psychologist stays marked (they cannot log in, they still appear in the list): repeat the request to finish
 - `/respuestas`
   - `GET /respuestas` — unfinished respuestas of a candidate (a candidate gets their own; staff pass `postulante_id`)
   - `GET /respuestas/asignaciones` — assignments with their evaluation context (staff)
@@ -123,8 +123,8 @@ Routes are grouped by scope; each `cmd/api/src/controller/*/route.rs` is the sou
   - `POST /respuestas/{id}/examenes/{examen_id}/preguntas/{pregunta_id}/contestaciones` — owner only, while `en_proceso`; one answer per question
 - `/revisiones`
   - `GET /revisiones` — finished respuestas to grade
-  - `GET /revisiones/{respuesta_id}` — a graded respuesta, with the psychologist who graded it
-  - `POST /revisiones/{respuesta_id}` — grade a finished respuesta (also accepts `PATCH`)
+  - `GET /revisiones/{respuesta_id}` — a graded respuesta, with the signature (name and colegiatura) of the psychologist who graded it
+  - `POST /revisiones/{respuesta_id}` — grade a finished respuesta (also accepts `PATCH`). When a psychologist grades, the review is signed with their name and colegiatura at that moment, stored in the respuesta and returned as `psicologo`; an admin grades without a signature
 - `POST /login` — universal login (returns JWT with role)
 - `POST /logout` — close the session (the token stops working)
 

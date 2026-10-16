@@ -1,8 +1,9 @@
 use crate::evaluacion::value_object::id::EvaluacionID;
 use crate::postulante::domain::value_object::id::PostulanteID;
+use crate::psicologo::domain::value_object::id::PsicologoID;
 use crate::respuesta::domain::entity::pregunta::PreguntaACorregir;
 use crate::respuesta::domain::entity::respuesta::{Estado, Respuesta, RespuestaEvaluacion};
-use crate::respuesta::domain::entity::revision::RevisionRealizada;
+use crate::respuesta::domain::entity::revision::{Firma, RevisionRealizada};
 use crate::respuesta::domain::error::respuesta::RespuestaError;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use chrono::{DateTime, FixedOffset};
@@ -94,6 +95,15 @@ pub trait RepositorioRealizarRevision: Send + Sync {
         &self,
         revision: &RevisionRealizada,
     ) -> impl Future<Output = Result<(), RespuestaError>> + Send;
+}
+
+/// Los datos con los que firma un psicólogo al calificar.
+pub trait RepositorioFirma: Send + Sync {
+    /// La firma del psicólogo `id`; `None` si no existe o se está eliminando.
+    fn obtener_firma(
+        &self,
+        id: PsicologoID,
+    ) -> impl Future<Output = Result<Option<Firma>, RespuestaError>> + Send;
 }
 
 pub trait RepositorioObtenerRevisionPorId: Send + Sync {

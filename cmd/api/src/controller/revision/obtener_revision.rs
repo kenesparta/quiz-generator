@@ -2,47 +2,27 @@ use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links};
 use crate::controller::revision::dto::{
     RevisionDetalleDTO, RevisionEvaluacionDTO, RevisionExamenDTO, RevisionPreguntaDTO,
-    RevisionPsicologoDTO,
 };
 use crate::mongo::psicologo::write::PsicologoMongo;
 use crate::mongo::respuesta::RespuestaMongo;
 use actix_web::{HttpResponse, web};
-use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoLectura;
 use quizz_core::respuesta::use_case::obtener_revision::{InputData, ObtenerRevisionPorId};
-use tracing::warn;
 
 pub struct ObtenerRevisionController;
 
 impl ObtenerRevisionController {
-    /// Una hoja finalizada con su calificación. El psicólogo que se muestra es el que la
-    /// calificó (guardado en la hoja), no quien la consulta.
+    /// Una hoja finalizada con su calificación. El psicólogo que se muestra es la firma de
+    /// quien la calificó (guardada en la hoja), no quien la consulta.
     pub async fn get(
         respuesta_id: web::Path<String>,
         db: web::Data<mongodb::Database>,
     ) -> Result<HttpResponse, ApiError> {
-        let output = ObtenerRevisionPorId::new(RespuestaMongo::new(db.clone()))
-            .ejecutar(InputData {
-                revision_id: respuesta_id.into_inner(),
-            })
-            .await?;
-
-        // Hojas calificadas antes de registrar al revisor, por un admin o por un psicólogo ya
-        // eliminado: sin psicólogo.
-        let psicologo = match &output.revisado_por {
-            Some(revisor) => PsicologoMongo::new(db)
-                .obtener_psicologo_por_id(revisor.clone())
-                .await
-                .map_err(|e| warn!("revisor {revisor} no es un psicologo legible: {e:?}"))
-                .ok()
-                .map(|info| RevisionPsicologoDTO {
-                    nombre_completo: format!(
-                        "{} {} {}",
-                        info.nombre, info.primer_apellido, info.segundo_apellido
-                    ),
-                    colegiatura: info.colegiatura,
-                }),
-            None => None,
-        };
+        let output =
+            ObtenerRevisionPorId::new(RespuestaMongo::new(db.clone()), PsicologoMongo::new(db))
+                .ejecutar(InputData {
+                    revision_id: respuesta_id.into_inner(),
+                })
+                .await?;
 
         let mut links = Links::new();
         links.insert(
@@ -62,7 +42,7 @@ impl ObtenerRevisionController {
             fecha_tiempo_inicio: output.fecha_tiempo_inicio,
             fecha_tiempo_fin: output.fecha_tiempo_fin,
             fecha_revision: output.fecha_revision,
-            psicologo,
+            psicologo: output.firma.map(Into::into),
             evaluacion: RevisionEvaluacionDTO {
                 id: output.evaluacion.id,
                 nombre: output.evaluacion.nombre,

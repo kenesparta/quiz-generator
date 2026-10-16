@@ -45,6 +45,9 @@ pub enum RespuestaError {
     #[error("La evaluacion todavia no fue finalizada")]
     EvaluacionNoFinalizada,
 
+    #[error("El psicologo que califica ya no esta registrado")]
+    FirmanteNoEncontrado,
+
     #[error("El estado de la evaluacion cambio mientras se procesaba la solicitud")]
     TransicionNoAplicada,
 

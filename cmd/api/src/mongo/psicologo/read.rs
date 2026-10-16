@@ -1,46 +1,54 @@
 use crate::mongo::psicologo::write::PsicologoMongo;
-use crate::mongo::repositorio::MongoRepository;
-use mongodb::bson::doc;
+use crate::mongo::repositorio::{CAMPO_ELIMINADO, MongoRepository};
+use mongodb::bson::{self, doc};
 use quizz_core::psicologo::domain::error::psicologo::{PsicologoError, RepositorioError};
-use quizz_core::psicologo::provider::repositorio::{
-    PsicologoInfo, RepositorioPsicologoLectura, RepositorioPsicologoListar,
-};
+use quizz_core::psicologo::domain::value_object::id::PsicologoID;
+use quizz_core::psicologo::provider::repositorio::RepositorioPsicologoListar;
 use quizz_core::psicologo::use_case::listar_psicologos::OutputData;
+use quizz_core::respuesta::domain::entity::revision::Firma;
+use quizz_core::respuesta::domain::error::respuesta::RespuestaError;
+use quizz_core::respuesta::provider::repositorio::RepositorioFirma;
+use serde::Deserialize;
 use tracing::error;
 
-impl RepositorioPsicologoLectura for PsicologoMongo {
-    async fn obtener_psicologo_por_id(&self, id: String) -> Result<PsicologoInfo, PsicologoError> {
-        let filter = doc! { "_id": &id };
+/// Los campos del psicólogo con los que firma una revisión.
+#[derive(Deserialize)]
+struct DatosFirma {
+    nombre: String,
+    primer_apellido: String,
+    #[serde(default)]
+    segundo_apellido: String,
+    colegiatura: String,
+}
 
-        let doc = self.get_collection().find_one(filter).await.map_err(|e| {
-            error!("Error finding psicologo by id {}: {}", id, e);
-            PsicologoError::PsicologoRepositorioError(RepositorioError::LecturaNoFinalizada)
+impl RepositorioFirma for PsicologoMongo {
+    async fn obtener_firma(&self, id: PsicologoID) -> Result<Option<Firma>, RespuestaError> {
+        // Uno marcado para eliminarse ya no firma, igual que ya no inicia sesión.
+        let documento = self
+            .get_collection()
+            .find_one(doc! { "_id": id.to_string(), CAMPO_ELIMINADO: { "$ne": true } })
+            .projection(
+                doc! { "nombre": 1, "primer_apellido": 1, "segundo_apellido": 1, "colegiatura": 1 },
+            )
+            .await
+            .map_err(|e| {
+                error!("mongo, leer la firma del psicologo {id}: {e}");
+                RespuestaError::DatabaseError
+            })?;
+        let Some(documento) = documento else {
+            return Ok(None);
+        };
+
+        let datos: DatosFirma = bson::from_document(documento).map_err(|e| {
+            error!("psicologo {id}: datos de la firma no validos: {e}");
+            RespuestaError::DatabaseError
         })?;
-
-        match doc {
-            Some(doc) => {
-                let nombre = doc.get_str("nombre").unwrap_or_default().to_string();
-                let primer_apellido = doc
-                    .get_str("primer_apellido")
-                    .unwrap_or_default()
-                    .to_string();
-                let segundo_apellido = doc
-                    .get_str("segundo_apellido")
-                    .unwrap_or_default()
-                    .to_string();
-                let colegiatura = doc.get_str("colegiatura").unwrap_or_default().to_string();
-
-                Ok(PsicologoInfo {
-                    nombre,
-                    primer_apellido,
-                    segundo_apellido,
-                    colegiatura,
-                })
-            }
-            None => Err(PsicologoError::PsicologoRepositorioError(
-                RepositorioError::RegistroNoEncontrado,
-            )),
-        }
+        Ok(Some(Firma::new(
+            &datos.nombre,
+            &datos.primer_apellido,
+            &datos.segundo_apellido,
+            &datos.colegiatura,
+        )))
     }
 }
 

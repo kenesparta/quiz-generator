@@ -133,6 +133,8 @@ impl From<RespuestaError> for ApiError {
             | EvaluacionFinalizada
             | EvaluacionNoFinalizada
             | TransicionNoAplicada => Self::conflicto(e),
+            // La cuenta del token ya no existe (o se está eliminando): su sesión deja de valer.
+            FirmanteNoEncontrado => Self::NoAutenticado(e.to_string()),
             DatabaseError | RepositorioError => Self::interno(e),
         }
     }

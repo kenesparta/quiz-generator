@@ -38,13 +38,11 @@ impl RepositorioRealizarRevision for RespuestaMongo {
         let mut cambios = doc! {
             "revision": Revision::Finalizada.to_string(),
             "resultado": &revision.resultado,
-            "revisado_por": &revision.revisado_por,
-            // Sin firma (califica un admin) se guarda `null`: no queda la de una calificación
-            // anterior.
-            "firma": revision.firma.as_ref().map(|firma| doc! {
-                "nombre_completo": &firma.nombre_completo,
-                "colegiatura": &firma.colegiatura,
-            }),
+            "revisado_por": revision.revisado_por.to_string(),
+            "firma": {
+                "nombre_completo": &revision.firma.nombre_completo,
+                "colegiatura": &revision.firma.colegiatura,
+            },
             "fecha_revision": formatear_rfc3339(&revision.fecha),
         };
         let mut array_filters: Vec<Document> = Vec::new();

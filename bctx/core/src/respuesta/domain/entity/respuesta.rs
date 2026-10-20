@@ -20,8 +20,8 @@ pub struct Respuesta {
     pub resultado: String,
     /// Quién calificó la hoja; `None` si no se calificó o se calificó antes de registrarlo.
     pub revisado_por: Option<String>,
-    /// La firma guardada al calificar; `None` si calificó un admin o se calificó antes de
-    /// guardar las firmas.
+    /// La firma guardada al calificar; `None` si se calificó antes de guardar las firmas o
+    /// cuando también calificaba un admin.
     pub firma: Option<Firma>,
     pub fecha_revision: Option<String>,
 }

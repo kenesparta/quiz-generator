@@ -66,7 +66,9 @@ pub(crate) fn permitido_esperado(
     use quizz_auth::autorizacion::domain::value_object::rol::Rol;
     match rol {
         Rol::Admin => match recurso {
-            Examen | Evaluacion | Postulante | Respuesta | Revision => true,
+            Examen | Evaluacion | Postulante | Respuesta => true,
+            // Solo un psicólogo califica: la revisión lleva su firma.
+            Revision => matches!(accion, Leer | Eliminar),
             Psicologo => matches!(accion, Leer | Escribir | Eliminar),
             Admin => matches!(accion, Leer | Escribir),
         },

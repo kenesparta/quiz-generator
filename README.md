@@ -81,7 +81,7 @@ The API uses a **single universal login** endpoint and JWT-based sessions tracke
 
 Authorization is enforced by an Actix middleware that verifies the JWT and consults a **Casbin RBAC enforcer** built from `rbac/model.conf` and `rbac/policy.csv`. Roles:
 
-- `admin` — full access to all resources
+- `admin` — full access to all resources, except grading: it reads revisiones but only a `psicologo` grades them (the review carries their signature)
 - `psicologo` — manage exams, evaluations, candidates, and reviews
 - `postulante` — read/write/update own `respuestas` only
 
@@ -124,7 +124,7 @@ Routes are grouped by scope; each `cmd/api/src/controller/*/route.rs` is the sou
 - `/revisiones`
   - `GET /revisiones` — finished respuestas to grade
   - `GET /revisiones/{respuesta_id}` — a graded respuesta, with the signature (name and colegiatura) of the psychologist who graded it
-  - `POST /revisiones/{respuesta_id}` — grade a finished respuesta (also accepts `PATCH`). When a psychologist grades, the review is signed with their name and colegiatura at that moment, stored in the respuesta and returned as `psicologo`; an admin grades without a signature
+  - `POST /revisiones/{respuesta_id}` — grade a finished respuesta (also accepts `PATCH`). Only a psychologist grades (an admin gets `403`): the review is signed with their name and colegiatura at that moment, stored in the respuesta and returned as `psicologo`
 - `POST /login` — universal login (returns JWT with role)
 - `POST /logout` — close the session (the token stops working)
 

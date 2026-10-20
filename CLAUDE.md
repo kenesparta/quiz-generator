@@ -134,7 +134,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 - **Policies**: `rbac/policy.csv` — defines permissions per role; the expected matrix is pinned by a test in `casbin_enforcer.rs`
 
 **Roles and permissions:**
-- `admin` — full access to all resources
+- `admin` — full access to all resources, except grading: it reads revisiones but only a `psicologo` grades them (the review carries their signature)
 - `psicologo` — manage exams, evaluations, candidates, and reviews
 - `postulante` — read/write/update own respuestas only
 
@@ -180,7 +180,7 @@ The system uses **Casbin** (`casbin` crate v2) for Role-Based Access Control (RB
 - `/revisiones` - Grade and review completed evaluations
   - `GET /revisiones` - List revisiones
   - `GET /revisiones/{respuesta_id}` - A graded respuesta, with the signature of the psychologist who graded it (stored in the respuesta; respuestas graded before signatures were stored fall back to the psicólogo's current record)
-  - `POST /revisiones/{respuesta_id}` - Grade a `finalizado` respuesta (also accepts `PATCH`); stores `revisado_por`, `fecha_revision` and, when a psicólogo grades, their signature (`firma`: name and colegiatura at that moment), returned as `psicologo` in this response and in `GET /revisiones/{id}`. An admin grades without a signature (and clears a previous one); a psicólogo no longer registered or being deleted gets `401`
+  - `POST /revisiones/{respuesta_id}` - Grade a `finalizado` respuesta (also accepts `PATCH`); stores `revisado_por`, `fecha_revision` and the psicólogo's signature (`firma`: name and colegiatura at that moment), returned as `psicologo` in this response and in `GET /revisiones/{id}`. Only a psicólogo grades: an admin gets `403` (RBAC policy) and the `revisar` link is only advertised to psicólogos; a psicólogo no longer registered or being deleted gets `401`
 - `POST /login` - Universal login (searches admin → psicologo → postulante by documento, returns JWT with role). Same `401` and same timing for unknown documento and wrong password; attempts limited per IP and failures per documento (`429`)
 - `POST /logout` - Cierra la sesión. Recibe `Authorization: Bearer <token>` y cierra su sesión en Redis (clave `sesion:{sub}`, valor `jti`): desde ese momento el token responde 401. Devuelve 204 incluso si el token está expirado o la sesión ya estaba cerrada, para que el cliente pueda limpiar su sesión local.
 

@@ -239,10 +239,13 @@ pub fn build_respuesta_links(respuesta_id: &str, estado: Estado, rol: Rol) -> Li
                 "revision".into(),
                 Link::get(format!("/revisiones/{respuesta_id}")),
             );
-            links.insert(
-                "revisar".into(),
-                Link::post(format!("/revisiones/{respuesta_id}")),
-            );
+            // Solo un psicólogo califica.
+            if rol == Rol::Psicologo {
+                links.insert(
+                    "revisar".into(),
+                    Link::post(format!("/revisiones/{respuesta_id}")),
+                );
+            }
         }
         _ => {}
     }

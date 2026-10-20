@@ -36,9 +36,8 @@ pub struct RevisionListItemDTO {
 pub struct RevisionCreatedDTO {
     pub respuesta_id: String,
     pub estado_revision: String,
-    /// La firma de la revisión: el psicólogo que califica. Sin ella si califica un admin.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub psicologo: Option<RevisionPsicologoDTO>,
+    /// La firma de la revisión: el psicólogo que califica.
+    pub psicologo: RevisionPsicologoDTO,
     #[serde(rename = "_links")]
     pub links: Links,
 }

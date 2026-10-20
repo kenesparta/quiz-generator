@@ -15,8 +15,6 @@ p, admin, respuesta, escribir
 p, admin, respuesta, actualizar
 p, admin, respuesta, eliminar
 p, admin, revision, leer
-p, admin, revision, escribir
-p, admin, revision, actualizar
 p, admin, revision, eliminar
 p, admin, psicologo, leer
 p, admin, psicologo, escribir

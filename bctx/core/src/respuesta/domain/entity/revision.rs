@@ -1,4 +1,3 @@
-use crate::admin::domain::value_object::id::AdminID;
 use crate::psicologo::domain::value_object::id::PsicologoID;
 use crate::respuesta::domain::value_object::id::RespuestaID;
 use chrono::{DateTime, FixedOffset};
@@ -6,15 +5,6 @@ use chrono::{DateTime, FixedOffset};
 pub struct ExamenRevision {
     pub examen_id: String,
     pub observacion: String,
-}
-
-/// Quién califica una hoja: el sujeto del token.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Revisor {
-    /// Firma la revisión con su nombre y su colegiatura.
-    Psicologo(PsicologoID),
-    /// Califica sin firma: no tiene colegiatura.
-    Admin(AdminID),
 }
 
 /// La firma de una revisión: el nombre y la colegiatura del psicólogo tal como estaban al
@@ -47,16 +37,14 @@ impl Firma {
     }
 }
 
-/// La calificación de una hoja finalizada, con quién la hizo y cuándo.
+/// La calificación de una hoja finalizada, firmada por el psicólogo que la hizo, y cuándo.
 pub struct RevisionRealizada {
     pub respuesta_id: RespuestaID,
     pub evaluacion_id: String,
     pub examenes: Vec<ExamenRevision>,
     pub resultado: String,
-    /// Id del psicólogo o admin que califica (el sujeto del token).
-    pub revisado_por: String,
-    /// La firma del psicólogo que califica; `None` si califica un admin.
-    pub firma: Option<Firma>,
+    pub revisado_por: PsicologoID,
+    pub firma: Firma,
     pub fecha: DateTime<FixedOffset>,
 }
 

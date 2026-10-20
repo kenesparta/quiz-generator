@@ -905,6 +905,17 @@ async fn flujo_completo_y_controles_de_acceso() {
         "{revisiones}"
     );
     assert_eq!(revisiones["items"][0]["estado_revision"], "finalizada");
+    assert!(
+        revisiones["items"][0]["_links"]["revisar"].is_object(),
+        "{revisiones}"
+    );
+    let (_, revisiones) = e
+        .pedir(Method::GET, "/revisiones", Some(&admin), None)
+        .await;
+    assert!(
+        revisiones["items"][0]["_links"]["revisar"].is_null(),
+        "el admin no califica: {revisiones}"
+    );
     for ruta in ["/psicologos", "/postulantes"] {
         let (estado, lista) = e.pedir(Method::GET, ruta, Some(&admin), None).await;
         assert_eq!(estado, StatusCode::OK, "{ruta}");
@@ -967,15 +978,24 @@ async fn flujo_completo_y_controles_de_acceso() {
     assert_eq!(calificada["psicologo"], firma, "{calificada}");
     assert_eq!(calificada["resultado"], "apto");
 
-    // Un admin califica sin firma: la nueva calificación ya no muestra la del psicólogo.
-    let (ruta, cuerpo) = revision(&hoja_a);
-    let (estado, cuerpo) = e
-        .pedir(Method::POST, &ruta, Some(&admin), Some(cuerpo))
+    // Solo un psicólogo califica: un admin no puede, ni con POST ni con PATCH, y la firma
+    // sigue siendo la del psicólogo.
+    for metodo in [Method::POST, Method::PATCH] {
+        let (ruta, cuerpo) = revision(&hoja_a);
+        let (estado, _) = e
+            .pedir(metodo.clone(), &ruta, Some(&admin), Some(cuerpo))
+            .await;
+        assert_eq!(estado, StatusCode::FORBIDDEN, "{metodo}");
+    }
+    let (_, calificada) = e
+        .pedir(
+            Method::GET,
+            &format!("/revisiones/{hoja_a}"),
+            Some(&admin),
+            None,
+        )
         .await;
-    assert_eq!(estado, StatusCode::CREATED, "{cuerpo}");
-    assert!(cuerpo["psicologo"].is_null(), "{cuerpo}");
-    let (_, calificada) = e.pedir(Method::GET, &ruta, Some(&admin), None).await;
-    assert!(calificada["psicologo"].is_null(), "{calificada}");
+    assert_eq!(calificada["psicologo"], firma, "{calificada}");
 
     // Una eliminación a medias (marcado, pero Redis falló al cerrar su sesión): ya no inicia
     // sesión, sigue en el listado y repetir el DELETE la completa y cierra su sesión.

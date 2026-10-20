@@ -20,7 +20,8 @@ pub struct OutputData {
     pub revision: String,
     pub fecha_tiempo_inicio: String,
     pub fecha_tiempo_fin: String,
-    /// La firma del psicólogo que calificó; `None` si calificó un admin.
+    /// La firma del psicólogo que calificó; `None` si no se puede saber (una calificación de
+    /// un admin, de cuando podía calificar, o anterior a las firmas de un psicólogo eliminado).
     pub firma: Option<Firma>,
     pub fecha_revision: Option<String>,
     pub evaluacion: OutputEvaluacion,

@@ -2,8 +2,8 @@
 @baseUrl = http://localhost:8008
 
 ### Revisar la evaluacion
-# La revision queda firmada por el psicologo del token: su nombre y su colegiatura se guardan
-# en la hoja y se devuelven en `psicologo`. Si califica un admin, va sin `psicologo`.
+# Solo califica un psicologo. La revision queda firmada por el psicologo del token: su nombre
+# y su colegiatura se guardan en la hoja y se devuelven en `psicologo`.
 #
 # 201 Created
 # {
@@ -19,7 +19,8 @@
 #   }
 # }
 #
-# 409 si la hoja no esta finalizada; 401 si el psicologo ya no esta registrado.
+# 403 con un token de admin; 409 si la hoja no esta finalizada; 401 si el psicologo ya no
+# esta registrado.
 POST {{baseUrl}}/revisiones/2c687ba9-9120-4d08-8290-233551b81c50
 Content-Type: application/json
 Authorization: Bearer {{token_psicologo}}

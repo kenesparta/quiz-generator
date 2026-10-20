@@ -1,14 +1,26 @@
+use crate::controller::auth::jwt::Claims;
 use crate::controller::error::ApiError;
 use crate::controller::hateoas::{Link, Links, ListResponse, enlaces};
 use crate::controller::revision::dto::RevisionListItemDTO;
 use crate::mongo::respuesta::RespuestaMongo;
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
+use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 use quizz_core::respuesta::use_case::respuesta_revision::RespuestaRevision;
 
 pub struct ListarRevisionesController;
 
 impl ListarRevisionesController {
-    pub async fn list(db: web::Data<mongodb::Database>) -> Result<HttpResponse, ApiError> {
+    pub async fn list(
+        req: HttpRequest,
+        db: web::Data<mongodb::Database>,
+    ) -> Result<HttpResponse, ApiError> {
+        let Some(rol) = req
+            .extensions()
+            .get::<Claims>()
+            .and_then(|claims| claims.rol.as_deref()?.parse::<Rol>().ok())
+        else {
+            return Err(ApiError::prohibido("Rol no valido"));
+        };
         let r = RespuestaRevision::new(RespuestaMongo::new(db))
             .ejecutar()
             .await?;
@@ -16,7 +28,7 @@ impl ListarRevisionesController {
         let items: Vec<RevisionListItemDTO> = r
             .into_iter()
             .map(|rev| {
-                let links = enlaces::revision(&rev.revision_id, &rev.postulante_id);
+                let links = enlaces::revision(&rev.revision_id, &rev.postulante_id, rol);
 
                 RevisionListItemDTO {
                     respuesta_id: rev.revision_id,

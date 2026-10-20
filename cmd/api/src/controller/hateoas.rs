@@ -59,6 +59,7 @@ pub struct ListResponse<T: Serialize> {
 /// transiciones válidas.
 pub mod enlaces {
     use super::{Link, Links};
+    use quizz_auth::autorizacion::domain::value_object::rol::Rol;
 
     /// Un examen: se le pueden agregar preguntas.
     pub fn examen(id: &str) -> Links {
@@ -126,16 +127,13 @@ pub mod enlaces {
         ])
     }
 
-    /// Una hoja finalizada en el listado de revisiones.
-    pub fn revision(respuesta_id: &str, postulante_id: &str) -> Links {
-        Links::from([
+    /// Una hoja finalizada en el listado de revisiones. `revisar` solo se anuncia a un
+    /// psicólogo: es el único que califica.
+    pub fn revision(respuesta_id: &str, postulante_id: &str, rol: Rol) -> Links {
+        let mut links = Links::from([
             (
                 "self".to_string(),
                 Link::get(format!("/revisiones/{respuesta_id}")),
-            ),
-            (
-                "revisar".to_string(),
-                Link::post(format!("/revisiones/{respuesta_id}")),
             ),
             (
                 "respuesta".to_string(),
@@ -145,7 +143,14 @@ pub mod enlaces {
                 "postulante".to_string(),
                 Link::get(format!("/postulantes?id={postulante_id}")),
             ),
-        ])
+        ]);
+        if rol == Rol::Psicologo {
+            links.insert(
+                "revisar".to_string(),
+                Link::post(format!("/revisiones/{respuesta_id}")),
+            );
+        }
+        links
     }
 }
 
@@ -167,8 +172,10 @@ mod tests {
             enlaces::postulante(ID),
             enlaces::psicologo(ID),
             enlaces::asignacion(ID, ID),
-            enlaces::revision(ID, ID),
         ];
+        for rol in [Rol::Psicologo, Rol::Admin] {
+            todos.push(enlaces::revision(ID, ID, rol));
+        }
         for estado in [Estado::Creado, Estado::EnProceso, Estado::Finalizado] {
             for rol in [Rol::Postulante, Rol::Psicologo, Rol::Admin] {
                 todos.push(build_respuesta_links(ID, estado, rol));
@@ -195,6 +202,18 @@ mod tests {
                     link.href
                 );
             }
+        }
+    }
+
+    #[test]
+    fn solo_al_psicologo_se_le_anuncia_calificar() {
+        for rol in [Rol::Psicologo, Rol::Admin] {
+            let en_listado = enlaces::revision(ID, ID, rol);
+            let en_hoja = build_respuesta_links(ID, Estado::Finalizado, rol);
+            let esperado = rol == Rol::Psicologo;
+            assert_eq!(en_listado.contains_key("revisar"), esperado, "{rol}");
+            assert_eq!(en_hoja.contains_key("revisar"), esperado, "{rol}");
+            assert!(en_hoja.contains_key("revision"), "{rol}");
         }
     }
 

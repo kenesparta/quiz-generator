@@ -38,8 +38,8 @@ pub struct RespuestaDTO {
     pub resultado: Option<String>,
     #[serde(default)]
     pub revisado_por: Option<String>,
-    /// Ausente en las hojas calificadas antes de guardar las firmas; `null` si calificó un
-    /// admin.
+    /// Ausente en las hojas calificadas antes de guardar las firmas; `null` si la calificó un
+    /// admin cuando todavía podía.
     #[serde(default)]
     pub firma: Option<FirmaDTO>,
     #[serde(default)]

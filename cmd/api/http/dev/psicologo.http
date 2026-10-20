@@ -12,6 +12,7 @@ Authorization: Bearer {{token_admin}}
   "segundo_apellido": "Lopez",
   "documento": "44556677",
   "especialidad": "Psicologia Clinica",
+  "colegiatura": "CPsP-12345",
   "password": "mi_password_seguro"
 }
 
@@ -26,6 +27,7 @@ Authorization: Bearer {{token_admin}}
   "segundo_apellido": "Martinez",
   "documento": "55667788",
   "especialidad": "Psicologia Organizacional",
+  "colegiatura": "CPsP-67890",
   "password": "otro_password_seguro"
 }
 

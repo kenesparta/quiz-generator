@@ -2,6 +2,24 @@
 @baseUrl = http://localhost:8008
 
 ### Revisar la evaluacion
+# La revision queda firmada por el psicologo del token: su nombre y su colegiatura se guardan
+# en la hoja y se devuelven en `psicologo`. Si califica un admin, va sin `psicologo`.
+#
+# 201 Created
+# {
+#   "respuesta_id": "2c687ba9-9120-4d08-8290-233551b81c50",
+#   "estado_revision": "finalizada",
+#   "psicologo": {
+#     "nombre_completo": "Maria Garcia Lopez",
+#     "colegiatura": "CPsP-12345"
+#   },
+#   "_links": {
+#     "respuesta": { "href": "/respuestas/2c687ba9-9120-4d08-8290-233551b81c50", "method": "GET" },
+#     "self": { "href": "/revisiones/2c687ba9-9120-4d08-8290-233551b81c50", "method": "GET" }
+#   }
+# }
+#
+# 409 si la hoja no esta finalizada; 401 si el psicologo ya no esta registrado.
 POST {{baseUrl}}/revisiones/2c687ba9-9120-4d08-8290-233551b81c50
 Content-Type: application/json
 Authorization: Bearer {{token_psicologo}}
@@ -22,6 +40,28 @@ Authorization: Bearer {{token_psicologo}}
 }
 
 ### Obtener revision por ID (resultado del examen del postulante)
+# `psicologo` es la firma guardada al calificar: se sigue mostrando aunque despues se elimine
+# al psicologo.
+#
+# 200 OK
+# {
+#   "id": "ab035402-a356-4a89-a5ce-38a50b068a3e",
+#   "postulante_id": "...",
+#   "resultado": "apto",
+#   "revision": "finalizada",
+#   "fecha_tiempo_inicio": "2026-10-20T09:00:00-05:00",
+#   "fecha_tiempo_fin": "2026-10-20T09:45:00-05:00",
+#   "fecha_revision": "2026-10-20T11:30:00-05:00",
+#   "psicologo": {
+#     "nombre_completo": "Maria Garcia Lopez",
+#     "colegiatura": "CPsP-12345"
+#   },
+#   "evaluacion": { "id": "...", "nombre": "...", "descripcion": "...", "examenes": [...] },
+#   "_links": {
+#     "postulante": { "href": "/postulantes?id=...", "method": "GET" },
+#     "self": { "href": "/revisiones/ab035402-a356-4a89-a5ce-38a50b068a3e", "method": "GET" }
+#   }
+# }
 GET {{baseUrl}}/revisiones/ab035402-a356-4a89-a5ce-38a50b068a3e
 Content-Type: application/json
 Authorization: Bearer {{token_psicologo}}

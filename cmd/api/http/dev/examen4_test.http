@@ -1,0 +1,824 @@
+### Variables
+@baseUrl = http://localhost:8008
+@examId4 = 4f305685-80d2-4724-b169-d1bd1901fe44
+
+### Crear Examen
+POST {{baseUrl}}/examenes/{{examId4}}
+Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
+
+{
+  "titulo": "Inventario de Personalidad de Eysenck (EPI)",
+  "descripcion": "Extroversion (E), neurotismo (N) y honestidad (L)",
+  "instrucciones": "Responda SI o NO a cada pregunta"
+}
+
+### Agregar preguntas
+# Cada SI suma 1 punto en la escala de su etiqueta: extrovertido (E), neurotismo (N) u
+# honestidad (L).
+PUT {{baseUrl}}/examenes/{{examId4}}
+Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
+
+{
+  "preguntas": [
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta la multitud y la bulla a su alrededor?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Tiene a menudo un sentimiento de intranquilidad, como si quisiera algo, pero sin saber qué?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Tiene casi siempre una respuesta inmediata cuando se le habla?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se siente algunas veces feliz, algunas veces triste, sin una razón real?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Permanece usualmente aislado(a) en fiestas y reuniones?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "Cuando era niño(a), ¿hacia siempre inmediatamente lo que le decían, sin protestar?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se enfada o molesta a menudo?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "Cuando lo(a) involucran en una pelea ¿prefiere sacar los trapitos al aire de una vez por todas, en vez de quedar callado(a) esperando que las cosas se calmen solas?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Es usted una persona triste, melancólico(a)?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta relacionarse con la gente?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Ha perdido a menudo el sueño por sus preocupaciones?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se pone a veces malhumorado (a)?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se catalogaría a si mismo(a) como despreocupado(a) o confiado a su buena suerte?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se decide a menudo demasiado tarde?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta trabajar solo(a)?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se ha sentido a menudo apático (a) y cansado(a) sin razón?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Es una persona animada y jovial?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se rie a menudo de chistes groseros?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se siente a menudo hastiado(a), harto, fastidiado?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se siente incómodo(a) con ropas que no son del diario?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se distrae (vaga su mente) a menudo cuando trata de prestar atención a algo?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Puede expresar en palabras fácilmente lo que piensa?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se abstrae (se pierde en sus pensamientos) a menudo?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Está completamente libre de prejuicios de cualquier tipo?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta las bromas?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Piensa a menudo en su pasado?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta mucho la buena comida?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "Cuándo se fastidia ¿necesita algún(a) amigo(a) para hablar sobre ello?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le molestaría vender cosas o pedir dinero a la gente para alguna buena causa?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Alardea (se jacta, presume) un poco a veces?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Es usted muy susceptible (sensible) por algunas cosas?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta más quedarse en casa, que ir a una fiesta aburrida?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se pone a menudo tan inquieto(a) que no puede permanecer sentado(a) durante mucho rato en una silla?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta planear las cosas, con mucha anticipación?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Tiene a menudo mareos (vértigos)?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Contesta siempre un mensaje o correo, tan pronto como puede, después de haberla leído?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Hace usted usualmente las cosas mejor resolviéndolas solo(a) que hablando a otra persona sobre ello?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le falta frecuentemente aire, sin haber hecho un trabajo pesado?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Es usted generalmente una persona tolerante, que no se molesta si las cosas no están perfectas?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Sufre de los nervios?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gustaría más planear cosas, que hacer cosas?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Deja algunas veces para mañana? ¿Lo que debería hacer hoy?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se pone nervioso(a) en lugares tales como ascensores, trenes o túneles?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "Cuando hace nuevos amigos(as) ¿es usted usualmente quien inicia la relación o invita a que se produzca?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Sufre fuertes dolores de cabeza?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Siente generalmente que las cosas se arreglaran por si solas y que terminaran bien de algún modo?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le cuesta trabajo conciliar el sueño al acostarse en las noches?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Ha dicho alguna vez mentiras en su vida?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Dice algunas veces lo primero que se le viene a la cabeza?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se preocupa durante un tiempo demasiado largo, después de una experiencia vergonzosa)?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se mantiene usualmente hermético(a) o encerrado(a) en sí mismo(a), excepto con amigos muy íntimos?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se crea a menudo problemas, por hacer cosas sin pensar?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Le gusta contar chistes y referir historias graciosas a sus amigos?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "honestidad",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se le hace más fácil ganar que perder un juego?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Se siente a menudo demasiado consciente de sí mismo(a) o poco natural cuando esta con sus superiores?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "extrovertido",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "Cuando todas las posibilidades están contra usted, ¿piensa aun usualmente que vale la pena intentar?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    },
+    {
+      "etiqueta": "neurotismo",
+      "tipo_de_pregunta": "alternativa_peso",
+      "imagen_ref": "",
+      "contenido": "¿Siente \"sensaciones\" en el abdomen, antes de un hecho importante?",
+      "alternativas": {
+        "SI": "Sí",
+        "NO": "No"
+      },
+      "puntaje": {
+        "SI": 1,
+        "NO": 0
+      }
+    }
+  ]
+}

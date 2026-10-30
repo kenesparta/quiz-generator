@@ -1,10 +1,8 @@
 ### Variables
 @baseUrl = http://localhost:8008
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
-@evaluacionId2 = b83ae47b-859b-4739-8baa-5a61fab64d74
 @postulante01 = e17439e0-79e1-47e3-b5f9-5b54367fa290
 @postulante02 = d4e92ac2-882a-4e46-ae56-b2361ac5327e
-@postulante03 = 9d90da2e-7772-4af5-b2ba-bfaf1a5fd9a8
 
 ### Asignar una evaluacion al postulante01
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}/respuestas
@@ -22,24 +20,6 @@ Authorization: Bearer {{token_psicologo}}
 
 {
   "postulante_id": "{{postulante02}}"
-}
-
-### Asignar la evaluacion del EPI al postulante01
-POST {{baseUrl}}/evaluaciones/{{evaluacionId2}}/respuestas
-Content-Type: application/json
-Authorization: Bearer {{token_psicologo}}
-
-{
-  "postulante_id": "{{postulante01}}"
-}
-
-### Asignar la evaluacion del EPI al postulante03
-POST {{baseUrl}}/evaluaciones/{{evaluacionId2}}/respuestas
-Content-Type: application/json
-Authorization: Bearer {{token_psicologo}}
-
-{
-  "postulante_id": "{{postulante03}}"
 }
 
 ### Empezar examen del postulante01

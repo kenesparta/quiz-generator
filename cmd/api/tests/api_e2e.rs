@@ -788,6 +788,11 @@ async fn flujo_completo_y_controles_de_acceso() {
         calificada["evaluacion"]["examenes"][0]["observacion"],
         "Bien"
     );
+    // La etiqueta de cada pregunta llega para sumar sus puntos por escala.
+    assert_eq!(
+        calificada["evaluacion"]["examenes"][0]["preguntas"][0]["etiqueta"],
+        "no"
+    );
 
     // R-088: los ids de la ruta y de los filtros se validan y se buscan en su forma canónica:
     // en mayúsculas encuentran el registro, y uno mal formado es un 400 (no un 404 ni un

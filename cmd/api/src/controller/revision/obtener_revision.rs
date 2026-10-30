@@ -63,6 +63,7 @@ impl ObtenerRevisionController {
                                 id: p.id,
                                 contenido: p.contenido,
                                 tipo_de_pregunta: p.tipo_de_pregunta,
+                                etiqueta: p.etiqueta,
                                 imagen_ref: Some(p.imagen_ref).filter(|i| !i.is_empty()),
                                 alternativas: p.alternativas.into_iter().collect(),
                                 respuestas: p.respuestas,

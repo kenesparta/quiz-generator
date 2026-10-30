@@ -99,6 +99,8 @@ pub struct RevisionPreguntaDTO {
     pub id: String,
     pub contenido: String,
     pub tipo_de_pregunta: String,
+    /// Escala en la que suman sus puntos; `no` si solo cuenta para el total del examen.
+    pub etiqueta: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub imagen_ref: Option<String>,
     /// Ordenadas por clave (A, B, C...).

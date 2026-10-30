@@ -3,7 +3,9 @@
 @examId = 19573e4f-321d-41ad-a8a9-3807c6fd3d65
 @examId2 = 2fcb7b0d-30e2-4853-afbf-9df79dd83ecb
 @examId3 = 8e65028c-30e6-47e5-b7dc-121ee2133d49
+@examId4 = 4f305685-80d2-4724-b169-d1bd1901fe44
 @evaluacionId = 2cf52b7a-0ee3-43a9-9b89-4a8baaa22250
+@evaluacionId2 = b83ae47b-859b-4739-8baa-5a61fab64d74
 
 ### Crear Evaluacion
 POST {{baseUrl}}/evaluaciones/{{evaluacionId}}
@@ -30,6 +32,36 @@ Authorization: Bearer {{token_psicologo}}
 
 ### Publicar la evaluacion
 PATCH {{baseUrl}}/evaluaciones/{{evaluacionId}}
+Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
+
+{}
+
+### Crear la evaluacion del EPI
+# La evaluacion anterior ya esta publicada y no admite mas examenes (409): el EPI (examen4_test.http)
+# va en una evaluacion propia.
+POST {{baseUrl}}/evaluaciones/{{evaluacionId2}}
+Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
+
+{
+  "titulo": "Inventario de Personalidad de Eysenck (EPI)",
+  "descripcion": "Evaluacion de personalidad: extroversion, neurotismo y honestidad"
+}
+
+### Agregar el examen 4 a la evaluacion del EPI
+PUT {{baseUrl}}/evaluaciones/{{evaluacionId2}}
+Content-Type: application/json
+Authorization: Bearer {{token_psicologo}}
+
+{
+  "examenes": [
+    "{{examId4}}"
+  ]
+}
+
+### Publicar la evaluacion del EPI
+PATCH {{baseUrl}}/evaluaciones/{{evaluacionId2}}
 Content-Type: application/json
 Authorization: Bearer {{token_psicologo}}
 

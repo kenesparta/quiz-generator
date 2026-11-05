@@ -1,0 +1,5 @@
+[env]
+# aws-lc-sys (backend criptográfico de jsonwebtoken) necesita NASM para compilar en Windows
+# x86_64. Con esta variable, si NASM no está instalado, usa sus objetos precompilados en lugar
+# de fallar. Solo actúa en Windows x86_64: en Linux, macOS y Docker no tiene efecto.
+AWS_LC_SYS_PREBUILT_NASM = "1"
